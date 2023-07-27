@@ -1,0 +1,5 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/rogertic/maluimoveiscf.com.br/
+    - /bin/cp * $DEPLOYPATH

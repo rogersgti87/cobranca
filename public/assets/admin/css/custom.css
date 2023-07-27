@@ -1,0 +1,141 @@
+.button-action{
+    list-style-type: none;
+    display: flex;
+    justify-content: end;
+}
+.button-action li{
+    margin:1px;
+}
+.thcolor{
+    background: #fff;
+    color:#007bff;
+}
+.containerchekbox {
+    display: block;
+    position: relative;
+    padding-left: 35px;
+    margin-bottom: 25px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+
+  /* Esconder o checkbox padrão */
+.containerchekbox input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+
+  /* Criar o checkbox customizado */
+  .checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: #efefef;
+    border-radius: 2px;
+    border:1px solid #007bff;
+    padding:5px;
+  }
+
+  /* Adicionar uma cor de fundo cinza ao passar o mouse */
+  .containerchekbox:hover input ~ .checkmark {
+    background-color: #ccc;
+  }
+
+  /* Quando o checkbox é clicado, adicionar um fundo rosa */
+  .containerchekbox input:checked ~ .checkmark {
+    background-color: #007bff;
+  }
+
+  /* Criar o ícone de check, escondido quando não estiver selecionado */
+  .containerchekbox .checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 6px;
+    top: 4px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+  }
+
+  /* Exibir o ícone quando selecionado */
+  .containerchekbox input:checked ~ .checkmark:after {
+    display: block;
+  }
+
+  fieldset {
+    border: 1px dotted #007bff !important;
+    margin: 0;
+    margin-bottom: 30px;
+    min-width: 0;
+    padding: 20px 15px;
+    position: relative;
+    border-radius: 4px;
+    background-color: #FFF;
+    width: 100%;
+    transition: 0.3s all ease;
+  }
+
+  fieldset:hover {
+    border-color: #007bff !important;
+  }
+
+  legend {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 0px;
+    margin-right: 0px;
+    min-width: 5%;
+    width: auto;
+    border: 1px solid #007bff;
+    border-radius: 5px;
+    padding: 2px 10px 2px 10px;
+    background-color: #ffffff;
+    position: absolute;
+    top:-15px;
+  }
+
+input:focus{
+    border: 1px solid #007bff !important;
+    color:#007bff !important;
+    font-weight: 600 !important;
+}
+
+.custom-select {
+    border: 1px solid #ccc;
+    font-weight: 600 !important;
+    color:#007bff !important;
+  }
+
+.custom-select:focus{
+    border: 1px solid #007bff;
+    color:#007bff;
+}
+
+.tbodyCustom td{
+    vertical-align: middle !important;
+    font-size: 13px;
+}
+.thead-light th{
+    font-size: 14px;
+}
+
+.bootstrap-tagsinput{
+  width: 100%;
+}
+
+.bootstrap-tagsinput .tag{
+  padding:4px;
+  border-radius:5px;
+  font-weight:600;
+  background-color: #007bff !important;
+}

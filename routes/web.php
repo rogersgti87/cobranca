@@ -10,9 +10,6 @@ use App\Http\Controllers\front\ContactController;
 
 
 Route::get('/',[HomeController::class, 'index']);
-Route::get('/imoveis',[HomeController::class, 'properties']);
-Route::get('/imovel/{slug}',[HomeController::class, 'property']);
-Route::get('/getproperties',[HomeController::class, 'getproperties']);
 Route::get('/contact',[ContactController::class,'index']);
 
 Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['web', 'auth']], function () {

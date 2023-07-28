@@ -110,7 +110,7 @@ class CustomerController extends Controller
         $data = $this->request->all();
 
         $validator = Validator::make($data, [
-            'document'     => "required|max:20|unique:customers,document",
+            'document'     => "required|max:20|unique:customers,document,null,null,user_id,".auth()->user()->id,
         ]);
 
         if( $validator->fails() ){
@@ -160,7 +160,7 @@ class CustomerController extends Controller
         $data = $this->request->all();
 
         $validator = Validator::make($data, [
-            'document'      => "required|max:20|unique:customers,document,$id",
+            'document'      => "required|max:20|unique:customers,document,$id,id,user_id,".auth()->user()->id,
         ]);
 
         if( $validator->fails() ){

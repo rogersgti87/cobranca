@@ -110,15 +110,33 @@ class CustomerController extends Controller
         $data = $this->request->all();
 
         $validator = Validator::make($data, [
-            'name'     => "required|max:150|unique:customers,name",
+            'document'     => "required|max:20|unique:customers,document",
         ]);
 
         if( $validator->fails() ){
             return response()->json($validator->errors()->first(), 422);
         }
-        $model->user_id = auth()->user()->id;
-        $model->name    = $data['name'];
-        $model->slug    = Str::slug($data['name']);
+        $model->user_id                 = auth()->user()->id;
+        $model->name                    = $data['name'];
+        $model->type                    = $data['type'];
+        $model->document                = $data['document'];
+        $model->company                 = $data['company'];
+        $model->email                   = $data['email'];
+        $model->email2                  = $data['email2'];
+        $model->status                  = $data['status'];
+        $model->cep                     = $data['cep'];
+        $model->address                 = $data['address'];
+        $model->number                  = $data['number'];
+        $model->complement              = $data['complement'];
+        $model->district                = $data['district'];
+        $model->city                    = $data['city'];
+        $model->state                   = $data['state'];
+        $model->phone                   = $data['phone'];
+        $model->whatsapp                = $data['whatsapp'];
+        $model->payment_method          = $data['payment_method'];
+        $model->notification_whatsapp   = $data['notification_whatsapp'];
+
+
 
         try{
             $model->save();
@@ -142,16 +160,32 @@ class CustomerController extends Controller
         $data = $this->request->all();
 
         $validator = Validator::make($data, [
-            'name'      => "required|max:150|unique:customers,name,$id",
+            'document'      => "required|max:20|unique:customers,document,$id",
         ]);
 
         if( $validator->fails() ){
             return response()->json($validator->errors()->first(), 422);
         }
 
-        $model->user_id = auth()->user()->id;
-        $model->name    = $data['name'];
-        $model->slug    = Str::slug($data['name']);
+        $model->user_id                 = auth()->user()->id;
+        $model->name                    = $data['name'];
+        $model->type                    = $data['type'];
+        $model->document                = $data['document'];
+        $model->company                 = $data['company'];
+        $model->email                   = $data['email'];
+        $model->email2                  = $data['email2'];
+        $model->status                  = $data['status'];
+        $model->cep                     = $data['cep'];
+        $model->address                 = $data['address'];
+        $model->number                  = $data['number'];
+        $model->complement              = $data['complement'];
+        $model->district                = $data['district'];
+        $model->city                    = $data['city'];
+        $model->state                   = $data['state'];
+        $model->phone                   = $data['phone'];
+        $model->whatsapp                = $data['whatsapp'];
+        $model->payment_method          = $data['payment_method'];
+        $model->notification_whatsapp   = $data['notification_whatsapp'];
 
         try{
             $model->save();

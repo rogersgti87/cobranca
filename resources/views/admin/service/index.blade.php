@@ -35,8 +35,6 @@
                         <div class="form-group col-md-4 col-sm-12">
                             <select class="form-control" name="field" id="filter-field">
                                 <option data-type="input" {{  request()->field  ==  'name'        ? 'selected' : '' }} value="name">Nome</option>
-                                <option data-type="input" {{  request()->field  ==  'date'        ? 'selected' : '' }} value="date">Data</option>
-                                <option data-type="select" {{  request()->field ==  'category_id' ? 'selected' : '' }} value="category_id">Categoria</option>
                                 <option data-type="select" {{  request()->field ==  'status'      ? 'selected' : '' }} value="status">Status</option>
                             </select>
                         </div>
@@ -81,11 +79,8 @@
                                 <span class="checkmark"></span>
                             </label>
                             </th>
-                            <th>Imagem</th>
                             <th><a href="{{ request()->fullUrlWithQuery(['column' => 'name',   'order'  => "$order"]) }}"><i class="fas fa-sort"></i></a> Nome</th>
-                            <th> Localidade</th>
-                            <th> Finalidade</th>
-                            <th> Características</th>
+                            <th> Preço</th>
                             <th><a href="{{ request()->fullUrlWithQuery(['column' => 'status', 'order'  => "$order" ]) }}"><i class="fas fa-sort"></i></a> Status</th>
                             <th style="width: 100px;"></th>
                         </tr>
@@ -102,22 +97,9 @@
                                         </label>
                                     </td>
 
-                                    <td><img src="{{ $result->image_thumb != null ? url("$result->image_thumb") : url('assets/admin/img/thumb.png')}}" class="thumbnail" style="width:45px;height: 45px;"></td>
                                     <td>{{$result->name}}</td>
-                                    <td>{{$result->local_id}}</td>
-                                    <td>
-                                        @foreach(json_decode($result->finality) as $finality)
-                                                {{ $finality}}<br>
-                                        @endforeach
-                                    </td>
-                                    <td>
-                                        @foreach($characteristics as $characteristic)
-                                            @if($characteristic->property_id == $result->id)
-                                                {{ $characteristic->characteristic }}<br>
-                                            @endif
-                                        @endforeach
-                                    </td>
-                                    <td><label class="badge badge-{{$result->status === 1 ? 'success' : 'danger'}}">{{$result->status === 1 ? 'Ativo' : 'Inativo'}}</label></td>
+                                    <td>R$ {{ number_format($result->price,2,',','.') }}</td>
+                                    <td><label class="badge badge-{{$result->status == 'Ativo' ? 'success' : 'danger'}}">{{$result->status}}</label></td>
                                     <td><a href="{{url($linkFormEdit."&id=$result->id")}}" data-original-title="Editar" data-toggle="tooltip" class="btn btn-primary btn-xs"> <i class="fa fa-list"></i> Editar</a></td>
                                 </tr>
                             @endforeach
@@ -177,38 +159,6 @@ function changeInput() {
         $("#addField").html('');
         $("#addField").html(field);
 
-        $('#categories').select2({
-        theme: 'bootstrap4',
-        placeholder: "Selecione a Categoria...",
-        allowClear: true,
-        minimumInputLength: 2,
-        language: 'pt-BR',
-        ajax: {
-            url: '{{url("admin/category/getcategories")}}',
-            dataType: 'json',
-
-            data: function(params){
-                return {
-                    category: params.term,
-                }
-            },
-
-            processResults: function (data) {
-                return {
-                    results:  data.map(function (category) {
-                        return {
-                            text: category.name,
-                            id: category.id
-                        };
-                    })
-                };
-            },
-            cache: true
-        }
-
-    });
-
-
     }
 
 $("#filter-field").change(function (e) {
@@ -233,43 +183,6 @@ $("#filter-field").change(function (e) {
 });
 
 
-
-$('#btn-copy').click(function (e) {
-
-var data = $('.form').serialize();
-
-$.ajax({
-    url: "{{url($linkCopy)}}",
-    method: 'POST',
-    data: data,
-    success:function(data){
-        location.href = "{{url($link)}}";
-    },
-    error:function (xhr) {
-
-        if(xhr.status === 422){
-            Swal.fire({
-                text: xhr.responseJSON,
-                icon: 'warning',
-                showClass: {
-                    popup: 'animate__animated animate__wobble'
-                }
-            });
-        } else{
-            Swal.fire({
-                text: xhr.responseJSON,
-                icon: 'error',
-                showClass: {
-                    popup: 'animate__animated animate__wobble'
-                }
-            });
-        }
-
-
-    }
-});
-
-});
 
 $('#btn-delete').click(function (e) {
 

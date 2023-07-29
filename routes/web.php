@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\admin\AdminController;
 use App\Http\Controllers\admin\UserController;
 use App\Http\Controllers\admin\CustomerController;
+use App\Http\Controllers\admin\ServiceController;
 
 use App\Http\Controllers\front\HomeController;
 use App\Http\Controllers\front\ContactController;
@@ -41,15 +42,12 @@ Route::group(['prefix' => 'admin','middleware' => ['auth']], function(){
     Route::delete('customers',[CustomerController::class,'destroy']);
 
 
-    Route::get('properties',[PropertyController::class,'index']);
-    Route::get('properties/form',[PropertyController::class,'form']);
-    Route::post('properties',[PropertyController::class,'store']);
-    Route::put('properties/{id}',[PropertyController::class,'update']);
-    Route::post('properties/copy',[PropertyController::class,'copy']);
-    Route::delete('properties',[PropertyController::class,'destroy']);
-    Route::get('properties/images/{company_id}',[PropertyController::class,'showimages']);
-    Route::post('properties/images/{company_id}',[PropertyController::class,'upload']);
-    Route::delete('properties/images/{id}',[PropertyController::class,'removeimage']);
+    Route::get('services',[ServiceController::class,'index']);
+    Route::get('services/form',[ServiceController::class,'form']);
+    Route::post('services',[ServiceController::class,'store']);
+    Route::put('services/{id}',[ServiceController::class,'update']);
+    Route::post('services/copy',[ServiceController::class,'copy']);
+    Route::delete('services',[ServiceController::class,'destroy']);
 
 });
 

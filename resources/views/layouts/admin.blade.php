@@ -95,8 +95,8 @@
                     </a>
                   </li>
 
-              <li class="nav-item {{Request::segment(2) == 'customers' || Request::segment(2) == 'users' ? 'menu-open' : ''}}">
-                <a href="#" class="nav-link {{Request::segment(2) == 'customers' || Request::segment(2) == 'users' ? 'active' : ''}}">
+              <li class="nav-item {{Request::segment(2) == 'customers' || Request::segment(2) == 'users' || Request::segment(2) == 'services' ? 'menu-open' : ''}}">
+                <a href="#" class="nav-link {{Request::segment(2) == 'customers' || Request::segment(2) == 'users' || Request::segment(2) == 'services' ? 'active' : ''}}">
                   <i class="nav-icon fas fa-tachometer-alt"></i>
                   <p>
                     Cadastros
@@ -104,6 +104,13 @@
                   </p>
                 </a>
                 <ul class="nav nav-treeview">
+
+                    <li class="nav-item">
+                        <a href="{{url('admin/services')}}" class="nav-link  {{Request::segment(2) == 'services' ? 'active' : ''}}">
+                          <i class="far fa-circle nav-icon"></i>
+                          <p>Serviços</p>
+                        </a>
+                      </li>
 
                   <li class="nav-item">
                     <a href="{{url('admin/customers')}}" class="nav-link  {{Request::segment(2) == 'customers' ? 'active' : ''}}">

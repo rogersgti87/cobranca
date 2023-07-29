@@ -109,9 +109,16 @@ class CustomerController extends Controller
         $model = new Customer;
         $data = $this->request->all();
 
+        $messages = [
+            'document.required' => 'O Campo e-mail é obrigatório!',
+            'document.unique'   => 'Documento já cadastrado!',
+            'name.required'     => 'O campo nome é obrigatório!',
+        ];
+
         $validator = Validator::make($data, [
-            'document'     => "required|max:20|unique:customers,document,null,null,user_id,".auth()->user()->id,
-        ]);
+            'document'  => "required|max:20|unique:customers,document,null,null,user_id,".auth()->user()->id,
+            'name'     => 'required',
+        ], $messages);
 
         if( $validator->fails() ){
             return response()->json($validator->errors()->first(), 422);

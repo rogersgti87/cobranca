@@ -6,14 +6,13 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
-use Illuminate\Support\Str;
 use Image;
 use DB;
-use App\Models\Ministry;
+use App\Models\Service;
+use App\Models\CustomerService;
 use RuntimeException;
-use ResponseCache;
 
-class MinistryController extends Controller
+class CustomerServiceController extends Controller
 {
 
 
@@ -22,7 +21,7 @@ class MinistryController extends Controller
         $this->request              = $request;
 
         $this->datarequest = [
-            'title'             => 'Ministérios',
+            'title'             => 'Serviços',
             'link'              => 'admin/ministries',
             'filter'            => 'admin/ministries?filter',
             'linkFormAdd'       => 'admin/ministries/form?act=add',
@@ -40,55 +39,9 @@ class MinistryController extends Controller
 
     public function index(){
 
-        $column    = $this->request->input('column');
-        $order     = $this->request->input('order') == 'desc' ? 'asc' : 'desc';
+        $data = CustomerService::orderby('id','desc')->get();
 
-        if($column){
-            $column = $this->request->input('column');
-            $column_name = "$column $order";
-        } else {
-            $column_name = "id desc";
-        }
-
-        $field     = $this->request->input('field')    ? $this->request->input('field')    : 'name';
-        $operator  = $this->request->input('operator') ? $this->request->input('operator') : 'like';
-        $value     = $this->request->input('value')    ? $this->request->input('value')    : '';
-
-        if($field == 'data' || $field == 'dataini' || $field == 'datafim'){
-            $value = Carbon::createFromFormat('d/m/Y', $value)->format('Y-m-d');
-        }
-
-        if($field == 'created_at'){
-            $field = 'CAST(created_at as DATE)';
-            $value = Carbon::createFromFormat('d/m/Y', $value)->format('Y-m-d');
-        }
-
-        if($operator == 'like'){
-            $newValue = "'%$value%'";
-        }else{
-            $newValue = "'$value'";
-        }
-
-        if($this->request->input('filter')){
-            $data = Ministry::orderByRaw("$column_name")
-                        ->whereraw("$field $operator $newValue")
-                        ->paginate(15);
-        }else{
-            $data = Ministry::orderByRaw("$column_name")
-                        ->paginate(15);
-        }
-
-        foreach($data as $key => $result){
-            if(isJSON($result->image) == true){
-                $data[$key]['image_thumb']    = property_exists(json_decode($result->image), 'thumb')    ? json_decode($result->image)->thumb : '';
-                $data[$key]['image_original'] = property_exists(json_decode($result->image), 'original') ? json_decode($result->image)->original : '';
-            }else{
-                $data[$key]['image_thumb']    = '';
-                $data[$key]['image_original'] = '';
-            }
-        }
-
-        return view($this->datarequest['path'].'.index',compact('column','order','data'))->with($this->datarequest);
+        return response()->json($data);
     }
 
     public function form(){

@@ -5,6 +5,7 @@ use App\Http\Controllers\admin\AdminController;
 use App\Http\Controllers\admin\UserController;
 use App\Http\Controllers\admin\CustomerController;
 use App\Http\Controllers\admin\ServiceController;
+use App\Http\Controllers\admin\CustomerServiceController;
 
 use App\Http\Controllers\front\HomeController;
 use App\Http\Controllers\front\ContactController;
@@ -48,6 +49,13 @@ Route::group(['prefix' => 'admin','middleware' => ['auth']], function(){
     Route::put('services/{id}',[ServiceController::class,'update']);
     Route::post('services/copy',[ServiceController::class,'copy']);
     Route::delete('services',[ServiceController::class,'destroy']);
+
+    Route::get('customer-services',[CustomerServiceController::class,'index']);
+    Route::get('customer-services/form',[CustomerServiceController::class,'form']);
+    Route::post('customer-services',[CustomerServiceController::class,'store']);
+    Route::put('customer-services/{id}',[CustomerServiceController::class,'update']);
+    Route::post('customer-services/copy',[CustomerServiceController::class,'copy']);
+    Route::delete('customer-services',[CustomerServiceController::class,'destroy']);
 
 });
 

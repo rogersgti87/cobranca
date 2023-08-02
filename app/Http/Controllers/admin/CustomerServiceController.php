@@ -22,17 +22,17 @@ class CustomerServiceController extends Controller
 
         $this->datarequest = [
             'title'             => 'Serviços',
-            'link'              => 'admin/ministries',
-            'filter'            => 'admin/ministries?filter',
-            'linkFormAdd'       => 'admin/ministries/form?act=add',
-            'linkFormEdit'      => 'admin/ministries/form?act=edit',
-            'linkStore'         => 'admin/ministries',
-            'linkUpdate'        => 'admin/ministries/',
-            'linkCopy'          => 'admin/ministries/copy',
-            'linkDestroy'       => 'admin/ministries',
-            'breadcrumb_new'    => 'Novo Ministério',
-            'breadcrumb_edit'   => 'Editar Ministério',
-            'path'              => 'admin.ministry.'
+            'link'              => 'admin/customer-services',
+            'filter'            => 'admin/customer-services?filter',
+            'linkFormAdd'       => 'admin/customer-services/form?act=add',
+            'linkFormEdit'      => 'admin/customer-services/form?act=edit',
+            'linkStore'         => 'admin/customer-services',
+            'linkUpdate'        => 'admin/customer-services/',
+            'linkCopy'          => 'admin/customer-services/copy',
+            'linkDestroy'       => 'admin/customer-services',
+            'breadcrumb_new'    => 'Novo Serviço',
+            'breadcrumb_edit'   => 'Editar Serviço',
+            'path'              => 'admin.customer-service.'
         ];
 
     }
@@ -46,28 +46,14 @@ class CustomerServiceController extends Controller
 
     public function form(){
 
-        if($this->request->input('act') == 'add'){
-            return view($this->datarequest['path'].'form')->with($this->datarequest);
-        }else if($this->request->input('act') == 'edit'){
+        $customer_id = $this->request->input('customer_id');
 
-            $this->datarequest['linkFormEdit'] = $this->datarequest['linkFormEdit'].'&id='.$this->request->input('id');
-            $this->datarequest['linkUpdate']   = $this->datarequest['linkUpdate'].$this->request->input('id');
+        $customer_id = $customer_id != null ? $customer_id : '';
 
-            $data = Ministry::where('id',$this->request->input('id'))->first();
+        $services = Service::where('user_id',auth()->user()->id)->get();
+        $data = CustomerService::where('id',$this->request->input('id'))->where('user_id',auth()->user()->id)->first();
 
-            if(isJSON($data->image) == true){
-                    $data['image_thumb']    = property_exists(json_decode($data->image), 'thumb')    ? json_decode($data->image)->thumb : '';
-                    $data['image_original'] = property_exists(json_decode($data->image), 'original') ? json_decode($data->image)->original : '';
-                }else{
-                    $data['image_thumb']    = '';
-                    $data['image_original'] = '';
-                }
-
-
-            return view($this->datarequest['path'].'form',compact('data'))->with($this->datarequest);
-        }else{
-            return view($this->datarequest['path'].'index')->with($this->datarequest);
-        }
+        return view($this->datarequest['path'].'.form',compact('services','data','customer_id'))->render();
 
     }
 
@@ -75,24 +61,36 @@ class CustomerServiceController extends Controller
     public function store()
     {
 
-        $model = new Ministry;
+        $model = new CustomerService();
         $data = $this->request->all();
 
+        $messages = [
+            'service_id.required' => 'O Campo Serviço é obrigatório!',
+            'description.unique'   => 'O campo descrição é obrigatório!',
+            'price.required'     => 'O campo preço é obrigatório!',
+        ];
+
         $validator = Validator::make($data, [
-            'name'     => "required|max:150|unique:ministries,name",
-            'status'    => 'required',
-        ]);
+            'service_id'    => 'required',
+            'description'   => 'required',
+            'price'         => 'required',
+        ], $messages);
 
         if( $validator->fails() ){
             return response()->json($validator->errors()->first(), 422);
         }
-        $model->image   = $data['image'];
-        $model->name    = $data['name'];
-        $model->status  = $data['status'];
+
+        $model->user_id     = auth()->user()->id;
+        $model->customer_id = $data['customer_id'];
+        $model->service_id  = $data['service_id'];
+        $model->description = $data['description'];
+        $model->status      = $data['status'];
+        $model->day_due     = $data['day_due'];
+        $model->price       = moeda($data['price']);
+        $model->period      = $data['period'];
 
         try{
             $model->save();
-            ResponseCache::clear();
         } catch(\Exception $e){
             \Log::error($e->getMessage());
             return response()->json($e->getMessage(), 500);
@@ -103,61 +101,44 @@ class CustomerServiceController extends Controller
 
     }
 
-    public function copy()
-    {
 
-        $model = new Ministry;
-        $data = $this->request->all();
-
-        if(!isset($data['selected'])){
-            return response()->json('Selecione ao menos um registro', 422);
-        }
-
-        try{
-            foreach($data['selected'] as $result){
-                $find = $model->find($result);
-                $newRegister = $find->replicate();
-                $newRegister->name = $result.'-'.$newRegister->name;
-                $newRegister->save();
-                ResponseCache::clear();
-            }
-
-        } catch(\Exception $e){
-            \Log::error($e->getMessage());
-            return response()->json('Erro interno, favor comunicar ao administrador', 500);
-
-        }
-
-
-        return response()->json(true, 200);
-
-
-    }
 
 
     public function update($id)
     {
 
-        $model = Ministry::where('id',$id)->first();
+        $model = CustomerService::where('id',$id)->where('user_id',auth()->user()->id)->first();
 
         $data = $this->request->all();
 
+
+        $messages = [
+            'service_id.required' => 'O Campo Serviço é obrigatório!',
+            'description.unique'   => 'O campo descrição é obrigatório!',
+            'price.required'     => 'O campo preço é obrigatório!',
+        ];
+
         $validator = Validator::make($data, [
-            'name'      => "required|max:150|unique:ministries,name,$id",
-            'status'    => 'required',
-        ]);
+            'service_id'    => 'required',
+            'description'   => 'required',
+            'price'         => 'required',
+        ], $messages);
 
         if( $validator->fails() ){
             return response()->json($validator->errors()->first(), 422);
         }
 
-        $model->image   = $data['image'];
-        $model->name    = $data['name'];
-        $model->status  = $data['status'];
+        $model->user_id     = auth()->user()->id;
+        $model->customer_id = $data['customer_id'];
+        $model->service_id  = $data['service_id'];
+        $model->description = $data['description'];
+        $model->status      = $data['status'];
+        $model->day_due     = $data['day_due'];
+        $model->price       = moeda($data['price']);
+        $model->period      = $data['period'];
 
         try{
             $model->save();
-            ResponseCache::clear();
         } catch(\Exception $e){
             \Log::error($e->getMessage());
             return response()->json('Erro interno, favor comunicar ao administrador', 500);
@@ -170,7 +151,7 @@ class CustomerServiceController extends Controller
 
     public function destroy()
     {
-        $model = new Ministry;
+        $model = new CustomerService();
         $data = $this->request->all();
 
         if(!isset($data['selected'])){
@@ -181,7 +162,6 @@ class CustomerServiceController extends Controller
             foreach($data['selected'] as $result){
                 $find = $model->where('id',$result);
                 $find->delete();
-                ResponseCache::clear();
             }
 
         } catch(\Exception $e){
@@ -195,13 +175,9 @@ class CustomerServiceController extends Controller
 
     }
 
-    public function getMinistries(){
+    public function Load($customer_id){
 
-        $Ministry = $this->request->input('ministry');
-
-        $result = Ministry::whereraw("name LIKE '%$Ministry%'")
-        ->take(20)
-        ->get();
+        $result = CustomerService::where('customer_id',$customer_id)->where('user_id',auth()->user()->id)->get();
         return response()->json($result);
 
 

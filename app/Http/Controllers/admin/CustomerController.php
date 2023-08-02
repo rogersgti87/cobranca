@@ -86,6 +86,7 @@ class CustomerController extends Controller
     public function form(){
 
         if($this->request->input('act') == 'add'){
+            $this->datarequest['linkFormEdit'] = $this->datarequest['linkFormEdit'].'&id=';
             return view($this->datarequest['path'].'form')->with($this->datarequest);
         }else if($this->request->input('act') == 'edit'){
 
@@ -152,7 +153,9 @@ class CustomerController extends Controller
             return response()->json($e->getMessage(), 500);
         }
 
-        return response()->json('Registro salvo com sucesso', 200);
+
+
+        return response()->json(['data' => 'Registro salvo com sucesso','id' => $model->id], 200);
 
 
     }
@@ -166,9 +169,16 @@ class CustomerController extends Controller
 
         $data = $this->request->all();
 
+        $messages = [
+            'document.required' => 'O Campo e-mail é obrigatório!',
+            'document.unique'   => 'Documento já cadastrado!',
+            'name.required'     => 'O campo nome é obrigatório!',
+        ];
+
         $validator = Validator::make($data, [
             'document'      => "required|max:20|unique:customers,document,$id,id,user_id,".auth()->user()->id,
-        ]);
+            'name'     => 'required',
+        ], $messages);
 
         if( $validator->fails() ){
             return response()->json($validator->errors()->first(), 422);

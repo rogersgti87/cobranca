@@ -19,7 +19,7 @@ class CreateCustomerServicesTable extends Migration
             $table->integer('customer_id');
             $table->integer('service_id');
             $table->text('description')->nullable();
-            $table->date('date_due')->nullable();
+            $table->integer('day_due')->nullable();
             $table->decimal('price', 10, 2)->default('0');
             $table->string('period');
             $table->enum('status', ['Ativo','Inativo']);

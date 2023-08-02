@@ -41,10 +41,10 @@
                         <a class="nav-link active" id="custom-tabs-four-home-tab" data-toggle="pill" href="#custom-tabs-four-home" role="tab" aria-controls="custom-tabs-four-home" aria-selected="true">Dados do Cliente</a>
                       </li>
                       <li class="nav-item">
-                        <a class="nav-link" id="custom-tabs-four-profile-tab" data-toggle="pill" href="#custom-tabs-four-profile" role="tab" aria-controls="custom-tabs-four-profile" aria-selected="false">Serviços</a>
+                        <a class="nav-link {{ !isset($data) ? 'disabled' : '' }}" id="custom-tabs-four-profile-tab" data-toggle="pill" href="#custom-tabs-four-profile" role="tab" aria-controls="custom-tabs-four-profile" aria-selected="false">Serviços</a>
                       </li>
                       <li class="nav-item">
-                        <a class="nav-link" id="custom-tabs-four-messages-tab" data-toggle="pill" href="#custom-tabs-four-messages" role="tab" aria-controls="custom-tabs-four-messages" aria-selected="false">Faturas</a>
+                        <a class="nav-link {{ !isset($data) ? 'disabled' : '' }}" id="custom-tabs-four-messages-tab" data-toggle="pill" href="#custom-tabs-four-messages" role="tab" aria-controls="custom-tabs-four-messages" aria-selected="false">Faturas</a>
                       </li>
                     </ul>
                   </div>
@@ -195,6 +195,9 @@
 
                         <div class="col-md-12">
                             <div class="card-box">
+                                <a href="#" data-original-title="Salvar" data-toggle="tooltip" class="btn btn-secondary" id="btn-create-customer-service" data-type="add-customer-service"><i class="fa fa-save fa-1x"></i> Adcionar serviço</a>
+                                <br>
+                                <br>
                                 <div class="table-responsive fixed-solution">
                                     <table class="table table-hover table-striped table-sm">
                                         <thead class="thead-light">
@@ -208,17 +211,16 @@
                                             <th style="width: 100px;"></th>
                                         </tr>
                                         </thead>
-                                        <tbody class="tbodyCustom">
-                                                {{-- <tr>
-                                                    <td></td>
-                                                    <td>R$ </td>
-                                                    <td><label class="badge badge-{{$result->status == 'Ativo' ? 'success' : 'danger'}}">{{$result->status}}</label></td>
-                                                    <td><a href="{{url($linkFormEdit."&id=$result->id")}}" data-original-title="Editar" data-toggle="tooltip" class="btn btn-primary btn-xs"> <i class="fa fa-list"></i> Editar</a></td>
-                                                </tr> --}}
+                                        <tbody class="tbodyCustom" id="load-customer-services">
+
 
                                         </tbody>
                                     </table>
                                 </div>
+
+                                <br>
+                                <br>
+                                <a href="#" data-original-title="Salvar" data-toggle="tooltip" class="btn btn-secondary" id="btn-create-customer-service"><i class="fa fa-save fa-1x"></i> Adcionar serviço</a>
 
                             </div>
 
@@ -245,6 +247,34 @@
 </div>
   </div>
  </div>
+
+
+
+   <!-- Modal :: Form MyService -->
+   <div class="modal fade" id="modalCustomerService" tabindex="-1" role="dialog" aria-labelledby="modalCustomerServiceLabel" aria-hidden="true">
+   <div class="modal-dialog modal-lg">
+       <div class="modal-content">
+           <form action="" class="form-horizontal" id="form-request-customer-service">
+               <div class="modal-header">
+                   <h5 class="modal-title" id="modalCustomerServiceLabel">Editar Serviço</h5>
+                   <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                       <span aria-hidden="true">&times;</span>
+                   </button>
+               </div>
+               <div class="modal-body" id="form-content-customer-service">
+                   <!-- conteudo -->
+                   <!-- conteudo -->
+               </div><!-- modal-body -->
+               <div class="modal-footer">
+                   <button type="button" class="btn btn-success" id="btn-save-customer-service"><i class="fa fa-check"></i> Salvar</button>
+                   <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+               </div>
+           </form>
+       </div>
+   </div>
+</div>
+<!-- Modal :: Form MyService -->
+
 
 @section('scripts')
 
@@ -278,9 +308,10 @@
                 method:method,
                 success:function(data){
                     console.log(data);
+                    var message = url_act == 'add' ? data.data : data;
                     Swal.fire({
                         width:350,
-                        title: "<h5 style='color:#007bff'>" + data + "</h5>",
+                        title: "<h5 style='color:#007bff'>" + message + "</h5>",
                         icon: 'success',
                         showConfirmButton: false,
                         showClass: {
@@ -289,7 +320,7 @@
                         allowOutsideClick: false,
                         html:
                         '<a href="{{url($linkFormAdd)}}" data-original-title="Novo" data-toggle="tooltip" class="btn btn-secondary btn-md"> <i class="fa fa-plus"></i> Novo</a>  ' +
-                        `<a href="{{url($linkFormEdit)}}" class="btn btn-success btn-md" style="${url_act == 'add' ? 'display:none;' : ''}"> <i class="fa fa-plus"></i> Editar</a>  ` +
+                        `<a href="${url_act == 'add' ? '{{url($linkFormEdit)}}'+data.id : '{{url($linkFormEdit)}}'}" class="btn btn-success btn-md"> <i class="fa fa-plus"></i> Editar</a>  ` +
                         '<a href="{{url($link)}}" data-original-title="Listar" data-toggle="tooltip" class="btn btn-primary btn-md"> <i class="fa fa-list"></i> Listar</a>',
                     });
                 },
@@ -331,7 +362,164 @@
     </script>
 
 
+<script>
+    // Open Modal - Create - Services
+    $(document).on("click", "#btn-create-customer-service", function() {
+        //var customer_id = $(this).data('customer_id');
+        var customer_id = "{{ isset($data) ? $data->id : ''}}";
+        $("#modalCustomerService").modal('show');
+        var url = `{{ url("/admin/customer-services/form?customer_id=") }}${customer_id}`;
+        console.log(url);
+        $.get(url,
+            $(this)
+            .addClass('modal-scrollfix')
+            .find('#form-content-customer-service')
+            .html('Carregando...'),
+            function(data) {
+                // console.log(data);
+                $("#form-content-customer-service").html(data);
+                $('.money').mask('000.000.000.000.000,00', {reverse: true});
+                // aqui quando selecionar um serviço, buscar qual o valor dele e atualizar o campo de preço.
+                $('#service_id').on('change', function() {
+                    var service_id = $(this).val();
+                    var service_price = $(this).find(':selected').data('price');
+                    $('#price').val(service_price);
+                });
 
+            });
+    });
+
+
+
+    //Save customer service
+     $(document).on('click', '#btn-save-customer-service', function(e) {
+            e.preventDefault();
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': "{{csrf_token()}}"
+                }
+            });
+            var data = $('#form-request-customer-service').serialize();
+            var customer_service_id = $('#customer_service_id').val();
+            if(customer_service_id != ''){
+                var url = "{{ url('admin/customer-services') }}"+'/'+customer_service_id;
+                var method = 'PUT';
+            }else{
+                var url = "{{ url('admin/customer-services') }}";
+                var method = 'POST';
+            }
+
+            $.ajax({
+                url: url,
+                data:data,
+                method:method,
+                success:function(data){
+                    console.log(data);
+                    Swal.fire({
+                        width:350,
+                        title: "<h5 style='color:#007bff'>" + data + "</h5>",
+                        icon: 'success',
+                        showConfirmButton: true,
+                        showClass: {
+                            popup: 'animate__animated animate__backInUp'
+                        },
+                        allowOutsideClick: false,
+                    }).then((result) => {
+                        $('#modalCustomerService').modal('hide');
+                        loadCustomerServices();
+                    });
+                },
+                error:function (xhr) {
+
+                    if(xhr.status === 422){
+                        Swal.fire({
+                            text: xhr.responseJSON,
+                            width:300,
+                            icon: 'warning',
+                            color: '#007bff',
+                            confirmButtonColor: "#007bff",
+                            showClass: {
+                                popup: 'animate__animated animate__wobble'
+                            }
+                        });
+                    } else{
+                        Swal.fire({
+                            text: xhr.responseJSON,
+                            width:300,
+                            icon: 'error',
+                            color: '#007bff',
+                            confirmButtonColor: "#007bff",
+                            showClass: {
+                                popup: 'animate__animated animate__wobble'
+                            }
+                        });
+                    }
+
+
+                }
+            });
+
+
+
+        });
+
+</script>
+
+
+<script>
+
+function loadCustomerServices(){
+
+    var customer_id = "{{ isset($data) ? $data->id : ''}}";
+
+    $.ajax({
+                url: "{{url('/admin/load-customer-services')}}"+'/'+customer_id,
+                method: 'GET',
+                success:function(data){
+                    console.log(data);
+                    $('#load-customer-servicees').html('');
+                    var html = '';
+                    $.each(data, function(i, item) {
+                        html += '<tr>';
+                        html += `<td></td>`;
+                        html += `<td></td>`;
+                        html += `<td></td>`;
+                        html += `<td>R$ </td>`;
+                        html += `<td><label class="badge badge-{{$result->status == 'Ativo' ? 'success' : 'danger'}}">{{$result->status}}</label></td>`;
+                        html += `<td><a href="{{url($linkFormEdit."&id=$result->id")}}" data-original-title="Editar" data-toggle="tooltip" class="btn btn-primary btn-xs"> <i class="fa fa-list"></i> Editar</a></td>`;
+                        html += '</tr>';
+
+                    });
+                    $('#load-customer-services').append(html);
+
+                },
+                error:function (xhr) {
+
+                    if(xhr.status === 422){
+                        Swal.fire({
+                            text: xhr.responseJSON,
+                            icon: 'warning',
+                            showClass: {
+                                popup: 'animate__animated animate__wobble'
+                            }
+                        });
+                    } else{
+                        Swal.fire({
+                            text: xhr.responseJSON,
+                            icon: 'error',
+                            showClass: {
+                                popup: 'animate__animated animate__wobble'
+                            }
+                        });
+                    }
+
+
+                }
+            });
+
+}
+
+</script>
 
 @endsection
 

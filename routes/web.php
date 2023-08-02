@@ -56,6 +56,7 @@ Route::group(['prefix' => 'admin','middleware' => ['auth']], function(){
     Route::put('customer-services/{id}',[CustomerServiceController::class,'update']);
     Route::post('customer-services/copy',[CustomerServiceController::class,'copy']);
     Route::delete('customer-services',[CustomerServiceController::class,'destroy']);
+    Route::get('load-customer-services/{customer_id}',[CustomerServiceController::class,'load']);
 
 });
 

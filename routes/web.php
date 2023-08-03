@@ -6,6 +6,8 @@ use App\Http\Controllers\admin\UserController;
 use App\Http\Controllers\admin\CustomerController;
 use App\Http\Controllers\admin\ServiceController;
 use App\Http\Controllers\admin\CustomerServiceController;
+use App\Http\Controllers\admin\InvoiceController;
+
 
 use App\Http\Controllers\front\HomeController;
 use App\Http\Controllers\front\ContactController;
@@ -57,6 +59,14 @@ Route::group(['prefix' => 'admin','middleware' => ['auth']], function(){
     Route::post('customer-services/copy',[CustomerServiceController::class,'copy']);
     Route::delete('customer-services/{id}',[CustomerServiceController::class,'destroy']);
     Route::get('load-customer-services/{customer_id}',[CustomerServiceController::class,'load']);
+
+    Route::get('invoices',[InvoiceController::class,'index']);
+    Route::get('invoices/form',[InvoiceController::class,'form']);
+    Route::post('invoices',[InvoiceController::class,'store']);
+    Route::put('invoices/{id}',[InvoiceController::class,'update']);
+    Route::post('invoices/copy',[InvoiceController::class,'copy']);
+    Route::delete('invoices/{id}',[InvoiceController::class,'destroy']);
+    Route::get('load-invoices/{invoice_id}',[InvoiceController::class,'load']);
 
 });
 

@@ -16,7 +16,8 @@
   <!-- Custom CSS -->
   <link rel="stylesheet" href="{{url('assets/admin/css/custom.css')}}">
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" />
+<!-- datepicker styles -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker3.min.css">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.0.0/animate.min.css" />
 
@@ -162,6 +163,9 @@
 <!-- AdminLTE App -->
 <script src="{{url('assets/admin/js/adminlte.min.js')}}"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+
+<!-- Datepicker -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
 
 <script src="{{ url('assets/admin/plugins/inputmask/jquery.inputmask.min.js') }}"></script>
@@ -198,7 +202,11 @@
         url: 'https://cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json',
     },
     });
+
+
+
 </script>
+
 
 
 

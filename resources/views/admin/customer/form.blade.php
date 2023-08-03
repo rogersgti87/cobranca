@@ -229,7 +229,40 @@
 
                       </div>
                       <div class="tab-pane fade" id="custom-tabs-four-messages" role="tabpanel" aria-labelledby="custom-tabs-four-messages-tab">
-                         Faturas
+                        <div class="col-md-12">
+                            <div class="card-box">
+                                <a href="#" data-original-title="Adicionar Fatura" data-toggle="tooltip" class="btn btn-secondary" id="btn-modal-invoice" data-type="add-invoice"><i class="fa fa-save fa-1x"></i> Adcionar Fatura</a>
+                                <br>
+                                <br>
+                                <div class="table-responsive fixed-solution">
+                                    <table class="table table-hover table-striped table-sm">
+                                        <thead class="thead-light">
+                                        <tr>
+                                            <th> Descrição</th>
+                                            <th> Preço</th>
+                                            <th> Forma de Pagamento</th>
+                                            <th> Data</th>
+                                            <th> Vencimento</th>
+                                            <th> Pago em</th>
+                                            <th> Status</th>
+                                            <th style="width: 150px;"></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody class="tbodyCustom" id="load-invoices">
+
+
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <br>
+                                <br>
+                                <a href="#" data-original-title="Adicionar Fatura" data-toggle="tooltip" class="btn btn-secondary" id="btn-modal-invoice" data-type="add-invoice"><i class="fa fa-save fa-1x"></i> Adcionar Fatura</a>
+
+                            </div>
+
+                        </div>
+                        <!-- FIM TABLE -->
                       </div>
                     </div>
                   </div>
@@ -276,6 +309,32 @@
 <!-- Modal :: Form MyService -->
 
 
+ <!-- Modal :: Form Invoice -->
+ <div class="modal fade" id="modalInvoice" tabindex="-1" role="dialog" aria-labelledby="modalInvoiceLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form action="" class="form-horizontal" id="form-request-invoice">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalInvoiceLabel"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="form-content-invoice">
+                    <!-- conteudo -->
+                    <!-- conteudo -->
+                </div><!-- modal-body -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" id="btn-save-invoice"><i class="fa fa-check"></i> Salvar</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+ </div>
+ <!-- Modal :: Form Invoice -->
+
+
 @section('scripts')
 
 
@@ -287,6 +346,13 @@
 $(document).ready(function(){
 
     loadCustomerServices();
+    loadInvoices();
+
+
+
+
+
+
 });
 
     $('#lfm').filemanager('image');
@@ -397,7 +463,7 @@ $(document).ready(function(){
                 $('#service_id').on('change', function() {
                     var service_id = $(this).val();
                     var service_price = $(this).find(':selected').data('price');
-                    $('#price').val(service_price);
+                    $('#price').val(parseFloat(service_price).toLocaleString('pt-br', {minimumFractionDigits: 2}));
                 });
 
             });
@@ -477,10 +543,6 @@ $(document).ready(function(){
 
         });
 
-</script>
-
-
-<script>
 
 function loadCustomerServices(){
 
@@ -497,7 +559,7 @@ function loadCustomerServices(){
                         html += '<tr>';
                         html += `<td>${item.name}</td>`;
                         html += `<td>${item.description}</td>`;
-                        html += `<td>R$ ${item.price}</td>`;
+                        html += `<td>R$ ${parseFloat(item.price).toLocaleString('pt-br', {minimumFractionDigits: 2})}</td>`;
                         html += `<td>${item.day_due}</td>`;
                         html += `<td>${item.period}</td>`;
                         html += `<td><label class="badge badge-${item.status == 'Ativo' ? 'success' : 'danger'}">${item.status}</label></td>`;
@@ -537,9 +599,6 @@ function loadCustomerServices(){
 
 }
 
-</script>
-
-<script>
 
 $(document).on('click', '#btn-delete-customer-service', function(e) {
     var customer_service_id = $(this).data('customer-service-id');
@@ -599,6 +658,234 @@ $(document).on('click', '#btn-delete-customer-service', function(e) {
 
 </script>
 
+{{-- //  Invoices // --}}
+
+<script>
+    // Open Modal - Create - Invoices
+    $(document).on("click", "#btn-modal-invoice", function() {
+        var type = $(this).data('type');
+        var customer_id = "{{ isset($data) ? $data->id : ''}}";
+        $("#modalInvoice").modal('show');
+        if(type == 'add-invoice'){
+            $("#modalInvoiceLabel").html('Adicionar Fatura');
+            var url = `{{ url("/admin/invoices/form?customer_id=") }}${customer_id}`;
+        }else{
+            $("#modalInvoiceLabel").html('Editar Fatura');
+            var invoice = $(this).data('invoice');
+            var url = `{{ url("/admin/invoices/form?customer_id=") }}${customer_id}&id=${invoice}`;
+        }
+
+        console.log(url);
+        $.get(url,
+            $(this)
+            .addClass('modal-scrollfix')
+            .find('#form-content-invoice')
+            .html('Carregando...'),
+            function(data) {
+                // console.log(data);
+                $("#form-content-invoice").html(data);
+                $('.money').mask('000.000.000.000.000,00', {reverse: true});
+                // aqui quando selecionar um serviço, buscar qual o valor dele e atualizar o campo de preço.
+                $('#customer_service_id').on('change', function() {
+                    //var service_id          = $(this).val();
+                    var service_price       = $(this).find(':selected').data('price');
+                    var service_description = $(this).find(':selected').data('description');
+                    $('#price').val(parseFloat(service_price).toLocaleString('pt-br', {minimumFractionDigits: 2}));
+                    $('#description').val(service_description);
+                });
+
+            });
+    });
+
+
+
+    //Save Invoice
+     $(document).on('click', '#btn-save-invoice', function(e) {
+            e.preventDefault();
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': "{{csrf_token()}}"
+                }
+            });
+            var data = $('#form-request-invoice').serialize();
+            var invoice = $('#invoice').val();
+            if(invoice != ''){
+                var url = "{{ url('admin/invoices') }}"+'/'+invoice;
+                var method = 'PUT';
+            }else{
+                var url = "{{ url('admin/invoices') }}";
+                var method = 'POST';
+            }
+
+            $.ajax({
+                url: url,
+                data:data,
+                method:method,
+                success:function(data){
+                    console.log(data);
+                    Swal.fire({
+                        width:350,
+                        title: "<h5 style='color:#007bff'>" + data + "</h5>",
+                        icon: 'success',
+                        showConfirmButton: true,
+                        showClass: {
+                            popup: 'animate__animated animate__backInUp'
+                        },
+                        allowOutsideClick: false,
+                    }).then((result) => {
+                        $('#modalInvoice').modal('hide');
+                        loadInvoices();
+                    });
+                },
+                error:function (xhr) {
+
+                    if(xhr.status === 422){
+                        Swal.fire({
+                            text: xhr.responseJSON,
+                            width:300,
+                            icon: 'warning',
+                            color: '#007bff',
+                            confirmButtonColor: "#007bff",
+                            showClass: {
+                                popup: 'animate__animated animate__wobble'
+                            }
+                        });
+                    } else{
+                        Swal.fire({
+                            text: xhr.responseJSON,
+                            width:300,
+                            icon: 'error',
+                            color: '#007bff',
+                            confirmButtonColor: "#007bff",
+                            showClass: {
+                                popup: 'animate__animated animate__wobble'
+                            }
+                        });
+                    }
+
+
+                }
+            });
+
+
+
+        });
+
+
+function loadInvoices(){
+
+    var customer_id = "{{ isset($data) ? $data->id : ''}}";
+
+    $.ajax({
+                url: "{{url('/admin/load-invoices')}}"+'/'+customer_id,
+                method: 'GET',
+                success:function(data){
+                    console.log(data);
+                    $('#load-invoices').html('');
+                    var html = '';
+                    $.each(data, function(i, item) {
+                        html += '<tr>';
+                        html += `<td>${item.description}</td>`;
+                        html += `<td>R$ ${parseFloat(item.price).toLocaleString('pt-br', {minimumFractionDigits: 2})}</td>`;
+                        html += `<td>${item.payment_method}</td>`;
+                        html += `<td>${moment(item.date_invoice).format('DD/MM/YYYY')}</td>`;
+                        html += `<td>${moment(item.date_due).format('DD/MM/YYYY')}</td>`;
+                        html += `<td>${item.date_payment != null ? moment(item.date_payment).format('DD/MM/YYYY') : '-' }</td>`;
+                        html += `<td><label class="badge badge-${item.status == 'Pago' ? 'success' : 'danger'}">${item.status}</label></td>`;
+                        html += `<td>
+                            <a href="#" data-original-title="Editar Fatura" id="btn-modal-invoice" data-type="edit-invoice" data-invoice="${item.id}" data-toggle="tooltip" class="btn btn-primary btn-xs"> <i class="fa fa-list"></i> Editar</a>
+                            <a href="#" data-original-title="Deletar Fatura" id="btn-delete-invoice" data-invoice="${item.id}" data-toggle="tooltip" class="btn btn-danger btn-xs"> <i class="fa fa-list"></i> Deletar</a>
+                            </td>`;
+                        html += '</tr>';
+
+                    });
+                    $('#load-invoices').append(html);
+
+                },
+                error:function (xhr) {
+
+                    if(xhr.status === 422){
+                        Swal.fire({
+                            text: xhr.responseJSON,
+                            icon: 'warning',
+                            showClass: {
+                                popup: 'animate__animated animate__wobble'
+                            }
+                        });
+                    } else{
+                        Swal.fire({
+                            text: xhr.responseJSON,
+                            icon: 'error',
+                            showClass: {
+                                popup: 'animate__animated animate__wobble'
+                            }
+                        });
+                    }
+
+
+                }
+            });
+
+}
+
+
+$(document).on('click', '#btn-delete-invoice', function(e) {
+    var invoice = $(this).data('invoice');
+
+    Swal.fire({
+        title: 'Deseja remover este registro?',
+        text: "Você não poderá reverter isso!",
+        icon: 'question',
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sim, deletar!'
+    }).then((result) => {
+        if (result.value) {
+
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': "{{csrf_token()}}"
+                }
+            });
+
+            $.ajax({
+                url: "{{url('admin/invoices')}}"+'/'+invoice,
+                method: 'DELETE',
+                success:function(data){
+                    loadInvoices();
+                },
+                error:function (xhr) {
+
+                    if(xhr.status === 422){
+                        Swal.fire({
+                            text: xhr.responseJSON,
+                            icon: 'warning',
+                            showClass: {
+                                popup: 'animate__animated animate__wobble'
+                            }
+                        });
+                    } else{
+                        Swal.fire({
+                            text: xhr.responseJSON,
+                            icon: 'error',
+                            showClass: {
+                                popup: 'animate__animated animate__wobble'
+                            }
+                        });
+                    }
+
+
+                }
+            });
+
+        }
+    });
+
+    });
+
+</script>
 
 @endsection
 

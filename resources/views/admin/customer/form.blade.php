@@ -208,7 +208,7 @@
                                             <th> Vencimento</th>
                                             <th> Período</th>
                                             <th> Status</th>
-                                            <th style="width: 100px;"></th>
+                                            <th style="width: 150px;"></th>
                                         </tr>
                                         </thead>
                                         <tbody class="tbodyCustom" id="load-customer-services">
@@ -501,7 +501,10 @@ function loadCustomerServices(){
                         html += `<td>${item.day_due}</td>`;
                         html += `<td>${item.period}</td>`;
                         html += `<td><label class="badge badge-${item.status == 'Ativo' ? 'success' : 'danger'}">${item.status}</label></td>`;
-                        html += `<td><a href="#" data-original-title="Editar Serviço" id="btn-modal-customer-service" data-type="edit-customer-service" data-customer-service-id="${item.id}" data-toggle="tooltip" class="btn btn-primary btn-xs"> <i class="fa fa-list"></i> Editar</a></td>`;
+                        html += `<td>
+                            <a href="#" data-original-title="Editar Serviço" id="btn-modal-customer-service" data-type="edit-customer-service" data-customer-service-id="${item.id}" data-toggle="tooltip" class="btn btn-primary btn-xs"> <i class="fa fa-list"></i> Editar</a>
+                            <a href="#" data-original-title="Deletar Serviço" id="btn-delete-customer-service" data-customer-service-id="${item.id}" data-toggle="tooltip" class="btn btn-danger btn-xs"> <i class="fa fa-list"></i> Deletar</a>
+                            </td>`;
                         html += '</tr>';
 
                     });
@@ -535,6 +538,67 @@ function loadCustomerServices(){
 }
 
 </script>
+
+<script>
+
+$(document).on('click', '#btn-delete-customer-service', function(e) {
+    var customer_service_id = $(this).data('customer-service-id');
+
+    Swal.fire({
+        title: 'Deseja remover este registro?',
+        text: "Você não poderá reverter isso!",
+        icon: 'question',
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sim, deletar!'
+    }).then((result) => {
+        if (result.value) {
+
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': "{{csrf_token()}}"
+                }
+            });
+
+            $.ajax({
+                url: "{{url('admin/customer-services')}}"+'/'+customer_service_id,
+                method: 'DELETE',
+                success:function(data){
+                    loadCustomerServices();
+                },
+                error:function (xhr) {
+
+                    if(xhr.status === 422){
+                        Swal.fire({
+                            text: xhr.responseJSON,
+                            icon: 'warning',
+                            showClass: {
+                                popup: 'animate__animated animate__wobble'
+                            }
+                        });
+                    } else{
+                        Swal.fire({
+                            text: xhr.responseJSON,
+                            icon: 'error',
+                            showClass: {
+                                popup: 'animate__animated animate__wobble'
+                            }
+                        });
+                    }
+
+
+                }
+            });
+
+        }
+    });
+
+    });
+
+</script>
+
 
 @endsection
 

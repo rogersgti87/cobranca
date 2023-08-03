@@ -39,7 +39,7 @@ class CustomerServiceController extends Controller
 
     public function index(){
 
-        $data = CustomerService::orderby('id','desc')->get();
+        $data = CustomerService::where('user_id',auth()->user()->id)->orderby('id','desc')->get();
 
         return response()->json($data);
     }
@@ -149,26 +149,18 @@ class CustomerServiceController extends Controller
 
     }
 
-    public function destroy()
+    public function destroy($id)
     {
         $model = new CustomerService();
-        $data = $this->request->all();
-
-        if(!isset($data['selected'])){
-            return response()->json('Selecione ao menos um registro', 422);
-        }
 
         try{
-            foreach($data['selected'] as $result){
-                $find = $model->where('id',$result);
-                $find->delete();
-            }
+
+            $model->where('id',$id)->where('user_id',auth()->user()->id)->delete();
 
         } catch(\Exception $e){
             \Log::error($e->getMessage());
             return response()->json('Erro interno, favor comunicar ao administrador', 500);
         }
-
 
         return response()->json(true, 200);
 

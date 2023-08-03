@@ -59,7 +59,7 @@
             <ul class="button-action">
                 <li><a href="{{url($linkFormAdd)}}" data-original-title="Novo" data-toggle="tooltip" class="btn btn-secondary btn-sm"> <i class="fa fa-plus"></i> Novo</a></li>
                 <li><a href="#" data-original-title="Copiar" id="btn-copy" data-toggle="tooltip" class="btn btn-info btn-sm"> <i class="fa fa-copy"></i> Copiar</a></li>
-                <li><a href="#" data-original-title="Deletar" id="btn-delete" data-toggle="tooltip" class="btn btn-danger btn-sm"> <i class="fa fa-trash"></i> Excluir</a></li>
+                {{-- <li><a href="#" data-original-title="Deletar" id="btn-delete" data-toggle="tooltip" class="btn btn-danger btn-sm"> <i class="fa fa-trash"></i> Excluir</a></li> --}}
              </ul>
           </div>
 

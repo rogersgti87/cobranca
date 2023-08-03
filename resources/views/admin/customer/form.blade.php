@@ -690,8 +690,8 @@ $(document).on('click', '#btn-delete-customer-service', function(e) {
                     //var service_id          = $(this).val();
                     var service_price       = $(this).find(':selected').data('price');
                     var service_description = $(this).find(':selected').data('description');
-                    $('#price').val(parseFloat(service_price).toLocaleString('pt-br', {minimumFractionDigits: 2}));
-                    $('#description').val(service_description);
+                    $('#invoice_price').val(parseFloat(service_price).toLocaleString('pt-br', {minimumFractionDigits: 2}));
+                    $('#invoice_description').val(service_description);
                 });
 
             });

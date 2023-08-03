@@ -18,13 +18,13 @@
 
                 <div class="form-group col-md-6 col-sm-12">
                     <label>Descrição</label>
-                    <input type="text" class="form-control" name="description" id="description" autocomplete="off" required value="{{isset($data->description) ? $data->description : ''}}">
+                    <input type="text" class="form-control" name="description" id="invoice_description" autocomplete="off" required value="{{isset($data->description) ? $data->description : ''}}">
                 </div>
 
 
                 <div class="form-group col-md-4 col-sm-12">
                     <label>Preço</label>
-                    <input type="text" class="form-control money" name="price" id="price" autocomplete="off" required value="{{isset($data->price) ? number_format($data->price,2,',','.') : ''}}">
+                    <input type="text" class="form-control money" name="price" id="invoice_price" autocomplete="off" required value="{{isset($data->price) ? number_format($data->price,2,',','.') : ''}}">
                 </div>
 
                 <div class="form-group col-md-4 col-sm-12">

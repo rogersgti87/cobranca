@@ -195,7 +195,7 @@
 
                         <div class="col-md-12">
                             <div class="card-box">
-                                <a href="#" data-original-title="Salvar" data-toggle="tooltip" class="btn btn-secondary" id="btn-create-customer-service" data-type="add-customer-service"><i class="fa fa-save fa-1x"></i> Adcionar serviço</a>
+                                <a href="#" data-original-title="Adicionar Serviço" data-toggle="tooltip" class="btn btn-secondary" id="btn-modal-customer-service" data-type="add-customer-service"><i class="fa fa-save fa-1x"></i> Adcionar serviço</a>
                                 <br>
                                 <br>
                                 <div class="table-responsive fixed-solution">
@@ -220,7 +220,7 @@
 
                                 <br>
                                 <br>
-                                <a href="#" data-original-title="Salvar" data-toggle="tooltip" class="btn btn-secondary" id="btn-create-customer-service"><i class="fa fa-save fa-1x"></i> Adcionar serviço</a>
+                                <a href="#" data-original-title="Adicionar Serviço" data-toggle="tooltip" class="btn btn-secondary" id="btn-modal-customer-service"><i class="fa fa-save fa-1x"></i> Adcionar serviço</a>
 
                             </div>
 
@@ -256,7 +256,7 @@
        <div class="modal-content">
            <form action="" class="form-horizontal" id="form-request-customer-service">
                <div class="modal-header">
-                   <h5 class="modal-title" id="modalCustomerServiceLabel">Editar Serviço</h5>
+                   <h5 class="modal-title" id="modalCustomerServiceLabel"></h5>
                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                        <span aria-hidden="true">&times;</span>
                    </button>
@@ -282,6 +282,12 @@
     <script src="{{url('/vendor/laravel-filemanager/js/stand-alone-button-normal.js')}}"></script>
 
 <script>
+
+
+$(document).ready(function(){
+
+    loadCustomerServices();
+});
 
     $('#lfm').filemanager('image');
 
@@ -364,11 +370,19 @@
 
 <script>
     // Open Modal - Create - Services
-    $(document).on("click", "#btn-create-customer-service", function() {
-        //var customer_id = $(this).data('customer_id');
+    $(document).on("click", "#btn-modal-customer-service", function() {
+        var type = $(this).data('type');
         var customer_id = "{{ isset($data) ? $data->id : ''}}";
         $("#modalCustomerService").modal('show');
-        var url = `{{ url("/admin/customer-services/form?customer_id=") }}${customer_id}`;
+        if(type == 'add-customer-service'){
+            $("#modalCustomerServiceLabel").html('Adicionar Serviço');
+            var url = `{{ url("/admin/customer-services/form?customer_id=") }}${customer_id}`;
+        }else{
+            $("#modalCustomerServiceLabel").html('Editar Serviço');
+            var customer_service_id = $(this).data('customer-service-id');
+            var url = `{{ url("/admin/customer-services/form?customer_id=") }}${customer_id}&id=${customer_service_id}`;
+        }
+
         console.log(url);
         $.get(url,
             $(this)
@@ -477,16 +491,17 @@ function loadCustomerServices(){
                 method: 'GET',
                 success:function(data){
                     console.log(data);
-                    $('#load-customer-servicees').html('');
+                    $('#load-customer-services').html('');
                     var html = '';
                     $.each(data, function(i, item) {
                         html += '<tr>';
-                        html += `<td></td>`;
-                        html += `<td></td>`;
-                        html += `<td></td>`;
-                        html += `<td>R$ </td>`;
-                        html += `<td><label class="badge badge-{{$result->status == 'Ativo' ? 'success' : 'danger'}}">{{$result->status}}</label></td>`;
-                        html += `<td><a href="{{url($linkFormEdit."&id=$result->id")}}" data-original-title="Editar" data-toggle="tooltip" class="btn btn-primary btn-xs"> <i class="fa fa-list"></i> Editar</a></td>`;
+                        html += `<td>${item.name}</td>`;
+                        html += `<td>${item.description}</td>`;
+                        html += `<td>R$ ${item.price}</td>`;
+                        html += `<td>${item.day_due}</td>`;
+                        html += `<td>${item.period}</td>`;
+                        html += `<td><label class="badge badge-${item.status == 'Ativo' ? 'success' : 'danger'}">${item.status}</label></td>`;
+                        html += `<td><a href="#" data-original-title="Editar Serviço" id="btn-modal-customer-service" data-type="edit-customer-service" data-customer-service-id="${item.id}" data-toggle="tooltip" class="btn btn-primary btn-xs"> <i class="fa fa-list"></i> Editar</a></td>`;
                         html += '</tr>';
 
                     });

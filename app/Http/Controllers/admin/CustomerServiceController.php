@@ -177,11 +177,12 @@ class CustomerServiceController extends Controller
 
     public function Load($customer_id){
 
-        $result = CustomerService::where('customer_id',$customer_id)->where('user_id',auth()->user()->id)->get();
+        $result = CustomerService::join('services','services.id','customer_services.service_id')
+                ->select('customer_services.id as id','customer_services.description','customer_services.price','customer_services.day_due','customer_services.period','customer_services.status','services.name as name')
+                ->where('customer_services.customer_id',$customer_id)->where('customer_services.user_id',auth()->user()->id)->get();
         return response()->json($result);
 
 
     }
-
 
 }

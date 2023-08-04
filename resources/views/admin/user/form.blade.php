@@ -166,7 +166,7 @@
 
 
                     <fieldset>
-                        <legend>Dados da API/E-mail</legend>
+                        <legend>Dados da API</legend>
 
                         <div class="form-row">
 
@@ -181,43 +181,26 @@
                     </div>
 
                     <div class="form-group col-md-4 col-sm-12">
-                        <label>Host SMTP</label>
-                        <input type="text" class="form-control" name="smtp_host" id="smtp_host" autocomplete="off" required value="{{isset($data->smtp_host) ? $data->smtp_host : ''}}">
+                        <label>Host API (PagHiper)</label>
+                        <input type="text" class="form-control" name="host_paghiper" id="host_paghiper" autocomplete="off" required value="{{isset($data->host_paghiper) ? $data->host_paghiper : ''}}">
                     </div>
 
                     <div class="form-group col-md-4 col-sm-12">
-                        <label>Usuário SMTP</label>
-                        <input type="text" class="form-control" name="smtp_user" id="smtp_user" autocomplete="off" required value="{{isset($data->smtp_user) ? $data->smtp_user : ''}}">
+                        <label>Token (PagHiper)</label>
+                        <input type="text" class="form-control" name="token_paghiper" id="token_paghiper" autocomplete="off" required value="{{isset($data->token_paghiper) ? $data->token_paghiper : ''}}">
                     </div>
 
                     <div class="form-group col-md-4 col-sm-12">
-                        <label>Senha SMTP</label>
-                        <input type="text" class="form-control" name="smtp_password" id="smtp_password" autocomplete="off" required value="{{isset($data->smtp_password) ? $data->smtp_password : ''}}">
+                        <label>Key (PagHiper)</label>
+                        <input type="text" class="form-control" name="key_paghiper" id="key_paghiper" autocomplete="off" required value="{{isset($data->key_paghiper) ? $data->key_paghiper : ''}}">
                     </div>
 
                     <div class="form-group col-md-6 col-sm-12">
-                        <label>Porta SMTP</label>
-                        <input type="text" class="form-control" name="smtp_port" id="smtp_port" autocomplete="off" required value="{{isset($data->smtp_port) ? $data->smtp_port : ''}}">
+                        <label>Access Token (Mercado Pago)</label>
+                        <input type="text" class="form-control" name="access_token_mp" id="access_token_mp" autocomplete="off" required value="{{isset($data->access_token_mp) ? $data->access_token_mp : ''}}">
                     </div>
 
-                    <div class="form-group col-md-6 col-sm-12">
-                        <label>Segurança SMTP</label>
-                        <select class="form-control" name="smtp_security">
-                            <option {{isset($data->smtp_security) && $data->smtp_security == '' ? 'selected': ''}} value="">Nenhum</option>
-                            <option {{isset($data->smtp_security) && $data->smtp_security == 'tls' ? 'selected': ''}} value="tls">TLS</option>
-                            <option {{isset($data->smtp_security) && $data->smtp_security == 'ssl' ? 'selected': ''}} value="ssl">SSL</option>
-                        </select>
-                    </div>
 
-                    <div class="form-group col-md-6 col-sm-12">
-                        <label>Token SendPulse API</label>
-                        <input type="text" class="form-control" name="sendpulse_token" id="sendpulse_token" autocomplete="off" required value="{{isset($data->sendpulse_token) ? $data->sendpulse_token : ''}}">
-                    </div>
-
-                    <div class="form-group col-md-6 col-sm-12">
-                        <label>Secret SendPulse API</label>
-                        <input type="text" class="form-control" name="sendpulse_secret" id="sendpulse_secret" autocomplete="off" required value="{{isset($data->sendpulse_secret) ? $data->sendpulse_secret : ''}}">
-                    </div>
 
                         </div>
 

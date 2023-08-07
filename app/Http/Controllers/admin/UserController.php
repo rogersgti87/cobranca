@@ -274,5 +274,53 @@ class UserController extends Controller
 
     }
 
+    public function getSession($session_id){
+
+        $result = Session::where('id',$session_id)->first();
+
+         //Deslogar Sessão
+        $response_logout = Http::withHeaders([
+            "Content-Type"  => "application/json",
+        ])->withtoken($result->token)
+        ->post('http://localhost:21465/api/'.$result->session.'/logout-session');
+
+        //$result_logout = $response_logout->getBody();
+        //$qrcode = json_decode($result_qrcode);
+
+
+
+            //Iniciar sessão
+            $response_start_session = Http::withHeaders([
+                "Content-Type"  => "application/json",
+            ])->withtoken($result->token)
+            ->post('http://localhost:21465/api/'.$result->session.'/start-session');
+
+            $result_start_session = $response_start_session->getBody();
+            $qrcode = json_decode($result_start_session);
+
+
+        return response()->json($qrcode);
+
+
+    }
+
+
+    public function getQRCODE($session_id){
+
+        $result = Session::where('id',$session_id)->first();
+
+        $response = Http::withHeaders([
+            "Content-Type"  => "application/json",
+        ])->withtoken($result->token)
+        ->get('http://localhost:21465/api/'.$result->session.'/status-session');
+
+        $result = $response->getBody();
+        return  json_decode($result);
+    }
+
+
+}
+
+
 
 }

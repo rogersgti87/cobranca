@@ -60,11 +60,11 @@
 
                     <div class="col-md-4 col-sm-12">
                         <fieldset>
-                            <legend>QRCODE Whatsapp</legend>
-                            <div class="form-group col-md-12 col-sm-12 text-center">
-                                <img src="" id="qrcode-whatsapp" style="height: 250px;width: 250px;">
-                            </div>
-
+                            <legend>Whatsapp</legend>
+                            @if(Request::get('id'))
+                                <button type="button" data-toggle="modal" data-target="#modal-ler-qrcode" id="{{ Request::get('id') }}" data-original-title="LER QRCODE" data-toggle="tooltip" class="btn btn-success btn-md"> <i class="fa fa-qrcode"></i> LER QRCODE</button>
+                                <button type="button" data-toggle="modal" data-target="#modal-novo-qrcode" id="{{ Request::get('id') }}" data-original-title="NOVO QRCODE" data-toggle="tooltip" class="btn btn-success btn-md"> <i class="fa fa-qrcode"></i> NOVO QRCODE</button>
+                            @endif
                         </fieldset>
 
                         </div>
@@ -227,6 +227,39 @@
   </div>
  </div>
 
+
+
+
+ <!-- Modal Product -->
+ <div class="modal fade" id="modal-ler-qrcode">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-success">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        <div class="modal-body-ler-qrcode"></div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+
+
+
+ <!-- Modal Product -->
+ <div class="modal fade" id="modal-novo-qrcode">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-success">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        <div class="modal-body-novo-qrcode"></div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+
 @section('scripts')
 
 <script>
@@ -307,6 +340,50 @@
 
 
         });
+
+
+
+
+        $("#modal-ler-qrcode").on("show.bs.modal", function(e) {
+
+var url = '{{ url('admin/sessions/getqrcode') }}' + '/' + e.relatedTarget.id;
+  $.get(url,
+    $(this)
+    .addClass('modal-scrollfix')
+    .find('.modal-body-ler-qrcode')
+    .html('Carregando...'),
+    function(data) {
+        console.log(data);
+      $(".modal-body-ler-qrcode").html(`<img src="${data.qrcode}" style="width:500px; height:500px;">`);
+    });
+
+
+
+});
+
+
+
+$("#modal-novo-qrcode").on("show.bs.modal", function(e) {
+
+if(confirm("Deseja gerar outro QRCODE?")){
+
+    var url = '{{ url('admin/sessions/getsession') }}' + '/' + e.relatedTarget.id;
+$.get(url,
+$(this)
+.addClass('modal-scrollfix')
+.find('.modal-body-novo-qrcode')
+.html('Carregando...'),
+function(data) {
+    console.log(data);
+$(".modal-body-novo-qrcode").html(`<img src="${data.qrcode}" style="width:500px; height:500px;">`);
+});
+
+}else{
+    return false;
+}
+
+});
+
 
 
     </script>

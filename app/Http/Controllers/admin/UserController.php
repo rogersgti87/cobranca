@@ -164,13 +164,10 @@ class UserController extends Controller
         $model->state                       = $data['state'];
         $model->api_host_whatsapp           = $data['api_host_whatsapp'];
         $model->api_access_token_whatsapp   = $data['api_access_token_whatsapp'];
-        $model->smtp_host                   = $data['smtp_host'];
-        $model->smtp_port                   = $data['smtp_port'];
-        $model->smtp_user                   = $data['smtp_user'];
-        $model->smtp_password               = $data['smtp_password'];
-        $model->smtp_security               = $data['smtp_security'];
-        $model->sendpulse_token             = $data['sendpulse_token'];
-        $model->sendpulse_secret            = $data['sendpulse_secret'];
+        $model->host_paghiper               = $data['host_paghiper'];
+        $model->token_paghiper              = $data['token_paghiper'];
+        $model->key_paghiper                = $data['key_paghiper'];
+        $model->access_token_mp             = $data['access_token_mp'];
 
         try{
             $model->save();
@@ -233,13 +230,10 @@ class UserController extends Controller
         $model->state                       = $data['state'];
         $model->api_host_whatsapp           = $data['api_host_whatsapp'];
         $model->api_access_token_whatsapp   = $data['api_access_token_whatsapp'];
-        $model->smtp_host                   = $data['smtp_host'];
-        $model->smtp_port                   = $data['smtp_port'];
-        $model->smtp_user                   = $data['smtp_user'];
-        $model->smtp_password               = $data['smtp_password'];
-        $model->smtp_security               = $data['smtp_security'];
-        $model->sendpulse_token             = $data['sendpulse_token'];
-        $model->sendpulse_secret            = $data['sendpulse_secret'];
+        $model->host_paghiper               = $data['host_paghiper'];
+        $model->token_paghiper              = $data['token_paghiper'];
+        $model->key_paghiper                = $data['key_paghiper'];
+        $model->access_token_mp             = $data['access_token_mp'];
 
 
         try{

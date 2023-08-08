@@ -180,10 +180,6 @@
                         <input type="text" class="form-control" name="api_access_token_whatsapp" id="api_access_token_whatsapp" autocomplete="off" required value="{{isset($data->api_access_token_whatsapp) ? $data->api_access_token_whatsapp : ''}}">
                     </div>
 
-                    <div class="form-group col-md-4 col-sm-12">
-                        <label>Host API (PagHiper)</label>
-                        <input type="text" class="form-control" name="host_paghiper" id="host_paghiper" autocomplete="off" required value="{{isset($data->host_paghiper) ? $data->host_paghiper : ''}}">
-                    </div>
 
                     <div class="form-group col-md-4 col-sm-12">
                         <label>Token (PagHiper)</label>
@@ -195,7 +191,7 @@
                         <input type="text" class="form-control" name="key_paghiper" id="key_paghiper" autocomplete="off" required value="{{isset($data->key_paghiper) ? $data->key_paghiper : ''}}">
                     </div>
 
-                    <div class="form-group col-md-6 col-sm-12">
+                    <div class="form-group col-md-4 col-sm-12">
                         <label>Access Token (Mercado Pago)</label>
                         <input type="text" class="form-control" name="access_token_mp" id="access_token_mp" autocomplete="off" required value="{{isset($data->access_token_mp) ? $data->access_token_mp : ''}}">
                     </div>

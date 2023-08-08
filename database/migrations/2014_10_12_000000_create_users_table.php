@@ -34,7 +34,6 @@ return new class extends Migration
             $table->string('state')->nullable();
             $table->string('api_host_whatsapp')->nullable();
             $table->text('api_access_token_whatsapp')->nullable();
-            $table->string('host_paghiper')->nullable();
             $table->string('token_paghiper')->nullable();
             $table->string('key_paghiper')->nullable();
             $table->string('access_token_mp')->nullable();

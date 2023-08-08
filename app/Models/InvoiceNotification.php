@@ -39,6 +39,30 @@ class InvoiceNotification extends Model
         );
         }
 
+
+        $content_payment = '';
+
+        if($data['payment_method'] == 'Pix'){
+
+            $content_payment    .=  '<p style="text-align:center">Se ainda não realizou o pagamento, ainda dá tempo, basta scannear o QrCode a baixo:</p>';
+            $content_payment    .=  '<p style="text-align:center"><img src="https://cobrancasegura.com.br/pix/'.$data['user_id'].'_'.$data['invoice'].'.png" alt="QR Code" style="max-width:220px;"></p>';
+            $content_payment    .=  '<p style="text-align:center">Código digitavel pix :</p>';
+            $content_payment    .=  '<p style="text-align:center">'.$data['pix_emv'].'</p>';
+            $content_payment    .=  '<ul>';
+            $content_payment    .=  '<li>O Pix será aprovado em poucos instantes após o pagamento.</li>';
+            $content_payment    .=  '</ul>';
+
+        }
+
+
+    if($data['payment_method'] == 'Boleto'){
+        $content_payment    .=  '<p style="text-align:center">Para gerar o Boleto é só clicar abaixo:</p>';
+        $content_payment    .=  '<p style="text-align:center"><a href="'.$data['billet_url_slip'].'" target="_blank"><img src="https://s7003039.sendpul.se/image/747991a0e145ac2bbe69f063a9402e69/files/emailservice/userfiles/afdeb61c8175066a32c78dbe45c9569d7003039/rogerti/boleto.png"></a></p>';
+        $content_payment    .=  '<p style="text-align:center">Código digitável:</p>';
+        $content_payment    .=  '<p style="text-align:center">'.$data['billet_digitable_line'].'</p>';
+    }
+
+
         $response = Http::withHeaders(
             [
                 "Accept"        =>  "application/json",
@@ -66,6 +90,7 @@ class InvoiceNotification extends Model
                     "DATE_DUE"          =>  $data['date_due'],
                     "PRICE"             =>  $data['price'],
                     "PAYMENT_METHOD"    =>  $data['payment_method'],
+                    "CONTENT_PAYMENT"   =>  $content_payment
                 ]
           ]);
 

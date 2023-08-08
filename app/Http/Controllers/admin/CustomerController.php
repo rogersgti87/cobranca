@@ -127,7 +127,7 @@ class CustomerController extends Controller
         $model->user_id                 = auth()->user()->id;
         $model->name                    = $data['name'];
         $model->type                    = $data['type'];
-        $model->document                = $data['document'];
+        $model->document                = removeEspeciais($data['document']);
         $model->company                 = $data['company'];
         $model->email                   = $data['email'];
         $model->email2                  = $data['email2'];
@@ -142,6 +142,9 @@ class CustomerController extends Controller
         $model->phone                   = $data['phone'];
         $model->whatsapp                = $data['whatsapp'];
         $model->payment_method          = $data['payment_method'];
+        $model->gateway_pix             = $data['gateway_pix'];
+        $model->gateway_billet          = $data['gateway_billet'];
+        $model->gateway_card            = $data['gateway_card'];
         $model->notification_whatsapp   = $data['notification_whatsapp'];
 
 
@@ -187,7 +190,7 @@ class CustomerController extends Controller
         $model->user_id                 = auth()->user()->id;
         $model->name                    = $data['name'];
         $model->type                    = $data['type'];
-        $model->document                = $data['document'];
+        $model->document                = removeEspeciais($data['document']);
         $model->company                 = $data['company'];
         $model->email                   = $data['email'];
         $model->email2                  = $data['email2'];
@@ -202,6 +205,9 @@ class CustomerController extends Controller
         $model->phone                   = $data['phone'];
         $model->whatsapp                = $data['whatsapp'];
         $model->payment_method          = $data['payment_method'];
+        $model->gateway_pix             = $data['gateway_pix'];
+        $model->gateway_billet          = $data['gateway_billet'];
+        $model->gateway_card            = $data['gateway_card'];
         $model->notification_whatsapp   = $data['notification_whatsapp'];
 
         try{

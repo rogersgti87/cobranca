@@ -20,7 +20,7 @@ class CreateInvoiceNotificationsTable extends Migration
             $table->string('type_send');
             $table->string('subject')->nullable();
             $table->datetime('date');
-            $table->string('senpulse_email_id')->nullable();
+            $table->string('email_id')->nullable();
             $table->string('status')->nullable();
             $table->text('message_status')->nullable();
             $table->text('message')->nullable();

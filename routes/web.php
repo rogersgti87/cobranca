@@ -20,6 +20,14 @@ Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['web', 'auth']
     \UniSharp\LaravelFilemanager\Lfm::routes();
 });
 
+Route::prefix('webhook')->group(function () {
+    Route::post('sendpulse-smtp', [WebHookController::class,'index']);
+    Route::post('paghiper', [WebHookController::class,'paghiper']);
+    Route::post('mercadopago', [WebHookController::class,'mercadopago']);
+    Route::get('backups/{user}', [WebHookController::class,'backups']);
+    Route::post('whatsapp-messages', [WebHookController::class,'whatsappmessage']);
+});
+
 
 Route::group(['prefix' => 'admin','middleware' => ['auth']], function(){
 

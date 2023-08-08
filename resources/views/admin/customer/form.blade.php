@@ -144,7 +144,25 @@
                                                 </div>
 
 
-                                                <div class="form-group col-md-2 col-sm-12">
+
+
+                                                <div class="form-group col-md-3 col-sm-12">
+                                                    <label>Notificar Whatsapp?</label>
+                                                    <select class="form-control custom-select" name="notification_whatsapp" id="notification_whatsapp">
+                                                        <option {{ isset($data->notification_whatsapp) && $data->notification_whatsapp === 's' ? 'selected' : '' }} value="s">Sim</option>
+                                                        <option {{ isset($data->notification_whatsapp) && $data->notification_whatsapp === 'n' ? 'selected' : '' }} value="n">Não</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="form-group col-md-3 col-sm-12">
+                                                    <label>Status</label>
+                                                    <select class="form-control custom-select" name="status" id="status">
+                                                        <option {{ isset($data->status) && $data->status === 'Ativo' ? 'selected' : '' }} value="Ativo">Ativo</option>
+                                                        <option {{ isset($data->status) && $data->status === 'Inativo' ? 'selected' : '' }} value="Inativo">Inativo</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="form-group col-md-3 col-sm-12">
                                                     <label>Forma de Pagamento</label>
                                                     <select class="form-control custom-select" name="payment_method" id="payment_method">
                                                         <option {{ isset($data->payment_method) && $data->payment_method === 'Pix' ? 'selected' : '' }} value="Pix">Pix</option>
@@ -155,19 +173,32 @@
                                                     </select>
                                                 </div>
 
-                                                <div class="form-group col-md-2 col-sm-12">
-                                                    <label>Notificar Whatsapp?</label>
-                                                    <select class="form-control custom-select" name="notification_whatsapp" id="notification_whatsapp">
-                                                        <option {{ isset($data->notification_whatsapp) && $data->notification_whatsapp === 's' ? 'selected' : '' }} value="s">Sim</option>
-                                                        <option {{ isset($data->notification_whatsapp) && $data->notification_whatsapp === 'n' ? 'selected' : '' }} value="n">Não</option>
+                                                <div class="form-group col-md-3 col-sm-12">
+                                                    <label>Gateway Pix</label>
+                                                    <select class="form-control custom-select" name="gateway_pix" id="gateway_pix">
+                                                        <option {{ isset($data->gateway_pix) && $data->gateway_pix === 'Pag Hiper' ? 'selected' : '' }} value="Pag Hiper">Pag Hiper</option>
+                                                        <option {{ isset($data->gateway_pix) && $data->gateway_pix === 'Mercado Pago' ? 'selected' : '' }} value="Mercado Pago">Mercado Pago</option>
+                                                        <option {{ isset($data->gateway_pix) && $data->gateway_pix === 'Intermedium' ? 'selected' : '' }} value="Intermedium">Intermedium(em breve)</option>
+                                                        <option {{ isset($data->gateway_pix) && $data->gateway_pix === 'Cora' ? 'selected' : '' }} value="Cora">Cora(em breve)</option>
                                                     </select>
                                                 </div>
 
-                                                <div class="form-group col-md-2 col-sm-12">
-                                                    <label>Status</label>
-                                                    <select class="form-control custom-select" name="status" id="status">
-                                                        <option {{ isset($data->status) && $data->status === 'Ativo' ? 'selected' : '' }} value="Ativo">Ativo</option>
-                                                        <option {{ isset($data->status) && $data->status === 'Inativo' ? 'selected' : '' }} value="Inativo">Inativo</option>
+                                                <div class="form-group col-md-3 col-sm-12">
+                                                    <label>Gateway Boleto</label>
+                                                    <select class="form-control custom-select" name="gateway_billet" id="gateway_billet">
+                                                        <option {{ isset($data->gateway_billet) && $data->gateway_billet === 'Pag Hiper' ? 'selected' : '' }} value="Pag Hiper">Pag Hiper</option>
+                                                        <option {{ isset($data->gateway_billet) && $data->gateway_billet === 'Mercado Pago' ? 'selected' : '' }} value="Mercado Pago">Mercado Pago(em breve)</option>
+                                                        <option {{ isset($data->gateway_billet) && $data->gateway_billet === 'Intermedium' ? 'selected' : '' }} value="Intermedium">Intermedium(em breve)</option>
+                                                        <option {{ isset($data->gateway_billet) && $data->gateway_billet === 'Cora' ? 'selected' : '' }} value="Cora">Cora(em breve)</option>
+                                                    </select>
+                                                </div>
+
+
+                                                <div class="form-group col-md-3 col-sm-12">
+                                                    <label>Gateway Cartão</label>
+                                                    <select class="form-control custom-select" name="gateway_card" id="gateway_card">
+                                                        <option {{ isset($data->gateway_card) && $data->gateway_card === 'Pag Hiper' ? 'selected' : '' }} value="Pag Hiper">Pag Hiper(em breve)</option>
+                                                        <option {{ isset($data->gateway_card) && $data->gateway_card === 'Mercado Pago' ? 'selected' : '' }} value="Mercado Pago">Mercado Pago(em breve)</option>
                                                     </select>
                                                 </div>
 

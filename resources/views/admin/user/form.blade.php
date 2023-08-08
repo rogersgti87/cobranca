@@ -49,7 +49,7 @@
 
                         <div class="form-group col-md-12 col-sm-12 text-center">
                             <a class="btn btn-default" style="border:1px solid #333;" id="lfm" data-input="thumbnail" data-preview="holder" style="cursor: pointer">
-                                <img src="{{ isset($data->image_thumb) && $data->image_thumb != null ? url("$data->image_thumb") : url('assets/admin/img/thumb.png') }}" id="holder" style="height: 235px;width: 235px;">
+                                <img src="{{ isset($data->image_thumb) && $data->image_thumb != null ? url("$data->image_thumb") : url('assets/admin/img/thumb.png') }}" id="holder" style="height: 100px;width: 100px;">
                             </a>
                             <input type="hidden" id="thumbnail" name="image" value="{{ isset($data->image) ? $data->image : '' }}">
                         </div>
@@ -346,41 +346,41 @@
 
         $("#modal-ler-qrcode").on("show.bs.modal", function(e) {
 
-var url = '{{ url('admin/sessions/getqrcode') }}' + '/' + e.relatedTarget.id;
-  $.get(url,
-    $(this)
-    .addClass('modal-scrollfix')
-    .find('.modal-body-ler-qrcode')
-    .html('Carregando...'),
-    function(data) {
-        console.log(data);
-      $(".modal-body-ler-qrcode").html(`<img src="${data.qrcode}" style="width:500px; height:500px;">`);
-    });
+        var url = '{{ url('admin/users/getqrcode') }}';
+        $.get(url,
+            $(this)
+            .addClass('modal-scrollfix')
+            .find('.modal-body-ler-qrcode')
+            .html('Carregando...'),
+            function(data) {
+                console.log(data);
+            $(".modal-body-ler-qrcode").html(`<img src="${data.qrcode}" style="width:500px; height:500px;">`);
+            });
 
 
 
-});
+        });
 
 
 
 $("#modal-novo-qrcode").on("show.bs.modal", function(e) {
 
-if(confirm("Deseja gerar outro QRCODE?")){
+    if(confirm("Deseja gerar outro QRCODE?")){
 
-    var url = '{{ url('admin/sessions/getsession') }}' + '/' + e.relatedTarget.id;
-$.get(url,
-$(this)
-.addClass('modal-scrollfix')
-.find('.modal-body-novo-qrcode')
-.html('Carregando...'),
-function(data) {
-    console.log(data);
-$(".modal-body-novo-qrcode").html(`<img src="${data.qrcode}" style="width:500px; height:500px;">`);
-});
+        var url = '{{ url('admin/users/getsession') }}';
+    $.get(url,
+    $(this)
+    .addClass('modal-scrollfix')
+    .find('.modal-body-novo-qrcode')
+    .html('Carregando...'),
+    function(data) {
+        console.log(data);
+    $(".modal-body-novo-qrcode").html(`<img src="${data.qrcode}" style="width:500px; height:500px;">`);
+    });
 
-}else{
-    return false;
-}
+    }else{
+        return false;
+    }
 
 });
 

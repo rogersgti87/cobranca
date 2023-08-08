@@ -31,6 +31,8 @@ Route::group(['prefix' => 'admin','middleware' => ['auth']], function(){
     Route::put('users/{id}',[UserController::class,'update']);
     Route::post('users/copy',[UserController::class,'copy']);
     Route::delete('users',[UserController::class,'destroy']);
+    Route::get('users/getsession',[UserController::class,'getSession']);
+    Route::get('users/getqrcode',[UserController::class,'getQRCode']);
 
     Route::get('settings',[SettingController::class,'form']);
     Route::put('settings',[SettingController::class,'update']);

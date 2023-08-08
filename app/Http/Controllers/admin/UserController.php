@@ -11,6 +11,7 @@ use Image;
 use DB;
 use App\Models\User;
 use RuntimeException;
+use Illuminate\Support\Facades\Http;
 
 class UserController extends Controller
 {
@@ -274,30 +275,14 @@ class UserController extends Controller
 
     }
 
-    public function getSession($session_id){
+    public function getSession(){
 
-        $result = Session::where('id',$session_id)->first();
-
-         //Deslogar Sessão
-        $response_logout = Http::withHeaders([
-            "Content-Type"  => "application/json",
-        ])->withtoken($result->token)
-        ->post('http://localhost:21465/api/'.$result->session.'/logout-session');
-
-        //$result_logout = $response_logout->getBody();
-        //$qrcode = json_decode($result_qrcode);
-
-
-
+            $access_token = auth()->user()->api_access_token_whatsapp;
             //Iniciar sessão
-            $response_start_session = Http::withHeaders([
-                "Content-Type"  => "application/json",
-            ])->withtoken($result->token)
-            ->post('http://localhost:21465/api/'.$result->session.'/start-session');
+            $response_start_session = Http::get('https://whatsapp.rogerti.com.br:8000/api/start-session/'.$access_token);
 
             $result_start_session = $response_start_session->getBody();
             $qrcode = json_decode($result_start_session);
-
 
         return response()->json($qrcode);
 
@@ -305,21 +290,16 @@ class UserController extends Controller
     }
 
 
-    public function getQRCODE($session_id){
+    public function getQRCODE(){
 
-        $result = Session::where('id',$session_id)->first();
-
-        $response = Http::withHeaders([
-            "Content-Type"  => "application/json",
-        ])->withtoken($result->token)
-        ->get('http://localhost:21465/api/'.$result->session.'/status-session');
+        $access_token = auth()->user()->api_access_token_whatsapp;
+        $response = Http::get('https://whatsapp.rogerti.com.br:8000/api/qrcode-session/'.$access_token);
 
         $result = $response->getBody();
         return  json_decode($result);
     }
 
 
-}
 
 
 

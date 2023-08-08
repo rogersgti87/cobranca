@@ -165,7 +165,6 @@ class UserController extends Controller
         $model->state                       = $data['state'];
         $model->api_host_whatsapp           = $data['api_host_whatsapp'];
         $model->api_access_token_whatsapp   = $data['api_access_token_whatsapp'];
-        $model->host_paghiper               = $data['host_paghiper'];
         $model->token_paghiper              = $data['token_paghiper'];
         $model->key_paghiper                = $data['key_paghiper'];
         $model->access_token_mp             = $data['access_token_mp'];
@@ -231,7 +230,6 @@ class UserController extends Controller
         $model->state                       = $data['state'];
         $model->api_host_whatsapp           = $data['api_host_whatsapp'];
         $model->api_access_token_whatsapp   = $data['api_access_token_whatsapp'];
-        $model->host_paghiper               = $data['host_paghiper'];
         $model->token_paghiper              = $data['token_paghiper'];
         $model->key_paghiper                = $data['key_paghiper'];
         $model->access_token_mp             = $data['access_token_mp'];

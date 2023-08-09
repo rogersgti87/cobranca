@@ -107,9 +107,10 @@ class InvoiceNotification extends Model
         if($whats_payment_method == 'Boleto'){
             $data['text_whatsapp'] .= "Para abrir o Boleto é só clicar no link abaixo\n";
             $data['text_whatsapp'] .= "$whats_billet_url_slip\n\n";
+            $data['text_whatsapp'] .= "*Linha Digitável abaixo* \n\n";
         }
 
-        $data['text_whatsapp'] .= "*Linha Digitável abaixo* \n\n";
+
 
         if($data['notification_whatsapp'] == 's'){
 
@@ -156,7 +157,8 @@ class InvoiceNotification extends Model
         ])->post('https://whatsapp.rogerti.com.br:8000/api/send-image',[
                 "access_token"  => $data['user_access_token_wp'],
                 "whatsapp"      => '55'.$data['customer_whatsapp'],
-                "message"       => 'data:image/png;base64,'.$data['pix_qrcode_wp']
+                "message"       => 'data:image/png;base64,'.$data['pix_qrcode_wp'],
+                "caption"       =>  $whats_pix_emv
             ]);
 
             $result = $response->getBody();
@@ -190,12 +192,10 @@ class InvoiceNotification extends Model
 
             $data['text_whatsapp_payment'] = '';
 
-        if($whats_payment_method == 'Pix'){
-            $data['text_whatsapp_payment'] .= "$whats_pix_emv\n\n";
-        }else{
+        if($whats_payment_method == 'Billet'){
             $whats_billet_digitable_line = removeEspeciais($whats_billet_digitable_line);
             $data['text_whatsapp_payment'] .= "$whats_billet_digitable_line\n\n";
-        }
+
 
 
              $response = Http::withHeaders([
@@ -233,7 +233,7 @@ class InvoiceNotification extends Model
             ]);
 
         }
-
+    }
 
 
     }

@@ -505,6 +505,10 @@ $(document).ready(function(){
     //Save customer service
      $(document).on('click', '#btn-save-customer-service', function(e) {
             e.preventDefault();
+
+            $("#btn-save-invoice").attr("disabled", true);
+            $("#btn-save-invoice").text('Aguarde...');
+
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': "{{csrf_token()}}"

@@ -256,9 +256,12 @@ class InvoiceController extends Controller
 
             $details['body']  = view('mails.invoice',$details)->render();
 
-            InvoiceNotification::Email($details);
 
-            InvoiceNotification::Whatsapp($details);
+            if(isset($data['send_invoice_email']))
+                InvoiceNotification::Email($details);
+
+            if(isset($data['send_invoice_whatsapp']))
+                InvoiceNotification::Whatsapp($details);
 
         } catch(\Exception $e){
             \Log::error($e->getMessage());

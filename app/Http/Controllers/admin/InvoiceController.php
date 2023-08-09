@@ -207,7 +207,7 @@ class InvoiceController extends Controller
             $details = [
                 'type_send'                 => 'New',
                 'title'                     => 'Nova fatura gerada',
-                'message_customer'          => 'Olá '.$customer.', tudo bem?',
+                'message_customer'          => 'Olá '.$customer->name.', tudo bem?',
                 'message_notification'      => 'Esta é uma mensagem para notificá-lo(a) que foi gerado a <b>Fatura #'.$invoice->id.'</b>',
                 'logo'                      => 'https://cobrancasegura.com.br/'.$user->image,
                 'company'                   => $user->company,
@@ -228,7 +228,6 @@ class InvoiceController extends Controller
                 'payment_method'            => $invoice->payment_method,
                 'service'                   => $customer_service->name .' - '. $invoice->description,
                 'invoice'                   => $invoice->id,
-                'invoice_id'                => $invoice->id,
                 'url_base'                  => url('/'),
                 'pix_qrcode_image_url'      =>  '',
                 'pix_emv'                   =>  '',

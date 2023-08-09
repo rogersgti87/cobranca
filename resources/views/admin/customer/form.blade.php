@@ -506,10 +506,6 @@ $(document).ready(function(){
     //Save customer service
      $(document).on('click', '#btn-save-customer-service', function(e) {
             e.preventDefault();
-
-            $("#btn-save-invoice").attr("disabled", true);
-            $("#btn-save-invoice").text('Aguarde...');
-
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': "{{csrf_token()}}"
@@ -529,13 +525,7 @@ $(document).ready(function(){
                 url: url,
                 data:data,
                 method:method,
-
-                beforeSend:function(){
-                    $("#btn-save-invoice").attr("disabled", true);
-                    $("#btn-save-invoice").text('Aguarde...');
-                },
                 success:function(data){
-                    $("#btn-save-invoice").attr("disabled", false);
                     $("#btn-save-invoice").html('<i class="fa fa-check"></i> Salvar');
                     console.log(data);
                     Swal.fire({
@@ -553,7 +543,6 @@ $(document).ready(function(){
                     });
                 },
                 error:function (xhr) {
-                    $("#btn-save-invoice").attr("disabled", false);
                     $("#btn-save-invoice").html('<i class="fa fa-check"></i> Salvar');
                     if(xhr.status === 422){
                         Swal.fire({
@@ -746,6 +735,10 @@ $(document).on('click', '#btn-delete-customer-service', function(e) {
     //Save Invoice
      $(document).on('click', '#btn-save-invoice', function(e) {
             e.preventDefault();
+
+            $("#btn-save-invoice").attr("disabled", true);
+            $("#btn-save-invoice").text('Aguarde...');
+
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': "{{csrf_token()}}"
@@ -765,7 +758,12 @@ $(document).on('click', '#btn-delete-customer-service', function(e) {
                 url: url,
                 data:data,
                 method:method,
+                beforeSend:function(){
+                    $("#btn-save-invoice").attr("disabled", true);
+                    $("#btn-save-invoice").text('Aguarde...');
+                },
                 success:function(data){
+                    $("#btn-save-invoice").attr("disabled", false);
                     console.log(data);
                     Swal.fire({
                         width:350,
@@ -782,7 +780,7 @@ $(document).on('click', '#btn-delete-customer-service', function(e) {
                     });
                 },
                 error:function (xhr) {
-
+                    $("#btn-save-invoice").attr("disabled", false);
                     if(xhr.status === 422){
                         Swal.fire({
                             text: xhr.responseJSON,

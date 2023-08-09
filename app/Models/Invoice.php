@@ -212,7 +212,7 @@ class Invoice extends Model
         ]);
 
         $result = $response->getBody();
-        return json_decode($result);
+        return json_decode($result)->status_request;
 
     }
 

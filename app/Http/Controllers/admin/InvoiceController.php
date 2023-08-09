@@ -140,7 +140,6 @@ class InvoiceController extends Controller
                     $verifyTransaction = DB::table('invoices')->select('transaction_id')->where('id',$invoice->id)->where('user_id',auth()->user()->id)->first();
                     $getInfoPixPayment = Invoice::verifyStatusPixPH(auth()->user()->id,$verifyTransaction->transaction_id);
 
-
                     $image_pix_email    = $getInfoPixPayment->pix_code->qrcode_image_url;
                     $qr_code_digitable  = $getInfoPixPayment->pix_code->emv;
 

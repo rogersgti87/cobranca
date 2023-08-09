@@ -67,7 +67,7 @@ class InvoiceNotification extends Model
             [
                 "Accept"        =>  "application/json",
                 "Content-Type"  =>  "application/json",
-                "api-key"       =>  "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"
+                "api-key"       =>  config('mail.api_key_brevo')
             ]
             )->post('https://api.brevo.com/v3/smtp/email',[
 
@@ -97,6 +97,7 @@ class InvoiceNotification extends Model
         $result = $response->getBody();
 
         $email_id = json_decode($result)->messageId;
+
 
         DB::table('invoice_notifications')->insert([
             'user_id'           => $data['user_id'],

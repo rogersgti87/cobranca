@@ -13,6 +13,8 @@ return [
     |
     */
 
+    'api_key_brevo' => env('API_KEY_BREVO', ''),
+
     'default' => env('MAIL_MAILER', 'smtp'),
 
     /*

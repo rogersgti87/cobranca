@@ -162,11 +162,11 @@ class InvoiceController extends Controller
                     $image_pix_email = 'https://financeiro.rogerti.com.br/pix/'.auth()->user()->id.'_'.$invoice->id.'.png';
                     $qr_code_digitable = $getInfoPixPayment->qr_code;
 
-
+                }
             } elseif($invoice->payment_method == 'Boleto'){
 
                 if($customer->gateway_billet == 'Pag Hiper'){
-                    $generatePixPagHiper = Invoice::generatePixPH($invoice->id);
+                    $generatePixPagHiper = Invoice::generateBilletPH($invoice->id);
                     if($generatePixPagHiper['status'] == 'reject'){
                         return response()->json($generatePixPagHiper['message'], 422);
                     }
@@ -180,13 +180,15 @@ class InvoiceController extends Controller
                     }
 
                     $verifyTransaction = DB::table('invoices')->select('transaction_id')->where('id',$invoice->id)->where('user_id',auth()->user()->id)->first();
-                    $getInfoBilletPayment   = Invoice::verifyStatusBilletPH($model->user_id ,$verifyTransaction->transaction_id);
+                    \Log::info('Transaction da variavel verifyTransaction: '.$verifyTransaction->transaction_id);
+                    $getInfoBilletPayment   = Invoice::verifyStatusBilletPH(auth()->user()->id ,$verifyTransaction->transaction_id);
+
 
                 }elseif($customer->gateway_billet == 'Mercado Pago'){
                     //
                 }
 
-            }
+
         }
 
             $details = [
@@ -213,6 +215,7 @@ class InvoiceController extends Controller
                 'billet_url_slip'           =>  '',
             ];
 
+
             if($invoice->payment_method == 'Boleto'){
                 $details['billet_digitable_line'] = $getInfoBilletPayment->status_request->bank_slip->digitable_line;
                 $details['billet_url_slip_pdf']   = $getInfoBilletPayment->status_request->bank_slip->url_slip_pdf;
@@ -224,9 +227,6 @@ class InvoiceController extends Controller
             }
 
 
-            // if (isset($result['send_invoice']) == 1) {
-            //     InvoiceNotification::sendNotification($details);
-            // }
 
             InvoiceNotification::Email($details);
 

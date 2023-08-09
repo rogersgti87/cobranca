@@ -180,21 +180,10 @@ class InvoiceController extends Controller
                     }
 
                     $verifyTransaction = DB::table('invoices')->select('transaction_id')->where('id',$invoice->id)->where('user_id',auth()->user()->id)->first();
-                    $getInfoBilletPayment   = Invoice::verifyStatusBilletPayment($verifyTransaction->transaction_id);
+                    $getInfoBilletPayment   = Invoice::verifyStatusBilletPH($model->user_id ,$verifyTransaction->transaction_id);
 
                 }elseif($customer->gateway_billet == 'Mercado Pago'){
-                    $generatePixPagHiper = Invoice::generatePixMP($invoice->id);
-                    if($generatePixPagHiper['status'] == 'reject'){
-                        return response()->json($generatePixPagHiper['message'], 422);
-                    }
-                    try {
-                        Invoice::where('id',$invoice->id)->where('user_id',auth()->user()->id)->update([
-                            'transaction_id' => $generatePixPagHiper['transaction_id']
-                        ]);
-                    } catch (\Exception $e) {
-                        \Log::error($e->getMessage());
-                        return response()->json($e->getMessage(), 422);
-                    }
+                    //
                 }
 
             }

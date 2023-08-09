@@ -166,26 +166,25 @@ class Invoice extends Model
     }
 
 
-    // public static function verifyStatusBilletPayment($transaction_id){
+    public static function verifyStatusBilletPH($user_id,$transaction_id){
 
-    //     $api_token  = 'GUY0NUU1AA4EBWID21B36INWY14GR9Z84X9SS3U2DZHO';
-    //     $api_key    = 'apk_49587512-BbMWUgPOyyjwePnrDopJtToAMHoEpZCq';
+      $user = User::where('id',$user_id)->first();
 
 
-    //     //Consultar status da transação
-    //     $response = Http::withHeaders([
-    //         'accept' => 'application/json',
-    //         'content-type' => 'application/json',
-    //     ])->post('https://api.paghiper.com/transaction/status/',[
-    //         'token'             => $api_token,
-    //         'apiKey'            => $api_key,
-    //         'transaction_id'    => $transaction_id
-    //     ]);
+        //Consultar status da transação
+        $response = Http::withHeaders([
+            'accept' => 'application/json',
+            'content-type' => 'application/json',
+        ])->post('https://api.paghiper.com/transaction/status/',[
+            'token'             => $user->token_paghiper,
+            'apiKey'            => $user->key_paghiper,
+            'transaction_id'    => $transaction_id
+        ]);
 
-    //     $result = $response->getBody();
-    //     return json_decode($result);
+        $result = $response->getBody();
+        return json_decode($result);
 
-    // }
+    }
 
     public static function verifyStatusPixMP($access_token, $transaction_id){
 

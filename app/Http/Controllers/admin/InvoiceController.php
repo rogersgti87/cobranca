@@ -122,7 +122,7 @@ class InvoiceController extends Controller
 
 
             if($invoice->payment_method == 'Pix'){
-                if($customer->gateway_pix == 'Pag Hiper'){
+                if($invoice->gateway_payment == 'Pag Hiper'){
                     $generatePixPagHiper = Invoice::generatePixPH($invoice->id);
                     if($generatePixPagHiper['status'] == 'reject'){
                         return response()->json($generatePixPagHiper['message'], 422);
@@ -146,7 +146,7 @@ class InvoiceController extends Controller
                     $qr_code_digitable  = $getInfoPixPayment->pix_code->emv;
 
 
-                }elseif($customer->gateway_pix == 'Mercado Pago'){
+                }elseif($invoice->gateway_payment == 'Mercado Pago'){
                     $generatePixPagHiper = Invoice::generatePixMP($invoice->id);
                     if($generatePixPagHiper['status'] == 'reject'){
                         return response()->json($generatePixPagHiper['message'], 422);
@@ -179,7 +179,7 @@ class InvoiceController extends Controller
                 }
             } elseif($invoice->payment_method == 'Boleto'){
 
-                if($customer->gateway_billet == 'Pag Hiper'){
+                if($invoice->gateway_payment == 'Pag Hiper'){
                     $generatePixPagHiper = Invoice::generateBilletPH($invoice->id);
                     if($generatePixPagHiper['status'] == 'reject'){
                         return response()->json($generatePixPagHiper['message'], 422);
@@ -198,7 +198,7 @@ class InvoiceController extends Controller
                     $getInfoBilletPayment   = Invoice::verifyStatusBilletPH(auth()->user()->id ,$verifyTransaction->transaction_id);
 
 
-                }elseif($customer->gateway_billet == 'Mercado Pago'){
+                }elseif($invoice->gateway_payment == 'Mercado Pago'){
                     //
                 }
 
@@ -228,6 +228,7 @@ class InvoiceController extends Controller
                 'date_invoice'              => date('d/m/Y', strtotime($invoice->date_invoice)),
                 'date_due'                  => date('d/m/Y', strtotime($invoice->date_due)),
                 'price'                     => number_format($invoice->price, 2,',','.'),
+                'gateway_payment'           => $invoice->gateway_payment,
                 'payment_method'            => $invoice->payment_method,
                 'service'                   => $customer_service->name .' - '. $invoice->description,
                 'invoice'                   => $invoice->id,

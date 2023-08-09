@@ -242,12 +242,11 @@ class InvoiceController extends Controller
                 $details['billet_url_slip_pdf']   = $getInfoBilletPayment->status_request->bank_slip->url_slip_pdf;
                 $details['billet_url_slip']       = $getInfoBilletPayment->status_request->bank_slip->url_slip;
 
-                //InvoiceNotification::EmailBillet($details);
             }else{
 
                 $details['pix_qrcode_image_url']  = $image_pix_email;
                 $details['pix_emv']               = $qr_code_digitable;
-                //InvoiceNotification::EmailPix($details);
+
             }
 
 

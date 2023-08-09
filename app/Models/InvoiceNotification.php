@@ -75,163 +75,6 @@ class InvoiceNotification extends Model
 
     }
 
-    public static function EmailPix($data){
-
-
-        if($data['customer_email2'] != null){
-            $emails = array(
-                [
-                    "name"      => $data['customer'],
-                    "email"     => $data['customer_email']
-                ],
-                [
-                    "name"      => $data['customer'],
-                    "email"     => $data['customer_email2']
-                ]
-                );
-        } else {
-            $emails = array(
-                [
-                "name"  => $data['customer'],
-                "email"     => $data['customer_email']
-            ]
-        );
-        }
-
-
-        $response = Http::withHeaders(
-            [
-                "Accept"        =>  "application/json",
-                "Content-Type"  =>  "application/json",
-                "api-key"       =>  config('mail.api_key_brevo')
-            ]
-            )->post('https://api.brevo.com/v3/smtp/email',[
-
-                "sender" => [
-                    "name"  => $data['company'],
-                    "email" => "cobrancasegura@cobrancasegura.com.br"
-                ],
-                "to" => $emails,
-
-                "subject"       => $data['title'],
-                //"htmlContent"   => $data['body'],
-                "templateId"    => 1,
-                "params"        =>  [
-                    "LOGO"              =>  $data['logo'],
-                    "COMPANY"           =>  $data['company'],
-                    "CUSTOMER"          =>  $data['customer'],
-                    "INVOICE"           =>  $data['invoice'],
-                    "SERVICE"           =>  $data['service'],
-                    "DATE_INVOICE"      =>  $data['date_invoice'],
-                    "DATE_DUE"          =>  $data['date_due'],
-                    "PRICE"             =>  $data['price'],
-                    "PAYMENT_METHOD"    =>  $data['payment_method'],
-                    "URL_PIX"           =>  'https://cobrancasegura.com.br/pix/'.$data['user_id'].'_'.$data['invoice'].'.png',
-                    "PIX_EMV"           =>  $data['pix_emv']
-                ]
-          ]);
-
-        $result = $response->getBody();
-
-        $email_id = json_decode($result)->messageId;
-
-
-        DB::table('invoice_notifications')->insert([
-            'user_id'           => $data['user_id'],
-            'invoice_id'        => $data['invoice'],
-            'type_send'         => 'email',
-            'date'              => Carbon::now(),
-            'subject'           => '',
-            'email_id'          => $email_id,
-            'status'            => null,
-            'message_status'    => null,
-            'message'           => null,
-            'created_at'        => Carbon::now(),
-            'updated_at'        => Carbon::now()
-        ]);
-
-
-    }
-
-
-    public static function EmailBillet($data){
-
-
-        if($data['customer_email2'] != null){
-            $emails = array(
-                [
-                    "name"      => $data['customer'],
-                    "email"     => $data['customer_email']
-                ],
-                [
-                    "name"      => $data['customer'],
-                    "email"     => $data['customer_email2']
-                ]
-                );
-        } else {
-            $emails = array(
-                [
-                "name"  => $data['customer'],
-                "email"     => $data['customer_email']
-            ]
-        );
-        }
-
-
-        $response = Http::withHeaders(
-            [
-                "Accept"        =>  "application/json",
-                "Content-Type"  =>  "application/json",
-                "api-key"       =>  config('mail.api_key_brevo')
-            ]
-            )->post('https://api.brevo.com/v3/smtp/email',[
-
-                "sender" => [
-                    "name"  => $data['company'],
-                    "email" => "cobrancasegura@cobrancasegura.com.br"
-                ],
-                "to" => $emails,
-
-                "subject"       => $data['title'],
-                //"htmlContent"   => $data['body'],
-                "templateId"    => 2,
-                "params"        =>  [
-                    "LOGO"              =>  $data['logo'],
-                    "COMPANY"           =>  $data['company'],
-                    "CUSTOMER"          =>  $data['customer'],
-                    "INVOICE"           =>  $data['invoice'],
-                    "SERVICE"           =>  $data['service'],
-                    "DATE_INVOICE"      =>  $data['date_invoice'],
-                    "DATE_DUE"          =>  $data['date_due'],
-                    "PRICE"             =>  $data['price'],
-                    "PAYMENT_METHOD"    =>  $data['payment_method'],
-                    "URL_BILLET"        =>  $data['billet_url_slip'],
-                    "BILLET_DIGITABLE"  =>  $data['billet_digitable_line']
-                ]
-          ]);
-
-        $result = $response->getBody();
-
-        $email_id = json_decode($result)->messageId;
-
-
-        DB::table('invoice_notifications')->insert([
-            'user_id'           => $data['user_id'],
-            'invoice_id'        => $data['invoice'],
-            'type_send'         => 'email',
-            'date'              => Carbon::now(),
-            'subject'           => '',
-            'email_id'          => $email_id,
-            'status'            => null,
-            'message_status'    => null,
-            'message'           => null,
-            'created_at'        => Carbon::now(),
-            'updated_at'        => Carbon::now()
-        ]);
-
-
-    }
-
     public static function Whatsapp($data){
 
 
@@ -283,9 +126,9 @@ class InvoiceNotification extends Model
         $whats_status           = json_decode($result);
         if($whats_status->status == 'success'){
             $whats_message_status   = $whats_status->status;
-            $whats_message          = json_encode($whats_status->response);
+            $whats_message          = json_encode($whats_status);
         }else{
-            $whats_message_status   = json_encode($whats_status->response);
+            $whats_message_status   = json_encode($whats_status);
             $whats_message          = '';
         }
 
@@ -322,9 +165,9 @@ class InvoiceNotification extends Model
             $whats_status           = json_decode($result);
         if($whats_status->status == 'success'){
             $whats_message_status   = $whats_status->status;
-            $whats_message          = json_encode($whats_status->response);
+            $whats_message          = json_encode($whats_status);
         }else{
-            $whats_message_status   = json_encode($whats_status->response);
+            $whats_message_status   = json_encode($whats_status);
             $whats_message          = '';
         }
 
@@ -369,9 +212,9 @@ class InvoiceNotification extends Model
             $whats_status           = json_decode($result);
         if($whats_status->status == 'success'){
             $whats_message_status   = $whats_status->status;
-            $whats_message          = json_encode($whats_status->response);
+            $whats_message          = json_encode($whats_status);
         }else{
-            $whats_message_status   = json_encode($whats_status->response);
+            $whats_message_status   = json_encode($whats_status);
             $whats_message          = '';
         }
 
@@ -391,7 +234,6 @@ class InvoiceNotification extends Model
             ]);
 
         }
-
 
 
 

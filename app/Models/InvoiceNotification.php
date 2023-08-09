@@ -12,10 +12,6 @@ class InvoiceNotification extends Model
 {
 
 
-    public static function Whatsapp($data){
-
-    }
-
     public static function EmailPix($data){
 
 
@@ -173,7 +169,7 @@ class InvoiceNotification extends Model
 
     }
 
-    public static function sendNotification($data){
+    public static function Whatsapp($data){
 
 
         $whats_customer_name            = $data['customer'];

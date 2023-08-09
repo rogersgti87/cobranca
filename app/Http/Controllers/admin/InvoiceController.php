@@ -133,6 +133,17 @@ class InvoiceController extends Controller
                         \Log::error($e->getMessage());
                         return response()->json($e->getMessage(), 422);
                     }
+
+
+
+                    $verifyTransaction = DB::table('invoices')->select('transaction_id')->where('id',$invoice->id)->where('user_id',auth()->user()->id)->first();
+                    $getInfoPixPayment = Invoice::verifyStatusPixPH(auth()->user()->id,$verifyTransaction->transaction_id);
+
+
+                    $image_pix_email    = $getInfoPixPayment->pix_code->qrcode_image_url;
+                    $qr_code_digitable  = $getInfoPixPayment->pix_code->emv;
+
+
                 }elseif($customer->gateway_pix == 'Mercado Pago'){
                     $generatePixPagHiper = Invoice::generatePixMP($invoice->id);
                     if($generatePixPagHiper['status'] == 'reject'){

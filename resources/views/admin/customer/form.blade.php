@@ -524,7 +524,14 @@ $(document).ready(function(){
                 url: url,
                 data:data,
                 method:method,
+
+                beforeSend:function(){
+                    $("#btn-save-invoice").attr("disabled", true);
+                    $("#btn-save-invoice").text('Aguarde...');
+                },
                 success:function(data){
+                    $("#btn-save-invoice").attr("disabled", false);
+                    $("#btn-save-invoice").html('<i class="fa fa-check"></i> Salvar');
                     console.log(data);
                     Swal.fire({
                         width:350,
@@ -541,7 +548,8 @@ $(document).ready(function(){
                     });
                 },
                 error:function (xhr) {
-
+                    $("#btn-save-invoice").attr("disabled", false);
+                    $("#btn-save-invoice").html('<i class="fa fa-check"></i> Salvar');
                     if(xhr.status === 422){
                         Swal.fire({
                             text: xhr.responseJSON,

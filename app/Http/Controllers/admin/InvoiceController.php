@@ -141,6 +141,7 @@ class InvoiceController extends Controller
                     $getInfoPixPayment = Invoice::verifyStatusPixPH(auth()->user()->id,$verifyTransaction->transaction_id);
 
                     $image_pix_email    = $getInfoPixPayment->pix_code->qrcode_image_url;
+                    $image_pix_wp       = $getInfoPixPayment->pix_code->qrcode_base64;
                     $qr_code_digitable  = $getInfoPixPayment->pix_code->emv;
 
 
@@ -170,8 +171,9 @@ class InvoiceController extends Controller
                     $imageName = auth()->user()->id.'_'.$invoice->id.'.'.'png';
                     \File::put(public_path(). '/pix/' . $imageName, base64_decode($image));
 
-                    $image_pix_email = 'https://financeiro.rogerti.com.br/pix/'.auth()->user()->id.'_'.$invoice->id.'.png';
-                    $qr_code_digitable = $getInfoPixPayment->qr_code;
+                    $image_pix_email    = 'https://financeiro.rogerti.com.br/pix/'.auth()->user()->id.'_'.$invoice->id.'.png';
+                    $image_pix_wp       = $getInfoPixPayment->qr_code_base64;
+                    $qr_code_digitable  = $getInfoPixPayment->qr_code;
 
                 }
             } elseif($invoice->payment_method == 'Boleto'){
@@ -231,6 +233,7 @@ class InvoiceController extends Controller
                 'url_base'                  => url('/'),
                 'pix_qrcode_image_url'      =>  '',
                 'pix_emv'                   =>  '',
+                'pix_qrcode_wp'             =>  '',
                 'billet_digitable_line'     =>  '',
                 'billet_url_slip_pdf'       =>  '',
                 'billet_url_slip'           =>  '',
@@ -245,6 +248,7 @@ class InvoiceController extends Controller
             }else{
 
                 $details['pix_qrcode_image_url']  = $image_pix_email;
+                $details['pix_qrcode_wp']         = $image_pix_wp;
                 $details['pix_emv']               = $qr_code_digitable;
 
             }

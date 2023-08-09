@@ -34,8 +34,8 @@
     <h4 style="text-align: center;">Mensagem automática, favor não responder este e-mail.</h4>
     <br>
     <h1>{{$title}}</h1>
-    <p>{!! $message_customer !!}</p>
-    <p>{{$message_notification}}</p>
+    <p>{{ $message_customer }}</p>
+    <p>{!! $message_notification !!}</p>
 
     <p><b>Serviço(s) Contratado(s):</b></p>
     <ul>

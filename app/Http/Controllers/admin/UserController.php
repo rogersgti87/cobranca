@@ -81,17 +81,6 @@ class UserController extends Controller
         }
 
 
-        foreach($data as $key => $result){
-            if(isJSON($result->image) == true){
-                $data[$key]['image_thumb']    = property_exists(json_decode($result->image), 'thumb')    ? json_decode($result->image)->thumb : '';
-                $data[$key]['image_original'] = property_exists(json_decode($result->image), 'original') ? json_decode($result->image)->original : '';
-            }else{
-                $data[$key]['image_thumb']    = '';
-                $data[$key]['image_original'] = '';
-            }
-        }
-
-
         return view($this->datarequest['path'].'.index',compact('column','order','data'))->with($this->datarequest);
     }
 
@@ -104,14 +93,6 @@ class UserController extends Controller
             $this->datarequest['linkUpdate']   = $this->datarequest['linkUpdate'].$this->request->input('id');
 
             $data = User::where('id',$this->request->input('id'))->first();
-
-            if(isJSON($data->image) == true){
-                $data['image_thumb']    = property_exists(json_decode($data->image), 'thumb')    ? json_decode($data->image)->thumb : '';
-                $data['image_original'] = property_exists(json_decode($data->image), 'original') ? json_decode($data->image)->original : '';
-            }else{
-                $data['image_thumb']    = '';
-                $data['image_original'] = '';
-            }
 
             return view($this->datarequest['path'].'form',compact('data'))->with($this->datarequest);
         }else{

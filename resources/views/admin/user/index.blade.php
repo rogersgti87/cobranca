@@ -103,7 +103,7 @@
                                         </label>
                                     </td>
 
-                                    <td><img src="{{ $result->image_thumb != null ? url("$result->image_thumb") : url('assets/admin/img/thumb.png')}}" class="thumbnail" style="width:45px;height: 45px;"></td>
+                                    <td><img src="{{ $result->image != null ? url("$result->image") : url('assets/admin/img/thumb.png')}}" class="thumbnail" style="width:45px;height: 45px;"></td>
                                     <td>{{$result->name}}</td>
                                     <td>{{$result->company}}</td>
                                     <td>{{$result->email}}</td>

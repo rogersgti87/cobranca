@@ -204,7 +204,7 @@ class InvoiceController extends Controller
 
             $details = [
                 'title'                     => 'Nova fatura gerada',
-                'logo'                      => 'https://rogerti.com.br/wp-content/uploads/2023/06/rogerti.png',
+                'logo'                      => 'https://cobrancasegura.com.br/'.auth()->user()->image,
                 'user_id'                   => $invoice->user_id,
                 'customer'                  => $customer->name,
                 'customer_email'            => $customer->email,
@@ -232,16 +232,18 @@ class InvoiceController extends Controller
                 $details['billet_url_slip_pdf']   = $getInfoBilletPayment->status_request->bank_slip->url_slip_pdf;
                 $details['billet_url_slip']       = $getInfoBilletPayment->status_request->bank_slip->url_slip;
 
-                InvoiceNotification::EmailBillet($details);
+                //InvoiceNotification::EmailBillet($details);
             }else{
 
                 $details['pix_qrcode_image_url']  = $image_pix_email;
                 $details['pix_emv']               = $qr_code_digitable;
-                InvoiceNotification::EmailPix($details);
+                //InvoiceNotification::EmailPix($details);
             }
 
 
+            $details['body']  = view('mails.invoice',$details)->render();
 
+            InvoiceNotification::Email($details);
 
         } catch(\Exception $e){
             \Log::error($e->getMessage());

@@ -49,7 +49,7 @@
 
                         <div class="form-group col-md-12 col-sm-12 text-center">
                             <a class="btn btn-default" style="border:1px solid #333;" id="lfm" data-input="thumbnail" data-preview="holder" style="cursor: pointer">
-                                <img src="{{ isset($data->image_thumb) && $data->image_thumb != null ? url("$data->image_thumb") : url('assets/admin/img/thumb.png') }}" id="holder" style="height: 100px;width: 100px;">
+                                <img src="{{ isset($data->image) && $data->image != null ? url("$data->image") : url('assets/admin/img/thumb.png') }}" id="holder" style="height: 100px;width: 100px;">
                             </a>
                             <input type="hidden" id="thumbnail" name="image" value="{{ isset($data->image) ? $data->image : '' }}">
                         </div>

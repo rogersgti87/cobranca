@@ -12,6 +12,69 @@ class InvoiceNotification extends Model
 {
 
 
+    public static function Email($data){
+
+
+        if($data['customer_email2'] != null){
+            $emails = array(
+                [
+                    "name"      => $data['customer'],
+                    "email"     => $data['customer_email']
+                ],
+                [
+                    "name"      => $data['customer'],
+                    "email"     => $data['customer_email2']
+                ]
+                );
+        } else {
+            $emails = array(
+                [
+                "name"  => $data['customer'],
+                "email"     => $data['customer_email']
+            ]
+        );
+        }
+
+        $response = Http::withHeaders(
+            [
+                "Accept"        =>  "application/json",
+                "Content-Type"  =>  "application/json",
+                "api-key"       =>  config('mail.api_key_brevo')
+            ]
+            )->post('https://api.brevo.com/v3/smtp/email',[
+
+                "sender" => [
+                    "name"  => $data['company'],
+                    "email" => "cobrancasegura@cobrancasegura.com.br"
+                ],
+                "to" => $emails,
+
+                "subject"       => $data['title'],
+                "htmlContent"   => $data['body']
+          ]);
+
+        $result = $response->getBody();
+
+        $email_id = json_decode($result)->messageId;
+
+
+        DB::table('invoice_notifications')->insert([
+            'user_id'           => $data['user_id'],
+            'invoice_id'        => $data['invoice'],
+            'type_send'         => 'email',
+            'date'              => Carbon::now(),
+            'subject'           => '',
+            'email_id'          => $email_id,
+            'status'            => null,
+            'message_status'    => null,
+            'message'           => null,
+            'created_at'        => Carbon::now(),
+            'updated_at'        => Carbon::now()
+        ]);
+
+
+    }
+
     public static function EmailPix($data){
 
 

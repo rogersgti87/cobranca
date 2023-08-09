@@ -37,10 +37,6 @@ return new class extends Migration
             $table->string('token_paghiper')->nullable();
             $table->string('key_paghiper')->nullable();
             $table->string('access_token_mp')->nullable();
-            $table->char('template_invoice_pix')->default(1);
-            $table->char('template_invoice_billet')->default(2);
-            $table->char('template_confirmed_invoice')->default(3);
-
             $table->rememberToken();
             $table->timestamps();
         });

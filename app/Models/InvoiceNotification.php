@@ -291,7 +291,8 @@ class InvoiceNotification extends Model
 
 
         DB::table('invoice_notifications')->insert([
-            'invoice_id'        => $data['invoice_id'],
+            'user_id'           => $data['user_id'],
+            'invoice_id'        => $data['invoice'],
             'type_send'         => 'whatsapp',
             'date'              => Carbon::now(),
             'subject'           => $data['title'],
@@ -329,7 +330,8 @@ class InvoiceNotification extends Model
 
 
             DB::table('invoice_notifications')->insert([
-                'invoice_id'        => $data['invoice_id'],
+                'user_id'           => $data['user_id'],
+                'invoice_id'        => $data['invoice'],
                 'type_send'         => 'whatsapp',
                 'date'              => Carbon::now(),
                 'subject_whatsapp'  => $data['title'],
@@ -375,7 +377,8 @@ class InvoiceNotification extends Model
 
 
             DB::table('invoice_notifications')->insert([
-                'invoice_id'        => $data['invoice_id'],
+                'user_id'           => $data['user_id'],
+                'invoice_id'        => $data['invoice'],
                 'type_send'         => 'whatsapp',
                 'date'              => Carbon::now(),
                 'subject'           => $data['title'],

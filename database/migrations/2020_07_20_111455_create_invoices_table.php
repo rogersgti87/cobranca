@@ -19,6 +19,7 @@ class CreateInvoicesTable extends Migration
             $table->integer('customer_service_id');
             $table->string('description')->nullable();
             $table->decimal('price', 10, 2)->default('0');
+            $table->string('gateway_payment');
             $table->string('payment_method');
             $table->date('date_invoice');
             $table->date('date_due');

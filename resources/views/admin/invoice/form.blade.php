@@ -27,6 +27,17 @@
                     <input type="text" class="form-control money" name="price" id="invoice_price" autocomplete="off" required value="{{isset($data->price) ? number_format($data->price,2,',','.') : ''}}">
                 </div>
 
+
+                <div class="form-group col-md-4 col-sm-12">
+                    <label>Gateway Pagamento</label>
+                    <select class="form-control custom-select" name="gateway_payment" id="gateway_payment">
+                        <option {{ isset($data->gateway_payment) && $data->gateway_payment === 'Pag Hiper' ? 'selected' : '' }} value="Pag Hiper">Pag Hiper</option>
+                        <option {{ isset($data->gateway_payment) && $data->gateway_payment === 'Mercado Pago' ? 'selected' : '' }} value="Mercado Pago">Mercado Pago</option>
+                        <option {{ isset($data->gateway_payment) && $data->gateway_payment === 'Intermedium' ? 'selected' : '' }} value="Intermedium">Intermedium(em breve)</option>
+                        <option {{ isset($data->gateway_payment) && $data->gateway_payment === 'Cora' ? 'selected' : '' }} value="Cora">Cora(em breve)</option>
+                    </select>
+                </div>
+
                 <div class="form-group col-md-4 col-sm-12">
                     <label>Forma de Pagamento</label>
                     <select class="form-control custom-select" name="payment_method" id="payment_method">
@@ -39,15 +50,6 @@
                 </div>
 
 
-                <div class="form-group col-md-4 col-sm-12">
-                    <label>Status</label>
-                    <select class="form-control custom-select" name="status" id="status">
-                        <option {{ isset($data->status) && $data->status === 'Pendente' ? 'selected' : '' }} value="Pendente">Pendente</option>
-                        <option {{ isset($data->status) && $data->status === 'Processamento' ? 'selected' : '' }} value="Processamento">Processamento</option>
-                        <option {{ isset($data->status) && $data->status === 'Pago' ? 'selected' : '' }} value="Pago">Pago</option>
-                        <option {{ isset($data->status) && $data->status === 'Cancelado' ? 'selected' : '' }} value="Cancelado">Cancelado</option>
-                    </select>
-                </div>
 
                 <div class="form-group col-md-4 col-sm-12">
                     <label>Data da fatura</label>
@@ -64,6 +66,16 @@
                     <input type="date" class="form-control" name="date_payment" id="date_payment" autocomplete="off" required value="{{isset($data->date_payment) ? $data->date_payment : ''}}">
                 </div>
 
+                <div class="form-group col-md-4 col-sm-12">
+                    <label>Status</label>
+                    <select class="form-control custom-select" name="status" id="status">
+                        <option {{ isset($data->status) && $data->status === 'Pendente' ? 'selected' : '' }} value="Pendente">Pendente</option>
+                        <option {{ isset($data->status) && $data->status === 'Processamento' ? 'selected' : '' }} value="Processamento">Processamento</option>
+                        <option {{ isset($data->status) && $data->status === 'Pago' ? 'selected' : '' }} value="Pago">Pago</option>
+                        <option {{ isset($data->status) && $data->status === 'Cancelado' ? 'selected' : '' }} value="Cancelado">Cancelado</option>
+                    </select>
+
+                </div>
 
                 @if(!isset($data))
                 <div class="form-group col-md-12 col-sm-12">

@@ -216,4 +216,47 @@ class Invoice extends Model
 
     }
 
+
+    public static function cancelPixPH($user_id,$transaction_id){
+
+
+        $user = User::where('id',$user_id)->first();
+        //Consultar status da transação
+        $response = Http::withHeaders([
+            'accept' => 'application/json',
+            'content-type' => 'application/json',
+        ])->post('https://pix.paghiper.com/invoice/cancel/',[
+            'token'             => $user->token_paghiper,
+            'apiKey'            => $user->key_paghiper,
+            'status'            => 'canceled',
+            'transaction_id'    => $transaction_id
+        ]);
+
+        $response = $response->getBody();
+        return json_decode($response)->cancellation_request;
+
+    }
+
+
+    public static function cancelBilletPH($user_id,$transaction_id){
+
+
+        $user = User::where('id',$user_id)->first();
+        //Consultar status da transação
+        $response = Http::withHeaders([
+            'accept' => 'application/json',
+            'content-type' => 'application/json',
+        ])->post('https://api.paghiper.com/transaction/cancel/',[
+            'token'             => $user->token_paghiper,
+            'apiKey'            => $user->key_paghiper,
+            'status'            => 'canceled',
+            'transaction_id'    => $transaction_id
+        ]);
+
+        $response = $response->getBody();
+        return json_decode($response)->cancellation_request;
+
+    }
+
+
 }

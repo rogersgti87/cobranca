@@ -101,6 +101,7 @@ class InvoiceController extends Controller
         $model->customer_service_id = $data['customer_service_id'];
         $model->description         = $data['description'];
         $model->price               = moeda($data['price']);
+        $model->gateway_payment     = $data['gateway_payment'];
         $model->payment_method      = $data['payment_method'];
         $model->date_invoice        = $data['date_invoice'];
         $model->date_due            = $data['date_due'];
@@ -314,6 +315,7 @@ class InvoiceController extends Controller
         $model->customer_service_id = $data['customer_service_id'];
         $model->description         = $data['description'];
         $model->price               = moeda($data['price']);
+        $model->gateway_payment     = $data['gateway_payment'];
         $model->payment_method      = $data['payment_method'];
         $model->date_invoice        = $data['date_invoice'];
         $model->date_due            = $data['date_due'];
@@ -338,11 +340,43 @@ class InvoiceController extends Controller
 
         try{
 
-            $model->where('id',$id)->where('user_id',auth()->user()->id)->delete();
+            $invoice = $model->where('id',$id)->where('user_id',auth()->user()->id)->first();
+
+            $status = 'error';
+
+            if($invoice->payment_method == 'Pix'){
+
+                if($invoice->gateway_payment == 'Pag Hiper'){
+                    $status = Invoice::cancelPixPH(auth()->user()->id,$invoice->transaction_id);
+
+                }
+                else if($invoice->gateway_payment == 'Mercado Pago'){
+                    //$cancelPixMP = Invoice::cancelPixPH(auth()->user()->id,$invoice->transaction_id);
+                }
+
+            }
+            else if($invoice->payment_method == 'Boleto'){
+
+                if($invoice->gateway_payment == 'Pag Hiper'){
+                    $status = Invoice::cancelBilletPH(auth()->user()->id,$invoice->transaction_id);
+
+                }
+                else if($invoice->gateway_payment == 'Mercado Pago'){
+                    //$cancelPixMP = Invoice::cancelPixPH(auth()->user()->id,$invoice->transaction_id);
+                }
+            }
+
+
+            if($status->result == 'success'){
+                $model->where('id',$id)->where('user_id',auth()->user()->id)->update([
+                    'status' => 'Cancelado'
+                ]);
+            }
+
 
         } catch(\Exception $e){
             \Log::error($e->getMessage());
-            return response()->json('Erro interno, favor comunicar ao administrador', 500);
+            return response()->json($e->getMessage(), 500);
         }
 
         return response()->json(true, 200);
@@ -354,7 +388,8 @@ class InvoiceController extends Controller
 
         $result = Invoice::join('customer_services','customer_services.id','invoices.customer_service_id')
                 ->join('services','services.id','customer_services.service_id')
-                ->select('invoices.id as id','invoices.description','invoices.payment_method','invoices.price','invoices.date_invoice','invoices.date_due','invoices.date_payment','invoices.status','services.name as name')
+                ->select('invoices.id as id','invoices.description','invoices.payment_method','invoices.price','invoices.date_invoice',
+                'invoices.date_due','invoices.date_payment','invoices.status','services.name as name','invoices.gateway_payment')
                 ->where('customer_services.customer_id',$customer_id)->where('invoices.user_id',auth()->user()->id)->get();
         return response()->json($result);
 

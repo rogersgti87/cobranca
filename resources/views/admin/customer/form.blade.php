@@ -271,6 +271,7 @@
                                         <tr>
                                             <th> Descrição</th>
                                             <th> Preço</th>
+                                            <th> Gateway de Pagamento</th>
                                             <th> Forma de Pagamento</th>
                                             <th> Data</th>
                                             <th> Vencimento</th>
@@ -830,11 +831,12 @@ function loadInvoices(){
                         html += '<tr>';
                         html += `<td>${item.description}</td>`;
                         html += `<td>R$ ${parseFloat(item.price).toLocaleString('pt-br', {minimumFractionDigits: 2})}</td>`;
+                        html += `<td>${item.gateway_payment}</td>`;
                         html += `<td>${item.payment_method}</td>`;
                         html += `<td>${moment(item.date_invoice).format('DD/MM/YYYY')}</td>`;
                         html += `<td>${moment(item.date_due).format('DD/MM/YYYY')}</td>`;
                         html += `<td>${item.date_payment != null ? moment(item.date_payment).format('DD/MM/YYYY') : '-' }</td>`;
-                        html += `<td><label class="badge badge-${item.status == 'Pago' ? 'success' : 'danger'}">${item.status}</label></td>`;
+                        html += `<td><label class="badge badge-${item.status == 'Pago' ? 'success' : item.status == 'Pendente' ? 'secondary': 'danger'}">${item.status}</label></td>`;
                         html += `<td>
                             <a href="#" data-original-title="Editar Fatura" id="btn-modal-invoice" data-type="edit-invoice" data-invoice="${item.id}" data-toggle="tooltip" class="btn btn-primary btn-xs"> <i class="fa fa-list"></i> Editar</a>
                             <a href="#" data-original-title="Deletar Fatura" id="btn-delete-invoice" data-invoice="${item.id}" data-toggle="tooltip" class="btn btn-danger btn-xs"> <i class="fa fa-list"></i> Deletar</a>

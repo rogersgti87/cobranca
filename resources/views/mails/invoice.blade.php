@@ -47,8 +47,8 @@
     <p>-----------------------------------------</p>
 
     <p>
-        <b>Data da Fatura:</b> {{$data_fatura}} <br>
-        <b>Vencimento:</b> {{$data_vencimento}} <br><br>
+        <b>Data da Fatura:</b> {{$date_invoice}} <br>
+        <b>Vencimento:</b> {{$date_due}} <br><br>
         <b>Total:</b> R$ {{$price}} <br>
     </p>
 

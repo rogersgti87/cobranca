@@ -40,7 +40,7 @@
     <p><b>Serviço(s) Contratado(s):</b></p>
     <ul>
 
-        <li>{{$description}}</li>
+        <li>{{$service}}</li>
 
     </ul>
 

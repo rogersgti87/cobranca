@@ -349,10 +349,16 @@ class InvoiceController extends Controller
 
                 if($invoice->gateway_payment == 'Pag Hiper'){
                     $status = Invoice::cancelPixPH(auth()->user()->id,$invoice->transaction_id);
+                    if($status->result == 'success'){
+                        $status = 'success';
+                    }
 
                 }
                 else if($invoice->gateway_payment == 'Mercado Pago'){
-                    //$cancelPixMP = Invoice::cancelPixPH(auth()->user()->id,$invoice->transaction_id);
+                    $status = Invoice::cancelPixMP(auth()->user()->access_token_mp,$invoice->transaction_id);
+                    if($status == 'cancelled'){
+                        $status = 'success';
+                    }
                 }
 
             }
@@ -360,15 +366,18 @@ class InvoiceController extends Controller
 
                 if($invoice->gateway_payment == 'Pag Hiper'){
                     $status = Invoice::cancelBilletPH(auth()->user()->id,$invoice->transaction_id);
+                    if($status->result == 'success'){
+                        $status = 'success';
+                    }
 
                 }
                 else if($invoice->gateway_payment == 'Mercado Pago'){
-                    //$cancelPixMP = Invoice::cancelPixPH(auth()->user()->id,$invoice->transaction_id);
+                    //$cancelPixMP = Invoice::cancelBilletMP(auth()->user()->id,$invoice->transaction_id);
                 }
             }
 
 
-            if($status->result == 'success'){
+            if($status == 'success'){
                 $model->where('id',$id)->where('user_id',auth()->user()->id)->update([
                     'status' => 'Cancelado'
                 ]);

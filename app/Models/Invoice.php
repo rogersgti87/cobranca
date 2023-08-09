@@ -259,4 +259,20 @@ class Invoice extends Model
     }
 
 
+    public static function cancelPixMP($access_token, $transaction_id){
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $access_token,
+            'accept' => 'application/json',
+            'content-type' => 'application/json',
+        ])->put('https://api.mercadopago.com/v1/payments/'.$transaction_id,[
+            'status'            => 'cancelled'
+        ]);
+
+        $result = $response->getBody();
+        return json_decode($result)->status;
+
+        }
+
+
 }

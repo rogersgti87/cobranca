@@ -8,6 +8,14 @@ function moeda($get_valor) {
     return $valor; //retorna o valor formatado para gravar no banco
 }
 
+function whatsappBold($string) {
+
+    $source = array('<b>', '</b>');
+    $replace = array('*', '*');
+    $valor = str_replace($source, $replace, $string);
+    return $valor;
+}
+
 function removeEspeciais($get_valor) {
 
     $source = array('.', ',',' ','(',')','-');
@@ -139,4 +147,16 @@ function convertYoutube($string) {
         "<iframe width=\"420\" height=\"315\" src=\"https://www.youtube.com/embed/$1?start=$2\" allowfullscreen></iframe>",
         $string
     );
+}
+
+function formatPhone($numero){
+    if(strlen($numero) == 10){
+        $novo = substr_replace($numero, '(', 0, 0);
+        $novo = substr_replace($novo, '9', 3, 0);
+        $novo = substr_replace($novo, ')', 3, 0);
+    }else{
+        $novo = substr_replace($numero, '(', 0, 0);
+        $novo = substr_replace($novo, ')', 3, 0);
+    }
+    return $novo;
 }

@@ -125,7 +125,7 @@ class UserController extends Controller
             return response()->json($validator->errors()->first(), 422);
         }
 
-        $model->document        = $data['document'];
+        $model->document        = removeEspeciais($data['document']);
         $model->company         = $data['company'];
         $model->name            = $data['name'];
         $model->email           = $data['email'];
@@ -135,8 +135,8 @@ class UserController extends Controller
         }
         $model->status                      = $data['status'];
         $model->image                       = $data['image'];
-        $model->telephone                   = $data['telephone'];
-        $model->whatsapp                    = $data['whatsapp'];
+        $model->telephone                   = removeEspeciais($data['telephone']);
+        $model->whatsapp                    = removeEspeciais($data['whatsapp']);
         $model->cep                         = $data['cep'];
         $model->address                     = $data['address'];
         $model->number                      = $data['number'];
@@ -189,7 +189,7 @@ class UserController extends Controller
             return response()->json($validator->errors()->first(), 422);
         }
 
-        $model->document        = $data['document'];
+        $model->document        = removeEspeciais($data['document']);
         $model->company         = $data['company'];
         $model->name            = $data['name'];
         $model->email           = $data['email'];
@@ -200,8 +200,8 @@ class UserController extends Controller
 
         $model->status                      = $data['status'];
         $model->image                       = $data['image'];
-        $model->telephone                   = $data['telephone'];
-        $model->whatsapp                    = $data['whatsapp'];
+        $model->telephone                   = removeEspeciais($data['telephone']);
+        $model->whatsapp                    = removeEspeciais($data['whatsapp']);
         $model->cep                         = $data['cep'];
         $model->address                     = $data['address'];
         $model->number                      = $data['number'];

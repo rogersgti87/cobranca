@@ -63,7 +63,7 @@ class InvoiceNotification extends Model
             'invoice_id'        => $data['invoice'],
             'type_send'         => 'email',
             'date'              => Carbon::now(),
-            'subject'           => '',
+            'subject'           => $data['title'],
             'email_id'          => $email_id,
             'status'            => null,
             'message_status'    => null,
@@ -235,11 +235,12 @@ class InvoiceNotification extends Model
     public static function Whatsapp($data){
 
 
-        $whats_customer_name            = $data['customer'];
-        $whats_invoice_id               = $data['invoice_id'];
-        $whats_description              = $data['description_whatsapp'];
-        $whats_data_fatura              = $data['data_fatura'];
-        $whats_data_vencimento          = $data['data_vencimento'];
+        $message_customer               = $data['message_customer'];
+        $whats_invoice_id               = $data['invoice'];
+        $message_notification           = whatsappBold($data['message_notification']);
+        $whats_description              = $data['service'];
+        $whats_data_fatura              = $data['date_invoice'];
+        $whats_data_vencimento          = $data['date_due'];
         $whats_price                    = $data['price'];
         $whats_payment_method           = $data['payment_method'];
         $whats_pix_emv                  = $data['pix_emv'];
@@ -247,19 +248,10 @@ class InvoiceNotification extends Model
         $whats_billet_digitable_line    = $data['billet_digitable_line'];
         $whats_billet_url_slip          = $data['billet_url_slip'];
 
-        if(isset($data['text_remember']) && $data['text_remember'] != null){
-            $whats_text_remember        = $data['text_remember'];
-        }
-
 
         $data['text_whatsapp'] = "*MENSAGEM AUTOMÁTICA*\n\n";
-        $data['text_whatsapp'] .= "Olá $whats_customer_name, tudo bem?\n\n";
-
-        if(isset($data['text_remember']) && $data['text_remember'] != null){
-            $data['text_whatsapp'] .= "$whats_text_remember *Fatura #$whats_invoice_id* \n\n";
-        }else{
-            $data['text_whatsapp'] .= "Esta é uma mensagem para notificá-lo(a) que foi gerada a *Fatura #$whats_invoice_id* \n\n";
-        }
+        $data['text_whatsapp'] .= "$message_customer\n\n";
+        $data['text_whatsapp'] .= "$message_notification \n\n";
         $data['text_whatsapp'] .= "*Serviço(s) Contratado(s):* \n\n";
         $data['text_whatsapp'] .= "$whats_description \n\n";
         $data['text_whatsapp'] .= "*Data da Fatura:* $whats_data_fatura \n";
@@ -281,8 +273,8 @@ class InvoiceNotification extends Model
         $response = Http::withHeaders([
             "Content-Type"  => "application/json"
         ])->post('https://whatsapp.rogerti.com.br:8000/api/send-message',[
-            "access_token"  => 'FX1UVGhGVs5Ndj1oqhcpsJBNCc4GRe6p',
-            "whatsapp"      => '55'.$data['customer_phone'],
+            "access_token"  => $data['user_access_token_wp'],
+            "whatsapp"      => '55'.$data['customer_whatsapp'],
             "message"       => $data['text_whatsapp']
         ]);
 
@@ -302,8 +294,8 @@ class InvoiceNotification extends Model
             'invoice_id'        => $data['invoice_id'],
             'type_send'         => 'whatsapp',
             'date'              => Carbon::now(),
-            'subject_whatsapp'  => $data['title'],
-            'senpulse_email_id' => '',
+            'subject'           => $data['title'],
+            'email_id'          => '',
             'status'            => $whats_status == true ? 'Error' : 'Success',
             'message_status'    => $whats_message_status,
             'message'           => $whats_message,
@@ -319,8 +311,8 @@ class InvoiceNotification extends Model
             $response = Http::withHeaders([
             "Content-Type"  => "application/json"
         ])->post('https://whatsapp.rogerti.com.br:8000/api/send-image',[
-                "access_token"  => 'FX1UVGhGVs5Ndj1oqhcpsJBNCc4GRe6p',
-                "whatsapp"      => '55'.$data['customer_phone'],
+                "access_token"  => $data['user_access_token_wp'],
+                "whatsapp"      => '55'.$data['customer_whatsapp'],
                 "message"       => 'data:image/png;base64,'.$whats_pix_image
             ]);
 
@@ -365,8 +357,8 @@ class InvoiceNotification extends Model
              $response = Http::withHeaders([
                     "Content-Type"  => "application/json"
                 ])->post('https://whatsapp.rogerti.com.br:8000/api/send-message',[
-                    "access_token"  => 'FX1UVGhGVs5Ndj1oqhcpsJBNCc4GRe6p',
-                    "whatsapp"      => '55'.$data['customer_phone'],
+                    "access_token"  => $data['user_access_token_wp'],
+                    "whatsapp"      => '55'.$data['customer_whatsapp'],
                     "message"       => $data['text_whatsapp_payment']
                 ]);
 
@@ -386,8 +378,8 @@ class InvoiceNotification extends Model
                 'invoice_id'        => $data['invoice_id'],
                 'type_send'         => 'whatsapp',
                 'date'              => Carbon::now(),
-                'subject_whatsapp'  => $data['title'],
-                'senpulse_email_id' => '',
+                'subject'           => $data['title'],
+                'email_id'          => '',
                 'status'            => $whats_status == true ? 'Error' : 'Success',
                 'message_status'    => $whats_message_status,
                 'message'           => $whats_message,
@@ -397,13 +389,6 @@ class InvoiceNotification extends Model
 
         }
 
-
-
-
-        // $response = Http::withToken($access_token)->get(env('API_HOST_SEND_PULSE').'/smtp/emails/rst2dv-0hsnll-91');
-        // $result = $response->getBody();
-
-        // $result = json_decode($result);
 
 
 

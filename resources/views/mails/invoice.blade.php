@@ -30,9 +30,12 @@
 </head>
 
 <body>
+
+    <h4 style="text-align: center;">Mensagem automática, favor não responder este e-mail.</h4>
+    <br>
     <h1>{{$title}}</h1>
-    <p>Olá {{$customer}}, tudo bem?</p>
-    <p>Esta é uma mensagem para notificá-lo(a) que foi gerado a <b>Fatura #{{$invoice}}</b></p>
+    <p>{{$message_customer}}</p>
+    <p>{{$message_notification}}</p>
 
     <p><b>Serviço(s) Contratado(s):</b></p>
     <ul>
@@ -51,10 +54,12 @@
 
     <p><b>Forma de pagamento:</b> {{ $payment_method }}</p>
 
+    @if($type_send == 'New')
+
     @if($payment_method == 'Pix')
 
         <p style="text-align:center">Se ainda não realizou o pagamento, ainda dá tempo, basta scannear o QrCode a baixo:</p>
-        <p style="text-align:center"><img src="https://financeiro.rogerti.com.br/pix/{{$invoice_id}}.png" alt="QR Code" style="max-width:220px;"></p>
+        <p style="text-align:center"><img src="{{$pix_qrcode_image_url}}" alt="QR Code" style="max-width:220px;"></p>
 
         <p style="text-align:center">Código digitavel pix :</p>
         <p style="text-align:center">{{$pix_emv}}</p>
@@ -77,11 +82,17 @@
 
     <p><strong>Obs:</strong> Prezado caso já tenha feito o pagamento, favor desconsiderar este e-mail.</p>
 
+    @endif
 
     <p>Qualquer dúvida estamos à disposição. <br>
         Desejamos um ótimo dia!</p>
 
-    <p>WhatsApp: <a href="https://api.whatsapp.com/send?phone=5522988280129" target="_Blank">(22) 9.8828-0129</a> || E-mail: <a href="mailto:financeiro@rogerti.com.br">financeiro@rogerti.com.br</a></p>
+    <p>WhatsApp: <a href="https://api.whatsapp.com/send?phone=55{{$user_whatsapp}}" target="_Blank">{{ formatPhone($user_whatsapp)}}</a> || E-mail: <a href="mailto:{{$user_email}}">{{$user_email}}</a></p>
+
+    <br>
+
+    <h4 style="text-align: center;">Mensagem automática, favor não responder este e-mail.</h4>
+
 </body>
 
 </html>

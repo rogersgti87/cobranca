@@ -139,8 +139,8 @@ class CustomerController extends Controller
         $model->district                = $data['district'];
         $model->city                    = $data['city'];
         $model->state                   = $data['state'];
-        $model->phone                   = $data['phone'];
-        $model->whatsapp                = $data['whatsapp'];
+        $model->phone                   = removeEspeciais($data['phone']);
+        $model->whatsapp                = removeEspeciais($data['whatsapp']);
         $model->payment_method          = $data['payment_method'];
         $model->gateway_pix             = $data['gateway_pix'];
         $model->gateway_billet          = $data['gateway_billet'];
@@ -202,8 +202,8 @@ class CustomerController extends Controller
         $model->district                = $data['district'];
         $model->city                    = $data['city'];
         $model->state                   = $data['state'];
-        $model->phone                   = $data['phone'];
-        $model->whatsapp                = $data['whatsapp'];
+        $model->phone                   = removeEspeciais($data['phone']);
+        $model->whatsapp                = removeEspeciais($data['whatsapp']);
         $model->payment_method          = $data['payment_method'];
         $model->gateway_pix             = $data['gateway_pix'];
         $model->gateway_billet          = $data['gateway_billet'];

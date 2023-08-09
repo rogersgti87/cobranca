@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Image;
 use DB;
+use App\Models\User;
 use App\Models\Invoice;
 use App\Models\InvoiceNotification;
 use App\Models\Service;
@@ -202,16 +203,26 @@ class InvoiceController extends Controller
 
         }
 
+            $user = User::where('id',auth()->user()->id)->first();
+
             $details = [
+                'type_send'                 => 'New',
                 'title'                     => 'Nova fatura gerada',
-                'logo'                      => 'https://cobrancasegura.com.br/'.auth()->user()->image,
+                'message_customer'          => 'Olá '.$customer.', tudo bem?',
+                'message_notification'      => 'Esta é uma mensagem para notificá-lo(a) que foi gerado a <b>Fatura #'.$invoice.'</b>',
+                'logo'                      => 'https://cobrancasegura.com.br/'.$user->image,
+                'company'                   => $user->company,
+                'user_whatsapp'             => removeEspeciais($user->whatsapp),
+                'user_telephone'            => removeEspeciais($user->telephone),
+                'user_email'                => $user->email,
+                'user_access_token_wp'      => $user->api_access_token_whatsapp,
                 'user_id'                   => $invoice->user_id,
                 'customer'                  => $customer->name,
                 'customer_email'            => $customer->email,
                 'customer_email2'           => $customer->email2,
-                'customer_phone'            => $customer->phone,
+                'customer_whatsapp'         => removeEspeciais($customer->whatsapp),
                 'notification_whatsapp'     => $customer->notification_whatsapp,
-                'company'                   => $customer->company,
+                'customer_company'          => $customer->company,
                 'date_invoice'              => date('d/m/Y', strtotime($invoice->date_invoice)),
                 'date_due'                  => date('d/m/Y', strtotime($invoice->date_due)),
                 'price'                     => number_format($invoice->price, 2,',','.'),
@@ -244,6 +255,8 @@ class InvoiceController extends Controller
             $details['body']  = view('mails.invoice',$details)->render();
 
             InvoiceNotification::Email($details);
+
+            InvoiceNotification::Whatsapp($details);
 
         } catch(\Exception $e){
             \Log::error($e->getMessage());

@@ -877,14 +877,14 @@ $(document).on('click', '#btn-delete-invoice', function(e) {
     var invoice = $(this).data('invoice');
 
     Swal.fire({
-        title: 'Deseja remover este registro?',
+        title: 'Deseja cancelar esta fatura?',
         text: "Você não poderá reverter isso!",
         icon: 'question',
         showCancelButton: true,
         cancelButtonText: 'Cancelar',
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'Sim, deletar!'
+        confirmButtonText: 'Sim, cancelar!'
     }).then((result) => {
         if (result.value) {
 

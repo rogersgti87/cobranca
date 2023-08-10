@@ -178,7 +178,7 @@
 <script src="{{url('assets/admin/plugins/select2/js/select2.full.min.js')}}"></script>
 <script src="{{url('assets/admin/plugins/select2/js/i18n/pt-BR.js')}}"></script>
 
-<script src="{{url('/vendor/laravel-filemanager/js/stand-alone-button.js')}}"></script>
+<script src="{{url('/vendor/laravel-filemanager/js/stand-alone-button-normal.js')}}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.10.5/tinymce.min.js" integrity="sha512-TXT0EzcpK/3KaFksZ59D/1A3orhVtDzhwgtYeSIGxM6ZgCW1+ak+2BqbJPps2JQlkvRApI37Xqbr8ligoIGjBQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.min.js" integrity="sha512-9UR1ynHntZdqHnwXKTaOm1s6V9fExqejKvg5XMawEMToW4sSw+3jtLrYfZPijvnwnnE8Uol1O9BcAskoxgec+g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

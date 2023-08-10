@@ -14,8 +14,8 @@
             if(type == 'file'){
                 return item.url;
             }else{
-                var url = {thumb:item.thumb_url,original:item.url};
-                return JSON.stringify(url);
+                var url = item.url;
+                return url;
             }
 
         }).join(',');

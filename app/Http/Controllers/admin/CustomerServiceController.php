@@ -80,14 +80,16 @@ class CustomerServiceController extends Controller
             return response()->json($validator->errors()->first(), 422);
         }
 
-        $model->user_id     = auth()->user()->id;
-        $model->customer_id = $data['customer_id'];
-        $model->service_id  = $data['service_id'];
-        $model->description = $data['description'];
-        $model->status      = $data['status'];
-        $model->day_due     = $data['day_due'];
-        $model->price       = moeda($data['price']);
-        $model->period      = $data['period'];
+        $model->user_id             = auth()->user()->id;
+        $model->customer_id         = $data['customer_id'];
+        $model->service_id          = $data['service_id'];
+        $model->description         = $data['description'];
+        $model->status              = $data['status'];
+        $model->day_due             = $data['day_due'];
+        $model->price               = moeda($data['price']);
+        $model->period              = $data['period'];
+        $model->gateway_payment     = $data['gateway_payment'];
+        $model->payment_method      = $data['payment_method'];
 
         try{
             $model->save();
@@ -128,14 +130,16 @@ class CustomerServiceController extends Controller
             return response()->json($validator->errors()->first(), 422);
         }
 
-        $model->user_id     = auth()->user()->id;
-        $model->customer_id = $data['customer_id'];
-        $model->service_id  = $data['service_id'];
-        $model->description = $data['description'];
-        $model->status      = $data['status'];
-        $model->day_due     = $data['day_due'];
-        $model->price       = moeda($data['price']);
-        $model->period      = $data['period'];
+        $model->user_id             = auth()->user()->id;
+        $model->customer_id         = $data['customer_id'];
+        $model->service_id          = $data['service_id'];
+        $model->description         = $data['description'];
+        $model->status              = $data['status'];
+        $model->day_due             = $data['day_due'];
+        $model->price               = moeda($data['price']);
+        $model->period              = $data['period'];
+        $model->gateway_payment     = $data['gateway_payment'];
+        $model->payment_method      = $data['payment_method'];
 
         try{
             $model->save();

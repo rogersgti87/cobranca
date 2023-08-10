@@ -8,6 +8,16 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 class Kernel extends ConsoleKernel
 {
     /**
+     * The Artisan commands provided by your application.
+     *
+     * @var array
+     */
+    protected $commands = [
+        commands\GenerateInvoiceCron::class,
+        commands\RememberInvoiceCron::class,
+    ];
+
+    /**
      * Define the application's command schedule.
      *
      * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
@@ -16,6 +26,11 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
+
+        $schedule->command('generateinvoice:cron')->dailyAt('9:20');
+        //$schedule->command('generateinvoicestatus:cron')->everyMinute();
+        $schedule->command('rememberinvoice:cron')->dailyAt('9:20');
+
     }
 
     /**
@@ -28,13 +43,5 @@ class Kernel extends ConsoleKernel
         $this->load(__DIR__.'/Commands');
 
         require base_path('routes/console.php');
-    }
-
-    protected function bootstrappers()
-    {
-        return array_merge(
-            [\Bugsnag\BugsnagLaravel\OomBootstrapper::class],
-            parent::bootstrappers(),
-        );
     }
 }

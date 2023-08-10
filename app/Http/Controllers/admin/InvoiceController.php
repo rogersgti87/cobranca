@@ -172,7 +172,7 @@ class InvoiceController extends Controller
                     $imageName = auth()->user()->id.'_'.$invoice->id.'.'.'png';
                     \File::put(public_path(). '/pix/' . $imageName, base64_decode($image));
 
-                    $image_pix_email    = 'https://financeiro.rogerti.com.br/pix/'.auth()->user()->id.'_'.$invoice->id.'.png';
+                    $image_pix_email    = 'https://cobrancasegura.com.br/pix/'.auth()->user()->id.'_'.$invoice->id.'.png';
                     $image_pix_wp       = $getInfoPixPayment->qr_code_base64;
                     $qr_code_digitable  = $getInfoPixPayment->qr_code;
 
@@ -401,6 +401,7 @@ class InvoiceController extends Controller
                 ->select('invoices.id as id','invoices.description','invoices.payment_method','invoices.price','invoices.date_invoice',
                 'invoices.date_due','invoices.date_payment','invoices.status','services.name as name','invoices.gateway_payment')
                 ->where('customer_services.customer_id',$customer_id)->where('invoices.user_id',auth()->user()->id)->get();
+
         return response()->json($result);
 
 

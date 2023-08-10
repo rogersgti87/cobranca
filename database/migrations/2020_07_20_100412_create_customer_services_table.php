@@ -22,6 +22,8 @@ class CreateCustomerServicesTable extends Migration
             $table->integer('day_due')->nullable();
             $table->decimal('price', 10, 2)->default('0');
             $table->string('period');
+            $table->string('gateway_payment');
+            $table->string('payment_method');
             $table->enum('status', ['Ativo','Inativo']);
             $table->timestamps();
         });

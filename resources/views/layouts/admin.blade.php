@@ -64,7 +64,7 @@
           <!-- Sidebar user panel (optional) -->
           <div class="user-panel mt-3 pb-3 mb-3 d-flex">
             <div class="image">
-              <img src="{{ json_decode(\Auth::user()->image) != null ? url(json_decode(\Auth::user()->image)->thumb) : url('assets/admin/img/thumb.png')}}" class="img-circle elevation-2" alt="User Image">
+              <img src="{{ \Auth::user()->image != null ? url(\Auth::user()->image) : url('assets/admin/img/thumb.png')}}" class="img-circle elevation-2" alt="User Image">
             </div>
             <div class="info">
               <a href="#" class="d-block">{{ Auth::user()->name }}</a>

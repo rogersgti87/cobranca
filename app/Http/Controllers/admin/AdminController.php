@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use Image;
 use DB;
 use App\Models\User;
+use App\Models\Invoice;
 use RuntimeException;
 use Illuminate\Support\Facades\Http;
 
@@ -30,6 +31,7 @@ class AdminController extends Controller
     }
 
     public function index(){
+
 
         $users      = User::where('status',1)->get();
 

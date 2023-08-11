@@ -4,6 +4,7 @@
 <head>
     <title>{{$title}}</title>
     <style>
+
         table {
             border: 1px solid #DDD;
         }
@@ -37,7 +38,7 @@
         <img src="{{$logo}}" style="max-width:200px;" title="{{$company}}">
 
     <br>
-    <h2>{{$title}}</h2>
+    <h1>{{$title}}</h1>
     <p>{{ $message_customer }}</p>
     <p>{!! $message_notification !!}</p>
 
@@ -54,11 +55,12 @@
         <b>Data da Fatura:</b> {{$date_invoice}} <br>
         <b>Vencimento:</b> {{$date_due}} <br><br>
         <b>Total:</b> R$ {{$price}} <br>
+        <b>Status:</b> R$ {{$status}} <br>
     </p>
 
     <p><b>Forma de pagamento:</b> {{ $payment_method }}</p>
 
-    @if($type_send == 'New')
+    @if($status == 'Pendente')
 
     @if($payment_method == 'Pix')
 
@@ -86,7 +88,13 @@
 
     <p><strong>Obs:</strong> Prezado caso já tenha feito o pagamento, favor desconsiderar este e-mail.</p>
 
+    @elseif($status == 'Pago')
+
+    <p><b>Observação:</b> Este e-mail servirá como recibo para este pagamento.</p>
+
     @endif
+
+
 
     <p>Qualquer dúvida estamos à disposição. <br>
         Desejamos um ótimo dia!</p>

@@ -85,13 +85,13 @@ class InvoiceNotification extends Model
         $whats_data_fatura              = $data['date_invoice'];
         $whats_data_vencimento          = $data['date_due'];
         $whats_price                    = $data['price'];
+        $whats_status                   = $data['status'];
         $whats_payment_method           = $data['payment_method'];
         $whats_pix_emv                  = $data['pix_emv'];
         $whats_pix_image                = $data['pix_qrcode_image_url'];
         $whats_billet_digitable_line    = $data['billet_digitable_line'];
         $whats_billet_url_slip          = $data['billet_url_slip'];
         $whats_billet_url_slip_pdf      = $data['billet_url_slip_pdf'];
-
 
         $data['text_whatsapp'] = "*MENSAGEM AUTOMÁTICA*\n\n";
         $data['text_whatsapp'] .= "$message_customer\n\n";
@@ -102,14 +102,7 @@ class InvoiceNotification extends Model
         $data['text_whatsapp'] .= "*Vencimento:* $whats_data_vencimento \n";
         $data['text_whatsapp'] .= "*Forma de pagamento:* $whats_payment_method \n";
         $data['text_whatsapp'] .= "*Total:* R$ $whats_price \n\n";
-
-
-
-        // if($whats_payment_method == 'Boleto'){
-        //     $data['text_whatsapp'] .= "Para abrir o Boleto é só clicar no link abaixo\n";
-        //     $data['text_whatsapp'] .= "$whats_billet_url_slip\n\n";
-        //     $data['text_whatsapp'] .= "*Linha Digitável abaixo* \n\n";
-        // }
+        $data['text_whatsapp'] .= "*Status:* R$ $whats_status \n\n";
 
 
 
@@ -142,7 +135,7 @@ class InvoiceNotification extends Model
             'date'              => Carbon::now(),
             'subject'           => $data['title'],
             'email_id'          => '',
-            'status'            => $whats_status == true ? 'Error' : 'Success',
+            'status'            => $whats_status == true ? 'Success' : 'Error',
             'message_status'    => $whats_message_status,
             'message'           => $whats_message,
             'created_at'        => Carbon::now(),
@@ -150,6 +143,7 @@ class InvoiceNotification extends Model
         ]);
 
         //Enviar imagem qrcode pix
+        if($whats_status == 'Pendente') {
 
         if($whats_payment_method == 'Pix'){
 
@@ -234,139 +228,140 @@ class InvoiceNotification extends Model
 
         }
     }
+    }
 
 
     }
 
 
-    // public static function sendNotificationConfirm($data){
+    public static function sendNotificationConfirm($data){
 
-    //     $config = DB::table('configs')->where('id',1)->first();
+        $config = DB::table('configs')->where('id',1)->first();
 
-    //     $api_token  = $config->sendpulse_token;
-    //     $api_key    = $config->sendpulse_secret;
+        $api_token  = $config->sendpulse_token;
+        $api_key    = $config->sendpulse_secret;
 
-    //     $response = Http::post('https://api.sendpulse.com/oauth/access_token',[
-    //         'grant_type'        => 'client_credentials',
-    //         'client_id'         =>  $api_token,
-    //         'client_secret'     =>  $api_key
-    //       ]);
+        $response = Http::post('https://api.sendpulse.com/oauth/access_token',[
+            'grant_type'        => 'client_credentials',
+            'client_id'         =>  $api_token,
+            'client_secret'     =>  $api_key
+          ]);
 
-    //     $result = $response->getBody();
+        $result = $response->getBody();
 
-    //     $access_token = json_decode($result)->access_token;
+        $access_token = json_decode($result)->access_token;
 
-    //     if($data['customer_email2'] != null){
-    //         $emails = array(
-    //             [
-    //                 "customer"  => $data['customer'],
-    //                 "email"     => $data['customer_email']
-    //             ],
-    //             [
-    //                 "customer"  => $data['customer'],
-    //                 "email"     => $data['customer_email2']
-    //             ]
-    //             );
-    //     } else {
-    //         $emails = array(
-    //             [
-    //             "customer"  => $data['customer'],
-    //             "email"     => $data['customer_email']
-    //         ]
-    //     );
-    //     }
+        if($data['customer_email2'] != null){
+            $emails = array(
+                [
+                    "customer"  => $data['customer'],
+                    "email"     => $data['customer_email']
+                ],
+                [
+                    "customer"  => $data['customer'],
+                    "email"     => $data['customer_email2']
+                ]
+                );
+        } else {
+            $emails = array(
+                [
+                "customer"  => $data['customer'],
+                "email"     => $data['customer_email']
+            ]
+        );
+        }
 
-    //     $response = Http::withToken($access_token)->post('https://api.sendpulse.com/smtp/emails',[
-    //         "email" =>  [
-    //             "subject"  => $data['title'],
-    //             "html" => base64_encode($data['body']),
-    //             "from" => [
-    //                 "name"  => "Financeiro",
-    //                 "email" => $config->smtp_user
-    //             ],
-    //             "to" => $emails
-    //         ],
-    //       ]);
+        $response = Http::withToken($access_token)->post('https://api.sendpulse.com/smtp/emails',[
+            "email" =>  [
+                "subject"  => $data['title'],
+                "html" => base64_encode($data['body']),
+                "from" => [
+                    "name"  => "Financeiro",
+                    "email" => $config->smtp_user
+                ],
+                "to" => $emails
+            ],
+          ]);
 
-    //     $result = $response->getBody();
+        $result = $response->getBody();
 
-    //     $email_id = json_decode($result)->id;
+        $email_id = json_decode($result)->id;
 
-    //     DB::table('invoice_notifications')->insert([
-    //         'user_id'           => $data['user_id'],
-    //         'invoice_id'        => $data['invoice'],
-    //         'type_send'         => 'email',
-    //         'date'              => Carbon::now(),
-    //         'subject'           => '',
-    //         'email_id'          => $email_id,
-    //         'status'            => null,
-    //         'message_status'    => null,
-    //         'message'           => null,
-    //         'created_at'        => Carbon::now(),
-    //         'updated_at'        => Carbon::now()
-    //     ]);
-
-
-    //     $whats_customer_name            = $data['customer'];
-    //     $whats_invoice_id               = $data['invoice_id'];
-    //     $whats_description              = $data['description_whatsapp'];
-    //     $whats_data_fatura              = $data['data_fatura'];
-    //     $whats_data_vencimento          = $data['data_vencimento'];
-    //     $whats_data_pagamento           = $data['data_pagamento'];
-    //     $whats_price                    = $data['price'];
-    //     $whats_payment_method           = $data['payment_method'];
+        DB::table('invoice_notifications')->insert([
+            'user_id'           => $data['user_id'],
+            'invoice_id'        => $data['invoice'],
+            'type_send'         => 'email',
+            'date'              => Carbon::now(),
+            'subject'           => '',
+            'email_id'          => $email_id,
+            'status'            => null,
+            'message_status'    => null,
+            'message'           => null,
+            'created_at'        => Carbon::now(),
+            'updated_at'        => Carbon::now()
+        ]);
 
 
-    //     $data['text_whatsapp'] = "*MENSAGEM AUTOMÁTICA*\n\n";
-    //     $data['text_whatsapp'] .= "Olá $whats_customer_name, tudo bem?\n\n";
-    //     $data['text_whatsapp'] .= "Seu pagamento referente a *Fatura #$whats_invoice_id* foi confimado!\n\n";
-    //     $data['text_whatsapp'] .= "*Serviço(s) Contratado(s):* \n\n";
-    //     $data['text_whatsapp'] .= "$whats_description \n\n";
-    //     $data['text_whatsapp'] .= "*Data da Fatura:* $whats_data_fatura \n";
-    //     $data['text_whatsapp'] .= "*Vencimento:* $whats_data_vencimento \n";
-    //     $data['text_whatsapp'] .= "*Data do Pagamento:* $whats_data_pagamento \n";
-    //     $data['text_whatsapp'] .= "*Forma de pagamento:* $whats_payment_method \n";
-    //     $data['text_whatsapp'] .= "*Total:* R$ $whats_price \n\n";
+        $whats_customer_name            = $data['customer'];
+        $whats_invoice_id               = $data['invoice_id'];
+        $whats_description              = $data['description_whatsapp'];
+        $whats_data_fatura              = $data['data_fatura'];
+        $whats_data_vencimento          = $data['data_vencimento'];
+        $whats_data_pagamento           = $data['data_pagamento'];
+        $whats_price                    = $data['price'];
+        $whats_payment_method           = $data['payment_method'];
 
 
-    //     if($data['notification_whatsapp'] == 's'){
-
-    //        $response = Http::withHeaders([
-    //         "Content-Type"  => "application/json"
-    //     ])->post('https://whatsapp.rogerti.com.br:8000/api/send-message',[
-    //         "access_token"  => 'FX1UVGhGVs5Ndj1oqhcpsJBNCc4GRe6p',
-    //         "whatsapp"      => '55'.$data['customer_phone'],
-    //         "message"       => $data['text_whatsapp']
-    //     ]);
-
-    //         $result = $response->getBody();
-
-    //         $whats_status           = json_decode($result);
-    //     if($whats_status->status == 'success'){
-    //         $whats_message_status   = $whats_status->status;
-    //         $whats_message          = json_encode($whats_status->response);
-    //     }else{
-    //         $whats_message_status   = json_encode($whats_status->response);
-    //         $whats_message          = '';
-    //     }
-
-    //         DB::table('invoice_notifications')->insert([
-    //             'invoice_id'        => $data['invoice_id'],
-    //             'type_send'         => 'whatsapp',
-    //             'date'              => Carbon::now(),
-    //             'subject_whatsapp'  => $data['title'],
-    //             'senpulse_email_id' => '',
-    //             'status'            => $whats_status == true ? 'Error' : 'Success',
-    //             'message_status'    => $whats_message_status,
-    //             'message'           => $whats_message,
-    //             'created_at'        => Carbon::now(),
-    //             'updated_at'        => Carbon::now()
-    //         ]);
+        $data['text_whatsapp'] = "*MENSAGEM AUTOMÁTICA*\n\n";
+        $data['text_whatsapp'] .= "Olá $whats_customer_name, tudo bem?\n\n";
+        $data['text_whatsapp'] .= "Seu pagamento referente a *Fatura #$whats_invoice_id* foi confimado!\n\n";
+        $data['text_whatsapp'] .= "*Serviço(s) Contratado(s):* \n\n";
+        $data['text_whatsapp'] .= "$whats_description \n\n";
+        $data['text_whatsapp'] .= "*Data da Fatura:* $whats_data_fatura \n";
+        $data['text_whatsapp'] .= "*Vencimento:* $whats_data_vencimento \n";
+        $data['text_whatsapp'] .= "*Data do Pagamento:* $whats_data_pagamento \n";
+        $data['text_whatsapp'] .= "*Forma de pagamento:* $whats_payment_method \n";
+        $data['text_whatsapp'] .= "*Total:* R$ $whats_price \n\n";
 
 
-    //         }
+        if($data['notification_whatsapp'] == 's'){
 
-    // }
+           $response = Http::withHeaders([
+            "Content-Type"  => "application/json"
+        ])->post('https://whatsapp.rogerti.com.br:8000/api/send-message',[
+            "access_token"  => 'FX1UVGhGVs5Ndj1oqhcpsJBNCc4GRe6p',
+            "whatsapp"      => '55'.$data['customer_phone'],
+            "message"       => $data['text_whatsapp']
+        ]);
+
+            $result = $response->getBody();
+
+            $whats_status           = json_decode($result);
+        if($whats_status->status == 'success'){
+            $whats_message_status   = $whats_status->status;
+            $whats_message          = json_encode($whats_status->response);
+        }else{
+            $whats_message_status   = json_encode($whats_status->response);
+            $whats_message          = '';
+        }
+
+            DB::table('invoice_notifications')->insert([
+                'invoice_id'        => $data['invoice_id'],
+                'type_send'         => 'whatsapp',
+                'date'              => Carbon::now(),
+                'subject_whatsapp'  => $data['title'],
+                'senpulse_email_id' => '',
+                'status'            => $whats_status == true ? 'Error' : 'Success',
+                'message_status'    => $whats_message_status,
+                'message'           => $whats_message,
+                'created_at'        => Carbon::now(),
+                'updated_at'        => Carbon::now()
+            ]);
+
+
+            }
+
+    }
 
 
 

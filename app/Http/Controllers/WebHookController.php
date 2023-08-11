@@ -61,8 +61,8 @@ class WebHookController extends Controller
     $invoice = Invoice::select('invoices.transaction_id','users.token_paghiper','users.key_paghiper')
                         ->join('users','users.id','invoices.user_id')
                         ->where('transaction_id',$data['transaction_id'])
-                        ->where('status','Pendente')
-                        ->orwhere('status','Processamento')
+                        ->where('invoices.status','Pendente')
+                        ->orwhere('invoices.status','Processamento')
                         ->first();
 
     if($invoice != null){

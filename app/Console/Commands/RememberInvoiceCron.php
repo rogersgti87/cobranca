@@ -7,6 +7,7 @@ use DB;
 use Carbon\Carbon;
 use App\Models\Invoice;
 use App\Models\InvoiceNotification;
+use Illuminate\Support\Facades\Http;
 
 class RememberInvoiceCron extends Command
 {

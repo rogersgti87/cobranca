@@ -21,20 +21,27 @@ class WebHookController extends Controller
   }
 
 
-  public function index(Request $request)
+  public function email(Request $request)
   {
     $data = $request->all();
+    \Log::info($data);
+    return 1;
     if($data != null){
         foreach($data as $result){
             DB::table('email_events')->insert([
-                'event'         =>  $result['event'],
-                'timestamp'     =>  Carbon::createFromTimestamp($result['timestamp'])->format('Y-m-d H:i:s'),
-                'message_id'    =>  $result['message_id'],
-                'recipient'     =>  $result['recipient'],
-                'sender'        =>  $result['sender'],
-                'subject'       =>  $result['subject'],
-                'created_at'    => Carbon::now(),
-                'updated_at'    => Carbon::now()
+                'event'             =>  $result['event'],
+                'email'             =>  $result['email'],
+                'identification'    =>  $result['id'],
+                'date'              =>  $result['date'],
+                'message_id'        =>  $result['message-id'],
+                'subject'           =>  isset($result['subject']) ? $result['subject'] : null,
+                'tag'               =>  $result['tag'],
+                'sending_ip'        =>  isset($result['sending_ip']) ? $result['sending_ip'] : null,
+                'ts_epoch'          =>  isset($result['ts_epoch']) ? $result['ts_epoch'] : null,
+                'link'              =>  isset($result['link']) ? $result['link'] : null,
+                'reason'            =>  isset($result['reason']) ? $result['reason'] : null,
+                'created_at'        => Carbon::now(),
+                'updated_at'        => Carbon::now()
             ]);
         }
     }

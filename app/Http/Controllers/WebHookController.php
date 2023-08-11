@@ -113,7 +113,7 @@ class WebHookController extends Controller
         ]);
     }
 
-        $invoice = Invoice::select('invoices.id','invoices.user_id','invoices.date_invoice','invoices.date_due','invoices.description',
+        $invoice = Invoice::select('invoices.id','invoices.status','invoices.user_id','invoices.date_invoice','invoices.date_due','invoices.description',
         'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp',
         'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement',
         'customers.district','customers.city','customers.state','customers.cep','invoices.gateway_payment','invoices.payment_method',
@@ -225,7 +225,7 @@ class WebHookController extends Controller
         }
 
 
-        $invoice = Invoice::select('invoices.id','invoices.user_id','invoices.date_invoice','invoices.date_due','invoices.description',
+        $invoice = Invoice::select('invoices.id','invoices.status','invoices.user_id','invoices.date_invoice','invoices.date_due','invoices.description',
         'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp',
         'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement',
         'customers.district','customers.city','customers.state','customers.cep','invoices.gateway_payment','invoices.payment_method',

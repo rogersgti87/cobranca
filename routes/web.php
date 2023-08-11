@@ -12,6 +12,7 @@ use App\Http\Controllers\admin\InvoiceController;
 use App\Http\Controllers\front\HomeController;
 use App\Http\Controllers\front\ContactController;
 
+use App\Http\Controllers\WebHookController;
 
 Route::get('/',[HomeController::class, 'index']);
 Route::get('/contact',[ContactController::class,'index']);

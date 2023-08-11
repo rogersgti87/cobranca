@@ -45,6 +45,7 @@ class Invoice extends Model
             'payer_zip_code'    =>  $invoice->cep,
             'type_bank_slip'    => 'boletoA4',
             'days_due_date'     =>  $invoice->days_due_date,
+            'notification_url'  => 'https://cobrancasegura.com.br/webhook/paghiper/',
             'late_payment_fine' => '1',// Percentual de multa após vencimento.
             'per_day_interest'  => true, // Juros após vencimento.
             'items' => array([
@@ -93,7 +94,7 @@ class Invoice extends Model
                     $payment->statement_descriptor  = $invoice->company;
                     $payment->description           = $invoice->service_name;
                     $payment->payment_method_id     = "pix";
-                    $payment->notification_url      = env('APP_URL') . '/webhook/mercadopago?source_news=webhooks';
+                    $payment->notification_url      = 'https://cobrancasegura.com.br/webhook/mercadopago?source_news=webhooks';
                     $payment->external_reference    = $invoice->id;
                     //$payment->date_of_expiration = Carbon::now()->addDays(40)->format('Y-m-d\TH:i:s') . '.000-04:00';
                     $payment->payer = array(
@@ -141,6 +142,7 @@ class Invoice extends Model
             'payer_name'        =>  $invoice->name,
             'payer_cpf_cnpj'    =>  $invoice->document,
             'days_due_date'     =>  90,
+            'notification_url'  => 'https://cobrancasegura.com.br/webhook/paghiper/',
             'items' => array([
                 'item_id'       => $invoice->service_id,
                 'description'   => $invoice->service_name,

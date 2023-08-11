@@ -61,7 +61,7 @@ class GenerateInvoiceCron extends Command
             if($invoice->gateway_payment == 'Pag Hiper'){
                 $generatePixPagHiper = Invoice::generatePixPH($newInvoice);
                 if($generatePixPagHiper['status'] == 'reject'){
-                    return response()->json($generatePixPagHiper['message'], 422);
+                    \Log::info($generatePixPagHiper['message']);
                 }
                 try {
                     Invoice::where('id',$newInvoice)->where('user_id',$invoice->user_id)->update([
@@ -69,14 +69,13 @@ class GenerateInvoiceCron extends Command
                     ]);
                 } catch (\Exception $e) {
                     \Log::error($e->getMessage());
-                    return response()->json($e->getMessage(), 422);
                 }
 
 
             }elseif($invoice->gateway_payment == 'Mercado Pago'){
                 $generatePixPagHiper = Invoice::generatePixMP($newInvoice);
                 if($generatePixPagHiper['status'] == 'reject'){
-                    return response()->json($generatePixPagHiper['message'], 422);
+                    \Log::info($generatePixPagHiper['message']);
                 }
                 try {
                     Invoice::where('id',$newInvoice)->where('user_id',$invoice->user_id)->update([
@@ -84,7 +83,6 @@ class GenerateInvoiceCron extends Command
                     ]);
                 } catch (\Exception $e) {
                     \Log::error($e->getMessage());
-                    return response()->json($e->getMessage(), 422);
                 }
 
                 $verifyTransaction = DB::table('invoices')->select('transaction_id')->where('id',$newInvoice)->where('user_id',$invoice->user_id)->first();
@@ -103,20 +101,26 @@ class GenerateInvoiceCron extends Command
             if($invoice->gateway_payment == 'Pag Hiper'){
                 $generatePixPagHiper = Invoice::generateBilletPH($newInvoice);
                 if($generatePixPagHiper['status'] == 'reject'){
-                    return response()->json($generatePixPagHiper['message'], 422);
+                    \Log::info($generatePixPagHiper['message']);
                 }
                 try {
                     Invoice::where('id',$newInvoice)->where('user_id',$invoice->user_id)->update([
                         'transaction_id' => $generatePixPagHiper['transaction_id']
                     ]);
                 } catch (\Exception $e) {
-                    \Log::error($e->getMessage());
-                    return response()->json($e->getMessage(), 422);
+                    \Log::info($e->getMessage());
                 }
 
                 $verifyTransaction = DB::table('invoices')->select('transaction_id')->where('id',$newInvoice)->where('user_id',$invoice->user_id)->first();
                 $getInfoBilletPayment   = Invoice::verifyStatusBilletPH($invoice->user_id ,$verifyTransaction->transaction_id);
 
+
+                if(!file_exists(public_path('boleto')))
+                \File::makeDirectory(public_path('boleto'));
+
+                $billetName = $invoice->user_id.'_'.$invoice->id.'.'.'pdf';
+                $contents = Http::get($getInfoBilletPayment->status_request->bank_slip->url_slip_pdf)->body();
+                \File::put(public_path(). '/boleto/' . $billetName, $contents);
 
             }elseif($invoice->gateway_payment == 'Mercado Pago'){
                 //

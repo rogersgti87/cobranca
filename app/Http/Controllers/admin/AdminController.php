@@ -11,7 +11,7 @@ use Image;
 use DB;
 use App\Models\User;
 use RuntimeException;
-use ResponseCache;
+use Illuminate\Support\Facades\Http;
 
 class AdminController extends Controller
 {

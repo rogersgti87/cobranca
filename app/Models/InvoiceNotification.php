@@ -90,6 +90,7 @@ class InvoiceNotification extends Model
         $whats_pix_image                = $data['pix_qrcode_image_url'];
         $whats_billet_digitable_line    = $data['billet_digitable_line'];
         $whats_billet_url_slip          = $data['billet_url_slip'];
+        $whats_billet_url_slip_pdf      = $data['billet_url_slip_pdf'];
 
 
         $data['text_whatsapp'] = "*MENSAGEM AUTOMÁTICA*\n\n";
@@ -104,11 +105,11 @@ class InvoiceNotification extends Model
 
 
 
-        if($whats_payment_method == 'Boleto'){
-            $data['text_whatsapp'] .= "Para abrir o Boleto é só clicar no link abaixo\n";
-            $data['text_whatsapp'] .= "$whats_billet_url_slip\n\n";
-            $data['text_whatsapp'] .= "*Linha Digitável abaixo* \n\n";
-        }
+        // if($whats_payment_method == 'Boleto'){
+        //     $data['text_whatsapp'] .= "Para abrir o Boleto é só clicar no link abaixo\n";
+        //     $data['text_whatsapp'] .= "$whats_billet_url_slip\n\n";
+        //     $data['text_whatsapp'] .= "*Linha Digitável abaixo* \n\n";
+        // }
 
 
 
@@ -194,14 +195,15 @@ class InvoiceNotification extends Model
 
         if($whats_payment_method == 'Boleto'){
             $whats_billet_digitable_line = removeEspeciais($whats_billet_digitable_line);
-            $data['text_whatsapp_payment'] .= "$whats_billet_digitable_line\n\n";
 
              $response = Http::withHeaders([
                     "Content-Type"  => "application/json"
-                ])->post('https://whatsapp.rogerti.com.br:8000/api/send-message',[
+                ])->post('https://whatsapp.rogerti.com.br:8000/api/send-file',[
                     "access_token"  => $data['user_access_token_wp'],
                     "whatsapp"      => '55'.$data['customer_whatsapp'],
-                    "message"       => $data['text_whatsapp_payment']
+                    "file"          => 'data:file/pdf;base64,'.$whats_billet_url_slip_pdf,
+                    "caption"       =>  $whats_billet_digitable_line,
+                    "filename"      =>  'Fatura_'.$whats_invoice_id.'_.pdf'
                 ]);
 
             $result = $response->getBody();

@@ -15,6 +15,7 @@ use App\Models\Service;
 use App\Models\CustomerService;
 use App\Models\Customer;
 use RuntimeException;
+use Illuminate\Support\Facades\Http;
 
 class InvoiceController extends Controller
 {
@@ -194,9 +195,16 @@ class InvoiceController extends Controller
                     }
 
                     $verifyTransaction = DB::table('invoices')->select('transaction_id')->where('id',$invoice->id)->where('user_id',auth()->user()->id)->first();
-                    \Log::info('Transaction da variavel verifyTransaction: '.$verifyTransaction->transaction_id);
                     $getInfoBilletPayment   = Invoice::verifyStatusBilletPH(auth()->user()->id ,$verifyTransaction->transaction_id);
 
+                    if(!file_exists(public_path('boleto')))
+                        \File::makeDirectory(public_path('boleto'));
+
+                    $billetName = auth()->user()->id.'_'.$invoice->id.'.'.'pdf';
+                    $contents = Http::get($getInfoBilletPayment->status_request->bank_slip->url_slip_pdf)->body();
+                    \File::put(public_path(). '/boleto/' . $billetName, $contents);
+
+                    $billet_pdf   = 'https://cobrancasegura.com.br/boleto/'.auth()->user()->id.'_'.$invoice->id.'.pdf';
 
                 }elseif($invoice->gateway_payment == 'Mercado Pago'){
                     //
@@ -244,7 +252,7 @@ class InvoiceController extends Controller
 
             if($invoice->payment_method == 'Boleto'){
                 $details['billet_digitable_line'] = $getInfoBilletPayment->status_request->bank_slip->digitable_line;
-                $details['billet_url_slip_pdf']   = $getInfoBilletPayment->status_request->bank_slip->url_slip_pdf;
+                $details['billet_url_slip_pdf']   = $billet_pdf;
                 $details['billet_url_slip']       = $getInfoBilletPayment->status_request->bank_slip->url_slip;
 
             }else{

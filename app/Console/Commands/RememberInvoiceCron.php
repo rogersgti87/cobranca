@@ -24,7 +24,8 @@ class RememberInvoiceCron extends Command
   {
 
     $sql = "SELECT i.id,i.user_id,i.date_invoice,i.date_due,i.description,c.email,c.email2,c.phone,c.name,c.notification_whatsapp,c.company,c.document,c.phone,c.address,c.number,c.complement,
-    c.district,c.city,c.state,c.cep,i.gateway_payment, i.payment_method,s.id AS service_id,s.name AS service_name,i.price AS service_price, u.access_token_mp FROM invoices i
+    c.district,c.city,c.state,c.cep,i.gateway_payment, i.payment_method,s.id AS service_id,s.name AS service_name,i.price AS service_price,
+    u.access_token_mp, u.company user_company, u.whatsapp user_whatsapp, u.telephone user_telephone, u.email user_email, u.api_access_token_whatsapp FROM invoices i
         INNER JOIN customer_services cs ON i.customer_service_id = cs.id
         INNER JOIN customers c ON  cs.customer_id = c.id
         INNER JOIN services  s ON  cs.service_id  = s.id
@@ -79,24 +80,24 @@ class RememberInvoiceCron extends Command
         'message_customer'          => 'Olá '.$customer->name.', tudo bem?',
         'message_notification'      => 'Esta é uma mensagem para notificá-lo(a) que foi gerado a <b>Fatura #'.$invoice->id.'</b>',
         'logo'                      => 'https://cobrancasegura.com.br/'.$user->image,
-        'company'                   => $user->company,
-        'user_whatsapp'             => removeEspeciais($user->whatsapp),
-        'user_telephone'            => removeEspeciais($user->telephone),
-        'user_email'                => $user->email,
-        'user_access_token_wp'      => $user->api_access_token_whatsapp,
+        'company'                   => $invoice->user_company,
+        'user_whatsapp'             => removeEspeciais($invoice->user_whatsapp),
+        'user_telephone'            => removeEspeciais($invoice->user_telephone),
+        'user_email'                => $invoice->user_email,
+        'user_access_token_wp'      => $invoice->api_access_token_whatsapp,
         'user_id'                   => $invoice->user_id,
-        'customer'                  => $customer->name,
-        'customer_email'            => $customer->email,
-        'customer_email2'           => $customer->email2,
-        'customer_whatsapp'         => removeEspeciais($customer->whatsapp),
-        'notification_whatsapp'     => $customer->notification_whatsapp,
-        'customer_company'          => $customer->company,
+        'customer'                  => $invoice->name,
+        'customer_email'            => $invoice->email,
+        'customer_email2'           => $invoice->email2,
+        'customer_whatsapp'         => removeEspeciais($invoice->whatsapp),
+        'notification_whatsapp'     => $invoice->notification_whatsapp,
+        'customer_company'          => $inovoice->company,
         'date_invoice'              => date('d/m/Y', strtotime($invoice->date_invoice)),
         'date_due'                  => date('d/m/Y', strtotime($invoice->date_due)),
         'price'                     => number_format($invoice->price, 2,',','.'),
         'gateway_payment'           => $invoice->gateway_payment,
         'payment_method'            => $invoice->payment_method,
-        'service'                   => $customer_service->name .' - '. $invoice->description,
+        'service'                   => $invoice->description,
         'invoice'                   => $invoice->id,
         'url_base'                  => url('/'),
         'pix_qrcode_image_url'      =>  '',
@@ -109,13 +110,13 @@ class RememberInvoiceCron extends Command
 
 //verificar mensagem de data que vencerá em 5 dias
 
-    if($invoice->date_end == Carbon::now()->format('Y-m-d') ){
-        $details['title']         .= ' vence hoje';
-        $details['text_remember'] .= 'Esta é uma mensagem para notificá-lo(a) que sua fatura vence hoje.';
+    if($invoice->date_due == Carbon::now()->format('Y-m-d') ){
+        $details['title']         .= 'Sua Fatura vence hoje';
+        $details['message_notification'] .= 'Esta é uma mensagem para notificá-lo(a) que sua <b>Fatura #'.$invoice->id.'</b> vence hoje.';
 
-    }else if($invoice->date_end < Carbon::now()->format('Y-m-d') ){
-        $details['title']         .= ' venceu';
-        $details['text_remember'] .= 'Esta é uma mensagem para notificá-lo(a) que sua fatura está vencida.';
+    }else if($invoice->date_due < Carbon::now()->format('Y-m-d') ){
+        $details['title']         .= 'Sua Fatura venceu';
+        $details['message_notification'] .= 'Esta é uma mensagem para notificá-lo(a) que sua <b>Fatura #'.$invoice->id.'</b> está vencida.';
 
     }
 

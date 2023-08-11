@@ -240,49 +240,55 @@ class WebHookController extends Controller
         ->first();
 
 
-        $details = [
-            'type_send'                 => 'Confirm',
-            'title'                     => $title,
-            'message_customer'          => 'Olá '.$invoice->name.', tudo bem?',
-            'message_notification'      => $message_notification,
-            'logo'                      => 'https://cobrancasegura.com.br/'.$invoice->user_image,
-            'company'                   => $invoice->user_company,
-            'user_whatsapp'             => removeEspeciais($invoice->user_whatsapp),
-            'user_telephone'            => removeEspeciais($invoice->user_telephone),
-            'user_email'                => $invoice->user_email,
-            'user_access_token_wp'      => $invoice->api_access_token_whatsapp,
-            'user_id'                   => $invoice->user_id,
-            'customer'                  => $invoice->name,
-            'customer_email'            => $invoice->email,
-            'customer_email2'           => $invoice->email2,
-            'customer_whatsapp'         => removeEspeciais($invoice->whatsapp),
-            'notification_whatsapp'     => $invoice->notification_whatsapp,
-            'customer_company'          => $invoice->company,
-            'date_invoice'              => date('d/m/Y', strtotime($invoice->date_invoice)),
-            'date_due'                  => date('d/m/Y', strtotime($invoice->date_due)),
-            'price'                     => number_format($invoice->price, 2,',','.'),
-            'date_payment'              => $invoice->date_payment != null ? date('d/m/Y', strtotime($invoice->date_payment)) : '',
-            'gateway_payment'           => $invoice->gateway_payment,
-            'payment_method'            => $invoice->payment_method,
-            'service'                   => $invoice->description,
-            'invoice'                   => $invoice->id,
-            'url_base'                  => url('/'),
-            'status_payment'            => $invoice->status,
-            'pix_qrcode_image_url'      =>  '',
-            'pix_emv'                   =>  '',
-            'pix_qrcode_wp'             =>  '',
-            'billet_digitable_line'     =>  '',
-            'billet_url_slip_pdf'       =>  '',
-            'billet_url_slip'           =>  '',
-        ];
+        if($invoice != null){
+
+            $details = [
+                'type_send'                 => 'Confirm',
+                'title'                     => $title,
+                'message_customer'          => 'Olá '.$invoice->name.', tudo bem?',
+                'message_notification'      => $message_notification,
+                'logo'                      => 'https://cobrancasegura.com.br/'.$invoice->user_image,
+                'company'                   => $invoice->user_company,
+                'user_whatsapp'             => removeEspeciais($invoice->user_whatsapp),
+                'user_telephone'            => removeEspeciais($invoice->user_telephone),
+                'user_email'                => $invoice->user_email,
+                'user_access_token_wp'      => $invoice->api_access_token_whatsapp,
+                'user_id'                   => $invoice->user_id,
+                'customer'                  => $invoice->name,
+                'customer_email'            => $invoice->email,
+                'customer_email2'           => $invoice->email2,
+                'customer_whatsapp'         => removeEspeciais($invoice->whatsapp),
+                'notification_whatsapp'     => $invoice->notification_whatsapp,
+                'customer_company'          => $invoice->company,
+                'date_invoice'              => date('d/m/Y', strtotime($invoice->date_invoice)),
+                'date_due'                  => date('d/m/Y', strtotime($invoice->date_due)),
+                'price'                     => number_format($invoice->price, 2,',','.'),
+                'date_payment'              => $invoice->date_payment != null ? date('d/m/Y', strtotime($invoice->date_payment)) : '',
+                'gateway_payment'           => $invoice->gateway_payment,
+                'payment_method'            => $invoice->payment_method,
+                'service'                   => $invoice->description,
+                'invoice'                   => $invoice->id,
+                'url_base'                  => url('/'),
+                'status_payment'            => $invoice->status,
+                'pix_qrcode_image_url'      =>  '',
+                'pix_emv'                   =>  '',
+                'pix_qrcode_wp'             =>  '',
+                'billet_digitable_line'     =>  '',
+                'billet_url_slip_pdf'       =>  '',
+                'billet_url_slip'           =>  '',
+            ];
 
 
-        $details['body']  = view('mails.invoice',$details)->render();
+            $details['body']  = view('mails.invoice',$details)->render();
 
-        InvoiceNotification::Email($details);
+            InvoiceNotification::Email($details);
 
-        if($invoice->notification_whatsapp)
-            InvoiceNotification::Whatsapp($details);
+            if($invoice->notification_whatsapp)
+                InvoiceNotification::Whatsapp($details);
+
+
+        }
+
 
 
 

@@ -76,7 +76,7 @@
 
 
     <div class="table-responsive">
-        <table class="display compact" style="width:100%" id="myTable">
+        <table class="display table-striped" style="width:100%" id="notifications-table">
             <thead>
                 <tr>
                     <th>Tipo</th>
@@ -99,7 +99,7 @@
                     <tr>
                         <td>
                             @if ($notification->type_send == "whatsapp")
-                                <span class="badge badge-success"><i class="fa fa-whatsapp"></i></span>
+                                <span class="badge badge-success"><i class="fab fa-whatsapp"></i></span>
                             @else
                                 <span class="badge badge-info"><i class="fa fa-envelope"></i></span>
                             @endif
@@ -116,7 +116,7 @@
                             @endif
                         </td>
                         <td>{{ $notification->email}}</td>
-                        <td>{{ $notification->type_send == 'whatsapp'? date('d/m/Y H:i:s',strtotime($notification->date)) :  date('d/m/Y H:i:s',strtotime($notification->date_email)) }}</td>
+                        <td>@if($notification->type_send == 'whatsapp') {{ $notification->date != null ? date('d/m/Y H:i:s',strtotime($notification->date)) : '-' }} @else {{ $notification->date_email != null ? date('d/m/Y H:i:s',strtotime($notification->date_email)) : '-'}} @endif</td>
                         <td>{{ $notification->subject }}</td>
                         <td>{{ $notification->sending_ip }}</td>
                         <td>
@@ -154,8 +154,12 @@
     </div><!-- table-responsive -->
 
     <script>
-         $('#myTable').DataTable({
-            order: [[2, 'desc']],
+
+   $('#notifications-table').DataTable({
+            order: [[3, 'desc']],
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json',
+            },
         });
 
 

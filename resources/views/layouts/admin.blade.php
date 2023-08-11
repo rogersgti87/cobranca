@@ -33,7 +33,8 @@
 <link rel="stylesheet" href="{{ url('assets/admin/plugins/iconpicker/dist/fontawesome-5.11.2/css/all.min.css') }}">
 <link rel="stylesheet" href="{{ url('assets/admin/plugins/iconpicker/dist/iconpicker-1.5.0.css') }}">
 
-<link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap4.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap4.min.css" rel="stylesheet">
+
 
 <link rel="stylesheet" href="{{ url('assets/admin/plugins/dropzone/min/dropzone.min.css')}}">
 
@@ -189,6 +190,7 @@
 <script src="{{ url('assets/admin/plugins/iconpicker/dist/iconpicker-1.5.0.js') }}"></script>
 
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>
 <script src="https://cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json"></script>
 
 <script src="{{ url('assets/admin/plugins/dropzone/min/dropzone.min.js') }}"></script>

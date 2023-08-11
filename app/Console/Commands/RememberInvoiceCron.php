@@ -66,6 +66,8 @@ class RememberInvoiceCron extends Command
                 $verifyTransaction = DB::table('invoices')->select('transaction_id')->where('id',$invoice->id)->where('user_id',$invoice->user_id)->first();
                 $getInfoBilletPayment   = Invoice::verifyStatusBilletPH($invoice->user_id ,$verifyTransaction->transaction_id);
 
+                $billet_pdf   = 'https://cobrancasegura.com.br/boleto/'.$invoice->user_id.'_'.$invoice->id.'.pdf';
+
             }elseif($invoice->gateway_payment == 'Mercado Pago'){
                 //
             }
@@ -123,7 +125,7 @@ class RememberInvoiceCron extends Command
 
     if($invoice->payment_method == 'Boleto'){
         $details['billet_digitable_line'] = $getInfoBilletPayment->status_request->bank_slip->digitable_line;
-        $details['billet_url_slip_pdf']   = $getInfoBilletPayment->status_request->bank_slip->url_slip_pdf;
+        $details['billet_url_slip_pdf']   = $billet_pdf;
         $details['billet_url_slip']       = $getInfoBilletPayment->status_request->bank_slip->url_slip;
 
     }else{

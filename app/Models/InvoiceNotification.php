@@ -203,7 +203,7 @@ class InvoiceNotification extends Model
                     "whatsapp"      => '55'.$data['customer_whatsapp'],
                     "file"          => 'data:file/pdf;base64,'.$whats_billet_url_slip_pdf,
                     "caption"       =>  $whats_billet_digitable_line,
-                    "filename"      =>  'Fatura_'.$whats_invoice_id.'_.pdf'
+                    "filename"      =>  'Fatura_'.$whats_invoice_id.'.pdf'
                 ]);
 
             $result = $response->getBody();

@@ -242,6 +242,7 @@ class InvoiceController extends Controller
                 'payment_method'            => $invoice->payment_method,
                 'service'                   => $customer_service->name .' - '. $invoice->description,
                 'invoice'                   => $invoice->id,
+                'status'                    => $invoice->status,
                 'url_base'                  => url('/'),
                 'pix_qrcode_image_url'      =>  '',
                 'pix_emv'                   =>  '',

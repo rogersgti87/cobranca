@@ -201,7 +201,7 @@ class InvoiceNotification extends Model
                 ])->post('https://whatsapp.rogerti.com.br:8000/api/send-file',[
                     "access_token"  => $data['user_access_token_wp'],
                     "whatsapp"      => '55'.$data['customer_whatsapp'],
-                    "file"          => 'data:file/pdf;base64,'.$whats_billet_url_slip_pdf,
+                    "file"          => 'data:application/pdf;base64,'.$whats_billet_url_slip_pdf,
                     "caption"       =>  $whats_billet_digitable_line,
                     "filename"      =>  'Fatura_'.$whats_invoice_id.'.pdf'
                 ]);

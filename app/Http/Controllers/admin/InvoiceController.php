@@ -206,6 +206,8 @@ class InvoiceController extends Controller
 
                     $billet_pdf   = 'https://cobrancasegura.com.br/boleto/'.auth()->user()->id.'_'.$invoice->id.'.pdf';
 
+                    $base64_pdf = chunk_split(base64_encode(file_get_contents($billet_pdf)));
+
                 }elseif($invoice->gateway_payment == 'Mercado Pago'){
                     //
                 }
@@ -252,7 +254,7 @@ class InvoiceController extends Controller
 
             if($invoice->payment_method == 'Boleto'){
                 $details['billet_digitable_line'] = $getInfoBilletPayment->status_request->bank_slip->digitable_line;
-                $details['billet_url_slip_pdf']   = $billet_pdf;
+                $details['billet_url_slip_pdf']   = $base64_pdf;
                 $details['billet_url_slip']       = $getInfoBilletPayment->status_request->bank_slip->url_slip;
 
             }else{

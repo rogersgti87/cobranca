@@ -78,6 +78,9 @@ class RememberInvoiceCron extends Command
                     \File::put(public_path(). '/boleto/' . $billetName, $contents);
                 }
 
+                $base64_pdf = chunk_split(base64_encode(file_get_contents($billet_pdf)));
+
+
             }elseif($invoice->gateway_payment == 'Mercado Pago'){
                 //
             }
@@ -135,8 +138,7 @@ class RememberInvoiceCron extends Command
 
     if($invoice->payment_method == 'Boleto'){
         $details['billet_digitable_line'] = $getInfoBilletPayment->status_request->bank_slip->digitable_line;
-        $details['billet_url_slip_pdf']   = $billet_pdf;
-        \Log::info($details['billet_url_slip_pdf']);
+        $details['billet_url_slip_pdf']   = $base64_pdf;
         $details['billet_url_slip']       = $getInfoBilletPayment->status_request->bank_slip->url_slip;
 
     }else{

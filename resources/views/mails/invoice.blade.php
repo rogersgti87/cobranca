@@ -62,11 +62,11 @@
 
     @if($payment_method == 'Pix')
 
-        <p style="text-align:center">Se ainda não realizou o pagamento, ainda dá tempo, basta scannear o QrCode a baixo:</p>
-        <p style="text-align:center"><img src="{{$pix_qrcode_image_url}}" alt="QR Code" style="max-width:220px;"></p>
+        <p style="text-align:left">Se ainda não realizou o pagamento, ainda dá tempo, basta scannear o QrCode a baixo:</p>
+        <p style="text-align:left"><img src="{{$pix_qrcode_image_url}}" alt="QR Code" style="max-width:220px;"></p>
 
-        <p style="text-align:center">Código digitavel pix :</p>
-        <p style="text-align:center">{{$pix_emv}}</p>
+        <p style="text-align:left">Código digitavel pix :</p>
+        <p style="text-align:left">{{$pix_emv}}</p>
 
         <ul>
             <li>O Pix será aprovado em poucos instantes após o pagamento.</li>
@@ -75,10 +75,10 @@
     @endif
 
     @if($payment_method == 'Boleto')
-        <p style="text-align:center">Para gerar o Boleto é só clicar abaixo:</p>
-        <p style="text-align:center"><a href="{{$billet_url_slip}}" target="_blank"><img src="https://s7003039.sendpul.se/image/747991a0e145ac2bbe69f063a9402e69/files/emailservice/userfiles/afdeb61c8175066a32c78dbe45c9569d7003039/rogerti/boleto.png"></a></p>
-        <p style="text-align:center">Código digitável:</p>
-        <p style="text-align:center">{{$billet_digitable_line}}</p>
+        <p style="text-align:left">Para gerar o Boleto é só clicar abaixo:</p>
+        <p style="text-align:left"><a href="{{$billet_url_slip}}" target="_blank"><img src="https://s7003039.sendpul.se/image/747991a0e145ac2bbe69f063a9402e69/files/emailservice/userfiles/afdeb61c8175066a32c78dbe45c9569d7003039/rogerti/boleto.png"></a></p>
+        <p style="text-align:left">Código digitável:</p>
+        <p style="text-align:left">{{$billet_digitable_line}}</p>
     @endif
 
     <br>

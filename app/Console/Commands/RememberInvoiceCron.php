@@ -25,7 +25,7 @@ class RememberInvoiceCron extends Command
 
     $sql = "SELECT i.id,i.user_id,i.date_invoice,i.date_due,i.description,c.email,c.email2,c.phone,c.name,c.notification_whatsapp,c.company,c.document,c.phone,c.address,c.number,c.complement,
     c.district,c.city,c.state,c.cep,i.gateway_payment, i.payment_method,s.id AS service_id,s.name AS service_name,i.price AS service_price,
-    u.access_token_mp, u.company user_company, u.whatsapp user_whatsapp, u.telephone user_telephone, u.email user_email, u.api_access_token_whatsapp FROM invoices i
+    u.access_token_mp, u.company user_company, u.whatsapp user_whatsapp, u.image user_image, u.telephone user_telephone, u.email user_email, u.api_access_token_whatsapp FROM invoices i
         INNER JOIN customer_services cs ON i.customer_service_id = cs.id
         INNER JOIN customers c ON  cs.customer_id = c.id
         INNER JOIN services  s ON  cs.service_id  = s.id
@@ -79,7 +79,7 @@ class RememberInvoiceCron extends Command
         'title'                     => 'Nova fatura gerada',
         'message_customer'          => 'Olá '.$invoice->name.', tudo bem?',
         'message_notification'      => 'Esta é uma mensagem para notificá-lo(a) que foi gerado a <b>Fatura #'.$invoice->id.'</b>',
-        'logo'                      => 'https://cobrancasegura.com.br/'.$user->image,
+        'logo'                      => 'https://cobrancasegura.com.br/'.$invoice->user_image,
         'company'                   => $invoice->user_company,
         'user_whatsapp'             => removeEspeciais($invoice->user_whatsapp),
         'user_telephone'            => removeEspeciais($invoice->user_telephone),

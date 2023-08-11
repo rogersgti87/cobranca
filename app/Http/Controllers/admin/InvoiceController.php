@@ -418,4 +418,17 @@ class InvoiceController extends Controller
 
     }
 
+    public function loadnotifications($invoice){
+
+        $notifications = DB::table('invoice_notifications as a')
+        ->select('a.id','a.type_send', 'ev.event', 'ev.date as date_email','ev.email', 'a.date','a.subject','a.status','ev.sending_ip','ev.reason','a.message_status','a.message')
+        ->leftJoin('email_events as ev','ev.message_id','a.email_id')
+        ->where('a.user_id',auth()->user()->id)
+        ->where('a.invoice_id',$invoice)
+        ->orderby('ev.date','desc')
+        ->get();
+
+        return view('admin.invoice.notifications',compact('notifications'))->render();
+    }
+
 }

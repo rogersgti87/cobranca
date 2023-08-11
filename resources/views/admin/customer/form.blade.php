@@ -368,6 +368,32 @@
  <!-- Modal :: Form Invoice -->
 
 
+
+  <!-- Modal :: Form Invoice -->
+  <div class="modal fade" id="modalNotifications" tabindex="-1" role="dialog" aria-labelledby="modalNotificationsLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form action="" class="form-horizontal" id="form-request-notifications">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalNotificationsLabel"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="form-content-notifications">
+                    <!-- conteudo -->
+                    <!-- conteudo -->
+                </div><!-- modal-body -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-times"></i> Fechar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+ </div>
+ <!-- Modal :: Form Invoice -->
+
+
 @section('scripts')
 
 
@@ -839,8 +865,8 @@ function loadInvoices(){
                         html += `<td><label class="badge badge-${item.status == 'Pago' ? 'success' : item.status == 'Pendente' ? 'secondary': 'danger'}">${item.status}</label></td>`;
                         html += `<td>
                             <a href="#" data-original-title="Reenviar Notificação" id="btn-notificate" data-invoice="${item.id}" data-toggle="tooltip" class="btn btn-info btn-xs"> <i class="fa fa-paper-plane"></i></a>
-                            <a href="#" data-original-title="Notificações" id="btn-notifications" data-invoice="${item.id}" data-toggle="tooltip" class="btn btn-warning btn-xs"> <i style="padding:0 5px;" class="fa fa-info"></i></a>
-                            ${item.status != 'Cancelado' ? '<a href="#" data-original-title="Deletar Fatura" id="btn-delete-invoice" data-invoice="'+item.id+'" data-toggle="tooltip" class="btn btn-danger btn-xs"> <i class="fa fa-list"></i></a>' : ''}
+                            <a href="#" data-original-title="Notificações" id="btn-modal-notifications" data-invoice="${item.id}" data-toggle="tooltip" class="btn btn-warning btn-xs"> <i style="padding:0 5px;" class="fa fa-info"></i></a>
+                            ${item.status != 'Cancelado' ? '<a href="#" data-original-title="Cancelar Fatura" id="btn-delete-invoice" data-invoice="'+item.id+'" data-toggle="tooltip" class="btn btn-danger btn-xs"> <i class="fas fa-undo-alt"></i></a>' : ''}
                             </td>`;
                         html += '</tr>';
 
@@ -930,6 +956,29 @@ $(document).on('click', '#btn-delete-invoice', function(e) {
     });
 
     });
+
+
+
+
+        // Open Modal - Notifications
+        $(document).on("click", "#btn-modal-notifications", function() {
+
+        $("#modalNotifications").modal('show');
+            $("#modalNotificationsLabel").html('Notificações');
+            var invoice = $(this).data('invoice');
+            var url = "{{url('/admin/load-invoice-notifications')}}"+'/'+invoice;
+
+        console.log(url);
+        $.get(url,
+            $(this)
+            .addClass('modal-scrollfix')
+            .find('#form-content-notifications')
+            .html('Carregando...'),
+            function(data) {
+                $("#form-content-notifications").html(data);
+            });
+    });
+
 
 </script>
 

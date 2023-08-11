@@ -38,7 +38,7 @@ class WebHookController extends Controller
                 'date'              =>  $data['date'],
                 'message_id'        =>  $data['message-id'],
                 'subject'           =>  isset($data['subject']) ? $data['subject'] : null,
-                'tag'               =>  $data['tag'],
+                'tag'               =>  isset($data['tag']) ? $data['tag'] : null,
                 'sending_ip'        =>  isset($data['sending_ip']) ? $data['sending_ip'] : null,
                 'ts_epoch'          =>  isset($data['ts_epoch']) ? $data['ts_epoch'] : null,
                 'link'              =>  isset($data['link']) ? $data['link'] : null,

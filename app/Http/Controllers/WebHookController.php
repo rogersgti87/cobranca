@@ -58,7 +58,7 @@ class WebHookController extends Controller
   {
     $data = $request->all();
 
-    $invoice = Invoice::select('invoices.transaction_id','users.token_paghiper','users.key_paghiper')
+    $invoice = Invoice::select('invoices.transaction_id','users.token_paghiper','users.key_paghiper','invoices.payment_method')
                         ->join('users','users.id','invoices.user_id')
                         ->where('transaction_id',$data['transaction_id'])
                         ->where('invoices.status','Pendente')
@@ -66,11 +66,18 @@ class WebHookController extends Controller
                         ->first();
 
     if($invoice != null){
+        $url = '';
+        if($invoice->payment_method == 'Pix'){
+            $url = 'https://pix.paghiper.com/invoice/notification/';
+        }else{
+            $url = 'https://api.paghiper.com/transaction/notification/';
+        }
+
 
     $response = Http::withHeaders([
         'accept' => 'application/json',
         'content-type' => 'application/json',
-    ])->post('https://api.paghiper.com/transaction/notification/',[
+    ])->post($url,[
         'token'             => $invoice->token_paghiper,
         'apiKey'            => $data['apiKey'],
         'transaction_id'    => $data['transaction_id'],

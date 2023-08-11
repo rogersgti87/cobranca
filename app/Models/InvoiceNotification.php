@@ -55,6 +55,7 @@ class InvoiceNotification extends Model
 
         $result = $response->getBody();
 
+         \Log::info('Debug Email: '. json_encode(json_decode($result)));
         $email_id = json_decode($result)->messageId;
 
 

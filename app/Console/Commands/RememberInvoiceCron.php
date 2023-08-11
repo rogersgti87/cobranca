@@ -111,12 +111,12 @@ class RememberInvoiceCron extends Command
 //verificar mensagem de data que vencerá em 5 dias
 
     if($invoice->date_due == Carbon::now()->format('Y-m-d') ){
-        $details['title']         .= 'Sua Fatura vence hoje';
-        $details['message_notification'] .= 'Esta é uma mensagem para notificá-lo(a) que sua <b>Fatura #'.$invoice->id.'</b> vence hoje.';
+        $details['title']         = 'Sua Fatura vence hoje';
+        $details['message_notification'] = 'Esta é uma mensagem para notificá-lo(a) que sua <b>Fatura #'.$invoice->id.'</b> vence hoje.';
 
     }else if($invoice->date_due < Carbon::now()->format('Y-m-d') ){
-        $details['title']         .= 'Sua Fatura venceu';
-        $details['message_notification'] .= 'Esta é uma mensagem para notificá-lo(a) que sua <b>Fatura #'.$invoice->id.'</b> está vencida.';
+        $details['title']         = 'Sua Fatura venceu';
+        $details['message_notification'] = 'Esta é uma mensagem para notificá-lo(a) que sua <b>Fatura #'.$invoice->id.'</b> está vencida.';
 
     }
 

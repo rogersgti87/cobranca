@@ -66,7 +66,7 @@
         <p style="text-align:left"><img src="{{$pix_qrcode_image_url}}" alt="QR Code" style="max-width:220px;"></p>
 
         <p style="text-align:left">Você também pode copiar e colar o código PIX:</p>
-        <p style="text-align:left"><textarea rows="4" cols="100">{{$pix_emv}}</textarea></p>
+        <p style="text-align:left"><textarea rows="4" cols="70">{{$pix_emv}}</textarea></p>
 
         <ul>
             <li>O Pix será aprovado em poucos instantes após o pagamento.</li>
@@ -78,7 +78,7 @@
         <p style="text-align:left">Para gerar o Boleto é só clicar abaixo:</p>
         <p style="text-align:left"><a href="{{$billet_url_slip}}" target="_blank"><img src="https://s7003039.sendpul.se/image/747991a0e145ac2bbe69f063a9402e69/files/emailservice/userfiles/afdeb61c8175066a32c78dbe45c9569d7003039/rogerti/boleto.png"></a></p>
         <p style="text-align:left">Código digitável:</p>
-        <p style="text-align:left"><textarea rows="4" cols="100">{{$billet_digitable_line}}</textarea></p>
+        <p style="text-align:left"><textarea rows="4" cols="70">{{$billet_digitable_line}}</textarea></p>
     @endif
 
     <br>

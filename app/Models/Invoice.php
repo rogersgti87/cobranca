@@ -170,7 +170,6 @@ class Invoice extends Model
 
       $user = User::where('id',$user_id)->first();
 
-        \Log::info('Transaction no model invoice: '.$transaction_id);
         //Consultar status da transação
         $response = Http::withHeaders([
             'accept' => 'application/json',

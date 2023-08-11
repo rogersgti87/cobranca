@@ -192,11 +192,9 @@ class InvoiceNotification extends Model
 
             $data['text_whatsapp_payment'] = '';
 
-        if($whats_payment_method == 'Billet'){
+        if($whats_payment_method == 'Boleto'){
             $whats_billet_digitable_line = removeEspeciais($whats_billet_digitable_line);
             $data['text_whatsapp_payment'] .= "$whats_billet_digitable_line\n\n";
-
-
 
              $response = Http::withHeaders([
                     "Content-Type"  => "application/json"

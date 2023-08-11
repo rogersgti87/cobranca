@@ -91,7 +91,7 @@ class RememberInvoiceCron extends Command
         'customer_email2'           => $invoice->email2,
         'customer_whatsapp'         => removeEspeciais($invoice->whatsapp),
         'notification_whatsapp'     => $invoice->notification_whatsapp,
-        'customer_company'          => $inovoice->company,
+        'customer_company'          => $invoice->company,
         'date_invoice'              => date('d/m/Y', strtotime($invoice->date_invoice)),
         'date_due'                  => date('d/m/Y', strtotime($invoice->date_due)),
         'price'                     => number_format($invoice->price, 2,',','.'),

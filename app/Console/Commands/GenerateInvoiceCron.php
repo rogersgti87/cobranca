@@ -106,7 +106,7 @@ class GenerateInvoiceCron extends Command
                     return response()->json($generatePixPagHiper['message'], 422);
                 }
                 try {
-                    Invoice::where('id',$newInvoice)->where('user_id',auth()->user()->id)->update([
+                    Invoice::where('id',$newInvoice)->where('user_id',$invoice->user_id)->update([
                         'transaction_id' => $generatePixPagHiper['transaction_id']
                     ]);
                 } catch (\Exception $e) {

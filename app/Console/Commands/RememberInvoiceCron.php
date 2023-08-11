@@ -68,6 +68,15 @@ class RememberInvoiceCron extends Command
 
                 $billet_pdf   = 'https://cobrancasegura.com.br/boleto/'.$invoice->user_id.'_'.$invoice->id.'.pdf';
 
+                if(!file_exists($billet_pdf)){
+                    if(!file_exists(public_path('boleto')))
+                    \File::makeDirectory(public_path('boleto'));
+
+                    $billetName = $invoice->user_id.'_'.$invoice->id.'.'.'pdf';
+                    $contents = Http::get($getInfoBilletPayment->status_request->bank_slip->url_slip_pdf)->body();
+                    \File::put(public_path(). '/boleto/' . $billetName, $contents);
+                }
+
             }elseif($invoice->gateway_payment == 'Mercado Pago'){
                 //
             }
@@ -126,6 +135,7 @@ class RememberInvoiceCron extends Command
     if($invoice->payment_method == 'Boleto'){
         $details['billet_digitable_line'] = $getInfoBilletPayment->status_request->bank_slip->digitable_line;
         $details['billet_url_slip_pdf']   = $billet_pdf;
+        \Log::info($details['billet_url_slip_pdf']);
         $details['billet_url_slip']       = $getInfoBilletPayment->status_request->bank_slip->url_slip;
 
     }else{

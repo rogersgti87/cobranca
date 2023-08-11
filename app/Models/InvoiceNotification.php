@@ -97,8 +97,8 @@ class InvoiceNotification extends Model
         $data['text_whatsapp'] = "*MENSAGEM AUTOMÁTICA*\n\n";
         $data['text_whatsapp'] .= "$message_customer\n\n";
         $data['text_whatsapp'] .= "$message_notification \n\n";
-        $data['text_whatsapp'] .= "*Serviço(s) Contratado(s):* \n\n";
-        $data['text_whatsapp'] .= "$whats_description \n\n";
+        $data['text_whatsapp'] .= "*Serviço Contratado:* \n";
+        $data['text_whatsapp'] .= "$whats_description \n";
         $data['text_whatsapp'] .= "*Data da Fatura:* $whats_data_fatura \n";
         $data['text_whatsapp'] .= "*Vencimento:* $whats_data_vencimento \n";
         $data['text_whatsapp'] .= "*Forma de pagamento:* $whats_payment_method \n";

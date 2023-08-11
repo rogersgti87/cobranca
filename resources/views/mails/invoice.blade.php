@@ -53,12 +53,12 @@
 
     <p>
         <b>Data da Fatura:</b> {{$date_invoice}} <br>
-        <b>Vencimento:</b> {{$date_due}} <br><br>
+        <b>Forma de pagamento:</b> {{ $payment_method }} <br>
+        <b>Vencimento:</b> {{$date_due}} <br>
         <b>Total:</b> R$ {{$price}} <br>
         <b>Status:</b> {{$status}} <br>
     </p>
 
-    <p><b>Forma de pagamento:</b> {{ $payment_method }}</p>
 
     @if($status == 'Pendente')
 
@@ -103,7 +103,7 @@
 
     <br>
 
-    <h4 style="text-align: center;">Mensagem automática, favor não responder este e-mail.</h4>
+    <h4 style="text-align: left;">Mensagem automática, favor não responder este e-mail.</h4>
 
 </div>
 </body>

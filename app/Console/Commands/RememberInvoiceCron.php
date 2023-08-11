@@ -112,7 +112,7 @@ class RememberInvoiceCron extends Command
         'price'                     => number_format($invoice->price, 2,',','.'),
         'gateway_payment'           => $invoice->gateway_payment,
         'payment_method'            => $invoice->payment_method,
-        'service'                   => $invoice->description,
+        'service'                   => $invoice->service_name. ' - ' .$invoice->description,
         'invoice'                   => $invoice->id,
         'status'                    => $invoice->status,
         'url_base'                  => url('/'),

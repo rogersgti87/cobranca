@@ -55,7 +55,7 @@
         <b>Data da Fatura:</b> {{$date_invoice}} <br>
         <b>Vencimento:</b> {{$date_due}} <br><br>
         <b>Total:</b> R$ {{$price}} <br>
-        <b>Status:</b> R$ {{$status}} <br>
+        <b>Status:</b> {{$status}} <br>
     </p>
 
     <p><b>Forma de pagamento:</b> {{ $payment_method }}</p>

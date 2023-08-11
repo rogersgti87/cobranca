@@ -30,12 +30,12 @@
 </head>
 
 <body>
-
-    <h4 style="text-align: center;">Mensagem automática, favor não responder este e-mail.</h4>
+    <div style="text-align:left;">
+    <h4 style="text-align: left;">Mensagem automática, favor não responder este e-mail.</h4>
     <br>
-    <div style="text-align:center;">
+
         <img src="{{$logo}}" style="max-width:200px;" title="{{$company}}">
-    </div>
+
     <br>
     <h1>{{$title}}</h1>
     <p>{{ $message_customer }}</p>
@@ -97,6 +97,7 @@
 
     <h4 style="text-align: center;">Mensagem automática, favor não responder este e-mail.</h4>
 
+</div>
 </body>
 
 </html>

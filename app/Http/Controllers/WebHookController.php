@@ -25,25 +25,27 @@ class WebHookController extends Controller
   {
     $data = $request->all();
     \Log::info($data);
-    return 1;
+
     if($data != null){
-        foreach($data as $result){
+
+        $emailNotification = InvoiceNotification::where('email_id',$data['message-id'])->first();
+
             DB::table('email_events')->insert([
-                'event'             =>  $result['event'],
-                'email'             =>  $result['email'],
-                'identification'    =>  $result['id'],
-                'date'              =>  $result['date'],
-                'message_id'        =>  $result['message-id'],
-                'subject'           =>  isset($result['subject']) ? $result['subject'] : null,
-                'tag'               =>  $result['tag'],
-                'sending_ip'        =>  isset($result['sending_ip']) ? $result['sending_ip'] : null,
-                'ts_epoch'          =>  isset($result['ts_epoch']) ? $result['ts_epoch'] : null,
-                'link'              =>  isset($result['link']) ? $result['link'] : null,
-                'reason'            =>  isset($result['reason']) ? $result['reason'] : null,
+                'user_id'           => $emailNotification->user_id,
+                'event'             =>  $data['event'],
+                'email'             =>  $data['email'],
+                'identification'    =>  $data['id'],
+                'date'              =>  $data['date'],
+                'message_id'        =>  $data['message-id'],
+                'subject'           =>  isset($data['subject']) ? $data['subject'] : null,
+                'tag'               =>  $data['tag'],
+                'sending_ip'        =>  isset($data['sending_ip']) ? $data['sending_ip'] : null,
+                'ts_epoch'          =>  isset($data['ts_epoch']) ? $data['ts_epoch'] : null,
+                'link'              =>  isset($data['link']) ? $data['link'] : null,
+                'reason'            =>  isset($data['reason']) ? $data['reason'] : null,
                 'created_at'        => Carbon::now(),
                 'updated_at'        => Carbon::now()
             ]);
-        }
     }
 
   }

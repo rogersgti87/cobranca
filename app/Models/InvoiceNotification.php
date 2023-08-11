@@ -142,9 +142,11 @@ class InvoiceNotification extends Model
             'updated_at'        => Carbon::now()
         ]);
 
-        //Enviar imagem qrcode pix
-        if($whats_status == 'Pendente') {
 
+        \Log::info('Status do pedido: '.$data['status']);
+        if($data['status'] == 'Pendente') {
+
+            //Enviar imagem qrcode pix
         if($whats_payment_method == 'Pix'){
 
             $response = Http::withHeaders([

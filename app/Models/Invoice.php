@@ -12,6 +12,17 @@ class Invoice extends Model
 {
 
 
+    protected $fillable = [
+        'transaction_id',
+        'billet_url',
+        'billet_base64',
+        'billet_digitable',
+        'image_url_pix',
+        'pix_digitable',
+        'qrcode_pix_base64',
+
+    ];
+
     public static function generateBilletPH($invoice){
 
         $response = Http::withHeaders([

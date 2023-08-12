@@ -183,7 +183,6 @@ class InvoiceController extends Controller
 
                 if($invoice->gateway_payment == 'Pag Hiper'){
                     $generateBilletPH = Invoice::generateBilletPH($invoice);
-                    dd($generateBilletPH['transaction']);
                     if($generateBilletPH['status'] == 'reject'){
                         return response()->json($generateBilletPH['message'], 422);
                     }
@@ -201,9 +200,9 @@ class InvoiceController extends Controller
 
                         Invoice::where('id',$invoice->id)->where('user_id',auth()->user()->id)->update([
                             'transaction_id'    =>  $generateBilletPH['transaction']->transaction_id,
-                            'billet_url'        =>  $generateBilletPH['transaction']->url_slip,
+                            'billet_url'        =>  $generateBilletPH['transaction']->bank_slip->url_slip,
                             'billet_base64'     =>  $base64_pdf,
-                            'billet_digitable'  =>  $generateBilletPH['transaction']->digitable_line
+                            'billet_digitable'  =>  $generateBilletPH['transaction']->bank_slip->digitable_line
                         ]);
                     } catch (\Exception $e) {
                         \Log::error($e->getMessage());

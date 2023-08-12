@@ -120,7 +120,8 @@ class InvoiceController extends Controller
             'customers.district','customers.city','customers.state','customers.cep','invoices.gateway_payment','invoices.payment_method',
             'services.id as service_id','services.name as service_name','invoices.price','users.access_token_mp','users.company as user_company',
             'users.whatsapp as user_whatsapp','users.image as user_image', 'users.telephone as user_telephone', 'users.email as user_email',
-            'users.api_access_token_whatsapp','users.token_paghiper','users.key_paghiper',
+            'users.api_access_token_whatsapp','users.token_paghiper','users.key_paghiper','invoices.image_url_pix','invoices.pix_digitable',
+            'invoices.qrcode_pix_base64','invoices.billet_digitable','invoices.billet_base64','invoices.billet_url',
             DB::raw("DATEDIFF (invoices.date_due,invoices.date_invoice) as days_due_date"))
             ->join('customer_services','invoices.customer_service_id','customer_services.id')
             ->join('customers','customer_services.customer_id','customers.id')
@@ -216,32 +217,49 @@ class InvoiceController extends Controller
 
         }
 
-            $user = User::where('id',auth()->user()->id)->first();
+
+        $invoice = Invoice::select('invoices.id','invoices.status','invoices.user_id','invoices.date_invoice','invoices.date_due','invoices.description',
+            'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp',
+            'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement',
+            'customers.district','customers.city','customers.state','customers.cep','invoices.gateway_payment','invoices.payment_method',
+            'services.id as service_id','services.name as service_name','invoices.price','users.access_token_mp','users.company as user_company',
+            'users.whatsapp as user_whatsapp','users.image as user_image', 'users.telephone as user_telephone', 'users.email as user_email',
+            'users.api_access_token_whatsapp','users.token_paghiper','users.key_paghiper','invoices.image_url_pix','invoices.pix_digitable',
+            'invoices.qrcode_pix_base64','invoices.billet_digitable','invoices.billet_base64','invoices.billet_url',
+            DB::raw("DATEDIFF (invoices.date_due,invoices.date_invoice) as days_due_date"))
+            ->join('customer_services','invoices.customer_service_id','customer_services.id')
+            ->join('customers','customer_services.customer_id','customers.id')
+            ->join('services','customer_services.service_id','services.id')
+            ->join('users','users.id','invoices.user_id')
+            ->where('invoices.id',$model->id)
+            ->where('invoices.user_id',auth()->user()->id)
+            ->first();
+
 
             $details = [
                 'type_send'                 => 'New',
                 'title'                     => 'Nova fatura gerada',
-                'message_customer'          => 'Olá '.$customer->name.', tudo bem?',
+                'message_customer'          => 'Olá '.$invoice->name.', tudo bem?',
                 'message_notification'      => 'Esta é uma mensagem para notificá-lo(a) que foi gerado a <b>Fatura #'.$invoice->id.'</b>',
-                'logo'                      => 'https://cobrancasegura.com.br/'.$user->image,
-                'company'                   => $user->company,
-                'user_whatsapp'             => removeEspeciais($user->whatsapp),
-                'user_telephone'            => removeEspeciais($user->telephone),
-                'user_email'                => $user->email,
-                'user_access_token_wp'      => $user->api_access_token_whatsapp,
+                'logo'                      => 'https://cobrancasegura.com.br/'.$invoice->user_image,
+                'company'                   => $invoice->user_company,
+                'user_whatsapp'             => removeEspeciais($invoice->user_whatsapp),
+                'user_telephone'            => removeEspeciais($invoice->user_telephone),
+                'user_email'                => $invoice->user_email,
+                'user_access_token_wp'      => $invoice->api_access_token_whatsapp,
                 'user_id'                   => $invoice->user_id,
-                'customer'                  => $customer->name,
-                'customer_email'            => $customer->email,
-                'customer_email2'           => $customer->email2,
-                'customer_whatsapp'         => removeEspeciais($customer->whatsapp),
-                'notification_whatsapp'     => $customer->notification_whatsapp,
-                'customer_company'          => $customer->company,
+                'customer'                  => $invoice->name,
+                'customer_email'            => $invoice->email,
+                'customer_email2'           => $invoice->email2,
+                'customer_whatsapp'         => removeEspeciais($invoice->whatsapp),
+                'notification_whatsapp'     => $invoice->notification_whatsapp,
+                'customer_company'          => $invoice->company,
                 'date_invoice'              => date('d/m/Y', strtotime($invoice->date_invoice)),
                 'date_due'                  => date('d/m/Y', strtotime($invoice->date_due)),
                 'price'                     => number_format($invoice->price, 2,',','.'),
                 'gateway_payment'           => $invoice->gateway_payment,
                 'payment_method'            => $invoice->payment_method,
-                'service'                   => $customer_service->name .' - '. $invoice->description,
+                'service'                   => $invoice->service_name .' - '. $invoice->description,
                 'invoice'                   => $invoice->id,
                 'status'                    => $invoice->status,
                 'url_base'                  => url('/'),

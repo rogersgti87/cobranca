@@ -53,7 +53,7 @@ class RememberInvoiceCron extends Command
             }elseif($invoice->gateway_payment == 'Mercado Pago'){
 
                 $verifyTransaction = DB::table('invoices')->select('transaction_id')->where('id',$invoice->id)->where('user_id',$invoice->user_id)->first();
-                \Log::info('Verifytransactionmp: '.$verifyTransaction);
+                \Log::info('Verifytransactionmp: '.json_encode($verifyTransaction));
                 $getInfoPixPayment = Invoice::verifyStatusPixMP($invoice->access_token_mp,$verifyTransaction->transaction_id);
                 \Log::info('GetInfoPixPaymentMP: '.$getInfoPixPayment);
                 $image_pix_email    = 'https://cobrancasegura.com.br/pix/'.$invoice->user_id.'_'.$invoice->id.'.png';

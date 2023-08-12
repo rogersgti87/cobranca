@@ -25,6 +25,11 @@ class Invoice extends Model
 
     public static function generateBilletPH($invoice){
 
+
+        if($invoice['days_due_date'] == 0){
+
+        }
+
         $response = Http::withHeaders([
             'accept' => 'application/json',
             'content-type' => 'application/json',

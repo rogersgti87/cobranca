@@ -63,8 +63,8 @@ class GenerateInvoiceCron extends Command
         'customers.district','customers.city','customers.state','customers.cep','invoices.gateway_payment','invoices.payment_method',
         'services.id as service_id','services.name as service_name','invoices.price','users.access_token_mp','users.company as user_company',
         'users.whatsapp as user_whatsapp','users.image as user_image', 'users.telephone as user_telephone', 'users.email as user_email',
-        'users.api_access_token_whatsapp','users.token_paghiper','users.key_paghiper','invoices.image_url_pix','invoices.pix_digitable',
-        'invoices.qrcode_pix_base64','invoices.billet_digitable','invoices.billet_base64','invoices.billet_url',
+        'users.api_access_token_whatsapp','users.token_paghiper','users.key_paghiper',
+        'invoices.image_url_pix','invoices.pix_digitable','invoices.qrcode_pix_base64','invoices.billet_digitable','invoices.billet_base64','invoices.billet_url',
         DB::raw("DATEDIFF (invoices.date_due,invoices.date_invoice) as days_due_date"))
         ->join('customer_services','invoices.customer_service_id','customer_services.id')
         ->join('customers','customer_services.customer_id','customers.id')

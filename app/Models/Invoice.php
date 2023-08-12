@@ -62,6 +62,7 @@ class Invoice extends Model
         $result = json_decode($result)->create_request;
 
         if($result->result == 'reject'){
+            \Log::info(json_encode($result->result));
             return ['staus' => 'reject', 'message' => $result->response_message];
         }else{
 

@@ -62,8 +62,8 @@ class Invoice extends Model
         $result = json_decode($result)->create_request;
 
         if($result->result == 'reject'){
-            \Log::info(json_encode($result->result));
-            return ['staus' => 'reject', 'message' => $result->response_message];
+            \Log::info(json_encode($result->response_message));
+            return ['status' => 'reject', 'message' => $result->response_message];
         }else{
 
             return ['status' => 'ok', 'transaction' => $result];
@@ -144,7 +144,7 @@ class Invoice extends Model
         $result = json_decode($result)->pix_create_request;
 
         if($result->result == 'reject'){
-            return ['staus' => 'reject', 'message' => $result->response_message];
+            return ['status' => 'reject', 'message' => $result->response_message];
         }else{
 
             return ['status' => 'ok', 'transaction' => $result];

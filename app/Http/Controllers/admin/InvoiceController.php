@@ -139,9 +139,17 @@ class InvoiceController extends Controller
                         return response()->json($generatePixPH['message'], 422);
                     }
                     try {
+
+
+                        if(!file_exists(public_path('pix')))
+                            \File::makeDirectory(public_path('pix'));
+
+                        \File::put(public_path(). '/pix/' . $invoice->user_id.'_'.$invoice->id.'.'.'png', base64_decode($generatePixPH['transaction']->pix_code->qrcode_base64));
+
+
                         $invoice->update([
                             'transaction_id'    => $generatePixPH['transaction']->transaction_id,
-                            'image_url_pix'     => $generatePixPH['transaction']->pix_code->pix_url,
+                            'image_url_pix'     => 'https://cobrancasegura.com.br/pix/'.$invoice->user_id.'_'.$invoice->id.'.png',
                             'pix_digitable'     => $generatePixPH['transaction']->pix_code->emv,
                             'qrcode_pix_base64' => $generatePixPH['transaction']->pix_code->qrcode_base64,
                         ]);

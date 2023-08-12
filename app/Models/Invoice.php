@@ -115,7 +115,7 @@ class Invoice extends Model
       }
 
 
-    public static function generatePixPH($invoice_id){
+    public static function generatePixPH($invoice){
 
         $response = Http::withHeaders([
             'accept' => 'application/json',

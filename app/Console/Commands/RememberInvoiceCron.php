@@ -24,9 +24,12 @@ class RememberInvoiceCron extends Command
   public function handle()
   {
 
-    $sql = "SELECT i.id,i.status,i.user_id,i.date_invoice,i.date_due,i.description,c.email,c.email2,c.phone,c.whatsapp,c.name,c.notification_whatsapp,c.company,c.document,c.phone,c.address,c.number,c.complement,
+    $sql = "SELECT i.id,i.status,i.user_id,i.date_invoice,i.date_due,i.description,c.email,c.email2,c.phone,c.whatsapp,
+    c.name,c.notification_whatsapp,c.company,c.document,c.phone,c.address,c.number,c.complement,
     c.district,c.city,c.state,c.cep,i.gateway_payment, i.payment_method,s.id AS service_id,s.name AS service_name,i.price,
-    u.access_token_mp, u.company user_company, u.whatsapp user_whatsapp, u.image user_image, u.telephone user_telephone, u.email user_email, u.api_access_token_whatsapp FROM invoices i
+    u.access_token_mp, u.company user_company, u.whatsapp user_whatsapp, u.image user_image, u.telephone user_telephone,
+     u.email user_email, u.api_access_token_whatsapp,i.image_url_pix, i.pix_digitable, i.qrcode_pix_base64,
+      i.billet_digitable, i.billet_base64, i.billet_url FROM invoices i
         INNER JOIN customer_services cs ON i.customer_service_id = cs.id
         INNER JOIN customers c ON  cs.customer_id = c.id
         INNER JOIN services  s ON  cs.service_id  = s.id
@@ -38,58 +41,6 @@ class RememberInvoiceCron extends Command
 
 
     foreach($verifyInvoices as $invoice){
-
-        if($invoice->payment_method == 'Pix'){
-            if($invoice->gateway_payment == 'Pag Hiper'){
-
-                $verifyTransaction = DB::table('invoices')->select('transaction_id')->where('id',$invoice->id)->where('user_id',$invoice->user_id)->first();
-                $getInfoPixPayment = Invoice::verifyStatusPixPH($invoice->user_id,$verifyTransaction->transaction_id);
-
-                $image_pix_email    = $getInfoPixPayment->pix_code->qrcode_image_url;
-                $image_pix_wp       = $getInfoPixPayment->pix_code->qrcode_base64;
-                $qr_code_digitable  = $getInfoPixPayment->pix_code->emv;
-
-
-            }elseif($invoice->gateway_payment == 'Mercado Pago'){
-
-                $verifyTransactionMP = DB::table('invoices')->select('transaction_id')->where('id',$invoice->id)->where('user_id',$invoice->user_id)->first();
-                $getInfoPixPaymentMP = Invoice::verifyStatusPixMP($invoice->access_token_mp,$verifyTransactionMP->transaction_id);
-                $image_pix_email    = 'https://cobrancasegura.com.br/pix/'.$invoice->user_id.'_'.$invoice->id.'.png';
-                $image_pix_wp       = $getInfoPixPaymentMP != null ? $getInfoPixPaymentMP->qr_code_base64 : '';
-                $qr_code_digitable  = $getInfoPixPaymentMP != null ? $getInfoPixPaymentMP->qr_code : '';
-
-            }
-        } elseif($invoice->payment_method == 'Boleto'){
-
-            if($invoice->gateway_payment == 'Pag Hiper'){
-
-                $verifyTransaction = DB::table('invoices')->select('transaction_id')->where('id',$invoice->id)->where('user_id',$invoice->user_id)->first();
-                $getInfoBilletPayment   = Invoice::verifyStatusBilletPH($invoice->user_id ,$verifyTransaction->transaction_id);
-
-                $billet_pdf   = 'https://cobrancasegura.com.br/boleto/'.$invoice->user_id.'_'.$invoice->id.'.pdf';
-
-                if($getInfoBilletPayment->status_request != null){
-                    if(!file_exists($billet_pdf)){
-                        if(!file_exists(public_path('boleto')))
-                        \File::makeDirectory(public_path('boleto'));
-
-                        $billetName = $invoice->user_id.'_'.$invoice->id.'.'.'pdf';
-                        $contents = Http::get($getInfoBilletPayment->status_request->bank_slip->url_slip_pdf)->body();
-                        \File::put(public_path(). '/boleto/' . $billetName, $contents);
-                    }
-                }
-
-
-                $base64_pdf = chunk_split(base64_encode(file_get_contents($billet_pdf)));
-
-
-            }elseif($invoice->gateway_payment == 'Mercado Pago'){
-                //
-            }
-
-
-    }
-
 
     $details = [
         'type_send'                 => 'New',
@@ -118,15 +69,15 @@ class RememberInvoiceCron extends Command
         'invoice'                   => $invoice->id,
         'status'                    => $invoice->status,
         'url_base'                  => url('/'),
-        'pix_qrcode_image_url'      =>  '',
-        'pix_emv'                   =>  '',
-        'pix_qrcode_wp'             =>  '',
-        'billet_digitable_line'     =>  '',
-        'billet_url_slip_pdf'       =>  '',
-        'billet_url_slip'           =>  '',
+        'pix_qrcode_image_url'      => $invoice->image_url_pix,
+        'pix_emv'                   => $invoice->pix_digitable,
+        'pix_qrcode_base64'         => $invoice->qrcode_pix_base64,
+        'billet_digitable_line'     => $invoice->billet_digitable,
+        'billet_url_slip_base64'    => $invoice->billet_base64,
+        'billet_url_slip'           => $invoice->billet_url,
     ];
 
-//verificar mensagem de data que vencerá em 5 dias
+//verificar mensagem que vencerá em 5 dias
 
     if($invoice->date_due == Carbon::now()->format('Y-m-d') ){
         $details['title']         = 'Sua Fatura vence hoje';
@@ -137,21 +88,6 @@ class RememberInvoiceCron extends Command
         $details['message_notification'] = 'Esta é uma mensagem para notificá-lo(a) que sua <b>Fatura #'.$invoice->id.'</b> está vencida.';
 
     }
-
-
-    if($invoice->payment_method == 'Boleto'){
-        $details['billet_digitable_line'] = $getInfoBilletPayment->status_request->bank_slip->digitable_line;
-        $details['billet_url_slip_pdf']   = $base64_pdf;
-        $details['billet_url_slip']       = $getInfoBilletPayment->status_request->bank_slip->url_slip;
-
-    }else{
-
-        $details['pix_qrcode_image_url']  = $image_pix_email;
-        $details['pix_qrcode_wp']         = $image_pix_wp;
-        $details['pix_emv']               = $qr_code_digitable;
-
-    }
-
 
     $details['body']  = view('mails.invoice',$details)->render();
 

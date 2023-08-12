@@ -183,6 +183,7 @@ class InvoiceController extends Controller
 
                 if($invoice->gateway_payment == 'Pag Hiper'){
                     $generateBilletPH = Invoice::generateBilletPH($invoice);
+                    dd($generateBilletPH['transaction']);
                     if($generateBilletPH['status'] == 'reject'){
                         return response()->json($generateBilletPH['message'], 422);
                     }

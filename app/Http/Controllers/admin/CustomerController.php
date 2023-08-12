@@ -141,10 +141,6 @@ class CustomerController extends Controller
         $model->state                   = $data['state'];
         $model->phone                   = removeEspeciais($data['phone']);
         $model->whatsapp                = removeEspeciais($data['whatsapp']);
-        $model->payment_method          = $data['payment_method'];
-        $model->gateway_pix             = $data['gateway_pix'];
-        $model->gateway_billet          = $data['gateway_billet'];
-        $model->gateway_card            = $data['gateway_card'];
         $model->notification_whatsapp   = $data['notification_whatsapp'];
 
 
@@ -204,10 +200,6 @@ class CustomerController extends Controller
         $model->state                   = $data['state'];
         $model->phone                   = removeEspeciais($data['phone']);
         $model->whatsapp                = removeEspeciais($data['whatsapp']);
-        $model->payment_method          = $data['payment_method'];
-        $model->gateway_pix             = $data['gateway_pix'];
-        $model->gateway_billet          = $data['gateway_billet'];
-        $model->gateway_card            = $data['gateway_card'];
         $model->notification_whatsapp   = $data['notification_whatsapp'];
 
         try{

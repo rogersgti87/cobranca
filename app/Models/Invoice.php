@@ -12,47 +12,35 @@ class Invoice extends Model
 {
 
 
-    public static function generateBilletPH($invoice_id){
+    public static function generateBilletPH($invoice){
 
-        $invoice = DB::table('invoices as i')
-                    ->select('i.id','c.email','c.email2','c.name','c.document','c.phone','c.notification_whatsapp','c.address','c.number','c.complement',
-                    'c.district','c.city','c.state','c.cep','s.id as service_id','s.name as service_name','i.price as service_price','u.token_paghiper','u.key_paghiper','u.access_token_mp',
-                    DB::raw("DATEDIFF (i.date_due,i.date_invoice) as days_due_date"))
-                    ->join('customer_services as cs','i.customer_service_id','cs.id')
-                    ->join('customers as c','cs.customer_id','c.id')
-                    ->join('services as s','cs.service_id','s.id')
-                    ->join('users as u','i.user_id','u.id')
-                    ->where('i.id',$invoice_id)
-                    ->first();
-
-        //Gerar PIX
         $response = Http::withHeaders([
             'accept' => 'application/json',
             'content-type' => 'application/json',
           ])->post('https://api.paghiper.com/transaction/create/',[
-            'apiKey'            =>  $invoice->key_paghiper,
-            'order_id'          =>  $invoice->id,
-            'payer_email'       =>  $invoice->email,
-            'payer_name'        =>  $invoice->name,
-            'payer_cpf_cnpj'    =>  removeEspeciais($invoice->document),
-            'payer_phone'       =>  $invoice->phone,
-            'payer_street'      =>  $invoice->address,
-            'payer_number'      =>  $invoice->number,
-            'payer_complement'  =>  $invoice->complement,
-            'payer_district'    =>  $invoice->district,
-            'payer_city'        =>  $invoice->city,
-            'payer_state'       =>  $invoice->state,
-            'payer_zip_code'    =>  $invoice->cep,
+            'apiKey'            =>  $invoice['key_paghiper'],
+            'order_id'          =>  $invoice['id'],
+            'payer_email'       =>  $invoice['email'],
+            'payer_name'        =>  $invoice['name'],
+            'payer_cpf_cnpj'    =>  removeEspeciais($invoice['document']),
+            'payer_phone'       =>  $invoice['phone'],
+            'payer_street'      =>  $invoice['address'],
+            'payer_number'      =>  $invoice['number'],
+            'payer_complement'  =>  $invoice['complement'],
+            'payer_district'    =>  $invoice['district'],
+            'payer_city'        =>  $invoice['city'],
+            'payer_state'       =>  $invoice['state'],
+            'payer_zip_code'    =>  $invoice['cep'],
             'type_bank_slip'    => 'boletoA4',
-            'days_due_date'     =>  $invoice->days_due_date,
+            'days_due_date'     =>  $invoice['days_due_date'],
             'notification_url'  => 'https://cobrancasegura.com.br/webhook/paghiper',
             'late_payment_fine' => '1',// Percentual de multa após vencimento.
             'per_day_interest'  => true, // Juros após vencimento.
             'items' => array([
-                'item_id'       => $invoice->service_id,
-                'description'   => $invoice->service_name,
+                'item_id'       => $invoice['service_id'],
+                'description'   => $invoice['service_name'],
                 'quantity'      => 1,
-                'price_cents'   => bcmul($invoice->service_price,100)
+                'price_cents'   => bcmul($invoice['price'],100)
           ])
           ]);
 
@@ -66,7 +54,7 @@ class Invoice extends Model
             return ['staus' => 'reject', 'message' => $result->response_message];
         }else{
 
-            return ['status' => 'ok', 'transaction_id' => $result->transaction_id];
+            return ['status' => 'ok', 'transaction' => $result];
         }
 
       }
@@ -168,25 +156,6 @@ class Invoice extends Model
     }
 
 
-    public static function verifyStatusBilletPH($user_id,$transaction_id){
-
-      $user = User::where('id',$user_id)->first();
-
-        //Consultar status da transação
-        $response = Http::withHeaders([
-            'accept' => 'application/json',
-            'content-type' => 'application/json',
-        ])->post('https://api.paghiper.com/transaction/status/',[
-            'token'             => $user->token_paghiper,
-            'apiKey'            => $user->key_paghiper,
-            'transaction_id'    => $transaction_id
-        ]);
-
-        $result = $response->getBody();
-        return json_decode($result);
-
-    }
-
     public static function verifyStatusPixMP($access_token, $transaction_id){
 
     \MercadoPago\SDK::setAccessToken($access_token);
@@ -202,25 +171,6 @@ class Invoice extends Model
 
     }
 
-
-    public static function verifyStatusPixPH($user_id,$transaction_id){
-
-
-        $user = User::where('id',$user_id)->first();
-        //Consultar status da transação
-        $response = Http::withHeaders([
-            'accept' => 'application/json',
-            'content-type' => 'application/json',
-        ])->post('https://pix.paghiper.com/invoice/status/',[
-            'token'             => $user->token_paghiper,
-            'apiKey'            => $user->key_paghiper,
-            'transaction_id'    => $transaction_id
-        ]);
-
-        $result = $response->getBody();
-        return json_decode($result)->status_request;
-
-    }
 
 
     public static function cancelPixPH($user_id,$transaction_id){

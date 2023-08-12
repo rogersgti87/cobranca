@@ -68,7 +68,7 @@ class RememberInvoiceCron extends Command
 
                 $billet_pdf   = 'https://cobrancasegura.com.br/boleto/'.$invoice->user_id.'_'.$invoice->id.'.pdf';
 
-                if($getInfoBilletPayment != null){
+                if($getInfoBilletPayment->status_request != null){
                     if(!file_exists($billet_pdf)){
                         if(!file_exists(public_path('boleto')))
                         \File::makeDirectory(public_path('boleto'));

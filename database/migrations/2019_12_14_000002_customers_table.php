@@ -32,10 +32,6 @@ return new class extends Migration
         $table->string('state')->nullable();
         $table->string('phone')->nullable();
         $table->string('whatsapp')->nullable();
-        $table->enum('gateway_pix',['Pag Hiper','Mercado Pago']);
-        $table->enum('gateway_billet',['Pag Hiper','Mercado Pago']);
-        $table->enum('gateway_card',['PagHiper','Mercado Pago']);
-        $table->enum('payment_method',['Pix','Boleto','Depósito','Dinheiro','Cartão']);
         $table->char('notification_whatsapp')->default('s');
         $table->timestamps();
         });

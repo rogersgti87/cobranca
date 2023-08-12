@@ -92,7 +92,7 @@ class InvoiceNotification extends Model
         $whats_pix_image                = $data['pix_qrcode_image_url'];
         $whats_billet_digitable_line    = $data['billet_digitable_line'];
         $whats_billet_url_slip          = $data['billet_url_slip'];
-        $whats_billet_url_slip_pdf      = $data['billet_url_slip_pdf'];
+        $whats_billet_base64            = $data['billet_url_slip_base64'];
 
         $data['text_whatsapp'] = "*MENSAGEM AUTOMÁTICA*\n\n";
         $data['text_whatsapp'] .= "$message_customer\n\n";
@@ -104,7 +104,6 @@ class InvoiceNotification extends Model
         $data['text_whatsapp'] .= "*Forma de pagamento:* $whats_payment_method \n";
         $data['text_whatsapp'] .= "*Total:* R$ $whats_price \n";
         $data['text_whatsapp'] .= "*Status:* $whats_status \n\n";
-
 
 
         if($data['notification_whatsapp'] == 's'){
@@ -155,7 +154,7 @@ class InvoiceNotification extends Model
         ])->post('https://whatsapp.rogerti.com.br:8000/api/send-image',[
                 "access_token"  => $data['user_access_token_wp'],
                 "whatsapp"      => '55'.$data['customer_whatsapp'],
-                "message"       => 'data:image/png;base64,'.$data['pix_qrcode_wp'],
+                "message"       => 'data:image/png;base64,'.$data['pix_qrcode_base64'],
                 "caption"       =>  $whats_pix_emv
             ]);
 
@@ -198,7 +197,7 @@ class InvoiceNotification extends Model
                 ])->post('https://whatsapp.rogerti.com.br:8000/api/send-file',[
                     "access_token"  => $data['user_access_token_wp'],
                     "whatsapp"      => '55'.$data['customer_whatsapp'],
-                    "file"          => 'data:application/pdf;base64,'.$whats_billet_url_slip_pdf,
+                    "file"          => 'data:application/pdf;base64,'.$whats_billet_base64,
                     "caption"       =>  $whats_billet_digitable_line,
                     "filename"      =>  'Fatura_'.$whats_invoice_id.'.pdf'
                 ]);

@@ -26,6 +26,12 @@ class CreateInvoicesTable extends Migration
             $table->date('date_payment')->nullable();
             $table->string('transaction_id')->nullable();
             $table->enum('status', ['Pendente','Processamento','Pago','Cancelado']);
+            $table->text('image_url_pix')->nullable();
+            $table->text('pix_digitable')->nullable();
+            $table->longText('qrcode_pix_base64')->nullable();
+            $table->text('billet_url')->nullable();
+            $table->longText('billet_base64')->nullable();
+            $table->text('billet_digitable')->nullable();
             $table->timestamps();
         });
     }

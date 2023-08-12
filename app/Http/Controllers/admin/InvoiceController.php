@@ -114,12 +114,21 @@ class InvoiceController extends Controller
         try{
             $model->save();
 
-            $invoice = Invoice::where('id',$model->id)->where('user_id',auth()->user()->id)->first();
-            $customer = Customer::where('id',$customer_id)->where('user_id',auth()->user()->id)->first();
-            $customer_service = CustomerService::join('services','services.id','customer_services.service_id')
-            ->select('customer_services.id as id','customer_services.description','customer_services.price',
-            'customer_services.day_due','customer_services.period','customer_services.status','services.name as name')
-            ->where('customer_services.id',$invoice->customer_service_id)->where('customer_services.user_id',auth()->user()->id)->first();
+            $invoice = Invoice::select('invoices.id','invoices.status','invoices.user_id','invoices.date_invoice','invoices.date_due','invoices.description',
+            'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp',
+            'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement',
+            'customers.district','customers.city','customers.state','customers.cep','invoices.gateway_payment','invoices.payment_method',
+            'services.id as service_id','services.name as service_name','invoices.price','users.access_token_mp','users.company as user_company',
+            'users.whatsapp as user_whatsapp','users.image as user_image', 'users.telephone as user_telephone', 'users.email as user_email',
+            'users.api_access_token_whatsapp','users.token_paghiper','users.key_paghiper',
+            DB::raw("DATEDIFF (invoices.date_due,invoices.date_invoice) as days_due_date"))
+            ->join('customer_services','invoices.customer_service_id','customer_services.id')
+            ->join('customers','customer_services.customer_id','customers.id')
+            ->join('services','customer_services.service_id','services.id')
+            ->join('users','users.id','invoices.user_id')
+            ->where('invoices.id',$model->id)
+            ->where('invoices.user_id',auth()->user()->id)
+            ->first();
 
 
             if($invoice->payment_method == 'Pix'){
@@ -130,83 +139,75 @@ class InvoiceController extends Controller
                     }
                     try {
                         Invoice::where('id',$invoice->id)->where('user_id',auth()->user()->id)->update([
-                            'transaction_id' => $generatePixPagHiper['transaction_id']
+                            'transaction_id' => $generatePixPagHiper['transaction_id'],
+                            'image_url_pix' => $generatePixPagHiper['pix_code']['pix_url'],
+                            'pix_digitable' => $generatePixPagHiper['pix_code']['emv'],
+                            'qrcode_pix_base64' => $generatePixPagHiper['pix_code']['qrcode_base64'],
                         ]);
+
                     } catch (\Exception $e) {
                         \Log::error($e->getMessage());
                         return response()->json($e->getMessage(), 422);
                     }
-
-
-
-                    $verifyTransaction = DB::table('invoices')->select('transaction_id')->where('id',$invoice->id)->where('user_id',auth()->user()->id)->first();
-                    $getInfoPixPayment = Invoice::verifyStatusPixPH(auth()->user()->id,$verifyTransaction->transaction_id);
-
-                    $image_pix_email    = $getInfoPixPayment->pix_code->qrcode_image_url;
-                    $image_pix_wp       = $getInfoPixPayment->pix_code->qrcode_base64;
-                    $qr_code_digitable  = $getInfoPixPayment->pix_code->emv;
-
 
                 }elseif($invoice->gateway_payment == 'Mercado Pago'){
-                    $generatePixPagHiper = Invoice::generatePixMP($invoice->id);
-                    if($generatePixPagHiper['status'] == 'reject'){
-                        return response()->json($generatePixPagHiper['message'], 422);
+                    $generatePixMP = Invoice::generatePixMP($invoice->id);
+                    if($generatePixMP['status'] == 'reject'){
+                        return response()->json($generatePixMP['message'], 422);
                     }
                     try {
+
+                        $getInfoPixMP = Invoice::verifyStatusPixMP($invoice->access_token_mp,$generatePixMP['transaction_id']);
+
+                        if(!file_exists(public_path('pix')))
+                            \File::makeDirectory(public_path('pix'));
+
+                        \File::put(public_path(). '/pix/' . $invoice->user_id.'_'.$invoice->id.'.'.'png', base64_decode($getInfoPixMP->qr_code_base64));
+
                         Invoice::where('id',$invoice->id)->where('user_id',auth()->user()->id)->update([
-                            'transaction_id' => $generatePixPagHiper['transaction_id']
+                            'transaction_id'    => $generatePixMP['transaction_id'],
+                            'image_url_pix'     => 'https://cobrancasegura.com.br/pix/'.$invoice->user_id.'_'.$invoice->id.'.png',
+                            'pix_digitable'     => $getInfoPixMP->qr_code,
+                            'qrcode_pix_base64' => $getInfoPixMP->qr_code_base64,
                         ]);
+
                     } catch (\Exception $e) {
                         \Log::error($e->getMessage());
                         return response()->json($e->getMessage(), 422);
                     }
 
 
-
-                    $verifyTransaction = DB::table('invoices')->select('transaction_id')->where('id',$invoice->id)->where('user_id',auth()->user()->id)->first();
-                    $getInfoPixPayment = Invoice::verifyStatusPixMP(auth()->user()->access_token_mp,$verifyTransaction->transaction_id);
-
-                    if(!file_exists(public_path('pix')))
-                            \File::makeDirectory(public_path('pix'));
-
-                    $image = $getInfoPixPayment->qr_code_base64;
-                    $imageName = auth()->user()->id.'_'.$invoice->id.'.'.'png';
-                    \File::put(public_path(). '/pix/' . $imageName, base64_decode($image));
-
-                    $image_pix_email    = 'https://cobrancasegura.com.br/pix/'.auth()->user()->id.'_'.$invoice->id.'.png';
-                    $image_pix_wp       = $getInfoPixPayment->qr_code_base64;
-                    $qr_code_digitable  = $getInfoPixPayment->qr_code;
 
                 }
             } elseif($invoice->payment_method == 'Boleto'){
 
                 if($invoice->gateway_payment == 'Pag Hiper'){
-                    $generatePixPagHiper = Invoice::generateBilletPH($invoice->id);
-                    if($generatePixPagHiper['status'] == 'reject'){
-                        return response()->json($generatePixPagHiper['message'], 422);
+                    $generateBilletPH = Invoice::generateBilletPH($invoice);
+                    if($generateBilletPH['status'] == 'reject'){
+                        return response()->json($generateBilletPH['message'], 422);
                     }
                     try {
+
+                        if(!file_exists(public_path('boleto')))
+                            \File::makeDirectory(public_path('boleto'));
+
+                        $contents = Http::get($generateBilletPH['transaction']->bank_slip->url_slip_pdf)->body();
+                        \File::put(public_path(). '/boleto/' .  $invoice->user_id.'_'.$invoice->id.'.'.'pdf', $contents);
+
+                        $billet_pdf   = 'https://cobrancasegura.com.br/boleto/'.$invoice->user_id.'_'.$invoice->id.'.pdf';
+
+                        $base64_pdf = chunk_split(base64_encode(file_get_contents($billet_pdf)));
+
                         Invoice::where('id',$invoice->id)->where('user_id',auth()->user()->id)->update([
-                            'transaction_id' => $generatePixPagHiper['transaction_id']
+                            'transaction_id'    =>  $generateBilletPH['transaction']->transaction_id,
+                            'billet_url'        =>  $generateBilletPH['transaction']->url_slip,
+                            'billet_base64'     =>  $base64_pdf,
+                            'billet_digitable'  =>  $generateBilletPH['transaction']->digitable_line
                         ]);
                     } catch (\Exception $e) {
                         \Log::error($e->getMessage());
                         return response()->json($e->getMessage(), 422);
                     }
-
-                    $verifyTransaction = DB::table('invoices')->select('transaction_id')->where('id',$invoice->id)->where('user_id',auth()->user()->id)->first();
-                    $getInfoBilletPayment   = Invoice::verifyStatusBilletPH(auth()->user()->id ,$verifyTransaction->transaction_id);
-
-                    if(!file_exists(public_path('boleto')))
-                        \File::makeDirectory(public_path('boleto'));
-
-                    $billetName = auth()->user()->id.'_'.$invoice->id.'.'.'pdf';
-                    $contents = Http::get($getInfoBilletPayment->status_request->bank_slip->url_slip_pdf)->body();
-                    \File::put(public_path(). '/boleto/' . $billetName, $contents);
-
-                    $billet_pdf   = 'https://cobrancasegura.com.br/boleto/'.auth()->user()->id.'_'.$invoice->id.'.pdf';
-
-                    $base64_pdf = chunk_split(base64_encode(file_get_contents($billet_pdf)));
 
                 }elseif($invoice->gateway_payment == 'Mercado Pago'){
                     //
@@ -244,27 +245,13 @@ class InvoiceController extends Controller
                 'invoice'                   => $invoice->id,
                 'status'                    => $invoice->status,
                 'url_base'                  => url('/'),
-                'pix_qrcode_image_url'      =>  '',
-                'pix_emv'                   =>  '',
-                'pix_qrcode_wp'             =>  '',
-                'billet_digitable_line'     =>  '',
-                'billet_url_slip_pdf'       =>  '',
-                'billet_url_slip'           =>  '',
+                'pix_qrcode_image_url'      => $invoice->image_url_pix,
+                'pix_emv'                   => $invoice->pix_digitable,
+                'pix_qrcode_base64'         => $invoice->qrcode_pix_base64,
+                'billet_digitable_line'     => $invoice->billet_digitable,
+                'billet_url_slip_base64'    => $invoice->billet_base64,
+                'billet_url_slip'           => $invoice->billet_url,
             ];
-
-
-            if($invoice->payment_method == 'Boleto'){
-                $details['billet_digitable_line'] = $getInfoBilletPayment->status_request->bank_slip->digitable_line;
-                $details['billet_url_slip_pdf']   = $base64_pdf;
-                $details['billet_url_slip']       = $getInfoBilletPayment->status_request->bank_slip->url_slip;
-
-            }else{
-
-                $details['pix_qrcode_image_url']  = $image_pix_email;
-                $details['pix_qrcode_wp']         = $image_pix_wp;
-                $details['pix_emv']               = $qr_code_digitable;
-
-            }
 
 
             $details['body']  = view('mails.invoice',$details)->render();

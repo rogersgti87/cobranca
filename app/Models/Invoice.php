@@ -54,7 +54,7 @@ class Invoice extends Model
             return ['staus' => 'reject', 'message' => $result->response_message];
         }else{
 
-            return ['status' => 'ok', 'transaction' => $result];
+            return ['status' => 'ok', 'transaction' => $result->transaction];
         }
 
       }

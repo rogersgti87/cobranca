@@ -75,6 +75,8 @@ class GenerateInvoiceCron extends Command
         ->where('invoices.user_id',$vInvoice->user_id)
         ->first();
 
+        \Log::info(json_encode($invoice));
+
 
         if($invoice->payment_method == 'Pix'){
             if($invoice->gateway_payment == 'Pag Hiper'){

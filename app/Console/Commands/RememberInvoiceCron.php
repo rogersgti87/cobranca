@@ -68,14 +68,17 @@ class RememberInvoiceCron extends Command
 
                 $billet_pdf   = 'https://cobrancasegura.com.br/boleto/'.$invoice->user_id.'_'.$invoice->id.'.pdf';
 
-                if(!file_exists($billet_pdf)){
-                    if(!file_exists(public_path('boleto')))
-                    \File::makeDirectory(public_path('boleto'));
+                if($getInfoBilletPayment != null){
+                    if(!file_exists($billet_pdf)){
+                        if(!file_exists(public_path('boleto')))
+                        \File::makeDirectory(public_path('boleto'));
 
-                    $billetName = $invoice->user_id.'_'.$invoice->id.'.'.'pdf';
-                    $contents = Http::get($getInfoBilletPayment->status_request->bank_slip->url_slip_pdf)->body();
-                    \File::put(public_path(). '/boleto/' . $billetName, $contents);
+                        $billetName = $invoice->user_id.'_'.$invoice->id.'.'.'pdf';
+                        $contents = Http::get($getInfoBilletPayment->status_request->bank_slip->url_slip_pdf)->body();
+                        \File::put(public_path(). '/boleto/' . $billetName, $contents);
+                    }
                 }
+
 
                 $base64_pdf = chunk_split(base64_encode(file_get_contents($billet_pdf)));
 

@@ -52,11 +52,11 @@ class RememberInvoiceCron extends Command
 
             }elseif($invoice->gateway_payment == 'Mercado Pago'){
 
-                $verifyTransaction = DB::table('invoices')->select('transaction_id')->where('id',$invoice->id)->where('user_id',$invoice->user_id)->first();
-                $getInfoPixPayment = Invoice::verifyStatusPixMP($invoice->access_token_mp,$verifyTransaction->transaction_id);
+                $verifyTransactionMP = DB::table('invoices')->select('transaction_id')->where('id',$invoice->id)->where('user_id',$invoice->user_id)->first();
+                $getInfoPixPaymentMP = Invoice::verifyStatusPixMP($invoice->access_token_mp,$verifyTransactionMP->transaction_id);
                 $image_pix_email    = 'https://cobrancasegura.com.br/pix/'.$invoice->user_id.'_'.$invoice->id.'.png';
-                $image_pix_wp       = $getInfoPixPayment->qr_code_base64;
-                $qr_code_digitable  = $getInfoPixPayment->qr_code;
+                $image_pix_wp       = $getInfoPixPaymentMP->qr_code_base64;
+                $qr_code_digitable  = $getInfoPixPaymentMP->qr_code;
 
             }
         } elseif($invoice->payment_method == 'Boleto'){

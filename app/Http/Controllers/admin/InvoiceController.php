@@ -165,7 +165,8 @@ class InvoiceController extends Controller
 
                         \File::put(public_path(). '/pix/' . $invoice->user_id.'_'.$invoice->id.'.'.'png', base64_decode($getInfoPixMP->qr_code_base64));
 
-                        Invoice::where('id',$invoice->id)->where('user_id',auth()->user()->id)->update([
+                        //Invoice::where('id',$invoice->id)->where('user_id',auth()->user()->id)->update([
+                        $invoice->update([
                             'transaction_id'    => $generatePixMP['transaction_id'],
                             'image_url_pix'     => 'https://cobrancasegura.com.br/pix/'.$invoice->user_id.'_'.$invoice->id.'.png',
                             'pix_digitable'     => $getInfoPixMP->qr_code,
@@ -199,7 +200,8 @@ class InvoiceController extends Controller
 
                         $base64_pdf = chunk_split(base64_encode(file_get_contents($billet_pdf)));
 
-                        Invoice::where('id',$invoice->id)->where('user_id',auth()->user()->id)->update([
+                        //Invoice::where('id',$invoice->id)->where('user_id',auth()->user()->id)->update([
+                        $invoice->update([
                             'transaction_id'    =>  $generateBilletPH['transaction']->transaction_id,
                             'billet_url'        =>  $generateBilletPH['transaction']->bank_slip->url_slip,
                             'billet_base64'     =>  $base64_pdf,
@@ -216,24 +218,6 @@ class InvoiceController extends Controller
 
 
         }
-
-
-        $invoice = Invoice::select('invoices.id','invoices.status','invoices.user_id','invoices.date_invoice','invoices.date_due','invoices.description',
-            'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp',
-            'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement',
-            'customers.district','customers.city','customers.state','customers.cep','invoices.gateway_payment','invoices.payment_method',
-            'services.id as service_id','services.name as service_name','invoices.price','users.access_token_mp','users.company as user_company',
-            'users.whatsapp as user_whatsapp','users.image as user_image', 'users.telephone as user_telephone', 'users.email as user_email',
-            'users.api_access_token_whatsapp','users.token_paghiper','users.key_paghiper','invoices.image_url_pix','invoices.pix_digitable',
-            'invoices.qrcode_pix_base64','invoices.billet_digitable','invoices.billet_base64','invoices.billet_url',
-            DB::raw("DATEDIFF (invoices.date_due,invoices.date_invoice) as days_due_date"))
-            ->join('customer_services','invoices.customer_service_id','customer_services.id')
-            ->join('customers','customer_services.customer_id','customers.id')
-            ->join('services','customer_services.service_id','services.id')
-            ->join('users','users.id','invoices.user_id')
-            ->where('invoices.id',$model->id)
-            ->where('invoices.user_id',auth()->user()->id)
-            ->first();
 
 
             $details = [

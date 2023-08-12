@@ -134,16 +134,16 @@ class InvoiceController extends Controller
 
             if($invoice->payment_method == 'Pix'){
                 if($invoice->gateway_payment == 'Pag Hiper'){
-                    $generatePixPagHiper = Invoice::generatePixPH($invoice->id);
-                    if($generatePixPagHiper['status'] == 'reject'){
-                        return response()->json($generatePixPagHiper['message'], 422);
+                    $generatePixPH = Invoice::generatePixPH($invoice);
+                    if($generatePixPH['status'] == 'reject'){
+                        return response()->json($generatePixPH['message'], 422);
                     }
                     try {
                         $invoice->update([
-                            'transaction_id' => $generatePixPagHiper['transaction_id'],
-                            'image_url_pix' => $generatePixPagHiper['pix_code']['pix_url'],
-                            'pix_digitable' => $generatePixPagHiper['pix_code']['emv'],
-                            'qrcode_pix_base64' => $generatePixPagHiper['pix_code']['qrcode_base64'],
+                            'transaction_id'    => $generatePixPH['transaction']->transaction_id,
+                            'image_url_pix'     => $generatePixPH['transaction']->pix_code->pix_url,
+                            'pix_digitable'     => $generatePixPH['transaction']->pix_code->emv,
+                            'qrcode_pix_base64' => $generatePixPH['transaction']->pix_code->qrcode_base64,
                         ]);
 
                     } catch (\Exception $e) {

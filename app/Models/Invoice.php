@@ -117,36 +117,22 @@ class Invoice extends Model
 
     public static function generatePixPH($invoice_id){
 
-        $invoice = DB::table('invoices as i')
-        ->select('i.id','c.email','c.email2','c.name','c.document','c.phone','c.notification_whatsapp','c.address','c.number','c.complement',
-        'c.district','c.city','c.state','c.cep','s.id as service_id','s.name as service_name','i.price as service_price','u.token_paghiper','u.key_paghiper','u.access_token_mp',
-        DB::raw("DATEDIFF (i.date_due,i.date_invoice) as days_due_date"))
-        ->join('customer_services as cs','i.customer_service_id','cs.id')
-        ->join('customers as c','cs.customer_id','c.id')
-        ->join('services as s','cs.service_id','s.id')
-        ->join('users as u','i.user_id','u.id')
-        ->where('i.id',$invoice_id)
-        ->first();
-
-
-
-        //Gerar PIX
         $response = Http::withHeaders([
             'accept' => 'application/json',
             'content-type' => 'application/json',
           ])->post('https://pix.paghiper.com/invoice/create/',[
-            'apiKey'            =>  $invoice->key_paghiper,
-            'order_id'          =>  $invoice->id,
-            'payer_email'       =>  $invoice->email,
-            'payer_name'        =>  $invoice->name,
-            'payer_cpf_cnpj'    =>  $invoice->document,
+            'apiKey'            =>  $invoice['key_paghiper'],
+            'order_id'          =>  $invoice['id'],
+            'payer_email'       =>  $invoice['email'],
+            'payer_name'        =>  $invoice['name'],
+            'payer_cpf_cnpj'    =>  $invoice['document'],
             'days_due_date'     =>  90,
             'notification_url'  => 'https://cobrancasegura.com.br/webhook/paghiper',
             'items' => array([
-                'item_id'       => $invoice->service_id,
-                'description'   => $invoice->service_name,
+                'item_id'       => $invoice['service_id'],
+                'description'   => $invoice['service_name'],
                 'quantity'      => 1,
-                'price_cents'   => bcmul($invoice->service_price,100)
+                'price_cents'   => bcmul($invoice['price'],100)
           ])
           ]);
 
@@ -160,7 +146,7 @@ class Invoice extends Model
             return ['staus' => 'reject', 'message' => $result->response_message];
         }else{
 
-            return ['status' => 'ok', 'transaction_id' => $result->transaction_id];
+            return ['status' => 'ok', 'transaction' => $result];
         }
 
 

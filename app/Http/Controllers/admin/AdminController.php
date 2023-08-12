@@ -32,8 +32,6 @@ class AdminController extends Controller
 
     public function index(){
 
-        return date('l jS \of F Y h:i:s A');
-
         $users      = User::where('status',1)->get();
 
         return view($this->datarequest['path'].'.dashboard',compact('users'))->with($this->datarequest);

@@ -27,7 +27,12 @@ class Invoice extends Model
 
 
         if($invoice['days_due_date'] == 0){
-
+            if(date('l') == 'Saturday' || date('l') == 'Sábado'){
+                $invoice['days_due_date'] = 2;
+            }
+            if(date('l') == 'Sunday' || date('l') == 'Domingo'){
+                $invoice['days_due_date'] = 1;
+            }
         }
 
         $response = Http::withHeaders([

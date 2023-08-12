@@ -139,7 +139,7 @@ class InvoiceController extends Controller
                         return response()->json($generatePixPagHiper['message'], 422);
                     }
                     try {
-                        Invoice::where('id',$invoice->id)->where('user_id',auth()->user()->id)->update([
+                        $invoice->update([
                             'transaction_id' => $generatePixPagHiper['transaction_id'],
                             'image_url_pix' => $generatePixPagHiper['pix_code']['pix_url'],
                             'pix_digitable' => $generatePixPagHiper['pix_code']['emv'],
@@ -165,7 +165,6 @@ class InvoiceController extends Controller
 
                         \File::put(public_path(). '/pix/' . $invoice->user_id.'_'.$invoice->id.'.'.'png', base64_decode($getInfoPixMP->qr_code_base64));
 
-                        //Invoice::where('id',$invoice->id)->where('user_id',auth()->user()->id)->update([
                         $invoice->update([
                             'transaction_id'    => $generatePixMP['transaction_id'],
                             'image_url_pix'     => 'https://cobrancasegura.com.br/pix/'.$invoice->user_id.'_'.$invoice->id.'.png',
@@ -200,7 +199,6 @@ class InvoiceController extends Controller
 
                         $base64_pdf = chunk_split(base64_encode(file_get_contents($billet_pdf)));
 
-                        //Invoice::where('id',$invoice->id)->where('user_id',auth()->user()->id)->update([
                         $invoice->update([
                             'transaction_id'    =>  $generateBilletPH['transaction']->transaction_id,
                             'billet_url'        =>  $generateBilletPH['transaction']->bank_slip->url_slip,

@@ -25,8 +25,6 @@ class GenerateInvoiceCron extends Command
   public function handle()
   {
 
-    \Log::info('gerenateinvoice');
-
     $sql = "SELECT a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsapp, c.company, a.description,a.price, u.access_token_mp,
 	a.gateway_payment,a.payment_method,a.period, CURRENT_DATE date_invoice, DATE_ADD(CONCAT(YEAR(CURRENT_DATE),'-',MONTH(CURRENT_DATE),'-',a.day_due), INTERVAL 0 MONTH) date_due,
 	a.status, 'Pendente',CURRENT_TIMESTAMP created_at,CURRENT_TIMESTAMP updated_at FROM customer_services a
@@ -34,7 +32,7 @@ class GenerateInvoiceCron extends Command
     INNER JOIN services s ON a.service_id = s.id
     INNER JOIN users u ON a.user_id = u.id
     WHERE NOT EXISTS (SELECT * FROM invoices b WHERE a.id = b.customer_service_id AND DATE_ADD(CONCAT(YEAR(CURRENT_DATE),'-',MONTH(CURRENT_DATE),'-',a.day_due), INTERVAL 0 MONTH) = b.date_due)
-    AND CURRENT_DATE = DATE_ADD(DATE_ADD(CONCAT(YEAR(CURRENT_DATE),'-',MONTH(CURRENT_DATE),'-','10'), INTERVAL 0 MONTH), INTERVAL 0 DAY) AND a.status = 'Ativo'";
+    AND CURRENT_DATE = DATE_ADD(DATE_ADD(CONCAT(YEAR(CURRENT_DATE),'-',MONTH(CURRENT_DATE),'-','12'), INTERVAL 0 MONTH), INTERVAL 0 DAY) AND a.status = 'Ativo'";
 
    $verifyInvoices = DB::select($sql);
 
@@ -75,8 +73,6 @@ class GenerateInvoiceCron extends Command
         ->where('invoices.id',$newInvoice)
         ->where('invoices.user_id',$vInvoice->user_id)
         ->first();
-
-        \Log::info(json_encode($invoice));
 
 
         if($invoice->payment_method == 'Pix'){

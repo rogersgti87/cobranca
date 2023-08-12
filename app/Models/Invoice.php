@@ -20,6 +20,7 @@ class Invoice extends Model
         'image_url_pix',
         'pix_digitable',
         'qrcode_pix_base64',
+        'days_due_date',
 
     ];
 

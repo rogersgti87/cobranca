@@ -40,7 +40,7 @@ class GenerateInvoiceCron extends Command
 
     foreach($verifyInvoices as $vInvoice){
 
-        $newInvoice = DB::table('invoices')->insertGetId([
+        $invoice = DB::table('invoices')->insert([
             'user_id'               => $vInvoice->user_id,
             'customer_service_id'   => $vInvoice->id,
             'description'           => $vInvoice->description,
@@ -55,25 +55,8 @@ class GenerateInvoiceCron extends Command
             'updated_at'            => $vInvoice->updated_at
         ]);
 
-
-
-        $invoice = Invoice::select('invoices.id','invoices.status','invoices.user_id','invoices.date_invoice','invoices.date_due','invoices.description',
-        'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp',
-        'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement',
-        'customers.district','customers.city','customers.state','customers.cep','invoices.gateway_payment','invoices.payment_method',
-        'services.id as service_id','services.name as service_name','invoices.price','users.access_token_mp','users.company as user_company',
-        'users.whatsapp as user_whatsapp','users.image as user_image', 'users.telephone as user_telephone', 'users.email as user_email',
-        'users.api_access_token_whatsapp','users.token_paghiper','users.key_paghiper',
-        'invoices.image_url_pix','invoices.pix_digitable','invoices.qrcode_pix_base64','invoices.billet_digitable','invoices.billet_base64','invoices.billet_url',
-        DB::raw("DATEDIFF (invoices.date_due,invoices.date_invoice) as days_due_date"))
-        ->join('customer_services','invoices.customer_service_id','customer_services.id')
-        ->join('customers','customer_services.customer_id','customers.id')
-        ->join('services','customer_services.service_id','services.id')
-        ->join('users','users.id','invoices.user_id')
-        ->where('invoices.id',$newInvoice)
-        ->where('invoices.user_id',$vInvoice->user_id)
-        ->first();
-
+        \Log::info(json_encode($invoice));
+        return 1;
 
         if($invoice->payment_method == 'Pix'){
             if($invoice->gateway_payment == 'Pag Hiper'){

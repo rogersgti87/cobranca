@@ -55,8 +55,8 @@ class RememberInvoiceCron extends Command
                 $verifyTransactionMP = DB::table('invoices')->select('transaction_id')->where('id',$invoice->id)->where('user_id',$invoice->user_id)->first();
                 $getInfoPixPaymentMP = Invoice::verifyStatusPixMP($invoice->access_token_mp,$verifyTransactionMP->transaction_id);
                 $image_pix_email    = 'https://cobrancasegura.com.br/pix/'.$invoice->user_id.'_'.$invoice->id.'.png';
-                $image_pix_wp       = property_exists($getInfoPixPaymentMP,'qr_code_base64') ? $getInfoPixPaymentMP->qr_code_base64 : '';
-                $qr_code_digitable  = property_exists($getInfoPixPaymentMP,'qr_code') ? $getInfoPixPaymentMP->qr_code : '';
+                $image_pix_wp       = $getInfoPixPaymentMP != null ? $getInfoPixPaymentMP->qr_code_base64 : '';
+                $qr_code_digitable  = $getInfoPixPaymentMP != null ? $getInfoPixPaymentMP->qr_code : '';
 
             }
         } elseif($invoice->payment_method == 'Boleto'){

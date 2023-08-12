@@ -32,7 +32,6 @@ class AdminController extends Controller
 
     public function index(){
 
-
         $users      = User::where('status',1)->get();
 
         return view($this->datarequest['path'].'.dashboard',compact('users'))->with($this->datarequest);

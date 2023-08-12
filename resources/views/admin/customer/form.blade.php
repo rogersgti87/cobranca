@@ -514,7 +514,6 @@ $(document).ready(function(){
                 data:data,
                 method:method,
                 success:function(data){
-                    $("#btn-save-invoice").html('<i class="fa fa-check"></i> Salvar');
                     console.log(data);
                     Swal.fire({
                         width:350,
@@ -531,7 +530,6 @@ $(document).ready(function(){
                     });
                 },
                 error:function (xhr) {
-                    $("#btn-save-invoice").html('<i class="fa fa-check"></i> Salvar');
                     if(xhr.status === 422){
                         Swal.fire({
                             text: xhr.responseJSON,
@@ -752,6 +750,7 @@ $(document).on('click', '#btn-delete-customer-service', function(e) {
                 },
                 success:function(data){
                     $("#btn-save-invoice").attr("disabled", false);
+                    $("#btn-save-invoice").html('<i class="fa fa-check"></i> Salvar');
                     console.log(data);
                     Swal.fire({
                         width:350,
@@ -769,6 +768,7 @@ $(document).on('click', '#btn-delete-customer-service', function(e) {
                 },
                 error:function (xhr) {
                     $("#btn-save-invoice").attr("disabled", false);
+                    $("#btn-save-invoice").html('<i class="fa fa-check"></i> Salvar');
                     if(xhr.status === 422){
                         Swal.fire({
                             text: xhr.responseJSON,

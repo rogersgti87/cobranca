@@ -191,9 +191,14 @@ class Invoice extends Model
 
     \MercadoPago\SDK::setAccessToken($access_token);
 
-    $payment = \MercadoPago\Payment::find_by_id($transaction_id);
+    try{
+        $payment = \MercadoPago\Payment::find_by_id($transaction_id);
 
-    return $payment->point_of_interaction->transaction_data;
+        return $payment->point_of_interaction->transaction_data;
+
+    } catch(\Exception $e){
+        \Log::error($e->getMessage());
+    }
 
     }
 

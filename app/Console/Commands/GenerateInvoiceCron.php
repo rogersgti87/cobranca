@@ -89,7 +89,7 @@ class GenerateInvoiceCron extends Command
 
                     \File::put(public_path(). '/pix/' . $invoice->user_id.'_'.$invoice->id.'.'.'png', base64_decode($generatePixPH['transaction']->pix_code->qrcode_base64));
 
-
+                    unset($invoice->days_due_date);
                     $invoice->update([
                         'transaction_id'    => $generatePixPH['transaction']->transaction_id,
                         'image_url_pix'     => 'https://cobrancasegura.com.br/pix/'.$invoice->user_id.'_'.$invoice->id.'.png',
@@ -114,7 +114,7 @@ class GenerateInvoiceCron extends Command
                         \File::makeDirectory(public_path('pix'));
 
                     \File::put(public_path(). '/pix/' . $invoice->user_id.'_'.$invoice->id.'.'.'png', base64_decode($getInfoPixMP->qr_code_base64));
-
+                    unset($invoice->days_due_date);
                     $invoice->update([
                         'transaction_id'    => $generatePixMP['transaction_id'],
                         'image_url_pix'     => 'https://cobrancasegura.com.br/pix/'.$invoice->user_id.'_'.$invoice->id.'.png',
@@ -147,7 +147,7 @@ class GenerateInvoiceCron extends Command
                     $billet_pdf   = 'https://cobrancasegura.com.br/boleto/'.$invoice->user_id.'_'.$invoice->id.'.pdf';
 
                     $base64_pdf = chunk_split(base64_encode(file_get_contents($billet_pdf)));
-
+                    unset($invoice->days_due_date);
                     $invoice->update([
                         'transaction_id'    =>  $generateBilletPH['transaction']->transaction_id,
                         'billet_url'        =>  $generateBilletPH['transaction']->bank_slip->url_slip,

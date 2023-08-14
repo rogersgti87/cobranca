@@ -104,14 +104,13 @@
 </section>
 
 
-<div class="social-media-style" style="background-image: url(assets/img/social-media.png);">
+<div class="social-media-style" style="background-image: url(assets/front/img/social-media.png);">
   <div class="container">
     <ul class="social-media-section">
         <li><a href="#"><i class="fa-brands fa-linkedin-in"></i>linkedin</a></li>
         <li><a href="#"><i class="fa-brands fa-youtube"></i>Youtube</a></li>
         <li><a href="#"><i class="fa-brands fa-facebook-f"></i>facebook</a></li>
         <li><a href="#"><i class="fa-brands fa-instagram"></i>instagram</a></li>
-        <li><a href="#"><i class="fa-brands fa-twitch"></i>twitch</a></li>
     </ul>
   </div>
 </div>
@@ -166,10 +165,10 @@
           <i><svg enable-background="new 0 0 512 512" height="512" viewBox="0 0 512 512" width="512" xmlns="http://www.w3.org/2000/svg"><g><path d="m376.437 232.804v-130.342h30.125v-27.213l-75.249-75.249-75.25 75.25v27.213h30.125v81.052c-9.792-1.811-19.88-2.766-30.188-2.766s-20.396.955-30.188 2.766v-33.059h30.125v-27.213l-75.249-75.25-75.25 75.25v27.213h30.125v82.347c-27.998 29.674-45.187 69.65-45.187 113.57-.001 91.327 74.298 165.627 165.624 165.627s165.625-74.3 165.625-165.625c0-43.92-17.19-83.897-45.188-113.571zm-75.161-160.341 30.037-30.037 30.036 30.036h-14.912v135.228c-9.461-6.19-19.586-11.444-30.25-15.618v-119.609zm-120.588 17.957 30.037 30.037h-14.912v71.616c-10.664 4.174-20.789 9.428-30.25 15.618v-87.233h-14.912zm75.312 391.58c-74.784 0-135.625-60.841-135.625-135.625s60.841-135.625 135.625-135.625 135.625 60.841 135.625 135.625-60.842 135.625-135.625 135.625z"/><path d="m263.88 331.376h-15.757c-7.547 0-13.687-6.14-13.687-13.687 0-7.546 6.14-13.686 13.687-13.686h15.396c7.557 0 13.704 6.147 13.704 13.704h30c0-21.546-15.677-39.488-36.222-43.049v-18.659h-30v18.595c-20.712 3.412-36.565 21.433-36.565 43.097 0 24.088 19.598 43.686 43.687 43.686h15.757c7.547 0 13.687 6.14 13.687 13.687s-6.14 13.687-13.687 13.687h-16.038c-7.267 0-13.178-5.912-13.178-13.178h-30c0 21.48 15.769 39.342 36.337 42.631v18.553h30v-18.595c20.712-3.411 36.565-21.433 36.565-43.097.001-24.091-19.597-43.689-43.686-43.689z"/></g></svg></i>
             <div class="hero-text">
               <ul>
-                <li><img alt="check" src="assets/img/check-b.png"> Free Consulting</li>
-                <li><img alt="check" src="assets/img/check-b.png"> Monthly Report</li>
-                <li><img alt="check" src="assets/img/check-b.png"> Amazing Features</li>
-                <li><img alt="check" src="assets/img/check-b.png"> 24x7 Premium support</li>
+                <li><img alt="check" src="{{url('assets/front/img/check-b.png')}}"> Free Consulting</li>
+                <li><img alt="check" src="{{url('assets/front/img/check-b.png')}}"> Monthly Report</li>
+                <li><img alt="check" src="{{url('assets/front/img/check-b.png')}}"> Amazing Features</li>
+                <li><img alt="check" src="{{url('assets/front/img/check-b.png')}}"> 24x7 Premium support</li>
               </ul>
               <a class="btn"><span>Contratar</span></a>
             </div>
@@ -240,7 +239,7 @@
         <div class="row align-items-center ms-lg-5">
           <div class="col-6">
             <div class="count-style">
-              <h2 data-max="100"><sup>K</sup></h2>
+              <h2 data-max="100"><sup>+</sup></h2>
               <span>clientes</span>
             </div>
             <div class="count-style two">
@@ -269,7 +268,7 @@
       <div class="col-lg-12 item">
         <div class="clients">
           <p>"Historia 1”</p>
-          <div class="d-flex align-items-center mt-4"><div><i><img alt="quote" src="assets/img/quote.png"></i></div>
+          <div class="d-flex align-items-center mt-4"><div><i><img alt="quote" src="{{url('assets/front/img/quote.png')}}"></i></div>
             <div>
               <h6>Nome</h6>
               <span>Função</span>
@@ -280,7 +279,7 @@
       <div class="col-lg-12 item">
         <div class="clients two">
           <p>"História 2.”</p>
-          <div class="d-flex align-items-center mt-4"><div><i><img alt="quote" src="assets/img/quote.png"></i></div>
+          <div class="d-flex align-items-center mt-4"><div><i><img alt="quote" src="{{url('assets/front/img/quote.png')}}"></i></div>
             <div>
               <h6>Nome</h6>
               <span>Função</span>
@@ -291,7 +290,7 @@
       <div class="col-lg-12 item">
         <div class="clients">
           <p>"História 3.”</p>
-          <div class="d-flex align-items-center mt-4"><div><i><img alt="quote" src="assets/img/quote.png"></i></div>
+          <div class="d-flex align-items-center mt-4"><div><i><img alt="quote" src="{{url('assets/front/img/quote.png')}}"></i></div>
             <div>
               <h6>Nome</h6>
               <span>Função</span>

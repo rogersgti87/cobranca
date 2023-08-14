@@ -6,6 +6,9 @@
 <div class="login-form-bd">
     <div class="form-wrapper">
       <div class="form-container">
+        <div class="logo">
+            <img alt="logo" src="{{url('/img/logo.png?')}}{{mt_rand(0,999)}}">
+          </div>
         <h1> Acessar Plataforma</h1>
         <form method="POST" action="{{ route('login') }}">
             @csrf

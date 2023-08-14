@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cobrança Segura</title>
-
+  <link rel="icon" href="{{url('/img/favicon.png')}}">
   <!-- Google Font: Source Sans Pro -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
   <!-- Font Awesome Icons -->
@@ -57,18 +57,16 @@
       <aside class="main-sidebar elevation-4 sidebar-light-primary">
         <!-- Brand Logo -->
         <a href="{{url('/admin')}}" class="brand-link bg-gray text-center">
-            <img src="{{url('img/logo.png')}}" alt="Malu Imóveis" class="" style="width:80% !important;float:none !important;" style="opacity: .8">
-            <br>
+            <img src="{{url('img/logo.png')}}" alt="{{auth()->user()->company}}" class="" style="width:80% !important;float:none !important;" style="opacity: .8">
         </a>
         <!-- Sidebar -->
         <div class="sidebar">
           <!-- Sidebar user panel (optional) -->
-          <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-            <div class="image">
-              <img src="{{ \Auth::user()->image != null ? url(\Auth::user()->image) : url('assets/admin/img/thumb.png')}}" class="img-circle elevation-2" alt="User Image">
-            </div>
+          <div class="user-panel mt-3 pb-3 mb-3 d-flex text-center">
             <div class="info">
-              <a href="#" class="d-block">{{ Auth::user()->name }}</a>
+                <img src="{{ \Auth::user()->image != null ? url(\Auth::user()->image) : url('assets/admin/img/thumb.png')}}" style="width:80% !important;" class="img-thumbnail" alt="{{auth()->user()->name}}">
+                <br>
+              <span class="d-block"><strong>{{ Auth::user()->name }}</strong></span>
             </div>
           </div>
 

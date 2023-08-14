@@ -109,7 +109,7 @@
                                                 </div>
 
                                                 <div class="form-group col-md-2 col-sm-12">
-                                                    <label>Cep</label>
+                                                    <label>Número</label>
                                                     <input type="text" class="form-control" name="number" id="number" autocomplete="off" required value="{{isset($data->number) ? $data->number : ''}}">
                                                 </div>
 

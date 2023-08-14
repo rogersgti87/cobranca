@@ -115,7 +115,7 @@
     </ul>
   </div>
 </div>
-<section id="pricing" class="pricing-plans-section gap">
+<section id="precos" class="pricing-plans-section gap">
   <div class="container">
     <div class="heading">
       <span>Preços e Planos</span>

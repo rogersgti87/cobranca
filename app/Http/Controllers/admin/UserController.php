@@ -74,6 +74,7 @@ class UserController extends Controller
         if($this->request->input('filter')){
             $data = User::orderByRaw("$column_name")
                         ->whereraw("$field $operator $newValue")
+                        ->where('id',auth()->user()->id)
                         ->paginate(15);
         }else{
             $data = User::orderByRaw("$column_name")

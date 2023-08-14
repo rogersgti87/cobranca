@@ -78,11 +78,12 @@ class GenerateInvoiceCron extends Command
 
         if($invoice->payment_method == 'Pix'){
             if($invoice->gateway_payment == 'Pag Hiper'){
+                try {
                 $generatePixPH = Invoice::generatePixPH($invoice);
                 if($generatePixPH['status'] == 'reject'){
                     \Log::info($generatePixPH['message']);
                 }
-                try {
+
 
 
                     if(!file_exists(public_path('pix')))
@@ -103,11 +104,12 @@ class GenerateInvoiceCron extends Command
                 }
 
             }elseif($invoice->gateway_payment == 'Mercado Pago'){
+                try {
                 $generatePixMP = Invoice::generatePixMP($invoice->id);
                 if($generatePixMP['status'] == 'reject'){
                     \Log::info($generatePixMP['message']);
                 }
-                try {
+
 
                     $getInfoPixMP = Invoice::verifyStatusPixMP($invoice->access_token_mp,$generatePixMP['transaction_id']);
 
@@ -133,11 +135,12 @@ class GenerateInvoiceCron extends Command
         } elseif($invoice->payment_method == 'Boleto'){
 
             if($invoice->gateway_payment == 'Pag Hiper'){
+                try {
                 $generateBilletPH = Invoice::generateBilletPH($invoice);
                 if($generateBilletPH['status'] == 'reject'){
                     \Log::info($generateBilletPH['message']);
                 }
-                try {
+
 
                     if(!file_exists(public_path('boleto')))
                         \File::makeDirectory(public_path('boleto'));

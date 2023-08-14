@@ -91,11 +91,19 @@ class RememberInvoiceCron extends Command
 
     $details['body']  = view('mails.invoice',$details)->render();
 
-    InvoiceNotification::Email($details);
+    try {
+        InvoiceNotification::Email($details);
+    } catch (\Exception $e) {
+        \Log::error($e->getMessage());
+    }
 
-    if($invoice->notification_whatsapp)
-        InvoiceNotification::Whatsapp($details);
-
+    try {
+        if($invoice->notification_whatsapp){
+            InvoiceNotification::Whatsapp($details);
+        }
+    } catch (\Exception $e) {
+        \Log::error($e->getMessage());
+    }
 
 
 

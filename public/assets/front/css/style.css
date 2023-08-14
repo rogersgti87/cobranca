@@ -1210,7 +1210,7 @@ footer{
 footer:before {
     content: "";
     position: absolute;
-    background-image: url(assets/front/img/newsletter.jpg);
+    background-image: '';
     z-index: 11;
     width: 100%;
 }

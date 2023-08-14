@@ -47,7 +47,7 @@
             <li><a href="{{url('/admin')}}">Acessar Plataforma</a></li>
           </ul>
         </nav>
-        <a href="https://api.whatsapp.com/send?phone=5522988280129&text=Olá, gostaria de falar sobre o sistema de cobrança."> +55 (22)98828-0129 <i class="fa-brands fa-whatsapp"></i></a>
+        <a href="https://api.whatsapp.com/send?phone=5522988280129&text=Olá, gostaria de falar sobre o sistema de cobrança." target="_blank"> +55 (22)98828-0129 <i class="fa-brands fa-whatsapp"></i></a>
       </div>
     </div>
   </header>
@@ -59,7 +59,7 @@
         <div class="hero-text">
           <h2>Cobrança <span>SEGURA</span></h2>
           <p>Você pode gerenciar suas finanças com muita facilidade e rapidez com esta plataforma.</p>
-          <a href="#" class="btn"><span>Fale conosco</span></a>
+          <a href="https://api.whatsapp.com/send?phone=5522988280129&text=Olá, gostaria de falar sobre o sistema de cobrança." class="btn" target="_blank"><span>Contratar</span></a>
         </div>
       </div>
     </div>

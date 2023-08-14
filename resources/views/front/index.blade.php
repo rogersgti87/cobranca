@@ -14,7 +14,7 @@
    <!-- Font Awesome 6 -->
    <link rel="stylesheet" href="{{url('assets/front/css/fontawesome.min.css')}}">
    <!-- style -->
-   <link rel="stylesheet" href="{{url('assets/front/css/style.css')}}">
+   <link rel="stylesheet" href="{{url('assets/front/css/style.css?')}}{{mt_rand(0,999)}}">
    <!-- responsive -->
    <link rel="stylesheet" href="{{url('assets/front/css/responsive.css')}}">
    <!-- color -->
@@ -36,7 +36,7 @@
     <div class="container">
       <div class="top-bar">
         <div class="logo">
-          <img alt="logo" src="{{url('/img/logo.png')}}">
+          <img alt="logo" src="{{url('/img/logo.png?')}}{{mt_rand(0,999)}}">
         </div>
         <nav>
           <ul>

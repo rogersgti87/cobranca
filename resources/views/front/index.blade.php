@@ -349,6 +349,5 @@
 <script src="{{url('assets/front/js/owl.carousel.min.js')}}"></script>
 <!-- fancybox -->
 <script src="{{url('assets/front/js/jquery.fancybox.min.js')}}"></script>
-<script src="{{url('assets/front/js/contact.js')}}"></script>
-<script src="{{url('assets/front/js/custom.js')}}"></script>
+<script src="{{url('assets/front/js/custom.js?')}}{{mt_rand(0,999)}}"></script>
 </body>

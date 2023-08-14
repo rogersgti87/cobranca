@@ -8,7 +8,7 @@
 -----------------------------------------------------------------------------------
 
     [Table of contents]
-    
+
     1. logodata
     2. clients-slider
     3. stickyHeader
@@ -67,7 +67,7 @@ jQuery(document).ready(function($){
 
 /* 3. stickyHeader */
 if ($("#stickyHeader")[0]){
- 
+
     var new_scroll_position = 0;
 
         var last_scroll_position;
@@ -84,7 +84,7 @@ if ($("#stickyHeader")[0]){
 
         if (new_scroll_position < last_scroll_position && last_scroll_position > 100) {
 
-        
+
 
           header.classList.remove("slideUp");
 
@@ -93,13 +93,13 @@ if ($("#stickyHeader")[0]){
 
 
 
-        } 
+        }
 
         else if (last_scroll_position < 100) {
 
           header.classList.remove("slideUp");
 
-        } 
+        }
 
         else if (new_scroll_position > last_scroll_position) {
 
@@ -134,7 +134,7 @@ $('.accordion-item .heading').on('click', function(e) {
     $('.accordion-item .content').not($content).slideUp('fast');
 });
 
-/* 5. Go to top */ 
+/* 5. Go to top */
 function inVisible(element) {
   //Checking if the element is
   //visible in the viewport
@@ -178,7 +178,7 @@ $(function() {
   //This is triggered when the
   //user scrolls the page
   $(window).scroll(function() {
-    //Checking if each items to animate are 
+    //Checking if each items to animate are
     //visible in the viewport
     $("h2[data-max]").each(function() {
       inVisible($(this));
@@ -205,7 +205,7 @@ let calcScrollValue = () => {
   scrollProgress.addEventListener("click", () => {
     document.documentElement.scrollTop = 0;
   });
-  scrollProgress.style.background = `conic-gradient(#12a575 ${scrollValue}%, #d7d7d7 ${scrollValue}%)`;
+  scrollProgress.style.background = `conic-gradient(#ffbd59 ${scrollValue}%, #d7d7d7 ${scrollValue}%)`;
 };
 
 window.onscroll = calcScrollValue;

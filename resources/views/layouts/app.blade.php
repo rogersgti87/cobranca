@@ -137,6 +137,10 @@ body {
   margin: 0 auto;
   max-width: 100%;
 }
+.login-form-bd {
+  color: #000;
+  padding: 0;
+}
 .form-control input {
   background: transparent;
   border: 0;

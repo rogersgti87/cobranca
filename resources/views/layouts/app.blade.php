@@ -27,15 +27,16 @@
 body {
   font-family: "Roboto", sans-serif;
   margin:0 auto;
+  background: #1b1a1a;
 }
 
 /* FORM STYLE */
 .form-wrapper {
-  background: #1b1a1a;
+
 }
 
 .login-form-bd {
-  background: #fff;
+
   color: #000;
   padding:100px 300px;
 }

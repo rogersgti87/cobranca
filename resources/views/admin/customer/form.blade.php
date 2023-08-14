@@ -365,9 +365,10 @@
 
 $(document).ready(function(){
 
-    loadCustomerServices();
-    loadInvoices();
-
+    @if(isset($data))
+        loadCustomerServices();
+        loadInvoices();
+    @endif
 
 
 

@@ -26,21 +26,18 @@
 
 body {
   font-family: "Roboto", sans-serif;
-  background: #1b1a1a;
+  margin:0 auto;
 }
 
 /* FORM STYLE */
 .form-wrapper {
-  max-width: 50%;
   background: #1b1a1a;
 }
 
 .login-form-bd {
   background: #fff;
   color: #000;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  padding:100px 300px;
 }
 
 .form-container {

@@ -77,7 +77,7 @@ class UserController extends Controller
                         ->where('id',auth()->user()->id)
                         ->paginate(15);
         }else{
-            $data = User::orderByRaw("$column_name")
+            $data = User::orderByRaw("$column_name")->where('id',auth()->user()->id)
                         ->paginate(15);
         }
 

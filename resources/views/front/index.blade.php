@@ -42,9 +42,9 @@
           <ul>
             <li><a href="#sobre">Sobre</a></li>
             <li><a href="#recursos">Recursos</a></li>
-            <li><a href="#team">Team</a></li>
             <li><a href="#precos">Preços</a></li>
             <li><a href="#duvidas">Dúvidas</a></li>
+            <li><a href="{{url('/admin')}}">Acessar Plataforma</a></li>
           </ul>
         </nav>
         <a href="https://api.whatsapp.com/send?phone=5522988280129&text=Olá, gostaria de falar sobre o sistema de cobrança."> +55 (22)98828-0129 <i class="fa-brands fa-whatsapp"></i></a>

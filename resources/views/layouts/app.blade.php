@@ -39,6 +39,31 @@ body {
   margin: 0 auto;
   max-width: 100%;
 }
+.form-control input {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px #fff solid;
+  display: block;
+  width: 100%;
+  padding: 0;
+  font-size: 1rem;
+  color: #fff;
+}
+
+.login-btn {
+  cursor: pointer;
+  display: inline-block;
+  width: 100%;
+  background: #ffbd59;
+  padding: 0;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 1.563rem;
+  color: #0d0f42;
+  border: 0;
+  border-radius: 0.313rem;
+  margin-bottom: 1.25rem;
+}
 }
 
 .login-form-bd {

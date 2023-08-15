@@ -134,6 +134,8 @@
                                 Loaded by proxy
                             @elseif($notification->event == 'error')
                                 Erro
+                            @elseif($notification->message_status == "success")
+                                Enviada
                             @else
                                 {{$notification->event}}
                             @endif

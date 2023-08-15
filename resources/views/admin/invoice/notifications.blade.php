@@ -81,9 +81,9 @@
                 <tr>
                     <th>Tipo</th>
                     <th>Evento</th>
+                    <th>Assunto</th>
                     <th>E-mail</th>
                     <th>Data</th>
-                    <th>Assunto</th>
                     <th>IP</th>
                     <th>Status</th>
                     <th>Texto Whatsapp</th>
@@ -104,6 +104,7 @@
                                 <span class="badge badge-info"><i class="fa fa-envelope"></i></span>
                             @endif
                         </td>
+                        <td>{{ $notification->subject }}</td>
                         <td>
                             @if($notification->event == 'request')
                                 Enviada
@@ -139,7 +140,7 @@
                         </td>
                         <td>{{ $notification->email}}</td>
                         <td>@if($notification->type_send == 'whatsapp') {{ $notification->date != null ? date('d/m/Y H:i:s',strtotime($notification->date)) : '-' }} @else {{ $notification->date_email != null ? date('d/m/Y H:i:s',strtotime($notification->date_email)) : '-'}} @endif</td>
-                        <td>{{ $notification->subject }}</td>
+
                         <td>{{ $notification->sending_ip }}</td>
                         <td>
                             @if ($notification->type_send == 'whatsapp' && $notification->message_status == "success")

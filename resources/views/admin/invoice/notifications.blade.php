@@ -143,12 +143,12 @@
 
                         <td>{{ $notification->sending_ip }}</td>
                         <td>
-                            @if ($notification->type_send == 'whatsapp' && $notification->message_status == "success")
-                                <span class="badge badge-success"></span>
+                            @if ($notification->message_status == "success")
+                                <span class="badge badge-success">Ok</span>
                             @elseif ($notification->reason == 'send')
-                                <span class="badge badge-success"></span>
+                                <span class="badge badge-success">Ok</span>
                             @else
-                                <span class="badge badge-danger"></span>
+                                <span class="badge badge-danger">Erro</span>
                             @endif
                         </td>
                         <td>@if($notification->type_send == 'whatsapp')

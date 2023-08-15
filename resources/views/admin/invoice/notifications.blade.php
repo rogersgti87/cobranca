@@ -80,8 +80,8 @@
             <thead>
                 <tr>
                     <th>Tipo</th>
-                    <th>Evento</th>
                     <th>Assunto</th>
+                    <th>Evento</th>
                     <th>E-mail</th>
                     <th>Data</th>
                     <th>IP</th>

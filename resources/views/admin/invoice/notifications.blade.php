@@ -180,7 +180,7 @@
     <script>
 
    $('#notifications-table').DataTable({
-            order: [[3, 'desc']],
+            order: [[4, 'desc']],
             language: {
                 url: 'https://cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json',
             },

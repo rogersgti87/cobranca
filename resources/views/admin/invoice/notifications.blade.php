@@ -95,7 +95,7 @@
 
                 @foreach ($notifications as $notification)
 
-
+                @if($notification->status != 'Error')
                     <tr>
                         <td>
                             @if ($notification->type_send == "whatsapp")
@@ -147,6 +147,7 @@
                             @endif
                         </td>
                     </tr>
+                    @endif
                 @endforeach
 
             </tbody>

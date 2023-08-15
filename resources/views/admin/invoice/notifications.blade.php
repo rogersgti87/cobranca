@@ -105,12 +105,34 @@
                             @endif
                         </td>
                         <td>
-                            @if($notification->event == 'delivered')
+                            @if($notification->event == 'request')
+                                Enviada
+                            @elseif($notification->event == 'click')
+                                Clicada
+                            @elseif($notification->event == 'deferred')
+                                Adiada
+                            @elseif($notification->event == 'delivered')
                                 Entregue
+                            @elseif($notification->event == 'soft_bounce')
+                                Soft Bounce
+                            @elseif($notification->event == 'spam')
+                                Denunciado(Spam)
+                            @elseif($notification->event == 'unique_opened')
+                            1º Abertura
+                            @elseif($notification->event == 'hard_bounce')
+                                Hard Bounce
+                            @elseif($notification->event == 'unsubscribed')
+                                Inscrição cancelada
                             @elseif($notification->event == 'opened')
-                                Abriu
-                            @elseif($notification->event == 'clicked')
-                                Clicou
+                                Aberto
+                            @elseif($notification->event == 'invalid_email')
+                                E-mail inválido
+                            @elseif($notification->event == 'blocked')
+                                Bloqueado
+                            @elseif($notification->event == 'proxy_open')
+                                Loaded by proxy
+                            @elseif($notification->event == 'error')
+                                Erro
                             @else
                                 {{$notification->event}}
                             @endif

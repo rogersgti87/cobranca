@@ -219,7 +219,7 @@ class InvoiceController extends Controller
                     }
 
                 }elseif($invoice->gateway_payment == 'Mercado Pago'){
-                    //
+
                 }
 
 

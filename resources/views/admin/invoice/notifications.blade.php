@@ -145,7 +145,7 @@
                         <td>
                             @if ($notification->message_status == "success")
                                 <span class="badge badge-success">Ok</span>
-                            @elseif ($notification->reason == 'send')
+                            @elseif ($notification->event != 'erro')
                                 <span class="badge badge-success">Ok</span>
                             @else
                                 <span class="badge badge-danger">Erro</span>

@@ -203,7 +203,9 @@
     },
     });
 
-
+    $(function () {
+        $("[data-tt=tooltip]").tooltip();
+    });
 
 </script>
 

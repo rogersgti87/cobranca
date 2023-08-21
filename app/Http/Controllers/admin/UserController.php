@@ -270,17 +270,6 @@ class UserController extends Controller
     }
 
 
-    public function getQRCODE(){
-
-        $access_token = auth()->user()->api_access_token_whatsapp;
-        $response = Http::get('https://whatsapp.rogerti.com.br:8000/api/qrcode-session/'.$access_token);
-
-        $result = $response->getBody();
-        return  json_decode($result);
-    }
-
-
-
 
 
 }

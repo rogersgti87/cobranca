@@ -62,8 +62,7 @@
                         <fieldset>
                             <legend>Whatsapp</legend>
                             @if(Request::get('id'))
-                                <button type="button" data-toggle="modal" data-target="#modal-ler-qrcode" id="{{ Request::get('id') }}" data-original-title="LER QRCODE" data-toggle="tooltip" class="btn btn-success btn-md"> <i class="fa fa-qrcode"></i> LER QRCODE</button>
-                                <button type="button" data-toggle="modal" data-target="#modal-novo-qrcode" id="{{ Request::get('id') }}" data-original-title="NOVO QRCODE" data-toggle="tooltip" class="btn btn-success btn-md"> <i class="fa fa-qrcode"></i> NOVO QRCODE</button>
+                                <button type="button" data-toggle="modal" data-target="#modal-novo-qrcode" id="{{ Request::get('id') }}" data-original-title="NOVO QRCODE" data-tt="tooltip" class="btn btn-success btn-md"> <i class="fa fa-qrcode"></i> NOVO QRCODE</button>
                             @endif
                         </fieldset>
 

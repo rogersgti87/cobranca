@@ -110,7 +110,7 @@ class InvoiceNotification extends Model
 
         $response = Http::withHeaders([
             "Content-Type"  => "application/json"
-        ])->post('https://whatsapp.rogerti.com.br:8000/api/send-message',[
+        ])->post('https://zapestrategico.com.br/api/send-message',[
             "access_token"  => $data['user_access_token_wp'],
             "whatsapp"      => '55'.$data['customer_whatsapp'],
             "message"       => $data['text_whatsapp']
@@ -151,7 +151,7 @@ class InvoiceNotification extends Model
 
             $response = Http::withHeaders([
             "Content-Type"  => "application/json"
-        ])->post('https://whatsapp.rogerti.com.br:8000/api/send-image',[
+        ])->post('https://zapestrategico.com.br/api/send-image',[
                 "access_token"  => $data['user_access_token_wp'],
                 "whatsapp"      => '55'.$data['customer_whatsapp'],
                 "message"       => 'data:image/png;base64,'.$data['pix_qrcode_base64'],
@@ -194,7 +194,7 @@ class InvoiceNotification extends Model
 
              $response = Http::withHeaders([
                     "Content-Type"  => "application/json"
-                ])->post('https://whatsapp.rogerti.com.br:8000/api/send-file',[
+                ])->post('https://zapestrategico.com.br/api/send-file',[
                     "access_token"  => $data['user_access_token_wp'],
                     "whatsapp"      => '55'.$data['customer_whatsapp'],
                     "file"          => 'data:application/pdf;base64,'.$whats_billet_base64,

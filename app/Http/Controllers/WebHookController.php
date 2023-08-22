@@ -164,12 +164,11 @@ class WebHookController extends Controller
             'status'                    => $invoice->status,
             'url_base'                  => url('/'),
             'status_payment'            => $invoice->status,
-            'pix_qrcode_image_url'      =>  '',
-            'pix_emv'                   =>  '',
-            'pix_qrcode_wp'             =>  '',
-            'billet_digitable_line'     =>  '',
-            'billet_url_slip_pdf'       =>  '',
-            'billet_url_slip'           =>  '',
+            'pix_emv'                   => $invoice->pix_digitable,
+            'pix_qrcode_base64'         => $invoice->qrcode_pix_base64,
+            'billet_digitable_line'     => $invoice->billet_digitable,
+            'billet_url_slip_base64'    => $invoice->billet_base64,
+            'billet_url_slip'           => $invoice->billet_url,
         ];
 
 

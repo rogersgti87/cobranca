@@ -169,6 +169,7 @@ class WebHookController extends Controller
             'billet_digitable_line'     => $invoice->billet_digitable,
             'billet_url_slip_base64'    => $invoice->billet_base64,
             'billet_url_slip'           => $invoice->billet_url,
+            'pix_qrcode_image_url'      => $invoice->image_url_pix
         ];
 
 

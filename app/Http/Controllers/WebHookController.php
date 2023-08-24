@@ -94,7 +94,7 @@ class WebHookController extends Controller
 
     if($result->status == 'reserved'){
         $title = 'Fatura #'.$result->order_id;
-        $message_notification = 'Esta é uma mensagem para notificá-lo(a) que a <b>Fatura #'.$result->order_id.'</b> mudou o status para: <b>Processamento</b>';
+        $message_notification = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura mudou o status para: <b>Processamento</b>';
         Invoice::where('id',$result->order_id)->where('transaction_id',$result->transaction_id)->update([
             'status'       =>   'Processamento',
             'date_payment' =>   Null,
@@ -103,7 +103,7 @@ class WebHookController extends Controller
     }
     if($result->status == 'completed' || $result->status == 'paid'){
         $title = 'Fatura #'.$result->order_id;
-        $message_notification = 'Esta é uma mensagem para notificá-lo(a) que a <b>Fatura #'.$result->order_id.'</b> mudou o status para: <b>Pago</b>';
+        $message_notification = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura mudou o status para: <b>Pago</b>';
         Invoice::where('id',$result->order_id)->where('transaction_id',$result->transaction_id)->update([
             'status'       =>   'Pago',
             'date_payment' =>   isset($data['paid_date']) ? date('d/m/Y', strtotime($data['paid_date'])) : Carbon::now(),
@@ -113,7 +113,7 @@ class WebHookController extends Controller
 
     if($result->status == 'canceled' || $result->status == 'refunded'){
         $title = 'Fatura #'.$result->order_id;
-        $message_notification = 'Esta é uma mensagem para notificá-lo(a) que a <b>Fatura #'.$result->order_id.'</b> mudou o status para: <b>Cancelado</b>';
+        $message_notification = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura mudou o status para: <b>Cancelado</b>';
         Invoice::where('id',$result->order_id)->where('transaction_id',$result->transaction_id)->update([
             'status'       =>   'Cancelado',
             'date_payment' =>   Null,

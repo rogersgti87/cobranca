@@ -150,6 +150,14 @@ class UserController extends Controller
         $model->token_paghiper              = $data['token_paghiper'];
         $model->key_paghiper                = $data['key_paghiper'];
         $model->access_token_mp             = $data['access_token_mp'];
+        $model->inter_host                  = $data['inter_host'];
+        $model->inter_client_id             = $data['inter_client_id'];
+        $model->inter_client_secret         = $data['inter_client_secret'];
+        $model->inter_scope                 = $data['inter_scope'];
+        $model->inter_grant_type            = $data['inter_grant_type'];
+        $model->inter_crt_file              = $data['inter_crt_file'];
+        $model->inter_key_file              = $data['inter_key_file'];
+        $model->inter_crt_file_webhook      = $data['inter_crt_file_webhook'];
 
         try{
             $model->save();
@@ -215,6 +223,15 @@ class UserController extends Controller
         $model->token_paghiper              = $data['token_paghiper'];
         $model->key_paghiper                = $data['key_paghiper'];
         $model->access_token_mp             = $data['access_token_mp'];
+        $model->inter_host                  = $data['inter_host'];
+        $model->inter_client_id             = $data['inter_client_id'];
+        $model->inter_client_secret         = $data['inter_client_secret'];
+        $model->inter_scope                 = $data['inter_scope'];
+        $model->inter_grant_type            = $data['inter_grant_type'];
+        $model->inter_crt_file              = $data['inter_crt_file'];
+        $model->inter_key_file              = $data['inter_key_file'];
+        $model->inter_crt_file_webhook      = $data['inter_crt_file_webhook'];
+
 
 
         try{
@@ -259,7 +276,7 @@ class UserController extends Controller
 
             $access_token = auth()->user()->api_access_token_whatsapp;
             //Iniciar sessão
-            $response_start_session = Http::get('https://whatsapp.rogerti.com.br:8000/api/start-session/'.$access_token);
+            $response_start_session = Http::get('https://zapestrategico.com.br/api/start-session/'.$access_token);
 
             $result_start_session = $response_start_session->getBody();
             $qrcode = json_decode($result_start_session);

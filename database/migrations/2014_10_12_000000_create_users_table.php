@@ -41,10 +41,10 @@ return new class extends Migration
             $table->string('inter_client_id')->nullable();
             $table->string('inter_client_secret')->nullable();
             $table->string('inter_scope')->nullable();
-            $table->string('inter_scope')->nullable();
             $table->string('inter_grant_type')->nullable();
             $table->string('inter_crt_file')->nullable();
             $table->string('inter_key_file')->nullable();
+            $table->string('inter_crt_file_webhook')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

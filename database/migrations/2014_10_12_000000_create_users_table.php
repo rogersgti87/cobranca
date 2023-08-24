@@ -37,6 +37,14 @@ return new class extends Migration
             $table->string('token_paghiper')->nullable();
             $table->string('key_paghiper')->nullable();
             $table->string('access_token_mp')->nullable();
+            $table->string('inter_host')->nullable();
+            $table->string('inter_client_id')->nullable();
+            $table->string('inter_client_secret')->nullable();
+            $table->string('inter_scope')->nullable();
+            $table->string('inter_scope')->nullable();
+            $table->string('inter_grant_type')->nullable();
+            $table->string('inter_crt_file')->nullable();
+            $table->string('inter_key_file')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

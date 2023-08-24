@@ -56,7 +56,7 @@ class WebHookController extends Controller
   public function paghiper(Request $request)
   {
     $data = $request->all();
-    \Log::info($data);
+    \Log::info('Retorno webhook paghiper: '.$data);
     $invoice = Invoice::select('invoices.transaction_id','users.token_paghiper','users.key_paghiper','invoices.payment_method')
                         ->join('users','users.id','invoices.user_id')
                         ->where('transaction_id',$data['transaction_id'])
@@ -84,11 +84,13 @@ class WebHookController extends Controller
     ]);
 
     $result = $response->getBody();
-    \Log::info($result);
+    \Log::info('Result linha 87: '.$result);
     $result = json_decode($result)->status_request;
 
     $title = '';
     $message_notification = '';
+
+    \Log::info('Result Status linha 93: '.$result->status);
 
     if($result->status == 'reserved'){
         $title = 'Fatura #'.$result->order_id;

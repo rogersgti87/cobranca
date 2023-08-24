@@ -12,6 +12,7 @@ use DB;
 use App\Models\User;
 use RuntimeException;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -154,10 +155,32 @@ class UserController extends Controller
         $model->inter_client_id             = $data['inter_client_id'];
         $model->inter_client_secret         = $data['inter_client_secret'];
         $model->inter_scope                 = $data['inter_scope'];
-        $model->inter_grant_type            = $data['inter_grant_type'];
-        $model->inter_crt_file              = $data['inter_crt_file'];
-        $model->inter_key_file              = $data['inter_key_file'];
-        $model->inter_crt_file_webhook      = $data['inter_crt_file_webhook'];
+        //$model->inter_crt_file              = $data['inter_crt_file'];
+        //$model->inter_key_file              = $data['inter_key_file'];
+        //$model->inter_crt_file_webhook      = $data['inter_crt_file_webhook'];
+
+
+        if(!file_exists(storage_path('app/certificates')))
+            \File::makeDirectory(storage_path('app/certificates'));
+
+        if($this->request->has('inter_crt_file')){
+            $inter_crt_file = $this->request->file('inter_crt_file');
+            $inter_crt_file->storeAs('certificates/',auth()->user()->id.'_inter_crt_file.crt');
+            $model->inter_crt_file = 'certificates/'.auth()->user()->id.'_inter_crt_file.crt';
+        }
+
+
+        if($this->request->has('inter_key_file')){
+            $inter_key_file = $this->request->file('inter_key_file');
+            $inter_key_file->storeAs('certificates/',auth()->user()->id.'_inter_key_file.key');
+            $model->inter_key_file = 'certificates/'.auth()->user()->id.'_inter_key_file.key';
+        }
+
+        if($this->request->has('inter_crt_file_webhook')){
+            $inter_crt_file_webhook = $this->request->file('inter_crt_file_webhook');
+            $inter_crt_file_webhook->storeAs('certificates/',auth()->user()->id.'_inter_crt_file_webhook.crt');
+            $model->inter_crt_file_webhook = 'certificates/'.auth()->user()->id.'_inter_crt_file_webhook.crt';
+        }
 
         try{
             $model->save();
@@ -178,6 +201,7 @@ class UserController extends Controller
         $model = User::where('id',$id)->first();
 
         $data = $this->request->all();
+
 
         $messages = [
             'name.required' => 'O campo nome é obrigatório',
@@ -227,12 +251,32 @@ class UserController extends Controller
         $model->inter_client_id             = $data['inter_client_id'];
         $model->inter_client_secret         = $data['inter_client_secret'];
         $model->inter_scope                 = $data['inter_scope'];
-        $model->inter_grant_type            = $data['inter_grant_type'];
-        $model->inter_crt_file              = $data['inter_crt_file'];
-        $model->inter_key_file              = $data['inter_key_file'];
-        $model->inter_crt_file_webhook      = $data['inter_crt_file_webhook'];
+        //$model->inter_crt_file              = $data['inter_crt_file'];
+        //$model->inter_key_file              = $data['inter_key_file'];
+        //$model->inter_crt_file_webhook      = $data['inter_crt_file_webhook'];
+
+        if(!file_exists(storage_path('app/certificates')))
+            \File::makeDirectory(storage_path('app/certificates'));
 
 
+        if($this->request->has('inter_crt_file')){
+            $inter_crt_file = $this->request->file('inter_crt_file');
+            $inter_crt_file->storeAs('certificates/',auth()->user()->id.'_inter_crt_file.crt');
+            $model->inter_crt_file = 'certificates/'.auth()->user()->id.'_inter_crt_file.crt';
+        }
+
+
+        if($this->request->has('inter_key_file')){
+            $inter_key_file = $this->request->file('inter_key_file');
+            $inter_key_file->storeAs('certificates/',auth()->user()->id.'_inter_key_file.key');
+            $model->inter_key_file = 'certificates/'.auth()->user()->id.'_inter_key_file.key';
+        }
+
+        if($this->request->has('inter_crt_file_webhook')){
+            $inter_crt_file_webhook = $this->request->file('inter_crt_file_webhook');
+            $inter_crt_file_webhook->storeAs('certificates/',auth()->user()->id.'_inter_crt_file_webhook.crt');
+            $model->inter_crt_file_webhook = 'certificates/'.auth()->user()->id.'_inter_crt_file_webhook.crt';
+        }
 
         try{
             $model->save();

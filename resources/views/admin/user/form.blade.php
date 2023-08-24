@@ -38,7 +38,7 @@
                 </ul>
             </div>
 
-    <form class="form">
+    <form class="form" enctype="multipart/form-data">
 
         <div class="col-md-12">
         <div class="form-row">
@@ -195,11 +195,51 @@
                         <input type="text" class="form-control" name="access_token_mp" id="access_token_mp" autocomplete="off" required value="{{isset($data->access_token_mp) ? $data->access_token_mp : ''}}">
                     </div>
 
-
-
-                        </div>
+                    </div>
 
                     </fieldset>
+
+                    <fieldset>
+                        <legend>Dados da API Banco Inter</legend>
+
+                    <div class="form-row">
+                    <div class="form-group col-md-3 col-sm-12">
+                        <label>Host</label>
+                        <input type="text" class="form-control" name="inter_host" id="inter_host" autocomplete="off" value="{{isset($data->inter_host) ? $data->inter_host : ''}}">
+                    </div>
+
+                    <div class="form-group col-md-3 col-sm-12">
+                        <label>Client ID</label>
+                        <input type="text" class="form-control" name="inter_client_id" id="inter_client_id" autocomplete="off" value="{{isset($data->inter_client_id) ? $data->inter_client_id : ''}}">
+                    </div>
+
+                    <div class="form-group col-md-3 col-sm-12">
+                        <label>Client Secret</label>
+                        <input type="text" class="form-control" name="inter_client_secret" id="inter_client_secret" autocomplete="off" value="{{isset($data->inter_client_secret) ? $data->inter_client_secret : ''}}">
+                    </div>
+
+                    <div class="form-group col-md-3 col-sm-12">
+                        <label>Scope</label>
+                        <input type="text" class="form-control" name="inter_scope" id="inter_scope" autocomplete="off" value="{{isset($data->inter_scope) ? $data->inter_scope : ''}}">
+                    </div>
+
+                    <div class="form-group col-md-4 col-sm-12">
+                        <label>Arquivo CRT <span style="font-size:10px !important;" class="text-xs badge badge-{{isset($data->inter_crt_file) && $data->inter_crt_file != null ? 'success' : 'danger'}}">{{isset($data->inter_crt_file) && $data->inter_crt_file != null ? 'Arquivo enviado' : 'Arquivo não enviado'}}</span></label>
+                        <input type="file" class="form-control" name="inter_crt_file" id="inter_crt_file" autocomplete="off" value="">
+                    </div>
+
+                    <div class="form-group col-md-4 col-sm-12">
+                        <label>Arquivo KEY <span style="font-size:10px !important;" class="text-xs badge badge-{{isset($data->inter_key_file) && $data->inter_key_file != null ? 'success' : 'danger'}}">{{isset($data->inter_key_file) && $data->inter_key_file != null ? 'Arquivo enviado' : 'Arquivo não enviado'}}</span></label>
+                        <input type="file" class="form-control" name="inter_key_file" id="inter_key_file" autocomplete="off" value="">
+                    </div>
+
+                    <div class="form-group col-md-4 col-sm-12">
+                        <label>Arquivo CRT WebHook <span style="font-size:10px !important;" class="text-xs badge badge-{{isset($data->inter_crt_file_webhook) && $data->inter_crt_file_webhook != null ? 'success' : 'danger'}}">{{isset($data->inter_crt_file_webhook) && $data->inter_crt_file_webhook != null ? 'Arquivo enviado' : 'Arquivo não enviado'}}</span></label>
+                        <input type="file" class="form-control" name="inter_crt_file_webhook" id="inter_crt_file_webhook" autocomplete="off" value="">
+                    </div>
+
+                </div>
+                </fieldset>
 
 
                 </div>
@@ -272,19 +312,23 @@
             var url_act = "{{Request::get('act')}}";
             if(url_act == 'edit'){
                 var url = "{{ url("$linkUpdate") }}";
-                var method = 'PUT';
+                var method = 'POST';
             }else{
                 var url = "{{ url("$linkStore") }}";
                 var method = 'POST';
             }
 
-            var data = $('.form').serialize();
+            var data = new FormData($('.form')[0]);
+
+            //var data = $('.form').serialize();
             console.log(url);
 
             $.ajax({
                 url: url,
                 data:data,
                 method:method,
+                processData: false,
+                contentType: false,
                 success:function(data){
                     console.log(data);
                     Swal.fire({

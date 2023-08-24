@@ -19,6 +19,7 @@ return new class extends Migration
         $table->string('name');
         $table->enum('type',['Física','Jurídica']);
         $table->string('document');
+        $table->date('birthdate')->nullable();
         $table->string('company')->nullable();
         $table->string('email')->nullable();
         $table->string('email2')->nullable();
@@ -33,6 +34,7 @@ return new class extends Migration
         $table->string('phone')->nullable();
         $table->string('whatsapp')->nullable();
         $table->char('notification_whatsapp')->default('s');
+        $table->text('obs')->nullable();
         $table->timestamps();
         });
     }

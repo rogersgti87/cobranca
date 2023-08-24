@@ -838,7 +838,7 @@ function loadInvoices(){
                         html += `<td>
                             <a href="#" data-original-title="Reenviar Notificação" id="btn-notificate" data-invoice="${item.id}" data-toggle="tooltip" class="btn btn-info btn-xs"> <i class="fa fa-paper-plane"></i></a>
                             <a href="#" data-original-title="Notificações" id="btn-modal-notifications" data-invoice="${item.id}" data-toggle="tooltip" class="btn btn-warning btn-xs"> <i style="padding:0 5px;" class="fa fa-info"></i></a>
-                            ${item.status != 'Cancelado' ? '<a href="#" data-original-title="Cancelar Fatura" id="btn-delete-invoice" data-invoice="'+item.id+'" data-toggle="tooltip" class="btn btn-danger btn-xs"> <i class="fas fa-undo-alt"></i></a>' : ''}
+                            ${item.status == 'Pendente' ? '<a href="#" data-original-title="Cancelar Fatura" id="btn-delete-invoice" data-invoice="'+item.id+'" data-toggle="tooltip" class="btn btn-danger btn-xs"> <i class="fas fa-undo-alt"></i></a>' : ''}
                             </td>`;
                         html += '</tr>';
 

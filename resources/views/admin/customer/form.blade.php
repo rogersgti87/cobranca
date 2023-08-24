@@ -88,12 +88,17 @@
                                                     <input type="text" class="form-control" name="company" id="company" autocomplete="off" required value="{{isset($data->company) ? $data->company : ''}}">
                                                 </div>
 
-                                                <div class="form-group col-md-6 col-sm-12">
+                                                <div class="form-group col-md-2 col-sm-12">
+                                                    <label>Nascimento</label>
+                                                    <input type="date" max="{{date('Y-m-d')}}" class="form-control" name="birthdate" id="birthdate" autocomplete="off" required value="{{isset($data->birthdate) ? $data->birthdate : ''}}">
+                                                </div>
+
+                                                <div class="form-group col-md-5 col-sm-12">
                                                     <label>E-mail</label>
                                                     <input type="email" class="form-control" name="email" id="email" autocomplete="off" required value="{{isset($data->email) ? $data->email : ''}}">
                                                 </div>
 
-                                                <div class="form-group col-md-6 col-sm-12">
+                                                <div class="form-group col-md-5 col-sm-12">
                                                     <label>E-mail 2</label>
                                                     <input type="email" class="form-control" name="email2" id="email2" autocomplete="off" required value="{{isset($data->email2) ? $data->email2 : ''}}">
                                                 </div>
@@ -160,6 +165,11 @@
                                                         <option {{ isset($data->status) && $data->status === 'Ativo' ? 'selected' : '' }} value="Ativo">Ativo</option>
                                                         <option {{ isset($data->status) && $data->status === 'Inativo' ? 'selected' : '' }} value="Inativo">Inativo</option>
                                                     </select>
+                                                </div>
+
+                                                <div class="form-group col-md-12 col-sm-12">
+                                                    <label>Observação</label>
+                                                    <textarea class="form-control" name="obs" id="obs" rows="6" autocomplete="off" required>{{isset($data->obs) ? $data->obs : ''}}</textarea>
                                                 </div>
 
 

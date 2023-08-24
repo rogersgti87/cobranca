@@ -142,6 +142,8 @@ class CustomerController extends Controller
         $model->phone                   = removeEspeciais($data['phone']);
         $model->whatsapp                = removeEspeciais($data['whatsapp']);
         $model->notification_whatsapp   = $data['notification_whatsapp'];
+        $model->obs                     = $data['obs'];
+        $model->birthdate               = isset($data['birthdate']) ? $data['birthdate'] : null;
 
 
 
@@ -201,6 +203,8 @@ class CustomerController extends Controller
         $model->phone                   = removeEspeciais($data['phone']);
         $model->whatsapp                = removeEspeciais($data['whatsapp']);
         $model->notification_whatsapp   = $data['notification_whatsapp'];
+        $model->obs                     = $data['obs'];
+        $model->birthdate               = isset($data['birthdate']) ? $data['birthdate'] : null;
 
         try{
             $model->save();

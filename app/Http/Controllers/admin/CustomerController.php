@@ -114,11 +114,13 @@ class CustomerController extends Controller
             'document.required' => 'O Campo e-mail é obrigatório!',
             'document.unique'   => 'Documento já cadastrado!',
             'name.required'     => 'O campo nome é obrigatório!',
+            'email.required'     => 'O campo email é obrigatório!',
         ];
 
         $validator = Validator::make($data, [
-            'document'  => "required|max:20|unique:customers,document,null,null,user_id,".auth()->user()->id,
+            'document' => "required|max:20|unique:customers,document,null,null,user_id,".auth()->user()->id,
             'name'     => 'required',
+            'email'    => 'required',
         ], $messages);
 
         if( $validator->fails() ){
@@ -174,11 +176,13 @@ class CustomerController extends Controller
             'document.required' => 'O Campo e-mail é obrigatório!',
             'document.unique'   => 'Documento já cadastrado!',
             'name.required'     => 'O campo nome é obrigatório!',
+            'email.required'     => 'O campo email é obrigatório!',
         ];
 
         $validator = Validator::make($data, [
             'document'      => "required|max:20|unique:customers,document,$id,id,user_id,".auth()->user()->id,
             'name'     => 'required',
+            'email'    => 'required',
         ], $messages);
 
         if( $validator->fails() ){

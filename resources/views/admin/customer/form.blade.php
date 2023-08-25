@@ -249,7 +249,7 @@
                                             <th> Vencimento</th>
                                             <th> Pago em</th>
                                             <th> Status</th>
-                                            <th style="width: 100px;"></th>
+                                            <th style="width: 150px;"></th>
                                         </tr>
                                         </thead>
                                         <tbody class="tbodyCustom" id="load-invoices">
@@ -836,6 +836,7 @@ function loadInvoices(){
                         html += `<td>${item.date_payment != null ? moment(item.date_payment).format('DD/MM/YYYY') : '-' }</td>`;
                         html += `<td><label class="badge badge-${item.status == 'Pago' ? 'success' : item.status == 'Pendente' ? 'secondary': 'danger'}">${item.status}</label></td>`;
                         html += `<td>
+                            <a href="#" data-original-title="Consultar Status" id="btn-invoice-status" data-invoice="${item.id}" data-placement="left" data-tt="tooltip" class="btn btn-primary btn-xs"> <i class="fas fa-search"></i></a>
                             <a href="#" data-original-title="Reenviar Notificação" id="btn-notificate" data-invoice="${item.id}" data-placement="left" data-tt="tooltip" class="btn btn-info btn-xs"> <i class="fa fa-paper-plane"></i></a>
                             <a href="#" data-original-title="Notificações" id="btn-modal-notifications" data-invoice="${item.id}" data-placement="left" data-tt="tooltip" class="btn btn-warning btn-xs"> <i style="padding:0 5px;" class="fa fa-info"></i></a>
                             ${item.status == 'Pendente' ? '<a href="#" data-original-title="Cancelar Fatura" id="btn-delete-invoice" data-placement="left" data-invoice="'+item.id+'" data-tt="tooltip" class="btn btn-danger btn-xs"> <i class="fas fa-undo-alt"></i></a>' : ''}
@@ -952,6 +953,56 @@ $(document).on('click', '#btn-delete-invoice', function(e) {
             });
     });
 
+
+
+    $(document).on('click', '#btn-invoice-status', function(e) {
+    var invoice_id = $(this).data('invoice');
+
+    Swal.fire({
+        title: 'Deseja atualizar o status da fatura?',
+        text: "Se o status do Gateway de pagamento for diferente do sistema, o cliente será notificado sobre a mudança do status!",
+        icon: 'question',
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sim, atualizar!'
+    }).then((result) => {
+        if (result.value) {
+            $.ajax({
+                url: "{{url('admin/invoices-check-status')}}"+'/'+invoice_id,
+                method: 'GET',
+                success:function(data){
+                    loadInvoices();
+                },
+                error:function (xhr) {
+
+                    if(xhr.status === 422){
+                        Swal.fire({
+                            text: xhr.responseJSON,
+                            icon: 'warning',
+                            showClass: {
+                                popup: 'animate__animated animate__wobble'
+                            }
+                        });
+                    } else{
+                        Swal.fire({
+                            text: xhr.responseJSON,
+                            icon: 'error',
+                            showClass: {
+                                popup: 'animate__animated animate__wobble'
+                            }
+                        });
+                    }
+
+
+                }
+            });
+
+        }
+    });
+
+    });
 
 </script>
 

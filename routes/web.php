@@ -77,6 +77,8 @@ Route::group(['prefix' => 'admin','middleware' => ['auth']], function(){
     Route::delete('invoices/{id}',[InvoiceController::class,'destroy']);
     Route::get('load-invoices/{invoice_id}',[InvoiceController::class,'load']);
     Route::get('load-invoice-notifications/{invoice_id}',[InvoiceController::class,'loadnotifications']);
+    Route::get('invoices-check-status/{invoice_id}',[InvoiceController::class,'checkStatus']);
+
 
 });
 

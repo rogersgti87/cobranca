@@ -460,6 +460,9 @@ class InvoiceController extends Controller
             $result = $response->getBody();
             $result = json_decode($result)->status_request;
 
+            $title = '';
+            $message_notification = '';
+
             if($result->status == 'completed' || $result->status == 'paid'){
                 $title = 'Fatura #';
                 $message_notification = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura mudou o status para: <b>Pago</b>';
@@ -493,6 +496,7 @@ class InvoiceController extends Controller
                 ->where('invoices.id',$checkInvoice->id)
                 ->where('invoices.user_id',auth()->user()->id)
                 ->first();
+
 
 
                 $details = [
@@ -545,10 +549,9 @@ class InvoiceController extends Controller
 
     }
 
-    $title = '';
-    $message_notification = '';
 
 
+    return response()->json(true, 200);
 
 }
 

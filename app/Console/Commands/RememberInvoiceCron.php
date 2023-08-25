@@ -79,41 +79,44 @@ class RememberInvoiceCron extends Command
 
 //verificar mensagem que vencerá em 5 dias
 
+    $send_notification = false;
+
     if($invoice->date_due == Carbon::now()->format('Y-m-d') ){
         $details['title']         = 'Sua Fatura vence hoje';
         $details['message_notification'] = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura vence hoje.';
+        $send_notification = true;
 
     }else if(Carbon::parse($invoice->date_due)->diffInDays(Carbon::now()->format('Y-m-d')) == 2 ){
         $details['title']         = 'Sua Fatura vencerá em 2 dias';
         $details['message_notification'] = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura vencerá em 2 dias.';
-
+        $send_notification = true;
 
     }else if($invoice->date_due < Carbon::now()->format('Y-m-d') ){
         $details['title']         = 'Sua Fatura venceu';
         $details['message_notification'] = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura está vencida.';
-
+        $send_notification = true;
     }
 
     $details['body']  = view('mails.invoice',$details)->render();
 
-    try {
-        InvoiceNotification::Email($details);
-    } catch (\Exception $e) {
-        \Log::error($e->getMessage());
-    }
 
-    try {
-        if($invoice->notification_whatsapp){
-            InvoiceNotification::Whatsapp($details);
+    if($send_notification == true){
+
+        try {
+            InvoiceNotification::Email($details);
+        } catch (\Exception $e) {
+            \Log::error($e->getMessage());
         }
-    } catch (\Exception $e) {
-        \Log::error($e->getMessage());
+
+        try {
+            if($invoice->notification_whatsapp){
+                InvoiceNotification::Whatsapp($details);
+            }
+        } catch (\Exception $e) {
+            \Log::error($e->getMessage());
+        }
+
     }
-
-
-
-
-
 
     }//Fim foreach
 

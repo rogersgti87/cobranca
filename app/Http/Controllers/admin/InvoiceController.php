@@ -383,7 +383,7 @@ class InvoiceController extends Controller
             }
 
 
-            if($status == 'success' || $invoice->payment_method == 'Dinheiro' || $invoice->payment_method == 'Cartão' || $invoice->payment_method == 'Depósito'){
+            if($status == 'success' || $invoice->payment_method == 'Dinheiro' || $invoice->payment_method == 'Cartão' || $invoice->payment_method == 'Depósito' || $invoice->transaction_id == ''){
                 $model->where('id',$id)->where('user_id',auth()->user()->id)->update([
                     'status' => 'Cancelado'
                 ]);

@@ -56,7 +56,7 @@ class WebHookController extends Controller
   public function paghiper(Request $request)
   {
     $data = $request->all();
-    \Log::info('Retorno webhook paghiper: '.$data);
+    \Log::info('Retorno webhook paghiper: '.json_encode($data));
     $invoice = Invoice::select('invoices.transaction_id','users.token_paghiper','users.key_paghiper','invoices.payment_method')
                         ->join('users','users.id','invoices.user_id')
                         ->where('transaction_id',$data['transaction_id'])

@@ -34,63 +34,18 @@ class AdminController extends Controller
     public function index(){
 
 
-        // $certPath = '/caminho/para/seu/certificado.crt';
-
-        // $formData = [
-        //     'client_id'     => 'f3be20a1-de7f-4de7-9706-ed4e003b4a31',
+        // $response = Http::withOptions([
+        //     'cert' => 'c:\1_inter_crt_file.crt',   // Caminho para o certificado
+        //     'ssl_key' => 'c:\1_inter_key_file.key', // Caminho para a chave privada
+        // ])->asForm()->post('https://cdpj.partners.bancointer.com.br/oauth/v2/token', [
+        //     'client_id' => 'f3be20a1-de7f-4de7-9706-ed4e003b4a31',
         //     'client_secret' => '41366ad8-0417-4685-bc3e-00f31935b3cb',
-        //     'scope'         => 'boleto-cobranca.read',
-        //     'grant_type'    => 'client_credentials'
-        // ];
+        //     'scope' => 'boleto-cobranca.read',
+        //     'grant_type' => 'client_credentials',
+        // ]);
 
-        // $queryString = http_build_query($formData);
-
-        // $response = Http::withHeaders([
-        //     'Content-Type' => 'application/x-www-form-urlencoded',
-        // ])->post('https://cdpj.partners.bancointer.com.br/oauth/v2/token', $queryString);
-
-        // if ($response->successful()) {
-        //     $responseData = $response->json(); // Se a resposta for JSON
-        //     dd($responseData);
-        //     // Faça algo com os dados da resposta
-        // } else {
-        //     // Lidar com erros
-        //     $statusCode = $response->status();
-        //     $errorMessage = $response->body();
-        //     dd($statusCode,$errorMessage);
-        //     // Lide com o erro de acordo com suas necessidades
-        // }
-
-
-        // Copy code
-        // use Illuminate\Support\Facades\Http;
-
-        // class BancoInterController extends Controller
-        // {
-        //     public function requestWithCertificate()
-        //     {
-        //         $certPath = '/caminho/para/seu/certificado.crt';
-        //         $certPassword = 'senha_do_certificado';
-
-        //         $postData = [
-        //             'key1' => 'value1',
-        //             'key2' => 'value2',
-        //         ];
-
-        //         $postData = http_build_query($postData);
-
-        //         $response = Http::withOptions([
-        //             'cert' => [$certPath, $certPassword],
-        //         ])->asForm()->post('https://api.bancointer.com.br/endpoint', $postData);
-
-        //         $statusCode = $response->status();
-        //         $responseData = $response->json();
-
-        //         // Faça o que for necessário com a resposta da requisição
-        //     }
-        // }
-
-
+        // $responseBody = $response->body();
+        // echo $responseBody;
 
         $users      = User::where('status',1)->get();
 

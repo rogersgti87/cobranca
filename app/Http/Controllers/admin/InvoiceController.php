@@ -427,21 +427,21 @@ class InvoiceController extends Controller
     }
 
 
-    public function checkStatus($invoice){
+    public function checkStatus($invoice_id){
 
-        $invoice = Invoice::select('invoices.transaction_id','users.token_paghiper','users.key_paghiper','invoices.payment_method','invoices.gateway_payment')
+        $checkInvoice = Invoice::select('invoices.transaction_id','users.token_paghiper','users.key_paghiper','invoices.payment_method','invoices.gateway_payment')
                         ->join('users','users.id','invoices.user_id')
-                        ->where('invoices.id',$invoice)
+                        ->where('invoices.id',$invoice_id)
                         ->where('invoices.user_id',auth()->user()->id)
                         ->where('invoices.status','Pendente')
                         ->orwhere('invoices.status','Processamento')
                         ->first();
 
-    if($invoice != null){
+    if($checkInvoice != null){
 
-        if($invoice->gateway_payment == 'Pag Hiper'){
+        if($checkInvoice->gateway_payment == 'Pag Hiper'){
             $url = '';
-            if($invoice->payment_method == 'Pix'){
+            if($checkInvoice->payment_method == 'Pix'){
                 $url = 'https://pix.paghiper.com/invoice/status/';
             }else{
                 $url = 'https://api.paghiper.com/transaction/status/';
@@ -452,9 +452,9 @@ class InvoiceController extends Controller
                 'accept' => 'application/json',
                 'content-type' => 'application/json',
             ])->post($url,[
-                'token'             => $invoice->token_paghiper,
-                'apiKey'            => $invoice->key_paghiper,
-                'transaction_id'    => $invoice->transaction_id,
+                'token'             => $checkInvoice->token_paghiper,
+                'apiKey'            => $checkInvoice->key_paghiper,
+                'transaction_id'    => $checkInvoice->transaction_id,
             ]);
 
             $result = $response->getBody();
@@ -463,7 +463,7 @@ class InvoiceController extends Controller
             if($result->status == 'completed' || $result->status == 'paid'){
                 $title = 'Fatura #';
                 $message_notification = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura mudou o status para: <b>Pago</b>';
-                Invoice::where('id',$invoice->id)->where('user_id',auth()->user()->id)->update([
+                Invoice::where('id',$checkInvoice->id)->where('user_id',auth()->user()->id)->update([
                     'status'       =>   'Pago',
                     'date_payment' =>   isset($result->status_date) ? date('d/m/Y', strtotime($result->status_date)) : Carbon::now(),
                     'updated_at'   =>   Carbon::now()
@@ -473,7 +473,7 @@ class InvoiceController extends Controller
             if($result->status == 'canceled' || $result->status == 'refunded'){
                 $title = 'Fatura';
                 $message_notification = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura mudou o status para: <b>Cancelado</b>';
-                Invoice::where('id',$invoice->id)->where('user_id',auth()->user()->id)->update([
+                Invoice::where('id',$checkInvoice->id)->where('user_id',auth()->user()->id)->update([
                     'status'       =>   'Cancelado',
                     'date_payment' =>   Null,
                     'updated_at'   =>   Carbon::now()
@@ -490,7 +490,7 @@ class InvoiceController extends Controller
                 ->join('customers','customer_services.customer_id','customers.id')
                 ->join('services','customer_services.service_id','services.id')
                 ->join('users','users.id','invoices.user_id')
-                ->where('invoices.id',$invoice->id)
+                ->where('invoices.id',$checkInvoice->id)
                 ->where('invoices.user_id',auth()->user()->id)
                 ->first();
 

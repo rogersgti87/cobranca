@@ -429,7 +429,7 @@ class InvoiceController extends Controller
 
     public function checkStatus($invoice_id){
 
-        $checkInvoice = Invoice::select('invoices.transaction_id','users.token_paghiper','users.key_paghiper','invoices.payment_method','invoices.gateway_payment')
+        $checkInvoice = Invoice::select('invoices.id','invoices.transaction_id','users.token_paghiper','users.key_paghiper','invoices.payment_method','invoices.gateway_payment')
                         ->join('users','users.id','invoices.user_id')
                         ->where('invoices.id',$invoice_id)
                         ->where('invoices.user_id',auth()->user()->id)
@@ -437,8 +437,9 @@ class InvoiceController extends Controller
                         ->orwhere('invoices.status','Processamento')
                         ->first();
 
-    if($checkInvoice != null){
 
+
+    if($checkInvoice != null){
         if($checkInvoice->gateway_payment == 'Pag Hiper'){
             $url = '';
             if($checkInvoice->payment_method == 'Pix'){
@@ -459,6 +460,7 @@ class InvoiceController extends Controller
 
             $result = $response->getBody();
             $result = json_decode($result)->status_request;
+
 
             $title = '';
             $message_notification = '';
@@ -496,7 +498,6 @@ class InvoiceController extends Controller
                 ->where('invoices.id',$checkInvoice->id)
                 ->where('invoices.user_id',auth()->user()->id)
                 ->first();
-
 
 
                 $details = [

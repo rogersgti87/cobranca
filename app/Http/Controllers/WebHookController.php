@@ -72,7 +72,6 @@ class WebHookController extends Controller
             $url = 'https://api.paghiper.com/transaction/notification/';
         }
 
-
     $response = Http::withHeaders([
         'accept' => 'application/json',
         'content-type' => 'application/json',

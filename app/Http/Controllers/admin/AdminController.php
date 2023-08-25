@@ -33,7 +33,6 @@ class AdminController extends Controller
 
     public function index(){
 
-
         // $response = Http::withOptions([
         //     'cert' => 'c:\1_inter_crt_file.crt',   // Caminho para o certificado
         //     'ssl_key' => 'c:\1_inter_key_file.key', // Caminho para a chave privada

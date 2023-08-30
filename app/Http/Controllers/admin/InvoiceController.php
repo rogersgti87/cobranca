@@ -413,7 +413,7 @@ class InvoiceController extends Controller
                 }
 
                 else if($invoice->gateway_payment == 'Intermedium'){
-                    //$status = Invoice::cancelPixMP(auth()->user()->access_token_mp,$invoice->transaction_id);
+                    //$status = Invoice::cancelBilletIntermedium(auth()->user()->access_token_mp,$invoice->transaction_id);
                 }
 
             }
@@ -430,7 +430,10 @@ class InvoiceController extends Controller
                     //$cancelPixMP = Invoice::cancelBilletMP(auth()->user()->id,$invoice->transaction_id);
                 }
                 else if($invoice->gateway_payment == 'Intermedium'){
-                    //$cancelPixMP = Invoice::cancelBilletMP(auth()->user()->id,$invoice->transaction_id);
+                    $status = Invoice::cancelBilletIntermedium(auth()->user()->id,$invoice->transaction_id);
+                    if($status == 'success'){
+                        $status = 'success';
+                    }
                 }
             }
 

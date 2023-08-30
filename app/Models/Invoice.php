@@ -350,5 +350,41 @@ class Invoice extends Model
 
         }
 
+        public static function cancelBilletIntermedium($user_id, $transaction_id){
+
+            $user = User::where('id',$user_id)->first();
+
+            $response = Http::withOptions([
+                'cert' => storage_path('/app/'.$user->inter_crt_file),
+                'ssl_key' => storage_path('/app/'.$user->inter_key_file),
+            ])->asForm()->post($user->inter_host.'oauth/v2/token', [
+                'client_id' => $user->inter_client_id,
+                'client_secret' => $user->inter_client_secret,
+                'scope' => $user->inter_scope,
+                'grant_type' => 'client_credentials',
+            ]);
+
+            $responseBody = $response->body();
+            $access_token = json_decode($responseBody)->access_token;
+
+
+            $response_cancel_billet = Http::withOptions([
+                'cert' => storage_path('/app/'.$user->inter_crt_file),
+                'ssl_key' => storage_path('/app/'.$user->inter_key_file),
+            ])->withHeaders([
+                'Authorization' => 'Bearer ' . $access_token
+
+            ])->post($user->inter_host.'cobranca/v2/boletos/'.$transaction_id.'/cancelar',[
+                "motivoCancelamento" => "ACERTOS"
+            ]);
+
+            if ($response_cancel_billet->successful()) {
+                return 'success';
+            }else{
+                \Log::info('Erro ao cancelar pagamento intermedium: '.$response_cancel_billet->json());
+            }
+
+            }
+
 
 }

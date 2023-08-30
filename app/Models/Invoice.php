@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Http;
 use DB;
 use InvoiceNotification;
 use App\Models\User;
+use Carbon\Carbon;
 
 class Invoice extends Model
 {
@@ -236,6 +237,116 @@ class Invoice extends Model
 
         $result = $response->getBody();
         return json_decode($result)->status;
+
+        }
+
+
+        public static function generateBilletIntermedium($invoice){
+
+
+                $date_multa = Carbon::parse($invoice['date_due'])->addDays(1);
+                if(date('l') == 'Saturday' || date('l') == 'Sábado'){
+                    $date_multa = Carbon::parse($invoice['date_due'])->addDays(2);
+                }
+
+            $response = Http::withOptions([
+                'cert' => storage_path('/app/'.$invoice['inter_crt_file']),
+                'ssl_key' => storage_path('/app/'.$invoice['inter_key_file']),
+            ])->asForm()->post($invoice['inter_host'].'oauth/v2/token', [
+                'client_id' => $invoice['inter_client_id'],
+                'client_secret' => $invoice['inter_client_secret'],
+                'scope' => $invoice['inter_scope'],
+                'grant_type' => 'client_credentials',
+            ]);
+
+            $responseBody = $response->body();
+            $access_token = json_decode($responseBody)->access_token;
+
+            $response_generate_billet = Http::withOptions([
+                'cert' => storage_path('/app/'.$invoice['inter_crt_file']),
+                'ssl_key' => storage_path('/app/'.$invoice['inter_key_file']),
+                ])->withHeaders([
+                'Authorization' => 'Bearer ' . $access_token
+              ])->post($invoice['inter_host'].'cobranca/v2/boletos',[
+                "seuNumero"=> substr(md5(uniqid(mt_rand(), true)), 0, 14),
+                "valorNominal"=> $invoice['price'],
+                "dataVencimento"=> $invoice['date_due'],
+                "numDiasAgenda"=> 60,
+                "pagador"=> [
+                  "cpfCnpj"=> $invoice['document'],
+                  "nome"=> $invoice['name'],
+                  "email"=> $invoice['email'],
+                  "telefone"=> substr($invoice['whatsapp'],2),
+                  "cep"=> removeEspeciais($invoice['cep']),
+                  "numero"=> $invoice['number'],
+                  "complemento"=> $invoice['complement'],
+                  "bairro"=> $invoice['district'],
+                  "cidade"=> $invoice['city'],
+                  "uf"=> $invoice['state'],
+                  "endereco"=> $invoice['address'],
+                  "ddd"=> substr($invoice['whatsapp'],0,2),
+                  "tipoPessoa"=> $invoice['type'] == 'Física' ? 'FISICA' : 'JURIDICA'
+                ],
+                "multa"=> [
+                "codigoMulta"=> "PERCENTUAL",
+                "data"=> $date_multa,
+                "taxa"=> 1,
+                "valor"=> 0
+              ]
+              ]);
+
+
+            if ($response_generate_billet->successful()) {
+
+                $result_generate_billet = $response_generate_billet->json();
+                $result_generate_billet = json_decode($response_generate_billet);
+
+                Invoice::where('id',$invoice['id'])->where('user_id',$invoice['user_id'])->update(['transaction_id' => $result_generate_billet->nossoNumero]);
+
+                return ['status' => 'ok', 'transaction' => $result_generate_billet];
+            }else{
+                $result_generate_billet = $response_generate_billet->json();
+                \Log::info(json_decode($result_generate_billet));
+                return ['status' => 'reject', 'message' => json_decode($result_generate_billet)];
+            }
+
+
+
+        }
+
+
+
+
+        public static function getBilletPDFIntermedium($invoice){
+
+            $response = Http::withOptions([
+                'cert' => storage_path('/app/'.$invoice['inter_crt_file']),
+                'ssl_key' => storage_path('/app/'.$invoice['inter_key_file']),
+            ])->asForm()->post($invoice['inter_host'].'oauth/v2/token', [
+                'client_id' => $invoice['inter_client_id'],
+                'client_secret' => $invoice['inter_client_secret'],
+                'scope' => $invoice['inter_scope'],
+                'grant_type' => 'client_credentials',
+            ]);
+
+            $responseBody = $response->body();
+            $access_token = json_decode($responseBody)->access_token;
+
+            $response_pdf_billet = Http::withOptions(
+                [
+                'cert' => storage_path('/app/'.$invoice['inter_crt_file']),
+                'ssl_key' => storage_path('/app/'.$invoice['inter_key_file'])
+                ]
+                )->withHeaders([
+                'Authorization' => 'Bearer ' . $access_token
+
+            ])->get($invoice['inter_host'].'cobranca/v2/boletos/'.$invoice['transaction_id'].'/pdf');
+
+            $responseBodyPdf = $response_pdf_billet->getBody();
+
+            $pdf = json_decode($responseBodyPdf)->pdf;
+
+            return $pdf;
 
         }
 

@@ -25,7 +25,8 @@ class GenerateInvoiceCron extends Command
   public function handle()
   {
 
-    $sql = "SELECT a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsapp, c.company, a.description,a.price, u.access_token_mp,
+    $sql = "SELECT a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsapp, c.company, a.description,a.price, u.access_token_mp,c.type,
+    u.inter_host,u.inter_client_id,u.inter_client_secret,u.inter_scope,u.inter_crt_file,u.inter_key_file,u.inter_crt_file_webhook,
     a.gateway_payment,a.payment_method,a.period, CURRENT_DATE date_invoice, DATE_ADD(CONCAT(YEAR(CURRENT_DATE),'-',MONTH(CURRENT_DATE),'-',a.day_due), INTERVAL 0 MONTH) date_due,
     a.status, 'Pendente',CURRENT_TIMESTAMP created_at,CURRENT_TIMESTAMP updated_at FROM customer_services a
     INNER JOIN customers c ON a.customer_id = c.id
@@ -58,13 +59,14 @@ class GenerateInvoiceCron extends Command
 
 
         $invoice = Invoice::select('invoices.id','invoices.status','invoices.user_id','invoices.date_invoice','invoices.date_due','invoices.description',
-        'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp',
+        'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp','customers.type',
         'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement',
         'customers.district','customers.city','customers.state','customers.cep','invoices.gateway_payment','invoices.payment_method',
         'services.id as service_id','services.name as service_name','invoices.price','users.access_token_mp','users.company as user_company',
         'users.whatsapp as user_whatsapp','users.image as user_image', 'users.telephone as user_telephone', 'users.email as user_email',
         'users.api_access_token_whatsapp','users.token_paghiper','users.key_paghiper',
         'invoices.image_url_pix','invoices.pix_digitable','invoices.qrcode_pix_base64','invoices.billet_digitable','invoices.billet_base64','invoices.billet_url',
+        'users.inter_host','users.inter_client_id','users.inter_client_secret','users.inter_scope','users.inter_crt_file','users.inter_key_file','users.inter_crt_file_webhook',
         DB::raw("DATEDIFF (invoices.date_due,invoices.date_invoice) as days_due_date"))
         ->join('customer_services','invoices.customer_service_id','customer_services.id')
         ->join('customers','customer_services.customer_id','customers.id')

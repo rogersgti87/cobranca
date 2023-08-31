@@ -31,9 +31,10 @@
                 <div class="form-group col-md-4 col-sm-12">
                     <label>Gateway Pagamento</label>
                     <select class="form-control custom-select" name="gateway_payment" id="gateway_payment">
+                        <option {{ isset($data->gateway_payment) && $data->gateway_payment === 'Estabelecimento' ? 'selected' : '' }} value="Estabelecimento">Estabelecimento</option>
                         <option {{ isset($data->gateway_payment) && $data->gateway_payment === 'Pag Hiper' ? 'selected' : '' }} value="Pag Hiper">Pag Hiper</option>
                         <option {{ isset($data->gateway_payment) && $data->gateway_payment === 'Mercado Pago' ? 'selected' : '' }} value="Mercado Pago">Mercado Pago</option>
-                        <option {{ isset($data->gateway_payment) && $data->gateway_payment === 'Intermedium' ? 'selected' : '' }} value="Intermedium">Intermedium(em breve)</option>
+                        <option {{ isset($data->gateway_payment) && $data->gateway_payment === 'Intermedium' ? 'selected' : '' }} value="Intermedium">Intermedium</option>
                         <option {{ isset($data->gateway_payment) && $data->gateway_payment === 'Cora' ? 'selected' : '' }} value="Cora">Cora(em breve)</option>
                     </select>
                 </div>
@@ -77,7 +78,7 @@
 
                 </div>
 
-                @if(!isset($data))
+                {{-- @if(!isset($data)) --}}
                 <div class="form-group col-md-12 col-sm-12">
                     <div id="group-generate-invoice">
                     <div class="form-row">
@@ -95,7 +96,7 @@
                   </div>
 
                 </div>
-                @endif
+                {{-- @endif --}}
 
             </div>
         </div>

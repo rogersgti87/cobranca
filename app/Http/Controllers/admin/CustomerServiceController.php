@@ -175,7 +175,9 @@ class CustomerServiceController extends Controller
 
         $result = CustomerService::join('services','services.id','customer_services.service_id')
                 ->select('customer_services.id as id','customer_services.description','customer_services.price','customer_services.day_due','customer_services.period','customer_services.status','services.name as name')
-                ->where('customer_services.customer_id',$customer_id)->where('customer_services.user_id',auth()->user()->id)->get();
+                ->where('customer_services.customer_id',$customer_id)->where('customer_services.user_id',auth()->user()->id)
+                ->orderby('services.name','ASC')
+                ->get();
         return response()->json($result);
 
 

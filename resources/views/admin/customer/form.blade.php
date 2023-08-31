@@ -373,7 +373,7 @@
 <script>
 
 
-$(document).ready(function(){
+$(window).on("load", function(){
 
     @if(isset($data))
         loadCustomerServices();
@@ -702,6 +702,7 @@ $(document).on('click', '#btn-delete-customer-service', function(e) {
         }else{
             $("#modalInvoiceLabel").html('Editar Fatura');
             var invoice = $(this).data('invoice');
+            console.log(invoice);
             var url = `{{ url("/admin/invoices/form?customer_id=") }}${customer_id}&id=${invoice}`;
         }
 
@@ -836,7 +837,8 @@ function loadInvoices(){
                         html += `<td>${item.date_payment != null ? moment(item.date_payment).format('DD/MM/YYYY') : '-' }</td>`;
                         html += `<td><label class="badge badge-${item.status == 'Pago' ? 'success' : item.status == 'Pendente' ? 'secondary': 'danger'}">${item.status}</label></td>`;
                         html += `<td>
-                            <a href="#" data-original-title="Consultar Status" id="btn-invoice-status" data-invoice="${item.id}" data-placement="left" data-tt="tooltip" class="btn btn-primary btn-xs"> <i class="fas fa-search"></i></a>
+                            ${item.status == 'Pendente' ? '<a href="#" data-original-title="Editar fatura" id="btn-modal-invoice" data-type="edit-invoice" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-secondary btn-xs"> <i class="far fa-edit"></i></a>' : ''}
+                            ${item.status != 'Pago' && item.status != 'Cancelado' ? '<a href="#" data-original-title="Consultar Status" id="btn-invoice-status" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-primary btn-xs"> <i class="fas fa-search"></i></a>' : ''}
                             <a href="#" data-original-title="Reenviar Notificação" id="btn-notificate" data-invoice="${item.id}" data-placement="left" data-tt="tooltip" class="btn btn-info btn-xs"> <i class="fa fa-paper-plane"></i></a>
                             <a href="#" data-original-title="Notificações" id="btn-modal-notifications" data-invoice="${item.id}" data-placement="left" data-tt="tooltip" class="btn btn-warning btn-xs"> <i style="padding:0 5px;" class="fa fa-info"></i></a>
                             ${item.status == 'Pendente' ? '<a href="#" data-original-title="Cancelar Fatura" id="btn-delete-invoice" data-placement="left" data-invoice="'+item.id+'" data-tt="tooltip" class="btn btn-danger btn-xs"> <i class="fas fa-undo-alt"></i></a>' : ''}

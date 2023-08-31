@@ -142,8 +142,6 @@ class InvoiceNotification extends Model
             'updated_at'        => Carbon::now()
         ]);
 
-
-        \Log::info('Status do pedido: '.$data['status']);
         if($data['status'] == 'Pendente') {
 
             //Enviar imagem qrcode pix

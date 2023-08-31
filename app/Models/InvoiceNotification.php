@@ -49,7 +49,7 @@ class InvoiceNotification extends Model
                 ],
                 "to" => $emails,
 
-                "subject"       => $data['title'],
+                "subject"       => $data['title'] != null ? $data['title'] : 'Cobrança Segura',
                 "htmlContent"   => $data['body']
           ]);
 

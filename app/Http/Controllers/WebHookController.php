@@ -211,12 +211,12 @@ class WebHookController extends Controller
                 ->where('transaction_id',$data['data']['id'])
                 ->where('invoices.status','Pendente')
                 ->first();
-
+            \Log::info('Linha: 214 - '.json_encode($invoice));
     if($invoice != null){
 
         \MercadoPago\SDK::setAccessToken($invoice->access_token_mp);
         $payment = \MercadoPago\Payment::find_by_id($invoice->transaction_id);
-
+        \Log::info('Linha: 219 - '.json_encode($payment));
 
         $title = '';
         $message_notification = '';

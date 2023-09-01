@@ -217,7 +217,7 @@ class WebHookController extends Controller
         \MercadoPago\SDK::setAccessToken($invoice->access_token_mp);
         $payment = \MercadoPago\Payment::find_by_id($invoice->transaction_id);
         \Log::info('Linha: 219 - '.json_encode($invoice->transaction_id));
-        \Log::info('Linha: 220 - '.json_encode($payment));
+        \Log::info('Linha: 220 - '.json_encode($payment->status));
 
         $title = '';
         $message_notification = '';

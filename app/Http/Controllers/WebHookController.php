@@ -327,34 +327,118 @@ class WebHookController extends Controller
 
   //Intermedium
 
-
-protected function authIntermedium($invoice){
-
-    $response = Http::withOptions([
-        'cert' => storage_path('/app/'.$invoice['inter_crt_file']),
-        'ssl_key' => storage_path('/app/'.$invoice['inter_key_file']),
-    ])->asForm()->post($invoice['inter_host'].'oauth/v2/token', [
-        'client_id' => $invoice['inter_client_id'],
-        'client_secret' => $invoice['inter_client_secret'],
-        'scope' => $invoice['inter_scope'],
-        'grant_type' => 'client_credentials',
-    ]);
-
-    $responseBody = $response->body();
-    return json_decode($responseBody)->access_token;
-
-}
-
   public function intermediumBillet(Request $request) {
     $data = $request->all();
-    \Log::info('Linha 350  - Retorno webhook intermedium: '.json_encode($data));
-    \Log::info('Linha 351  - Retorno webhook intermedium: '.$data['nossoNumero']);
-    return 1;
-    $invoice = Invoice::where('id',$data['seuNumero'])->where('transaction_id',$data['nossoNumero'])
+    \Log::info('Linha 332  - Retorno webhook intermedium: '.json_encode($data));
+
+    $seuNumero      = $data['seuNumero'];
+    $nossoNumero    = $data['nossoNumero'];
+    $status         = $data['situacao'];
+
+    $result = Invoice::where('id',$seuNumero)->where('transaction_id',$nossoNumero)
     ->where('invoices.status','Pendente')
     ->orwhere('invoices.status','Processamento')
     ->first();
 
+    if($result != null){
+
+        $title = '';
+        $message_notification = '';
+
+        if($result->status == 'PAGO'){
+            $title = 'Fatura';
+            $message_notification = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura mudou o status para: <b>Pago</b>';
+            Invoice::where('id',$result->id)->where('transaction_id',$result->transaction_id)->update([
+                'status'       =>   'Pago',
+                'date_payment' =>   Carbon::now(),
+                'updated_at'   =>   Carbon::now()
+            ]);
+        }
+
+        if($result->status == 'CANCELADO'){
+            $title = 'Fatura';
+            $message_notification = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura mudou o status para: <b>Cancelado</b>';
+            Invoice::where('id',$result->id)->where('transaction_id',$result->transaction_id)->update([
+                'status'       =>   'Cancelado',
+                'date_payment' =>   Null,
+                'updated_at'   =>   Carbon::now()
+            ]);
+        }
+
+            $invoice = Invoice::select('invoices.id','invoices.status','invoices.user_id','invoices.date_invoice','invoices.date_due','invoices.description',
+            'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp','customers.type',
+            'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement',
+            'customers.district','customers.city','customers.state','customers.cep','invoices.gateway_payment','invoices.payment_method',
+            'services.id as service_id','services.name as service_name','invoices.price','users.access_token_mp','users.company as user_company',
+            'users.inter_host','users.inter_client_id','users.inter_client_secret','users.inter_scope','users.inter_crt_file','users.inter_key_file','users.inter_crt_file_webhook',
+            'users.whatsapp as user_whatsapp','users.image as user_image', 'users.telephone as user_telephone', 'users.email as user_email','users.api_access_token_whatsapp')
+            ->join('customer_services','invoices.customer_service_id','customer_services.id')
+            ->join('customers','customer_services.customer_id','customers.id')
+            ->join('services','customer_services.service_id','services.id')
+            ->join('users','users.id','invoices.user_id')
+            ->where('invoices.id',$result->order_id)
+            ->where('invoices.transaction_id',$result->transaction_id)
+            ->first();
+
+
+            $details = [
+                'type_send'                 => 'Confirm',
+                'title'                     => $title,
+                'message_customer'          => 'Olá '.$invoice->name.', tudo bem?',
+                'message_notification'      => $message_notification,
+                'logo'                      => 'https://cobrancasegura.com.br/'.$invoice->user_image,
+                'company'                   => $invoice->user_company,
+                'user_whatsapp'             => removeEspeciais($invoice->user_whatsapp),
+                'user_telephone'            => removeEspeciais($invoice->user_telephone),
+                'user_email'                => $invoice->user_email,
+                'user_access_token_wp'      => $invoice->api_access_token_whatsapp,
+                'user_id'                   => $invoice->user_id,
+                'customer'                  => $invoice->name,
+                'customer_email'            => $invoice->email,
+                'customer_email2'           => $invoice->email2,
+                'customer_whatsapp'         => removeEspeciais($invoice->whatsapp),
+                'notification_whatsapp'     => $invoice->notification_whatsapp,
+                'customer_company'          => $invoice->company,
+                'date_invoice'              => date('d/m/Y', strtotime($invoice->date_invoice)),
+                'date_due'                  => date('d/m/Y', strtotime($invoice->date_due)),
+                'price'                     => number_format($invoice->price, 2,',','.'),
+                'date_payment'              => $invoice->date_payment != null ? date('d/m/Y', strtotime($invoice->date_payment)) : '',
+                'gateway_payment'           => $invoice->gateway_payment,
+                'payment_method'            => $invoice->payment_method,
+                'service'                   => $invoice->service_name.' - '.$invoice->description,
+                'invoice'                   => $invoice->id,
+                'status'                    => $invoice->status,
+                'url_base'                  => url('/'),
+                'status_payment'            => $invoice->status,
+                'pix_emv'                   => $invoice->pix_digitable,
+                'pix_qrcode_base64'         => $invoice->qrcode_pix_base64,
+                'billet_digitable_line'     => $invoice->billet_digitable,
+                'billet_url_slip_base64'    => $invoice->billet_base64,
+                'billet_url_slip'           => $invoice->billet_url,
+                'pix_qrcode_image_url'      => $invoice->image_url_pix
+            ];
+
+
+            $details['body']  = view('mails.invoice',$details)->render();
+
+            InvoiceNotification::Email($details);
+
+            if(date('l') != 'Sunday'){
+
+                $now = Carbon::now();
+                $start = Carbon::createFromTimeString('08:00');
+                $end = Carbon::createFromTimeString('19:30');
+
+                if ($now->between($start, $end)) {
+
+                    if($invoice->notification_whatsapp)
+                        InvoiceNotification::Whatsapp($details);
+
+                }
+            }
+
+
+    }
 
 
   }

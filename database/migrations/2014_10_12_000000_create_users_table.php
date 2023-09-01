@@ -45,6 +45,8 @@ return new class extends Migration
             $table->string('inter_crt_file')->nullable();
             $table->string('inter_key_file')->nullable();
             $table->string('inter_crt_file_webhook')->nullable();
+            $table->string('inter_webhook_url_billet')->nullable();
+            $table->string('inter_webhook_url_pix')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

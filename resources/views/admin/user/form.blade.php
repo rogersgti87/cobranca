@@ -238,6 +238,16 @@
                         <input type="file" class="form-control" name="inter_crt_file_webhook" id="inter_crt_file_webhook" autocomplete="off" value="">
                     </div>
 
+                     <div class="form-group col-md-6 col-sm-12">
+                        <label>URL Webhook Boleto</label>
+                        <input type="text" class="form-control" name="inter_webhook_url_billet" id="inter_webhook_url_billet" autocomplete="off" value="{{isset($data->inter_webhook_url_billet) ? $data->inter_webhook_url_billet : 'https://cobrancasegura.com.br/webhook/intermediumbillet'}}">
+                    </div>
+
+                    <div class="form-group col-md-6 col-sm-12">
+                        <label>URL Webhook Pix</label>
+                        <input type="text" class="form-control" name="inter_webhook_url_pix" id="inter_webhook_url_pix" autocomplete="off" value="{{isset($data->inter_webhook_url_pix) ? $data->inter_webhook_url_pix : 'https://cobrancasegura.com.br/webhook/intermediumpix'}}">
+                    </div>
+
                 </div>
                 </fieldset>
 

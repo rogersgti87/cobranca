@@ -155,9 +155,10 @@ class UserController extends Controller
         $model->inter_client_id             = $data['inter_client_id'];
         $model->inter_client_secret         = $data['inter_client_secret'];
         $model->inter_scope                 = $data['inter_scope'];
-        //$model->inter_crt_file              = $data['inter_crt_file'];
-        //$model->inter_key_file              = $data['inter_key_file'];
-        //$model->inter_crt_file_webhook      = $data['inter_crt_file_webhook'];
+        $model->inter_webhook_url_billet    = $data['inter_webhook_url_billet'];
+        $model->inter_webhook_url_pix       = $data['inter_webhook_url_pix'];
+
+
 
 
         if(!file_exists(storage_path('app/certificates')))
@@ -251,9 +252,8 @@ class UserController extends Controller
         $model->inter_client_id             = $data['inter_client_id'];
         $model->inter_client_secret         = $data['inter_client_secret'];
         $model->inter_scope                 = $data['inter_scope'];
-        //$model->inter_crt_file              = $data['inter_crt_file'];
-        //$model->inter_key_file              = $data['inter_key_file'];
-        //$model->inter_crt_file_webhook      = $data['inter_crt_file_webhook'];
+        $model->inter_webhook_url_billet    = $data['inter_webhook_url_billet'];
+        $model->inter_webhook_url_pix       = $data['inter_webhook_url_pix'];
 
         if(!file_exists(storage_path('app/certificates')))
             \File::makeDirectory(storage_path('app/certificates'));

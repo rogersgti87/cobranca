@@ -184,7 +184,7 @@ class WebHookController extends Controller
 
             $now = Carbon::now();
             $start = Carbon::createFromTimeString('08:00');
-            $end = Carbon::createFromTimeString('19:00');
+            $end = Carbon::createFromTimeString('19:30');
 
             if ($now->between($start, $end)) {
 

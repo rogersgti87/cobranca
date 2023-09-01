@@ -47,7 +47,7 @@ class RememberInvoiceCron extends Command
         'type_send'                 => 'New',
         'title'                     => 'Nova fatura gerada',
         'message_customer'          => 'Olá '.$invoice->name.', tudo bem?',
-        'message_notification'      => 'Esta é uma mensagem para notificá-lo(a) que foi gerado a <b>Fatura #'.$invoice->id.'</b>',
+        'message_notification'      => 'Esta é uma mensagem para notificá-lo(a) que sua Fatura foi gerada',
         'logo'                      => 'https://cobrancasegura.com.br/'.$invoice->user_image,
         'company'                   => $invoice->user_company,
         'user_whatsapp'             => removeEspeciais($invoice->user_whatsapp),

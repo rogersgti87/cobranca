@@ -41,8 +41,6 @@ class RememberInvoiceCron extends Command
     $verifyInvoices = DB::select($sql);
 
 
-    if(date('l') != 'Sunday'){
-
     foreach($verifyInvoices as $invoice){
 
     $details = [
@@ -110,6 +108,8 @@ class RememberInvoiceCron extends Command
     $details['body']  = view('mails.invoice',$details)->render();
 
 
+    \Log::info('linha: 111'. $send_notification);
+
     if($send_notification == true){
 
 
@@ -132,7 +132,7 @@ class RememberInvoiceCron extends Command
 
     }//Fim foreach
 
-    }//fim start_time and end_time
+
 
 
   }

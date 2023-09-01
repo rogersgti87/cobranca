@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Http;
 use DB;
-use InvoiceNotification;
 use App\Models\User;
 use Carbon\Carbon;
 

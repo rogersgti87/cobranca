@@ -7,7 +7,6 @@ use DB;
 use Carbon\Carbon;
 use App\Models\Invoice;
 use Illuminate\Support\Facades\Http;
-use App\Models\InvoiceNotification;
 
 
 class GenerateInvoiceCron extends Command

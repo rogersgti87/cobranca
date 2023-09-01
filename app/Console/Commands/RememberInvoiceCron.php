@@ -103,21 +103,35 @@ class RememberInvoiceCron extends Command
 
     if($send_notification == true){
 
+
+
         try {
             InvoiceNotification::Email($details);
         } catch (\Exception $e) {
             \Log::error($e->getMessage());
         }
 
-        try {
-            if($invoice->notification_whatsapp){
-                InvoiceNotification::Whatsapp($details);
+        if(date('l') != 'Sunday'){
+            $now = Carbon::now();
+            $start = Carbon::createFromTimeString('08:00');
+            $end = Carbon::createFromTimeString('19:00');
+
+            if ($now->between($start, $end)) {
+
+                try {
+                    if($invoice->notification_whatsapp){
+                        InvoiceNotification::Whatsapp($details);
+                    }
+                } catch (\Exception $e) {
+                    \Log::error($e->getMessage());
+                }
             }
-        } catch (\Exception $e) {
-            \Log::error($e->getMessage());
-        }
 
     }
+
+    }
+
+
 
     }//Fim foreach
 

@@ -299,6 +299,8 @@ class WebHookController extends Controller
                 'billet_digitable_line'     =>  '',
                 'billet_url_slip_pdf'       =>  '',
                 'billet_url_slip'           =>  '',
+                'pix_qrcode_base64'         => '',
+                'billet_url_slip_base64'    => ''
             ];
 
 

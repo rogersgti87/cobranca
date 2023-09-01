@@ -41,6 +41,11 @@ class RememberInvoiceCron extends Command
     $verifyInvoices = DB::select($sql);
 
 
+    if(date('l') != 'Sunday'){
+        $now = Carbon::now();
+        $start = Carbon::createFromTimeString('09:00');
+        $end = Carbon::createFromTimeString('19:30');
+
     foreach($verifyInvoices as $invoice){
 
     $details = [
@@ -117,10 +122,7 @@ class RememberInvoiceCron extends Command
             \Log::error($e->getMessage());
         }
 
-        if(date('l') != 'Sunday'){
-            $now = Carbon::now();
-            $start = Carbon::createFromTimeString('09:00');
-            $end = Carbon::createFromTimeString('19:30');
+
 
             if ($now->between($start, $end)) {
 
@@ -135,11 +137,9 @@ class RememberInvoiceCron extends Command
 
     }
 
-    }
-
-
-
     }//Fim foreach
+
+    }//fim start_time and end_time
 
 
   }

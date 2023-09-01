@@ -228,10 +228,9 @@ class WebHookController extends Controller
             $message_notification = 'Esta é uma mensagem para notificá-lo(a) que a <b>Fatura #'.$invoice->id.'</b> mudou o status para: <b>Pago</b>';
             Invoice::where('id',$invoice->id)->where('transaction_id',$invoice->transaction_id)->update([
                 'status'       =>   'Pago',
-                'date_payment' =>   isset($data['paid_date']) ? date('d/m/Y', strtotime($data['paid_date'])) : Carbon::now(),
+                'date_payment' =>   Carbon::now(),
                 'updated_at'   =>   Carbon::now()
             ]);
-
         }
 
         if($payment->status == 'cancelled'){

@@ -331,6 +331,41 @@ class UserController extends Controller
     }
 
 
+    public function webhook(){
+
+        $user = User::where('id',auth()->user()->id)->first();
+
+        $response = Http::withOptions([
+            'cert' => storage_path('/app/'.$user->inter_crt_file),
+            'ssl_key' => storage_path('/app/'.$user->inter_key_file),
+        ])->asForm()->post($user->inter_host.'oauth/v2/token', [
+            'client_id' => $user->inter_client_id,
+            'client_secret' => $user->inter_client_secret,
+            'scope' => $user->inter_scope,
+            'grant_type' => 'client_credentials',
+        ]);
+
+        $responseBody = $response->body();
+        $access_token = json_decode($responseBody)->access_token;
+
+
+        $response_generate_billet = Http::withOptions([
+            'cert' => storage_path('/app/'.$user->inter_crt_file),
+            'ssl_key' => storage_path('/app/'.$user->inter_key_file),
+            ])->withHeaders([
+            'Authorization' => 'Bearer ' . $access_token
+          ])->put($user->inter_host.'cobranca/v2/boletos/webhook',[
+            "webhookUrl"=> "https://cobrancasegura.com.br/webhook/intermediumbillet"
+        ]);
+
+        if ($response_generate_billet->successful()) {
+            return 'Webhook salvo com sucesso!';
+        }else{
+            return 'Erro ao gravar Webhook!';
+        }
+
+    }
+
 
 
 }

@@ -86,29 +86,33 @@ class RememberInvoiceCron extends Command
         $details['title']         = 'Sua Fatura vence hoje';
         $details['message_notification'] = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura vence hoje.';
         $send_notification = 1;
-
+        \Log::info('linha: 89 - '. $send_notification);
     }else if(Carbon::parse($invoice->date_due)->diffInDays(Carbon::now()->format('Y-m-d')) == 2 ){
         $details['title']         = 'Sua Fatura vencerá em 2 dias';
         $details['message_notification'] = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura vencerá em 2 dias.';
         $send_notification = 1;
-
+        \Log::info('linha: 94 - '. $send_notification);
     }else if(Carbon::parse($invoice->date_due)->diffInDays(Carbon::now()->format('Y-m-d')) == 5 ){
         $details['title']         = 'Nova fatura gerada';
         $details['message_notification'] = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura foi gerada';
         $send_notification = 1;
-
+        \Log::info('linha: 99 - '. $send_notification);
     }else if($invoice->date_due < Carbon::now()->format('Y-m-d') ){
         $details['title']         = 'Sua Fatura venceu';
         $details['message_notification'] = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura está vencida.';
         $send_notification = 1;
+        \Log::info('linha: 104 - '. $send_notification);
     }else{
         $send_notification = 0;
+        \Log::info('linha: 107 - '. $send_notification);
     }
 
     $details['body']  = view('mails.invoice',$details)->render();
 
 
     \Log::info('linha: 111 - '. $send_notification);
+
+    return 1;
 
     if($send_notification == 1){
 

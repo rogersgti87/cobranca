@@ -113,8 +113,8 @@ class RememberInvoiceCron extends Command
 
         if(date('l') != 'Sunday'){
             $now = Carbon::now();
-            $start = Carbon::createFromTimeString('08:00');
-            $end = Carbon::createFromTimeString('19:00');
+            $start = Carbon::createFromTimeString('07:00');
+            $end = Carbon::createFromTimeString('19:30');
 
             if ($now->between($start, $end)) {
 

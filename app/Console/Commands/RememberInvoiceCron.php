@@ -111,12 +111,12 @@ class RememberInvoiceCron extends Command
             \Log::error($e->getMessage());
         }
 
-        if(date('l') != 'Sunday'){
-            $now = Carbon::now();
-            $start = Carbon::createFromTimeString('09:00');
-            $end = Carbon::createFromTimeString('19:30');
+        //if(date('l') != 'Sunday'){
+            // $now = Carbon::now();
+            // $start = Carbon::createFromTimeString('09:00');
+            // $end = Carbon::createFromTimeString('19:30');
 
-            if ($now->between($start, $end)) {
+            // if ($now->between($start, $end)) {
 
                 try {
                     if($invoice->notification_whatsapp){
@@ -125,9 +125,9 @@ class RememberInvoiceCron extends Command
                 } catch (\Exception $e) {
                     \Log::error($e->getMessage());
                 }
-            }
+            //}
 
-    }
+    //}
 
     }
 

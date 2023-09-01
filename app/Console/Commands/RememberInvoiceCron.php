@@ -36,7 +36,7 @@ class RememberInvoiceCron extends Command
         INNER JOIN services  s ON  cs.service_id  = s.id
         INNER JOIN users u ON i.user_id = u.id
         WHERE NOT EXISTS (SELECT * FROM invoice_notifications b WHERE i.id = b.invoice_id AND CURRENT_DATE = cast(b.date as date))
-        and i.status = 'Pendente' AND i.date_due <= CURRENT_DATE +28";
+        and i.status = 'Pendente' AND i.date_due <= CURRENT_DATE +27";
 
     $verifyInvoices = DB::select($sql);
 
@@ -92,10 +92,17 @@ class RememberInvoiceCron extends Command
         $details['message_notification'] = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura vencerá em 2 dias.';
         $send_notification = true;
 
+    }else if(Carbon::parse($invoice->date_due)->diffInDays(Carbon::now()->format('Y-m-d')) == 5 ){
+        $details['title']         = 'Nova fatura gerada';
+        $details['message_notification'] = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura foi gerada';
+        $send_notification = true;
+
     }else if($invoice->date_due < Carbon::now()->format('Y-m-d') ){
         $details['title']         = 'Sua Fatura venceu';
         $details['message_notification'] = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura está vencida.';
         $send_notification = true;
+    }else{
+        $send_notification = false;
     }
 
     $details['body']  = view('mails.invoice',$details)->render();
@@ -104,19 +111,18 @@ class RememberInvoiceCron extends Command
     if($send_notification == true){
 
 
-
         try {
             InvoiceNotification::Email($details);
         } catch (\Exception $e) {
             \Log::error($e->getMessage());
         }
 
-        //if(date('l') != 'Sunday'){
-            // $now = Carbon::now();
-            // $start = Carbon::createFromTimeString('09:00');
-            // $end = Carbon::createFromTimeString('19:30');
+        if(date('l') != 'Sunday'){
+            $now = Carbon::now();
+            $start = Carbon::createFromTimeString('09:00');
+            $end = Carbon::createFromTimeString('19:30');
 
-            // if ($now->between($start, $end)) {
+            if ($now->between($start, $end)) {
 
                 try {
                     if($invoice->notification_whatsapp){
@@ -125,9 +131,9 @@ class RememberInvoiceCron extends Command
                 } catch (\Exception $e) {
                     \Log::error($e->getMessage());
                 }
-            //}
+            }
 
-    //}
+    }
 
     }
 

@@ -206,12 +206,12 @@ class WebHookController extends Controller
 
     \Log::info($request->all());
 
-    $invoice = Invoice::select('invoices.id','invoices.transaction_id','users.access_token_mp')
+    $invoice = Invoice::select('invoices.id as id','invoices.transaction_id','users.access_token_mp')
                 ->join('users','users.id','invoices.user_id')
                 ->where('transaction_id',$data['data']['id'])
                 ->where('invoices.status','Pendente')
                 ->first();
-            \Log::info('Linha: 214 - '.json_encode($invoice));
+            \Log::info('Linha: 214 - '.$invoice);
     if($invoice != null){
 
         \MercadoPago\SDK::setAccessToken($invoice->access_token_mp);

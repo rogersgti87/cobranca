@@ -206,7 +206,7 @@ class WebHookController extends Controller
 
     \Log::info($request->all());
 
-    $invoice = Invoice::select('invoices.transaction_id','users.access_token_mp')
+    $invoice = Invoice::select('invoices.id','invoices.transaction_id','users.access_token_mp')
                 ->join('users','users.id','invoices.user_id')
                 ->where('transaction_id',$data['data']['id'])
                 ->where('invoices.status','Pendente')

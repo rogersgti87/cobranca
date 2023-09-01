@@ -13,6 +13,9 @@ class Invoice extends Model
 
 
     protected $fillable = [
+        'status',
+        'date_payment',
+        'updated_at',
         'transaction_id',
         'billet_url',
         'billet_base64',

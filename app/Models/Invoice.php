@@ -270,7 +270,7 @@ class Invoice extends Model
                 ])->withHeaders([
                 'Authorization' => 'Bearer ' . $access_token
               ])->post($invoice['inter_host'].'cobranca/v2/boletos',[
-                "seuNumero"=> substr(md5(uniqid(mt_rand(), true)), 0, 14),
+                "seuNumero"=> $invoice['id'],
                 "valorNominal"=> $invoice['price'],
                 "dataVencimento"=> $invoice['date_due'],
                 "numDiasAgenda"=> 60,

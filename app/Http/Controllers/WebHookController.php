@@ -325,6 +325,44 @@ class WebHookController extends Controller
 
 
 
+  //Intermedium
+
+
+protected function authIntermedium($invoice){
+
+    $response = Http::withOptions([
+        'cert' => storage_path('/app/'.$invoice['inter_crt_file']),
+        'ssl_key' => storage_path('/app/'.$invoice['inter_key_file']),
+    ])->asForm()->post($invoice['inter_host'].'oauth/v2/token', [
+        'client_id' => $invoice['inter_client_id'],
+        'client_secret' => $invoice['inter_client_secret'],
+        'scope' => $invoice['inter_scope'],
+        'grant_type' => 'client_credentials',
+    ]);
+
+    $responseBody = $response->body();
+    return json_decode($responseBody)->access_token;
+
+}
+
+  public function intermediumBillet(Request $request) {
+    $data = $request->all();
+    \Log::info('Linha 350  - Retorno webhook intermedium: '.json_encode($data));
+    \Log::info('Linha 351  - Retorno webhook intermedium: '.$data['nossoNumero']);
+    return 1;
+    $invoice = Invoice::where('id',$data['seuNumero'])->where('transaction_id',$data['nossoNumero'])
+    ->where('invoices.status','Pendente')
+    ->orwhere('invoices.status','Processamento')
+    ->first();
+
+
+
+  }
+
+  public function intermediumPix(Request $request) {
+    $data = $request->all();
+    \Log::info('Linha 363  - Retorno webhook intermedium: '.json_encode($data));
+  }
 
 
 }

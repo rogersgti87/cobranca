@@ -25,6 +25,8 @@ Route::prefix('webhook')->group(function () {
     Route::post('email', [WebHookController::class,'email']);
     Route::post('paghiper', [WebHookController::class,'paghiper']);
     Route::post('mercadopago', [WebHookController::class,'mercadopago']);
+    Route::post('intermediumbillet', [WebHookController::class,'intermediumbillet']);
+    Route::post('intermediumpix', [WebHookController::class,'intermediumpix']);
     Route::post('whatsapp-messages', [WebHookController::class,'whatsappmessage']);
 });
 

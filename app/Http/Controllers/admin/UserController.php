@@ -71,16 +71,28 @@ class UserController extends Controller
             $newValue = "'$value'";
         }
 
+        if(auth()->user()->id == 1){
 
-        if($this->request->input('filter')){
-            $data = User::orderByRaw("$column_name")
-                        ->whereraw("$field $operator $newValue")
-                        ->where('id',auth()->user()->id)
-                        ->paginate(15);
-        }else{
-            $data = User::orderByRaw("$column_name")->where('id',auth()->user()->id)
-                        ->paginate(15);
+            if($this->request->input('filter')){
+                    $data = User::orderByRaw("$column_name")
+                                ->whereraw("$field $operator $newValue")
+                                ->paginate(15);
+                }else{
+                    $data = User::orderByRaw("$column_name")->paginate(15);
+                }
+
+        } else {
+            if($this->request->input('filter')){
+                    $data = User::orderByRaw("$column_name")
+                                ->whereraw("$field $operator $newValue")
+                                ->where('id',auth()->user()->id)
+                                ->paginate(15);
+                }else{
+                    $data = User::orderByRaw("$column_name")->where('id',auth()->user()->id)
+                                ->paginate(15);
+                }
         }
+
 
 
         return view($this->datarequest['path'].'.index',compact('column','order','data'))->with($this->datarequest);
@@ -157,6 +169,7 @@ class UserController extends Controller
         $model->inter_scope                 = $data['inter_scope'];
         $model->inter_webhook_url_billet    = $data['inter_webhook_url_billet'];
         $model->inter_webhook_url_pix       = $data['inter_webhook_url_pix'];
+        $model->inter_chave_pix             = $data['inter_chave_pix'];
 
 
 
@@ -254,6 +267,7 @@ class UserController extends Controller
         $model->inter_scope                 = $data['inter_scope'];
         $model->inter_webhook_url_billet    = $data['inter_webhook_url_billet'];
         $model->inter_webhook_url_pix       = $data['inter_webhook_url_pix'];
+        $model->inter_chave_pix             = $data['inter_chave_pix'];
 
         if(!file_exists(storage_path('app/certificates')))
             \File::makeDirectory(storage_path('app/certificates'));

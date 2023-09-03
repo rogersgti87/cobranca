@@ -81,14 +81,15 @@ class RememberInvoiceCron extends Command
 //verificar mensagem que vencerá em 5 dias
 
 
-
     if($invoice->date_due == Carbon::now()->format('Y-m-d') ){
         $details['title']         = 'Sua Fatura vence hoje';
         $details['message_notification'] = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura vence hoje.';
-    }else if(Carbon::parse($invoice->date_due)->diffInDays(Carbon::now()->format('Y-m-d')) == 4 ){
-        $details['title']         = 'Sua Fatura vencerá em 4 dias';
-        $details['message_notification'] = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura vencerá em 4 dias.';
-    }else if(Carbon::parse($invoice->date_due)->diffInDays(Carbon::now()->format('Y-m-d')) == 2 ){
+    }
+    // else if(Carbon::parse($invoice->date_due)->diffInDays(Carbon::now()->format('Y-m-d')) == 4 ){
+    //     $details['title']         = 'Sua Fatura vencerá em 4 dias';
+    //     $details['message_notification'] = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura vencerá em 4 dias.';
+    // }
+    else if(Carbon::parse($invoice->date_due)->diffInDays(Carbon::now()->format('Y-m-d')) == 2 ){
         $details['title']         = 'Sua Fatura vencerá em 2 dias';
         $details['message_notification'] = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura vencerá em 2 dias.';
     }else if($invoice->date_due < Carbon::now()->format('Y-m-d') ){

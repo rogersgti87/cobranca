@@ -110,7 +110,7 @@ class Invoice extends Model
                     $payment->payment_method_id     = "pix";
                     $payment->notification_url      = 'https://cobrancasegura.com.br/webhook/mercadopago?source_news=webhooks';
                     $payment->external_reference    = $invoice->id;
-                    //$payment->date_of_expiration = Carbon::now()->addDays(40)->format('Y-m-d\TH:i:s') . '.000-04:00';
+                    $payment->date_of_expiration = Carbon::now()->addDays(40)->format('Y-m-d\TH:i:s') . '.000-04:00';
                     $payment->payer = array(
                         "email"    => $invoice->email
                     );
@@ -264,7 +264,7 @@ class Invoice extends Model
             $responseBody = $response->body();
             $access_token = json_decode($responseBody)->access_token;
 
-            $response_generate_billet = Http::withOptions([
+            $response_generate_pix = Http::withOptions([
                 'cert' => storage_path('/app/'.$invoice['inter_crt_file']),
                 'ssl_key' => storage_path('/app/'.$invoice['inter_key_file']),
                 ])->withHeaders([
@@ -387,6 +387,89 @@ class Invoice extends Model
             }
 
             }
+
+
+
+            public static function generatePixIntermedium($invoice){
+
+            $response = Http::withOptions([
+                'cert' => storage_path('/app/'.$invoice['inter_crt_file']),
+                'ssl_key' => storage_path('/app/'.$invoice['inter_key_file']),
+            ])->asForm()->post($invoice['inter_host'].'oauth/v2/token', [
+                'client_id' => $invoice['inter_client_id'],
+                'client_secret' => $invoice['inter_client_secret'],
+                'scope' => $invoice['inter_scope'],
+                'grant_type' => 'client_credentials',
+            ]);
+
+            $responseBody = $response->body();
+            $access_token = json_decode($responseBody)->access_token;
+
+            $txid = $invoice['user_id'].$invoice['id'].date('Ymdhis');
+
+
+           $body = [
+                "calendario"                    => [
+                    "dataDeVencimento"          => $invoice['date_due'],
+                    "validadeAposVencimento"    => 30,
+                ],
+                "loc"                           => $invoice['id'],
+                "devedor"                       => [
+                    "logradouro"                => $invoice['address'],
+                    "cidade"                    => $invoice['city'],
+                    "uf"                        => $invoice['state'],
+                    "cep"                       => removeEspeciais($invoice['cep']),
+                    "nome"                      => $invoice['name'],
+
+                  ],
+                "valor"                         => [
+                    "original"                  => $invoice['price'],
+                    "juros"                     => [
+                        "modalidade"            => 2,
+                        "valorPerc"             => 1
+                    ],
+                ],
+                "chave"                         => $document['chave_pix'],
+                "solicitacaoPagador"            => $documeent['service_name']
+                ];
+
+            if($invoice['type'] == 'Física'){
+                $body['pagador']['cpf'] = $invoice['document'];
+            }else{
+                $body['pagador']['cnpj'] = $invoice['document'];
+            }
+
+
+
+            $response_generate_pix = Http::withOptions([
+                'cert' => storage_path('/app/'.$invoice['inter_crt_file']),
+                'ssl_key' => storage_path('/app/'.$invoice['inter_key_file']),
+                ])->withHeaders([
+                'Authorization' => 'Bearer ' . $access_token
+              ])->post($invoice['inter_host'].'pix/v2/'.$txid,$body);
+
+
+
+            if ($response_generate_pix->successful()) {
+
+                $result_generate_pix = $response_generate_pix->json();
+                $result_generate_pix = json_decode($response_generate_pix);
+
+                Invoice::where('id',$invoice['id'])->where('user_id',$invoice['user_id'])->update([
+                    'transaction_id' => $result_generate_pix->txid,
+                    'pix_digitable'  => $result_generate_pix->loc->location
+                ]);
+
+                return ['status' => 'ok', 'transaction' => $result_generate_pix];
+            }else{
+                $result_generate_pix = $response_generate_pix->json();
+                \Log::info(json_decode($result_generate_pix));
+                return ['status' => 'reject', 'message' => json_decode($result_generate_pix)];
+            }
+
+
+
+        }
 
 
 }

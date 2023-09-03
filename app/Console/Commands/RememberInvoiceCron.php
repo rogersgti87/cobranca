@@ -28,7 +28,7 @@ class RememberInvoiceCron extends Command
     c.name,c.notification_whatsapp,c.company,c.document,c.phone,c.address,c.number,c.complement,c.type,
     c.district,c.city,c.state,c.cep,i.gateway_payment, i.payment_method,s.id AS service_id,s.name AS service_name,i.price,
     u.access_token_mp, u.company user_company, u.whatsapp user_whatsapp, u.image user_image, u.telephone user_telephone,
-     u.email user_email, u.api_access_token_whatsapp,i.image_url_pix, i.pix_digitable, i.qrcode_pix_base64,
+     u.email user_email, u.api_access_token_whatsapp,i.image_url_pix, i.pix_digitable, i.qrcode_pix_base64,u.inter_chave_pix,
      u.inter_host,u.inter_client_id,u.inter_client_secret,u.inter_scope,u.inter_crt_file,u.inter_key_file,u.inter_crt_file_webhook,
       i.billet_digitable, i.billet_base64, i.billet_url FROM invoices i
         INNER JOIN customer_services cs ON i.customer_service_id = cs.id

@@ -11,6 +11,7 @@ use App\Models\Invoice;
 use App\Models\InvoiceNotification;
 use Illuminate\Support\Facades\Http;
 use DB;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class WebHookController extends Controller
 {
@@ -447,6 +448,20 @@ class WebHookController extends Controller
     $data = $request->all();
     \Log::info('Linha 363  - Retorno webhook intermedium: '.json_encode($data));
   }
+
+
+
+public function teste(){
+
+      $path = public_path('pix/'.'teste'.'.png');
+
+     QrCode::format('png')->generate('Welcome to Makitweb', $path );
+
+     return 1;
+
+
+}
+
 
 
 }

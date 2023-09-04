@@ -28,6 +28,7 @@ Route::prefix('webhook')->group(function () {
     Route::post('intermediumbillet', [WebHookController::class,'intermediumbillet']);
     Route::post('intermediumpix', [WebHookController::class,'intermediumpix']);
     Route::post('whatsapp-messages', [WebHookController::class,'whatsappmessage']);
+    Route::get('teste', [WebHookController::class,'teste']);
 });
 
 

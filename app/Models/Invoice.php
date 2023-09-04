@@ -457,8 +457,7 @@ class Invoice extends Model
                 $result_generate_pix = json_decode($response_generate_pix);
 
                 Invoice::where('id',$invoice['id'])->where('user_id',$invoice['user_id'])->update([
-                    'transaction_id' => $result_generate_pix->txid,
-                    'pix_digitable'  => $result_generate_pix->pixCopiaECola
+                    'transaction_id' => $result_generate_pix->txid
                 ]);
 
                 return ['status' => 'ok', 'transaction' => $result_generate_pix];

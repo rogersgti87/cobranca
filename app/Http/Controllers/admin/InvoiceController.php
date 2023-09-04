@@ -197,12 +197,13 @@ class InvoiceController extends Controller
                         if(!file_exists(public_path('pix')))
                             \File::makeDirectory(public_path('pix'));
 
-                        QrCode::format('png')->generate($generatePixIntermedium['transaction']->pixCopiaECola, public_path(). '/pix/' . $invoice->user_id.'_'.$invoice->id.'.'.'png');
+                        QrCode::format('png')->size(220)->generate($generatePixIntermedium['transaction']->pixCopiaECola, public_path(). '/pix/' . $invoice->user_id.'_'.$invoice->id.'.'.'png');
 
-                        $image_pix   = 'https://cobrancasegura.com.br/pix/'.$invoice->user_id.'_'.$invoice->id.'.png';
+                        $image_pix   = config()->get('app.url').'/pix/'.$invoice->user_id.'_'.$invoice->id.'.png';
 
                         $invoice->update([
-                            'image_url_pix'     => 'https://cobrancasegura.com.br/pix/'.$invoice->user_id.'_'.$invoice->id.'.png',
+                            'image_url_pix'     => $image_pix,
+                            'pix_digitable'     => $generatePixIntermedium['transaction']->pixCopiaECola,
                             'qrcode_pix_base64' => base64_encode(file_get_contents($image_pix)),
                         ]);
 
@@ -293,12 +294,13 @@ class InvoiceController extends Controller
 
         }
 
+        dd($invoice->pix_digitable);
 
             $details = [
                 'type_send'                 => 'New',
                 'title'                     => 'Nova fatura gerada',
                 'message_customer'          => 'Olá '.$invoice->name.', tudo bem?',
-                'message_notification'      => 'Esta é uma mensagem para notificá-lo(a) que foi gerado a <b>Fatura #'.$invoice->id.'</b>',
+                'message_notification'      => 'Esta é uma mensagem para notificá-lo(a) que sua Fatura foi gerada',
                 'logo'                      => 'https://cobrancasegura.com.br/'.$invoice->user_image,
                 'company'                   => $invoice->user_company,
                 'user_whatsapp'             => removeEspeciais($invoice->user_whatsapp),

@@ -84,22 +84,9 @@ class RememberInvoiceCron extends Command
     if($invoice->date_due == Carbon::now()->format('Y-m-d') ){
         $details['title']         = 'Sua Fatura vence hoje';
         $details['message_notification'] = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura vence hoje.';
-    }
-    // else if(Carbon::parse($invoice->date_due)->diffInDays(Carbon::now()->format('Y-m-d')) == 4 ){
-    //     $details['title']         = 'Sua Fatura vencerá em 4 dias';
-    //     $details['message_notification'] = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura vencerá em 4 dias.';
-    // }
-    else if(Carbon::parse($invoice->date_due)->diffInDays(Carbon::now()->format('Y-m-d')) == 2 ){
-        $details['title']         = 'Sua Fatura vencerá em 2 dias';
-        $details['message_notification'] = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura vencerá em 2 dias.';
-    }else if($invoice->date_due < Carbon::now()->format('Y-m-d') ){
-        $details['title']         = 'Sua Fatura venceu';
-        $details['message_notification'] = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura está vencida.';
-    }
-
-    $details['body']  = view('mails.invoice',$details)->render();
 
 
+        $details['body']  = view('mails.invoice',$details)->render();
 
         try {
             InvoiceNotification::Email($details);
@@ -126,6 +113,112 @@ class RememberInvoiceCron extends Command
 
         }
     }
+
+    }
+
+    else if(Carbon::parse($invoice->date_due)->diffInDays(Carbon::now()->format('Y-m-d')) == 4 ){
+        $details['title']         = 'Nova fatura gerada';
+        $details['message_notification'] = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura foi gerada.';
+
+
+        $details['body']  = view('mails.invoice',$details)->render();
+
+        try {
+            InvoiceNotification::Email($details);
+        } catch (\Exception $e) {
+            \Log::error($e->getMessage());
+        }
+
+
+        if(date('l') != 'Sunday'){
+
+            $now = Carbon::now();
+            $start = Carbon::createFromTimeString('08:00');
+            $end = Carbon::createFromTimeString('19:00');
+
+            if ($now->between($start, $end)) {
+
+        try {
+            if($invoice->notification_whatsapp){
+                InvoiceNotification::Whatsapp($details);
+            }
+        } catch (\Exception $e) {
+            \Log::error($e->getMessage());
+        }
+
+        }
+    }
+
+    }
+    else if(Carbon::parse($invoice->date_due)->diffInDays(Carbon::now()->format('Y-m-d')) == 2 ){
+        $details['title']         = 'Sua Fatura vencerá em 2 dias';
+        $details['message_notification'] = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura vencerá em 2 dias.';
+
+
+        $details['body']  = view('mails.invoice',$details)->render();
+
+        try {
+            InvoiceNotification::Email($details);
+        } catch (\Exception $e) {
+            \Log::error($e->getMessage());
+        }
+
+
+        if(date('l') != 'Sunday'){
+
+            $now = Carbon::now();
+            $start = Carbon::createFromTimeString('08:00');
+            $end = Carbon::createFromTimeString('19:00');
+
+            if ($now->between($start, $end)) {
+
+        try {
+            if($invoice->notification_whatsapp){
+                InvoiceNotification::Whatsapp($details);
+            }
+        } catch (\Exception $e) {
+            \Log::error($e->getMessage());
+        }
+
+        }
+    }
+
+    }else if($invoice->date_due < Carbon::now()->format('Y-m-d') ){
+        $details['title']         = 'Sua Fatura venceu';
+        $details['message_notification'] = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura está vencida.';
+
+
+        $details['body']  = view('mails.invoice',$details)->render();
+
+        try {
+            InvoiceNotification::Email($details);
+        } catch (\Exception $e) {
+            \Log::error($e->getMessage());
+        }
+
+
+        if(date('l') != 'Sunday'){
+
+            $now = Carbon::now();
+            $start = Carbon::createFromTimeString('08:00');
+            $end = Carbon::createFromTimeString('19:00');
+
+            if ($now->between($start, $end)) {
+
+        try {
+            if($invoice->notification_whatsapp){
+                InvoiceNotification::Whatsapp($details);
+            }
+        } catch (\Exception $e) {
+            \Log::error($e->getMessage());
+        }
+
+        }
+    }
+
+    }
+
+
 
     }//Fim foreach
 

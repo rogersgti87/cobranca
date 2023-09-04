@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Http;
 use DB;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class Invoice extends Model
 {
@@ -405,49 +406,49 @@ class Invoice extends Model
             $responseBody = $response->body();
             $access_token = json_decode($responseBody)->access_token;
 
-            $txid = $invoice['user_id'].$invoice['id'].date('Ymdhis');
-
+            $txid = generateUniqueId();
 
            $body = [
                 "calendario"                    => [
                     "dataDeVencimento"          => $invoice['date_due'],
                     "validadeAposVencimento"    => 30,
                 ],
-                "loc"                           => $invoice['id'],
+                // "loc"                           => [
+                //     "id"                        => $invoice['id'],
+                // ],
                 "devedor"                       => [
                     "logradouro"                => $invoice['address'],
                     "cidade"                    => $invoice['city'],
                     "uf"                        => $invoice['state'],
                     "cep"                       => removeEspeciais($invoice['cep']),
-                    "nome"                      => $invoice['name'],
-
                   ],
                 "valor"                         => [
                     "original"                  => $invoice['price'],
                     "juros"                     => [
-                        "modalidade"            => 2,
-                        "valorPerc"             => 1
+                        "modalidade"            => "2",
+                        "valorPerc"             => "1.00"
                     ],
                 ],
-                "chave"                         => $document['chave_pix'],
-                "solicitacaoPagador"            => $documeent['service_name']
+                "chave"                         => $invoice['inter_chave_pix'],
+                "solicitacaoPagador"            => $invoice['service_name']
                 ];
 
             if($invoice['type'] == 'Física'){
-                $body['pagador']['cpf'] = $invoice['document'];
+                $body['devedor']['cpf']     = $invoice['document'];
+                $body['devedor']['nome']    = Str::limit($invoice['name'], 30);
             }else{
-                $body['pagador']['cnpj'] = $invoice['document'];
+                $body['devedor']['cnpj']    = $invoice['document'];
+                $body['devedor']['nome']    = Str::limit($invoice['name'], 30);
             }
 
-
+            //dd($body);
 
             $response_generate_pix = Http::withOptions([
                 'cert' => storage_path('/app/'.$invoice['inter_crt_file']),
                 'ssl_key' => storage_path('/app/'.$invoice['inter_key_file']),
                 ])->withHeaders([
                 'Authorization' => 'Bearer ' . $access_token
-              ])->post($invoice['inter_host'].'pix/v2/'.$txid,$body);
-
+              ])->put($invoice['inter_host'].'pix/v2/cobv/'.$txid,$body);
 
 
             if ($response_generate_pix->successful()) {
@@ -457,7 +458,7 @@ class Invoice extends Model
 
                 Invoice::where('id',$invoice['id'])->where('user_id',$invoice['user_id'])->update([
                     'transaction_id' => $result_generate_pix->txid,
-                    'pix_digitable'  => $result_generate_pix->loc->location
+                    'pix_digitable'  => $result_generate_pix->pixCopiaECola
                 ]);
 
                 return ['status' => 'ok', 'transaction' => $result_generate_pix];

@@ -14,6 +14,7 @@ use App\Models\Invoice;
 use RuntimeException;
 use Illuminate\Support\Facades\Http;
 use GuzzleHttp\Client;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class AdminController extends Controller
 {
@@ -34,6 +35,13 @@ class AdminController extends Controller
     public function index(){
 
         $users      = User::where('status',1)->get();
+
+        $path = public_path('pix/'.'teste'.'.png');
+
+        QrCode::format('png')->generate('Welcome to Makitweb', $path );
+
+        return 1;
+
 
         return view($this->datarequest['path'].'.dashboard',compact('users'))->with($this->datarequest);
     }

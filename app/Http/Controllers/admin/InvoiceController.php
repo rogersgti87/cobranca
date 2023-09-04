@@ -186,7 +186,29 @@ class InvoiceController extends Controller
                         return response()->json($e->getMessage(), 422);
                     }
 
+                }elseif($invoice->gateway_payment == 'Intermedium'){
+                    $generatePixIntermedium = Invoice::generatePixIntermedium($invoice);
+                    if($generatePixIntermedium['status'] == 'reject'){
+                        return response()->json($generatePixIntermedium['message'], 422);
+                    }
+                    try {
 
+                        // if(!file_exists(public_path('pix')))
+                        //     \File::makeDirectory(public_path('pix'));
+
+                        // \File::put(public_path(). '/pix/' . $invoice->user_id.'_'.$invoice->id.'.'.'png', base64_decode($getInfoPixMP->qr_code_base64));
+
+                        // $invoice->update([
+                        //     'transaction_id'    => $generatePixMP['transaction_id'],
+                        //     'image_url_pix'     => 'https://cobrancasegura.com.br/pix/'.$invoice->user_id.'_'.$invoice->id.'.png',
+                        //     'pix_digitable'     => $getInfoPixMP->qr_code,
+                        //     'qrcode_pix_base64' => $getInfoPixMP->qr_code_base64,
+                        // ]);
+
+                    } catch (\Exception $e) {
+                        \Log::error($e->getMessage());
+                        return response()->json($e->getMessage(), 422);
+                    }
 
                 }
             } elseif($invoice->payment_method == 'Boleto'){

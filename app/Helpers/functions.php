@@ -160,3 +160,20 @@ function formatPhone($numero){
     }
     return $novo;
 }
+
+
+function generateUniqueId($minLength = 26, $maxLength = 30) {
+    $uniqueId = uniqid();
+    $randomChars = md5(uniqid(rand(), true)); // Gere uma sequência de caracteres aleatórios
+
+    // Combine o resultado do uniqid com os caracteres aleatórios
+    $combinedId = $uniqueId . $randomChars;
+
+    // Defina um comprimento mínimo para o ID
+    $combinedId = str_pad($combinedId, $minLength, '0', STR_PAD_RIGHT);
+
+    // Certifique-se de que o ID final não seja mais longo que o comprimento máximo
+    $uniqueId = substr($combinedId, 0, $maxLength);
+
+    return $uniqueId;
+}

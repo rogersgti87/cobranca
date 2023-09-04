@@ -36,11 +36,11 @@ class AdminController extends Controller
 
         $users      = User::where('status',1)->get();
 
-        $path = public_path('pix/'.'teste'.'.png');
+        // $path = public_path('pix/'.'teste'.'.png');
 
-        QrCode::format('png')->generate('Welcome to Makitweb', $path );
+        // QrCode::format('png')->generate('Welcome to Makitweb', $path );
 
-        return 1;
+        // return 1;
 
 
         return view($this->datarequest['path'].'.dashboard',compact('users'))->with($this->datarequest);

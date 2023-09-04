@@ -16,6 +16,7 @@ use App\Models\CustomerService;
 use App\Models\Customer;
 use RuntimeException;
 use Illuminate\Support\Facades\Http;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class InvoiceController extends Controller
 {
@@ -193,17 +194,17 @@ class InvoiceController extends Controller
                     }
                     try {
 
-                        // if(!file_exists(public_path('pix')))
-                        //     \File::makeDirectory(public_path('pix'));
+                        if(!file_exists(public_path('pix')))
+                            \File::makeDirectory(public_path('pix'));
 
-                        // \File::put(public_path(). '/pix/' . $invoice->user_id.'_'.$invoice->id.'.'.'png', base64_decode($getInfoPixMP->qr_code_base64));
+                        QrCode::format('png')->generate($generatePixIntermedium['transaction']->pixCopiaECola, public_path(). '/pix/' . $invoice->user_id.'_'.$invoice->id.'.'.'png');
 
-                        // $invoice->update([
-                        //     'transaction_id'    => $generatePixMP['transaction_id'],
-                        //     'image_url_pix'     => 'https://cobrancasegura.com.br/pix/'.$invoice->user_id.'_'.$invoice->id.'.png',
-                        //     'pix_digitable'     => $getInfoPixMP->qr_code,
-                        //     'qrcode_pix_base64' => $getInfoPixMP->qr_code_base64,
-                        // ]);
+                        $image_pix   = 'https://cobrancasegura.com.br/pix/'.$invoice->user_id.'_'.$invoice->id.'.png';
+
+                        $invoice->update([
+                            'image_url_pix'     => 'https://cobrancasegura.com.br/pix/'.$invoice->user_id.'_'.$invoice->id.'.png',
+                            'qrcode_pix_base64' => base64_encode(file_get_contents($image_pix)),
+                        ]);
 
                     } catch (\Exception $e) {
                         \Log::error($e->getMessage());

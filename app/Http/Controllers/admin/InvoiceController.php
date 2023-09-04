@@ -294,8 +294,6 @@ class InvoiceController extends Controller
 
         }
 
-        dd($invoice->pix_digitable);
-
             $details = [
                 'type_send'                 => 'New',
                 'title'                     => 'Nova fatura gerada',

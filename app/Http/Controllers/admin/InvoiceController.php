@@ -44,9 +44,10 @@ class InvoiceController extends Controller
 
     public function index(){
 
-        $data = Invoice::where('user_id',auth()->user()->id)->orderby('id','desc')->get();
+        // $data = Invoice::where('user_id',auth()->user()->id)->orderby('id','desc')->get();
+        //return response()->json($data);
 
-        return response()->json($data);
+        return view('admin.invoice.index')->with($this->datarequest);
     }
 
     public function form(){
@@ -715,6 +716,59 @@ class InvoiceController extends Controller
 
 
     return response()->json(true, 200);
+
+}
+
+
+public function loadInvoices(){
+
+
+    $query = Invoice::query();
+
+
+    $fields = "invoices.id as id,invoices.description,invoices.payment_method,invoices.price,invoices.date_invoice,customers.name as customer_name,
+            invoices.date_due,invoices.date_payment,invoices.status,services.name as service_name,invoices.gateway_payment,invoices.payment_method,invoices.updated_at";
+
+    $query->join('customer_services','customer_services.id','invoices.customer_service_id')
+            ->join('services','services.id','customer_services.service_id')
+            ->join('customers','customers.id','customer_services.customer_id')
+            ->where('invoices.user_id',auth()->user()->id)
+            ->orderby('invoices.date_invoice','ASC');
+
+
+    if ($this->request->has('dateini') && $this->request->has('dateend')) {
+            $query->select(DB::raw("$fields,
+            (select count(*) from invoices where date_invoice between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as qtd_invoices ,
+            (select count(*) from invoices where status = 'Pendente' and date_invoice between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as qtd_pendente,
+            (select count(*) from invoices where status = 'Pago'  and date_invoice between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as qtd_pago,
+            (select count(*) from invoices where status = 'Processamento'  and date_invoice between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as qtd_processamento,
+            (select count(*) from invoices where status = 'Cancelado'  and date_invoice between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as qtd_cancelado
+            "));
+
+            if($this->request->has('status') && $this->request->input('status') != ''){
+                $query->where('invoices.status',$this->request->input('status'));
+            }
+
+            $query->whereBetween('invoices.date_invoice',[$this->request->input('dateini'),$this->request->input('dateend')]);
+    }else{
+
+        $query->select(DB::raw("$fields,
+        (select count(*) from invoices where date_invoice between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as qtd_invoices ,
+            (select count(*) from invoices where status = 'Pendente' and date_invoice between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as qtd_pendente,
+            (select count(*) from invoices where status = 'Pago'  and date_invoice between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as qtd_pago,
+            (select count(*) from invoices where status = 'Processamento'  and date_invoice between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as qtd_processamento,
+            (select count(*) from invoices where status = 'Cancelado'  and date_invoice between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as qtd_cancelado
+        "));
+        $query->whereBetween('invoices.date_invoice',[Carbon::now()->startOfMonth(),Carbon::now()->lastOfMonth()]);
+    }
+
+    $data = $query->paginate(15);
+
+    $data->prev_page_url = $data->previousPageUrl();
+    $data->next_page_url = $data->nextPageUrl();
+
+    return response()->json(['result' => $data]);
+
 
 }
 

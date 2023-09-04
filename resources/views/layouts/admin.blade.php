@@ -116,6 +116,13 @@
                 </a>
               </li>
 
+              <li class="nav-item">
+                <a href="{{url('admin/invoices')}}" class="nav-link  {{Request::segment(2) == 'invoices' ? 'active' : ''}}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Faturas</p>
+                </a>
+              </li>
+
 
 
               <li class="nav-item">

@@ -102,7 +102,7 @@ body {
   width: 100%;
   padding: 1rem 0;
   font-size: 1rem;
-  color: #fff;
+  color: #000;
 }
 
 .form-control input:focus {
@@ -150,7 +150,7 @@ body {
   width: 100%;
   padding: 0;
   font-size: 1rem;
-  color: #fff;
+  color: #000;
 }
 
 .login-btn {

@@ -110,15 +110,16 @@
 
             <div class="form-row">
 
-                <div class="form-group col-md-3 col-sm-12" id="">
-                    <input type="date" autocomplete="off" class="form-control" placeholder="Data incial" id="filter-date-ini" value="{{date('Y-m-d',strtotime('first day of this month'))}}">
+                <div class="form-group col-md-3 col-6">
+                    <label>Tipo</label>
+                    <select class="form-control"  id="filter-type">
+                        <option value="date_invoice">Data da Fatura</option>
+                        <option value="date_due">Data do Vencimento</option>
+                    </select>
                 </div>
 
-                <div class="form-group col-md-3 col-sm-12" id="">
-                    <input type="date" autocomplete="off" class="form-control" placeholder="Data Final" id="filter-date-end" value="{{date('Y-m-d',strtotime('last day of this month'))}}">
-                </div>
-
-                <div class="form-group input-group col-sm-3">
+                <div class="form-group col-md-3 col-6">
+                    <label>Status</label>
                     <select class="form-control"  id="filter-status">
                         <option value="">Todos</option>
                         <option value="Pendente">Pendente</option>
@@ -127,13 +128,21 @@
                         <option value="Pago">Pago</option>
                         <option value="Cancelado">Cancelado</option>
                     </select>
-                    <div class="input-group-append ml-2">
-                        <button class="btn btn-secondary" type="button" id="filter-button"><i class="fa fa-search"></i></button>
-                      </div>
                 </div>
 
+                <div class="form-group col-md-2 col-6" id="">
+                    <label>Data inicial</label>
+                    <input type="date" autocomplete="off" class="form-control" placeholder="Data incial" id="filter-date-ini" value="{{date('Y-m-d',strtotime('first day of this month'))}}">
+                </div>
 
+                <div class="form-group col-md-2 col-6" id="">
+                    <label>Data final</label>
+                    <input type="date" autocomplete="off" class="form-control" placeholder="Data Final" id="filter-date-end" value="{{date('Y-m-d',strtotime('last day of this month'))}}">
+                </div>
 
+                <div class="form-group col-md-2 col-12 d-flex justify-content-start align-items-end">
+                    <button class="btn btn-secondary mb-2" type="button" id="filter-button"><i class="fa fa-search"></i> Filtrar</button>
+                </div>
             </div>
 
 
@@ -248,6 +257,7 @@ Swal.fire({
 
 <script>
     const listInvoices          = document.getElementById('list-invoices');
+    const filterInputType       = document.getElementById('filter-type');
     const filterInputDateIni    = document.getElementById('filter-date-ini');
     const filterInputDateEnd    = document.getElementById('filter-date-end');
     const filterInputStatus     = document.getElementById('filter-status');
@@ -256,13 +266,14 @@ Swal.fire({
 
 
     function loadInvoices(page = 1) {
+        const filterType        = filterInputType.value;
         const filterDateIni     = filterInputDateIni.value;
         const filterDateEnd     = filterInputDateEnd.value;
         const filterStatus      = filterInputStatus.value;
 
         $.ajax({
         type:'GET',
-        url: `load-invoices?page=${page}&dateini=${filterDateIni}&dateend=${filterDateEnd}&status=${filterStatus}`,
+        url: `load-invoices?page=${page}&type=${filterType}&dateini=${filterDateIni}&dateend=${filterDateEnd}&status=${filterStatus}`,
         beforeSend: function(){
             $('#list-invoices').html('<tr><td style="text-align:center;" colspan="99"><div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></td></tr>');
             $('#list-invoices').html('');
@@ -289,9 +300,9 @@ Swal.fire({
                 html += `<td>${item.service_name}</td>`;
                 html += `<td>${moment(item.date_invoice).format('DD/MM/YYYY')}</td>`;
                 html += `<td>${moment(item.date_due).format('DD/MM/YYYY')}</td>`;
-                html += `<td>${moment(item.date_payment).format('DD/MM/YYYY')}</td>`;
+                html += `<td>${item.date_payment != null ? moment(item.date_payment).format('DD/MM/YYYY') : '-'}</td>`;
                 html += `<td>${item.price}</td>`;
-                html += `<td>${item.gateway_payment+' '+item.payment_method }</td>`;
+                html += `<td>${item.gateway_payment+' ('+item.payment_method })</td>`;
                 html += `<td class="badge ${item.status == 'Pago' ? 'badge-success' : item.status == 'Pendente' ? 'badge-warning' : 'badge-danger'}">${item.status}</td>`;
                 html += '</tr>';
             });

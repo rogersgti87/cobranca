@@ -739,17 +739,18 @@ public function loadInvoices(){
     if ($this->request->has('dateini') && $this->request->has('dateend')) {
             $query->select(DB::raw("$fields,
             (select count(*) from invoices where date_invoice between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as qtd_invoices ,
-            (select count(*) from invoices where status = 'Pendente' and date_invoice between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as qtd_pendente,
-            (select count(*) from invoices where status = 'Pago'  and date_invoice between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as qtd_pago,
-            (select count(*) from invoices where status = 'Processamento'  and date_invoice between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as qtd_processamento,
-            (select count(*) from invoices where status = 'Cancelado'  and date_invoice between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as qtd_cancelado
+            (select count(*) from invoices where status = 'Pendente' and '".$this->request->input('type')."' between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as qtd_pendente,
+            (select count(*) from invoices where status = 'Pago'  and '".$this->request->input('type')."' between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as qtd_pago,
+            (select count(*) from invoices where status = 'Processamento'  and '".$this->request->input('type')."' between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as qtd_processamento,
+            (select count(*) from invoices where status = 'Cancelado'  and '".$this->request->input('type')."' between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as qtd_cancelado
             "));
 
             if($this->request->has('status') && $this->request->input('status') != ''){
                 $query->where('invoices.status',$this->request->input('status'));
             }
 
-            $query->whereBetween('invoices.date_invoice',[$this->request->input('dateini'),$this->request->input('dateend')]);
+
+            $query->whereBetween('invoices.'.$this->request->input('type'),[$this->request->input('dateini'),$this->request->input('dateend')]);
     }else{
 
         $query->select(DB::raw("$fields,
@@ -762,7 +763,7 @@ public function loadInvoices(){
         $query->whereBetween('invoices.date_invoice',[Carbon::now()->startOfMonth(),Carbon::now()->lastOfMonth()]);
     }
 
-    $data = $query->paginate(15);
+    $data = $query->paginate(20);
 
     $data->prev_page_url = $data->previousPageUrl();
     $data->next_page_url = $data->nextPageUrl();

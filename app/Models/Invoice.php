@@ -463,8 +463,8 @@ class Invoice extends Model
                 return ['status' => 'ok', 'transaction' => $result_generate_pix];
             }else{
                 $result_generate_pix = $response_generate_pix->json();
-                \Log::info(json_decode($result_generate_pix));
-                return ['status' => 'reject', 'message' => json_decode($result_generate_pix)];
+                \Log::info($result_generate_pix);
+                return ['status' => 'reject', 'message' => $result_generate_pix];
             }
 
 

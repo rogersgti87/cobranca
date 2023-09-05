@@ -446,7 +446,9 @@ class WebHookController extends Controller
 
   public function intermediumPix(Request $request) {
     $data = $request->all();
-    \Log::info('Linha 363  - Retorno webhook intermedium: '.json_encode($data));
+    \Log::info('Linha 449  - Retorno webhook intermedium: '.json_encode($data));
+
+
   }
 
 

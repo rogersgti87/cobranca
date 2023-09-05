@@ -374,12 +374,12 @@ class InvoiceController extends Controller
         ];
 
         $validator = Validator::make($data, [
-            'customer_service_id'   => 'required',
-            'description'           => 'required',
-            'price'                 => 'required',
+            //'customer_service_id'   => 'required',
+            //'description'           => 'required',
+            //'price'                 => 'required',
             'payment_method'        => 'required',
-            'date_invoice'          => 'required',
-            'date_due'              => 'required',
+            //'date_invoice'          => 'required',
+            //'date_due'              => 'required',
             'status'                => 'required',
         ], $messages);
 
@@ -388,13 +388,13 @@ class InvoiceController extends Controller
         }
 
         $model->user_id             = auth()->user()->id;
-        $model->customer_service_id = $data['customer_service_id'];
-        $model->description         = $data['description'];
-        $model->price               = moeda($data['price']);
+        //$model->customer_service_id = $data['customer_service_id'];
+        //$model->description         = $data['description'];
+        //$model->price               = moeda($data['price']);
         $model->gateway_payment     = $data['gateway_payment'];
         $model->payment_method      = $data['payment_method'];
-        $model->date_invoice        = $data['date_invoice'];
-        $model->date_due            = $data['date_due'];
+        //$model->date_invoice        = $data['date_invoice'];
+        //$model->date_due            = $data['date_due'];
         $model->date_payment        = $data['date_payment'] != null ? $data['date_payment'] : null;
         $model->status              = $data['status'];
 
@@ -421,7 +421,8 @@ class InvoiceController extends Controller
             ->first();
 
 
-
+            $title = $invoice->status;
+            $message_notification = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura mudou o status para: <b>'.$invoice->status.'</b>';
 
             if($invoice->status == 'Pago'){
                 $title = 'Fatura';

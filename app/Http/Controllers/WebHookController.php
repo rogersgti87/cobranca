@@ -341,7 +341,6 @@ class WebHookController extends Controller
     ->orwhere('invoices.status','Processamento')
     ->first();
 
-    dd($result);
     if($result != null){
 
         $title = '';
@@ -378,7 +377,7 @@ class WebHookController extends Controller
             ->join('customers','customer_services.customer_id','customers.id')
             ->join('services','customer_services.service_id','services.id')
             ->join('users','users.id','invoices.user_id')
-            ->where('invoices.id',$result->order_id)
+            ->where('invoices.id',$result->id)
             ->where('invoices.transaction_id',$result->transaction_id)
             ->first();
 

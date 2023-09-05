@@ -332,9 +332,9 @@ class WebHookController extends Controller
     $data = $request->all();
     \Log::info('Linha 332  - Retorno webhook intermedium: '.json_encode($data));
 
-    $seuNumero      = $data['seuNumero'];
-    $nossoNumero    = $data['nossoNumero'];
-    $status         = $data['situacao'];
+    $seuNumero      = $data[0]['seuNumero'];
+    $nossoNumero    = $data[0]['nossoNumero'];
+    $status         = $data[0]['situacao'];
 
     $result = Invoice::where('id',$seuNumero)->where('transaction_id',$nossoNumero)
     ->where('invoices.status','Pendente')

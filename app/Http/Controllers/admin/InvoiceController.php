@@ -519,7 +519,7 @@ class InvoiceController extends Controller
                 }
 
                 else if($invoice->gateway_payment == 'Intermedium'){
-                    //$status = Invoice::cancelBilletIntermedium(auth()->user()->access_token_mp,$invoice->transaction_id);
+                    $status = Invoice::cancelPixIntermedium(auth()->user()->id,$invoice->transaction_id);
                 }
 
             }

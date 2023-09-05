@@ -346,7 +346,7 @@ class WebHookController extends Controller
         $title = '';
         $message_notification = '';
 
-        if($result->status == 'PAGO'){
+        if($status == 'PAGO'){
             $title = 'Fatura';
             $message_notification = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura mudou o status para: <b>Pago</b>';
             Invoice::where('id',$result->id)->where('transaction_id',$result->transaction_id)->update([
@@ -356,7 +356,7 @@ class WebHookController extends Controller
             ]);
         }
 
-        if($result->status == 'CANCELADO'){
+        if($status == 'CANCELADO'){
             $title = 'Fatura';
             $message_notification = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura mudou o status para: <b>Cancelado</b>';
             Invoice::where('id',$result->id)->where('transaction_id',$result->transaction_id)->update([

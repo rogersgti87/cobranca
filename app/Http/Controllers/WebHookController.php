@@ -449,8 +449,6 @@ class WebHookController extends Controller
     \Log::info('Linha 449  - Retorno webhook intermedium: '.json_encode($data));
 
     $txid = $data['pix'][0]['txid'];
-    dd($txid);
-
 
     $result = Invoice::where('transaction_id',$txid)
     ->where('invoices.status','Pendente')

@@ -387,6 +387,12 @@ class InvoiceController extends Controller
             return response()->json($validator->errors()->first(), 422);
         }
 
+        if($data['status'] == 'Pago'){
+            if($data['date_payment'] == null){
+                return response()->json('Data de Pagamento é obrigatório!', 422);
+            }
+        }
+
         $model->user_id             = auth()->user()->id;
         //$model->customer_service_id = $data['customer_service_id'];
         //$model->description         = $data['description'];

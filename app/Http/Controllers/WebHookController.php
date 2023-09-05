@@ -341,6 +341,7 @@ class WebHookController extends Controller
     ->orwhere('invoices.status','Processamento')
     ->first();
 
+    dd($result);
     if($result != null){
 
         $title = '';

@@ -58,7 +58,7 @@
       <div class="col-lg-12">
         <div class="hero-text">
           <h2>Cobrança <span>SEGURA</span></h2>
-          <p>Você pode gerenciar suas finanças com muita facilidade e rapidez com esta plataforma.</p>
+          <p>Você pode gerenciar suas cobranças com muita facilidade e rapidez com esta plataforma.</p>
           <a href="https://api.whatsapp.com/send?phone=5522988280129&text=Olá, gostaria de falar sobre o sistema de cobrança." class="btn" target="_blank"><span>Contratar</span></a>
         </div>
       </div>

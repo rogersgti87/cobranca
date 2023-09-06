@@ -89,7 +89,7 @@
                </div>
 {{-- fim widget --}}
 
-<div class="col-md-5 col-12">
+<div class="col-md-4 col-12">
 
     <div class="card">
         <div class="card-header border-0">
@@ -108,7 +108,7 @@
 </div>
 
 
-<div class="col-md-5 col-12">
+<div class="col-md-4 col-12">
 
     <div class="card">
         <div class="card-header border-0">
@@ -125,7 +125,7 @@
 
 </div>
 
-<div class="col-md-2">
+<div class="col-md-4">
 
     <div class="info-box mb-3 bg-danger">
     <span class="info-box-icon"><i class="fas fa-calendar-times"></i></span>

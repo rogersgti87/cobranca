@@ -80,7 +80,7 @@
 
                     <div class="form-group col-md-2 col-sm-12">
                         <label>CPF/CNPJ</label>
-                        <input type="text" class="form-control" name="document" id="cnpjcpf" autocomplete="off" required value="{{isset($data->document) ? $data->document : ''}}">
+                        <input type="text" class="form-control" name="document" id="" autocomplete="off" required value="{{isset($data->document) ? $data->document : ''}}">
                     </div>
 
                     <div class="form-group col-md-4 col-sm-12">

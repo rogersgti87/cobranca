@@ -6,7 +6,7 @@
   <title>Cobrança Segura</title>
   <link rel="icon" href="{{url('/img/favicon.png')}}">
   <!-- CSS only -->
-   <link rel="stylesheet" type="text/css" href="{{url('assets/front/css/bootstrap.min.css')}}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
    <link rel="stylesheet" href="{{url('assets/front/css/owl.carousel.min.css')}}">
    <link rel="stylesheet" href="{{url('assets/front/css/owl.theme.default.min.css')}}">
    <!-- fancybox -->
@@ -19,9 +19,7 @@
    <link rel="stylesheet" href="{{url('assets/front/css/responsive.css')}}">
    <!-- color -->
    <link rel="stylesheet" href="{{url('assets/front/css/color.css')}}">
-   <!-- jquery -->
-   <script src="{{url('assets/front/js/jquery-3.6.0.min.js')}}"></script>
-   <script src="{{url('assets/front/js/preloader.js')}}"></script>
+
  </head>
 <body class="dark">
 <!-- preloader -->
@@ -49,10 +47,17 @@
         </nav>
         <a href="https://api.whatsapp.com/send?phone=5522988280129&text=Olá, gostaria de falar sobre o sistema de cobrança." target="_blank"> +55 (22)98828-0129 <i class="fa-brands fa-whatsapp"></i></a>
       </div>
+
+
     </div>
+
+
+
+
   </header>
 <!-- header end -->
-<section class="hero-section two">
+
+<section class="hero-section two"  id="inicio">
   <div class="container">
     <div class="row">
       <div class="col-lg-12">
@@ -91,11 +96,11 @@
             <li><img alt="check" src="{{url('assets/front/img/check-b.png')}}">Cadastro de clientes</li>
             <li><img alt="check" src="{{url('assets/front/img/check-b.png')}}">Cadastro de serviços</li>
             <li><img alt="check" src="{{url('assets/front/img/check-b.png')}}">Cobrança recorrente</li>
-            <li><img alt="check" src="{{url('assets/front/img/check-b.png')}}">Integração com Pag Hiper(Pix e Boleto) e Mercado Pago(Pix)</li>
+            <li><img alt="check" src="{{url('assets/front/img/check-b.png')}}">Integração com Pag Hiper(Pix e Boleto) e Mercado Pago(Pix) e Banco Inter(Pix e Boleto)</li>
             <li><img alt="check" src="{{url('assets/front/img/check-b.png')}}">Baixa automática de cobranças</li>
             <li><img alt="check" src="{{url('assets/front/img/check-b.png')}}">Envio de cobrança por whatsapp e E-mail</li>
             <li><img alt="check" src="{{url('assets/front/img/check-b.png')}}">Acompanhe os emails enviados</li>
-            <li><img alt="check" src="{{url('assets/front/img/check-b.png')}}">Breve mais integrações com Gateway de pagamentos</li>
+            {{-- <li><img alt="check" src="{{url('assets/front/img/check-b.png')}}">Breve mais integrações com Gateway de pagamentos</li> --}}
             </ul>
         </div>
       </div>
@@ -174,7 +179,7 @@
                     </div>
                 </div>
 
-                <div class="accordion-item">
+                {{-- <div class="accordion-item">
                     <a href="#" class="heading">
                         <div class="icon"></div>
                         <div class="title">Consigo integrar outros Gateway de pagamentos?</div>
@@ -183,7 +188,7 @@
                     <div class="content">
                         <p>Sim, entre em contato conosco pelo whatsapp: +55 (22) 98828-0129 ou E-mail: contato@cobrancasegura.com.br.</p>
                     </div>
-                </div>
+                </div> --}}
 
                 <div class="accordion-item">
                     <a href="#" class="heading">
@@ -285,10 +290,20 @@
 <div id="progress">
       <span id="progress-value"><i class="fa-solid fa-arrow-up"></i></span>
 </div>
+
+   <!-- jquery -->
+   <script src="{{url('assets/front/js/jquery-3.6.0.min.js')}}"></script>
+   <script src="{{url('assets/front/js/preloader.js')}}"></script>
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
 <!-- Bootstrap Js -->
 <script src="{{url('assets/front/js/bootstrap.min.js')}}"></script>
 <script src="{{url('assets/front/js/owl.carousel.min.js')}}"></script>
 <!-- fancybox -->
 <script src="{{url('assets/front/js/jquery.fancybox.min.js')}}"></script>
 <script src="{{url('assets/front/js/custom.js?')}}{{mt_rand(0,999)}}"></script>
+
+
+
+
+
 </body>

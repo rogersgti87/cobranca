@@ -64,9 +64,9 @@
                             @if(Request::get('id'))
                                 <button type="button" data-tt="modal" data-target="#modal-novo-qrcode" id="{{ Request::get('id') }}" data-original-title="NOVO QRCODE" data-tt="tooltip" class="btn btn-success btn-md"> <i class="fa fa-qrcode"></i> WHATSAPP</button>
                             @endif
-                            <button type="button" data-tt="modal" data-target="#modal-inter" id="{{ $data->id }}" data-original-title="Configurar Banco Inter" data-tt="tooltip" class="btn btn-md" style="background:#ff8c00;color:#fff;"><i class="fas fa-university"></i> BANCO INTER</button>
-                            <button type="button" data-tt="modal" data-target="#modal-ph" id="{{ $data->id }}" data-original-title="Configurar PagHiper" data-tt="tooltip" class="btn btn-md" style="background:blue;color:#fff;"><i class="fas fa-university"></i> PAG HIPER</button>
-                            <button type="button" data-tt="modal" data-target="#modal-mp" id="{{ $data->id }}" data-original-title="Configurar Mercado Pago" data-tt="tooltip" class="btn btn-md" style="background:#48c5d6;color:#fff;"><i class="fas fa-university"></i> MERCADO PAGO</button>
+                            <button type="button" data-tt="modal" data-target="#modal-inter" id="{{ isset($data->id) ? $data->id : '' }}" data-original-title="Configurar Banco Inter" data-tt="tooltip" class="btn btn-md" style="background:#ff8c00;color:#fff;"><i class="fas fa-university"></i> BANCO INTER</button>
+                            <button type="button" data-tt="modal" data-target="#modal-ph" id="{{ isset($data->id) ? $data->id : '' }}" data-original-title="Configurar PagHiper" data-tt="tooltip" class="btn btn-md" style="background:blue;color:#fff;"><i class="fas fa-university"></i> PAG HIPER</button>
+                            <button type="button" data-tt="modal" data-target="#modal-mp" id="{{ isset($data->id) ? $data->id : '' }}" data-original-title="Configurar Mercado Pago" data-tt="tooltip" class="btn btn-md" style="background:#48c5d6;color:#fff;"><i class="fas fa-university"></i> MERCADO PAGO</button>
                         </fieldset>
 
                         </div>

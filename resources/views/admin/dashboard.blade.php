@@ -8,19 +8,7 @@
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <div class="content-header">
-      <div class="container-fluid">
-        <div class="row mb-2">
-          <div class="col-sm-6">
-            <h1 class="m-0">Dashboard</h1>
-          </div><!-- /.col -->
-          {{-- <div class="col-sm-6">
-            <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active">Starter Page</li>
-            </ol>
-          </div><!-- /.col --> --}}
-        </div><!-- /.row -->
-      </div><!-- /.container-fluid -->
+
     </div>
     <!-- /.content-header -->
 
@@ -29,113 +17,110 @@
       <div class="container-fluid">
         <div class="row">
 
-            <div class="col-lg-12">
 
-                <div class="card card-primary card-outline">
-                  <div class="card-body d-flex justify-content-center">
+            <div class="col-md-12">
+                <div class="row d-flex justify-content-center">
 
-                    {{-- <a href="{{url('admin/users')}}" class="btn btn-app bg-success">
-                        <i class="fas fa-users"></i> Meu Perfil
-                    </a>
 
-                    <a href="{{url('admin/properties')}}" class="btn btn-app bg-warning">
-                        <i class="far fa-building"></i> Propriedades
-                    </a> --}}
+                     <div class="col-md-2 col-6">
+                       <div class="small-box bg-indigo">
+                           <div class="inner">
+                               <h3>0</h3>
+                               <p>Clientes</p>
+                           </div>
+                           <div class="icon">
+                               <i class="fas fa-users"></i>
+                           </div>
+                       </div>
+                   </div>
 
-                  </div>
+
+                   <div class="col-md-2 col-6">
+                    <div class="small-box bg-success">
+                        <div class="inner">
+                            <h3>0</h3>
+                            <p>Faturas Pagas</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-thumbs-up"></i>
+                        </div>
+                    </div>
                 </div>
-            </div>
+
+                <div class="col-md-2 col-6">
+                    <div class="small-box bg-maroon">
+                        <div class="inner">
+                            <h3>0</h3>
+                            <p>Faturas em Processamento</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-spinner"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-2 col-6">
+                    <div class="small-box bg-warning">
+                        <div class="inner">
+                            <h3>0</h3>
+                            <p>Faturas Pendentes</p>
+                        </div>
+                        <div class="icon">
+                            <i class="far fa-hourglass"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-2 col-6">
+                    <div class="small-box bg-indigo">
+                        <div class="inner">
+                            <h3>0</h3>
+                            <p>Faturas Vencidas</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-2 col-6">
+                    <div class="small-box bg-danger">
+                        <div class="inner">
+                            <h3>0</h3>
+                            <p>Faturas Canceladas</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-ban"></i>
+                        </div>
+                    </div>
+                </div>
 
 
-            @if(\Auth::user()->type == 'Usuario')
-          <div class="col-lg-12">
+               </div>
 
-            <div class="card card-primary card-outline">
-              <div class="card-header">
-                <h5 class="m-0">Membros pendentes</h5>
-              </div>
-              <div class="card-body">
-                <table id="users-datatable" class="table table-striped" style="width:100%">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nome</th>
-                            <th>Data Cadastro</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+               </div>
+{{-- fim widget --}}
 
-                    @foreach($users as $row)
-                        <tr id="{{ $row->id }}" class="link-user" style="cursor:pointer;">
-                            <td>{{$row->id}}</td>
-                            <td>{{$row->name}}</td>
-                            <td>{{date('d/m/Y H:i:s',strtotime($row->created_at))}}</td>
-                            <td><label class="badge badge-{{$row->status === 1 ? 'success' : 'danger'}}">{{$row->status === 1 ? 'Ativo' : 'Inativo'}}</label></td>
-                        </tr>
-                    @endforeach
+<div class="col-md-6 col-12">
 
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nome</th>
-                            <th>Data Cadastro</th>
-                            <th>Status</th>
-                        </tr>
-                    </tfoot>
-                </table>
+    <div class="card">
+        <div class="card-header border-0">
+        <div class="d-flex justify-content-between">
+        <h3 class="card-title">Faturas por Status ({{date('Y')}})</h3>
+        </div>
+        </div>
+        <div class="card-body">
 
-              </div>
-            </div>
-          </div>
-          <!-- /.col-md-6 -->
+            <canvas id="paymentStatusChart"></canvas>
 
-          <div class="col-lg-12">
+        </div>
+        </div>
 
-            <div class="card card-primary card-outline">
-              <div class="card-header">
-                <h5 class="m-0">Empresas pendentes</h5>
-              </div>
-              <div class="card-body">
-                <table id="companies-datatable" class="table table-striped" style="width:100%">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nome</th>
-                            <th>Data Cadastro</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
 
-                    @foreach($companies as $row)
-                        <tr id="{{ $row->id }}" class="link-company" style="cursor:pointer;">
-                            <td>{{$row->id}}</td>
-                            <td>{{$row->name}}</td>
-                            <td>{{date('d/m/Y H:i:s',strtotime($row->created_at))}}</td>
-                            <td><label class="badge badge-{{$row->status === 1 ? 'success' : 'danger'}}">{{$row->status === 1 ? 'Ativo' : 'Inativo'}}</label></td>
-                        </tr>
-                    @endforeach
+</div>
 
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nome</th>
-                            <th>Data Cadastro</th>
-                            <th>Status</th>
-                        </tr>
-                    </tfoot>
-                </table>
 
-              </div>
-            </div>
-          </div>
-          <!-- /.col-md-6 -->
-    @else
 
-    @endif
         </div>
         <!-- /.row -->
       </div><!-- /.container-fluid -->
@@ -145,34 +130,65 @@
   <!-- /.content-wrapper -->
 
 
-@section('scripts')
+    @section('scripts')
 
-<script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  $(document).ready(function () {
 
-    $('.link-user').click(function(){
 
-        var url = "{{ url('admin/users/form?act=edit')}}";
-        var id  = $(this).attr('id');
+    <script>
 
-        window.location = url+'&id='+id;
 
+    function updateChart() {
+        $.ajax({
+            url: '{{url("admin/chart-invoices")}}',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                var labels = Object.keys(data);
+                var values = Object.values(data);
+
+                var colors = [
+                    'rgba(255, 99, 132, 0.5)', // Pendente
+                    'rgba(54, 162, 235, 0.5)', // Pago
+                    'rgba(255, 206, 86, 0.5)', // Cancelado
+                    'rgba(75, 192, 192, 0.5)', // Expirado
+                    'rgba(153, 102, 255, 0.5)' // Processamento
+                ];
+
+                var ctx = document.getElementById('paymentStatusChart').getContext('2d');
+                var myChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: values,
+                            backgroundColor: colors,
+                            borderColor: colors,
+                            borderWidth: 1,
+                        }],
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            },
+            complete: function () {
+                setTimeout(updateChart, 5000);
+            },
+        });
+    }
+
+
+    $(document).ready(function () {
+        updateChart();
     });
 
-
-    $('.link-company').click(function(){
-
-        var url = "{{ url('admin/companies/form?act=edit')}}";
-        var id  = $(this).attr('id');
-
-        window.location = url+'&id='+id;
-
-    });
-
-    });
-
-</script>
+    </script>
 
 
   @endsection

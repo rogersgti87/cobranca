@@ -38,6 +38,20 @@ class AdminController extends Controller
         return view($this->datarequest['path'].'.dashboard',compact('users'))->with($this->datarequest);
     }
 
+    public function chartInvoices(){
+
+        $invoices = Invoice::select('status', \DB::raw('count(*) as count'))
+            ->where('user_id',auth()->user()->id)
+            ->whereIn('status', ['Pendente', 'Pago', 'Cancelado', 'Expirado', 'Processamento'])
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+
+
+        return response()->json($invoices);
+
+    }
+
 
 
 

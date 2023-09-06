@@ -35,6 +35,7 @@ Route::prefix('webhook')->group(function () {
 Route::group(['prefix' => 'admin','middleware' => ['auth']], function(){
 
     Route::get('/',[AdminController::class,'index']);
+    Route::get('chart-invoices',[AdminController::class,'chartinvoices']);
 
     Route::get('users',[UserController::class,'index']);
     Route::get('users/form',[UserController::class,'form']);

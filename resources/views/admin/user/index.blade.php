@@ -59,6 +59,7 @@
           </div>
           <!-- /.col-md-12 -->
 
+          @if(auth()->user->id == 1)
           <div class="col-md-2">
             <ul class="button-action">
                 <li><a href="{{url($linkFormAdd)}}" data-original-title="Novo" data-toggle="tooltip" class="btn btn-secondary btn-sm"> <i class="fa fa-plus"></i> Novo</a></li>
@@ -66,7 +67,7 @@
                 <li><a href="#" data-original-title="Deletar" id="btn-delete" data-toggle="tooltip" class="btn btn-danger btn-sm"> <i class="fa fa-trash"></i> Excluir</a></li>
              </ul>
           </div>
-
+            @endif
           <!-- FIM FORM BUSCA -->
 
 

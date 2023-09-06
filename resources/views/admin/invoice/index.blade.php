@@ -32,8 +32,8 @@
               <div class="col-md-2 col-6">
                 <div class="small-box bg-info">
                     <div class="inner">
-                        <h3 id="total_invoices">0</h3>
-                        <p>Total</p>
+                        <h5 id="total_invoices_curerency">R$0,00</h5>
+                        <p id="total_invoices">Total: 0</p>
                     </div>
                     <div class="icon">
                         <i class="fas fa-users"></i>
@@ -44,8 +44,8 @@
             <div class="col-md-2 col-6">
                 <div class="small-box bg-primary">
                     <div class="inner">
-                        <h3 id="total_pendent">0</h3>
-                        <p>Pendente</p>
+                        <h5 id="pendent_invoices_curerency">R$0,00</h5>
+                        <p id="total_pendent">Pendentes: 0</p>
                     </div>
                     <div class="icon">
                         <i class="far fa-hourglass"></i>
@@ -56,8 +56,8 @@
             <div class="col-md-2 col-6">
                 <div class="small-box bg-success">
                     <div class="inner">
-                        <h3 id="total_pay">0</h3>
-                        <p>Paga</p>
+                        <h5 id="pay_invoices_curerency">R$0,00</h5>
+                        <p id="total_pay">Pagas: 0</p>
                     </div>
                     <div class="icon">
                         <i class="fas fa-paper-plane"></i>
@@ -69,8 +69,8 @@
             <div class="col-md-2 col-6">
                 <div class="small-box bg-secondary">
                     <div class="inner">
-                        <h3 id="total_proccessing">0</h3>
-                        <p>Processamento</p>
+                        <h5 id="proccessing_invoices_curerency">R$0,00</h5>
+                        <p id="total_proccessing">Processamentos: 0</p>
                     </div>
                     <div class="icon">
                         <i class="fas fa-exclamation-triangle"></i>
@@ -81,8 +81,8 @@
             <div class="col-md-2 col-6">
                 <div class="small-box bg-navy">
                     <div class="inner">
-                        <h3 id="total_expired">0</h3>
-                        <p>Expirada</p>
+                        <h5 id="expired_invoices_curerency">R$0,00</h5>
+                        <p id="total_expired">Expiradas: 0</p>
                     </div>
                     <div class="icon">
                         <i class="fas fa-exclamation-triangle"></i>
@@ -93,8 +93,8 @@
             <div class="col-md-2 col-6">
                 <div class="small-box bg-danger">
                     <div class="inner">
-                        <h3 id="total_cancelled">0</h3>
-                        <p>Cancelada</p>
+                        <h5 id="cancelled_invoices_curerency">R$0,00</h5>
+                        <p id="total_cancelled">Canceladas: 0</p>
                     </div>
                     <div class="icon">
                         <i class="fas fa-exclamation-triangle"></i>
@@ -281,11 +281,16 @@ Swal.fire({
         },
         success:function(data){
             console.log(data);
-        $('#total_invoices').text(data.result.data[0].qtd_invoices);
-        $('#total_pendent').text(data.result.data[0].qtd_pendente);
-        $('#total_pay').text(data.result.data[0].qtd_pago);
-        $('#total_total_proccessing').text(data.result.data[0].qtd_processamento);
-        $('#total_cancelled').text(data.result.data[0].qtd_cancelado);
+        $('#total_invoices').text('Total: '+data.result.data[0].qtd_invoices);
+        $('#total_invoices_curerency').text(parseFloat(data.result.data[0].total_currency).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
+        $('#total_pendent').text('Pendentes: '+data.result.data[0].qtd_pendente);
+        $('#pendent_invoices_curerency').text(parseFloat(data.result.data[0].pendente_currency).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
+        $('#total_pay').text('Pagas: '+data.result.data[0].qtd_pago);
+        $('#pay_invoices_curerency').text(parseFloat(data.result.data[0].pago_currency).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
+        $('#total_proccessing').text('Processamentos: '+data.result.data[0].qtd_processamento);
+        $('#proccessing_invoices_curerency').text(data.result.data[0].processamento_currency != null ? parseFloat(data.result.data[0].processamento_currency).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'R$0,00');
+        $('#total_cancelled').text('Canceladas: '+data.result.data[0].qtd_cancelado);
+        $('#cancelled_invoices_curerency').text(parseFloat(data.result.data[0].cancelado_currency).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
 
 
         $('#list-invoices').html('');

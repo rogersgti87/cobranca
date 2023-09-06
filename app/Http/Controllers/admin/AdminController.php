@@ -34,7 +34,7 @@ class AdminController extends Controller
 
     public function index(){
 
-        $total_customers  = Customer::count();
+        $total_customers  = Customer::where('user_id',auth()->user()->id)->count();
         $invoice = Invoice::select(DB::raw("
         (select count(*) from invoices where user_id = ".auth()->user()->id." ) as total,
         (select count(*) from invoices where status = 'Pendente') as pendent,

@@ -208,7 +208,7 @@
                     <div class="form-row">
                     <div class="form-group col-md-3 col-sm-12">
                         <label>Host</label>
-                        <input type="text" class="form-control" name="inter_host" id="inter_host" autocomplete="off" value="{{isset($data->inter_host) ? $data->inter_host : ''}}">
+                        <input type="text" class="form-control" name="inter_host" id="inter_host" autocomplete="off" value="{{isset($data->inter_host) ? $data->inter_host : 'https://cdpj.partners.bancointer.com.br/'}}">
                     </div>
 
                     <div class="form-group col-md-3 col-sm-12">

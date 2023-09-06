@@ -11,6 +11,7 @@ use Image;
 use DB;
 use App\Models\User;
 use App\Models\Invoice;
+use App\Models\Customer;
 use RuntimeException;
 use Illuminate\Support\Facades\Http;
 use GuzzleHttp\Client;
@@ -33,22 +34,46 @@ class AdminController extends Controller
 
     public function index(){
 
-        $users      = User::where('status',1)->get();
+        $total_customers  = Customer::count();
+        $invoice = Invoice::select(DB::raw("
+        (select count(*) from invoices where user_id = ".auth()->user()->id." ) as total,
+        (select count(*) from invoices where status = 'Pendente') as pendent,
+        (select count(*) from invoices where status = 'Pago' and user_id = ".auth()->user()->id." ) as pay,
+        (select count(*) from invoices where status = 'Processamento' and user_id = ".auth()->user()->id." ) as proccessing,
+        (select count(*) from invoices where status = 'Cancelado' and user_id = ".auth()->user()->id." ) as cancelled,
+        (select count(*) from invoices where status = 'Pendente' and user_id = ".auth()->user()->id." and CURRENT_DATE > date_due ) as due,
+        (select count(*) from invoices where status = 'Pendente' and user_id = ".auth()->user()->id." and DATEDIFF(date_due, CURRENT_DATE) = 5 ) as due,
+        (select count(*) from invoices where status = 'Pendente' and user_id = ".auth()->user()->id." and DATEDIFF(date_due, CURRENT_DATE) = 0 ) as today
+        "))->first();
 
-        return view($this->datarequest['path'].'.dashboard',compact('users'))->with($this->datarequest);
+        return view($this->datarequest['path'].'.dashboard',compact('total_customers','invoice'))->with($this->datarequest);
+
     }
 
     public function chartInvoices(){
 
-        $invoices = Invoice::select('status', \DB::raw('count(*) as count'))
+        $year = Invoice::select('status', DB::raw('count(*) as count'))
             ->where('user_id',auth()->user()->id)
-            ->whereIn('status', ['Pendente', 'Pago', 'Cancelado', 'Expirado', 'Processamento'])
+            ->whereYear('date_invoice', Carbon::now()->year)
             ->groupBy('status')
             ->pluck('count', 'status')
             ->toArray();
+        $total_year = array_sum($year);
+        $year['Total'] = $total_year;
+
+        $month = Invoice::select('status', DB::raw('count(*) as count'))
+        ->where('user_id',auth()->user()->id)
+        ->whereMonth('date_invoice', Carbon::now()->month)
+        ->groupBy('status')
+        ->pluck('count', 'status')
+        ->toArray();
+        $total_month = array_sum($month);
+        $month['Total'] = $total_month;
 
 
-        return response()->json($invoices);
+
+
+        return response()->json(['year' => $year,'month' => $month ]);
 
     }
 

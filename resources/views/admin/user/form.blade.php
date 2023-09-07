@@ -40,6 +40,8 @@
 
     <form class="form" enctype="multipart/form-data">
 
+        <input type="hidden" id="user-id" value="{{ isset($data->id) ? $data->id : '' }}">
+
         <div class="col-md-12">
         <div class="form-row">
 
@@ -61,12 +63,12 @@
                     <div class="col-md-12 col-sm-12">
                         <fieldset>
                             <legend>Integrações</legend>
-                            @if(Request::get('id'))
-                                <button type="button" data-tt="modal" data-target="#modal-novo-qrcode" id="{{ Request::get('id') }}" data-original-title="NOVO QRCODE" data-tt="tooltip" class="btn btn-success btn-md"> <i class="fa fa-qrcode"></i> WHATSAPP</button>
+                            @if(isset($data->id))
+                                <button type="button" data-toggle="modal" data-target="#modal-whatsapp" id="{{ isset($data->id) ? $data->id : '' }}" data-original-title="NOVO QRCODE" data-tt="tooltip" class="btn btn-success btn-md"> <i class="fa fa-qrcode"></i> WHATSAPP</button>
+                                <button type="button" data-toggle="modal" data-target="#modal-inter" id="{{ isset($data->id) ? $data->id : '' }}" data-original-title="Configurar Banco Inter" data-tt="tooltip" class="btn btn-md" style="background:#ff8c00;color:#fff;"><i class="fas fa-university"></i> BANCO INTER</button>
+                                <button type="button" data-toggle="modal" data-target="#modal-ph" id="{{ isset($data->id) ? $data->id : '' }}" data-original-title="Configurar PagHiper" data-tt="tooltip" class="btn btn-md" style="background:blue;color:#fff;"><i class="fas fa-university"></i> PAG HIPER</button>
+                                <button type="button" data-toggle="modal" data-target="#modal-mp" id="{{ isset($data->id) ? $data->id : '' }}" data-original-title="Configurar Mercado Pago" data-tt="tooltip" class="btn btn-md" style="background:#48c5d6;color:#fff;"><i class="fas fa-university"></i> MERCADO PAGO</button>
                             @endif
-                            <button type="button" data-tt="modal" data-target="#modal-inter" id="{{ isset($data->id) ? $data->id : '' }}" data-original-title="Configurar Banco Inter" data-tt="tooltip" class="btn btn-md" style="background:#ff8c00;color:#fff;"><i class="fas fa-university"></i> BANCO INTER</button>
-                            <button type="button" data-tt="modal" data-target="#modal-ph" id="{{ isset($data->id) ? $data->id : '' }}" data-original-title="Configurar PagHiper" data-tt="tooltip" class="btn btn-md" style="background:blue;color:#fff;"><i class="fas fa-university"></i> PAG HIPER</button>
-                            <button type="button" data-tt="modal" data-target="#modal-mp" id="{{ isset($data->id) ? $data->id : '' }}" data-original-title="Configurar Mercado Pago" data-tt="tooltip" class="btn btn-md" style="background:#48c5d6;color:#fff;"><i class="fas fa-university"></i> MERCADO PAGO</button>
                         </fieldset>
 
                         </div>
@@ -172,15 +174,7 @@
 
                         <div class="form-row">
 
-                    <div class="form-group col-md-6 col-sm-12">
-                        <label>Host API Whatsapp</label>
-                        <input type="text" class="form-control" name="api_host_whatsapp" id="api_host_whatsapp" autocomplete="off" required value="{{isset($data->api_host_whatsapp) ? $data->api_host_whatsapp : ''}}">
-                    </div>
 
-                    <div class="form-group col-md-6 col-sm-12">
-                        <label>Access Token API Whatsapp</label>
-                        <input type="text" class="form-control" name="api_access_token_whatsapp" id="api_access_token_whatsapp" autocomplete="off" required value="{{isset($data->api_access_token_whatsapp) ? $data->api_access_token_whatsapp : ''}}">
-                    </div>
 
 
                     <div class="form-group col-md-4 col-sm-12">
@@ -284,7 +278,7 @@
 
 
  <!-- Modal Product -->
- <div class="modal fade" id="modal-ler-qrcode">
+ <div class="modal fade" id="modal-whatsapp">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header bg-success">
@@ -292,28 +286,238 @@
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-        <div class="modal-body-ler-qrcode"></div>
+        <div class="modal-body-whatsapp">
+            <div class="col-md-12">
+                <div class="d-flex justify-content-center p-2">
+                <a href="#" data-original-title="Gerar Sessão" data-tt="tooltip" class="btn btn-secondary" id="btn-generate-session" data-user-email="{{ isset($data->email) ? $data->email : '' }}"><i class="fa fa-save fa-1x"></i> Gerar Sessão</a>
+                </div>
+        <div class="table-responsive fixed-solution">
+            <table class="table table-hover table-striped table-sm">
+                <thead class="thead-light">
+                <tr>
+                    <th> Sessão</th>
+                    <th> Padrão</th>
+                    <th> Status</th>
+                    <th style="width: 200px;"></th>
+                </tr>
+                </thead>
+                <tbody class="tbodyCustom" id="load-whatsapp-sessions">
+                </tbody>
+            </table>
+        </div>
+
+            </div>
+
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fa fa-times"></i> Fechar</button>
+        </div>
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
   </div><!-- /.modal -->
 
-
-
- <!-- Modal Product -->
- <div class="modal fade" id="modal-novo-qrcode">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header bg-success">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-        <div class="modal-body-novo-qrcode"></div>
-      </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-  </div><!-- /.modal -->
 
 @section('scripts')
+
+<script>
+
+$(window).on("load", function(){
+
+@if(isset($data))
+    loadWhatsapp();
+@endif
+
+});
+
+
+$("#btn-generate-session").on("click", function(e) {
+
+    if(confirm("Deseja gerar uma nova sessão?")){
+        var email = $(this).data('user-email');
+    //$(".modal-body-whatsapp").html(`<img src="${data.qrcode}" style="width:500px; height:500px;">`);
+            e.preventDefault();
+
+            $.ajax({
+                url: `https://zapestrategico.com.br/api/create-session/${email}`,
+                method:'POST',
+                data:{company:$('#company').val(),password:$('#password').val(),user_id_cobseg:$('#user-id').val()},
+            success:function(data){
+                    console.log(data);
+                    Swal.fire({
+                        width:350,
+                        title: "<h5 style='color:#007bff'>Leia o QRCODE abaixo</h5>",
+                        icon: 'success',
+                        showConfirmButton: true,
+                        showClass: {
+                            popup: 'animate__animated animate__backInUp'
+                        },
+                        allowOutsideClick: false,
+                        html:
+                        `<div class="text-center"><img src="${data.qrcode}" style="width:250px; height:250px;"></div>`
+                    });
+                    loadWhatsapp();
+                },
+                error:function (xhr) {
+
+                    if(xhr.status === 422){
+                        Swal.fire({
+                            text: xhr.responseJSON,
+                            width:300,
+                            icon: 'warning',
+                            color: '#007bff',
+                            confirmButtonColor: "#007bff",
+                            showClass: {
+                                popup: 'animate__animated animate__wobble'
+                            }
+                        });
+                    } else{
+                        Swal.fire({
+                            text: xhr.responseJSON,
+                            width:300,
+                            icon: 'error',
+                            color: '#007bff',
+                            confirmButtonColor: "#007bff",
+                            showClass: {
+                                popup: 'animate__animated animate__wobble'
+                            }
+                        });
+                    }
+
+
+                }
+
+        })
+
+
+    }else{
+        return false;
+    }
+
+    });
+//End create session whatsapp
+
+$(document).on('click', '#btn-update-whatsapp', function(e) {
+
+if(confirm("Deseja gerar uma nova sessão?")){
+    var at = $(this).data('access-token');
+
+        e.preventDefault();
+
+        $.ajax({
+            url: `https://zapestrategico.com.br/api/update-session`,
+            method:'PUT',
+            data:{access_token:at},
+        success:function(data){
+            console.log(data);
+                Swal.fire({
+                    width:350,
+                    title: "<h5 style='color:#007bff'>Leia o QRCODE abaixo</h5>",
+                    icon: 'success',
+                    showConfirmButton: true,
+                    showClass: {
+                        popup: 'animate__animated animate__backInUp'
+                    },
+                    allowOutsideClick: false,
+                    html:
+                    `<div class="text-center"><img src="${data.qrcode}" style="width:250px; height:250px;"></div>`
+                });
+                //loadWhatsapp();
+            },
+            error:function (xhr) {
+
+                if(xhr.status === 422){
+                    Swal.fire({
+                        text: xhr.responseJSON,
+                        width:300,
+                        icon: 'warning',
+                        color: '#007bff',
+                        confirmButtonColor: "#007bff",
+                        showClass: {
+                            popup: 'animate__animated animate__wobble'
+                        }
+                    });
+                } else{
+                    Swal.fire({
+                        text: xhr.responseJSON,
+                        width:300,
+                        icon: 'error',
+                        color: '#007bff',
+                        confirmButtonColor: "#007bff",
+                        showClass: {
+                            popup: 'animate__animated animate__wobble'
+                        }
+                    });
+                }
+
+
+            }
+
+    })
+
+
+}else{
+    return false;
+}
+
+});
+//End edit session whatsapp
+
+function loadWhatsapp(){
+
+var user_id = $('#user-id').val();
+
+$.ajax({
+            url: `https://zapestrategico.com.br/api/list-sessions/${user_id}`,
+            method: 'GET',
+            success:function(data){
+                console.log(data);
+                $('#load-whatsapp-sessions').html('');
+                var html = '';
+                $.each(data, function(i, item) {
+                    html += '<tr>';
+                    html += `<td>${item.session}</td>`;
+                    html += `<td></td>`;
+                    html += `<td><label class="badge badge-${item.status == 'Conectado' ? 'success' : 'danger'}">${item.status}</label></td>`;
+                    html += `<td>
+                        <a href="#" data-original-title="Novo QRCODE" id="btn-update-whatsapp" data-access-token="${item.access_token}" data-tt="tooltip" class="btn btn-warning btn-xs"> <i class="fa fa-qrcode"></i> QRCODE</a>
+                        <a href="#" data-original-title="Deletar" id="btn-delete-whatsapp" data-access-token="${item.access_token}" data-tt="tooltip" class="btn btn-danger btn-xs"> <i class="fa fa-list"></i> Deletar</a>
+                        </td>`;
+                    html += '</tr>';
+
+                });
+                $('#load-whatsapp-sessions').append(html);
+
+            },
+            error:function (xhr) {
+
+                if(xhr.status === 422){
+                    Swal.fire({
+                        text: xhr.responseJSON,
+                        icon: 'warning',
+                        showClass: {
+                            popup: 'animate__animated animate__wobble'
+                        }
+                    });
+                } else{
+                    Swal.fire({
+                        text: xhr.responseJSON,
+                        icon: 'error',
+                        showClass: {
+                            popup: 'animate__animated animate__wobble'
+                        }
+                    });
+                }
+
+
+            }
+        });
+
+}
+
+
+
+</script>
+
 
 <script>
 
@@ -397,50 +601,6 @@
 
 
         });
-
-
-
-
-        $("#modal-ler-qrcode").on("show.bs.modal", function(e) {
-
-        var url = '{{ url('admin/users/getqrcode') }}';
-        $.get(url,
-            $(this)
-            .addClass('modal-scrollfix')
-            .find('.modal-body-ler-qrcode')
-            .html('Carregando...'),
-            function(data) {
-                console.log(data);
-            $(".modal-body-ler-qrcode").html(`<img src="${data.qrcode}" style="width:500px; height:500px;">`);
-            });
-
-
-
-        });
-
-
-
-$("#modal-novo-qrcode").on("show.bs.modal", function(e) {
-
-    if(confirm("Deseja gerar outro QRCODE?")){
-
-        var url = '{{ url('admin/users/getsession') }}';
-    $.get(url,
-    $(this)
-    .addClass('modal-scrollfix')
-    .find('.modal-body-novo-qrcode')
-    .html('Carregando...'),
-    function(data) {
-        console.log(data);
-    $(".modal-body-novo-qrcode").html(`<img src="${data.qrcode}" style="width:500px; height:500px;">`);
-    });
-
-    }else{
-        return false;
-    }
-
-});
-
 
 
     </script>

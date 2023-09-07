@@ -336,7 +336,11 @@ $("#btn-generate-session").on("click", function(e) {
         var email = $(this).data('user-email');
     //$(".modal-body-whatsapp").html(`<img src="${data.qrcode}" style="width:500px; height:500px;">`);
             e.preventDefault();
-
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': "{{csrf_token()}}"
+                }
+            });
             $.ajax({
                 url: `https://zapestrategico.com.br/api/create-session/${email}`,
                 method:'POST',
@@ -402,7 +406,11 @@ if(confirm("Deseja gerar uma nova sessão?")){
     var at = $(this).data('access-token');
 
         e.preventDefault();
-
+        $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': "{{csrf_token()}}"
+                }
+            });
         $.ajax({
             url: `https://zapestrategico.com.br/api/update-session`,
             method:'PUT',

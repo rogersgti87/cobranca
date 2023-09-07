@@ -400,9 +400,9 @@ $("#btn-generate-session").on("click", function(e) {
     });
 //End create session whatsapp
 
-$(document).on('click', '#btn-update-whatsapp', function(e) {
+$(document).on('click', '#btn-delete-whatsapp', function(e) {
 
-if(confirm("Deseja gerar uma nova sessão?")){
+if(confirm("Deseja remover esta sessão?")){
     var at = $(this).data('access-token');
 
         e.preventDefault();
@@ -412,24 +412,21 @@ if(confirm("Deseja gerar uma nova sessão?")){
                 }
             });
         $.ajax({
-            url: `https://zapestrategico.com.br/api/update-session`,
-            method:'PUT',
-            data:{access_token:at},
+            url: `https://zapestrategico.com.br/api/delete-session/${access_token}`,
+            method:'DELETE',
         success:function(data){
             console.log(data);
                 Swal.fire({
                     width:350,
-                    title: "<h5 style='color:#007bff'>Leia o QRCODE abaixo</h5>",
+                    title: "<h5 style='color:#007bff'>Sessão Removida com sucesso!</h5>",
                     icon: 'success',
                     showConfirmButton: true,
                     showClass: {
                         popup: 'animate__animated animate__backInUp'
                     },
-                    allowOutsideClick: false,
-                    html:
-                    `<div class="text-center"><img src="${data.qrcode}" style="width:250px; height:250px;"></div>`
+                    allowOutsideClick: false
                 });
-                //loadWhatsapp();
+                loadWhatsapp();
             },
             error:function (xhr) {
 
@@ -487,7 +484,6 @@ $.ajax({
                     html += `<td></td>`;
                     html += `<td><label class="badge badge-${item.status == 'Conectado' ? 'success' : 'danger'}">${item.status}</label></td>`;
                     html += `<td>
-                        <a href="#" data-original-title="Novo QRCODE" id="btn-update-whatsapp" data-access-token="${item.access_token}" data-tt="tooltip" class="btn btn-warning btn-xs"> <i class="fa fa-qrcode"></i> QRCODE</a>
                         <a href="#" data-original-title="Deletar" id="btn-delete-whatsapp" data-access-token="${item.access_token}" data-tt="tooltip" class="btn btn-danger btn-xs"> <i class="fa fa-list"></i> Deletar</a>
                         </td>`;
                     html += '</tr>';

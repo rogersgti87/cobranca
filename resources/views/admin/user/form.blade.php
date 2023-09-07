@@ -403,7 +403,7 @@ $("#btn-generate-session").on("click", function(e) {
 $(document).on('click', '#btn-delete-whatsapp', function(e) {
 
 if(confirm("Deseja remover esta sessão?")){
-    var at = $(this).data('access-token');
+    var access_token = $(this).data('access-token');
 
         e.preventDefault();
         $.ajaxSetup({

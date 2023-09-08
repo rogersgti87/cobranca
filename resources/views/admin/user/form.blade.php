@@ -42,6 +42,7 @@
 
         <input type="hidden" id="url" value="{{url($link)}}">
         <input type="hidden" id="user-id" value="{{ isset($data->id) ? $data->id : '' }}">
+        <input type="hidden" id="access-token-wp" value="{{ isset($data->api_access_token_whatsapp) ? $data->api_access_token_whatsapp: '' }}">
 
         <div class="col-md-12">
         <div class="form-row">
@@ -299,7 +300,7 @@
                     <th> Sessão</th>
                     <th> Padrão</th>
                     <th> Status</th>
-                    <th style="width: 100px;"></th>
+                    <th style="width: 200px;"></th>
                 </tr>
                 </thead>
                 <tbody class="tbodyCustom" id="load-whatsapp-sessions">
@@ -496,7 +497,9 @@ if(confirm("Deseja definir esta sessão como padrão?")){
                     },
                     allowOutsideClick: false
                 });
-                loadWhatsapp();
+                //loadWhatsapp();
+                location.reload();
+
             },
             error:function (xhr) {
 
@@ -540,6 +543,7 @@ if(confirm("Deseja definir esta sessão como padrão?")){
 function loadWhatsapp(){
 
 var user_id = $('#user-id').val();
+var access_token = $('#access-token-wp').val();
 
 $.ajax({
             url: `https://zapestrategico.com.br/api/list-sessions/${user_id}`,
@@ -551,9 +555,10 @@ $.ajax({
                 $.each(data, function(i, item) {
                     html += '<tr>';
                     html += `<td>${item.session}</td>`;
-                    html += `<td><a href="#" data-original-title="Definir como padrão" id="btn-default-whatsapp" data-access-token="${item.access_token}" data-tt="tooltip" class="btn btn-success btn-xs"> <i class="fa fa-list"></i> Definir como padrão</a></td>`;
+                    html += `<td>${item.access_token == access_token ? 'Sim' : 'Não'}</td>`;
                     html += `<td><label class="badge badge-${item.status == 'Conectado' ? 'success' : 'danger'}">${item.status}</label></td>`;
                     html += `<td>
+                        <a href="#" data-original-title="Definir como padrão" id="btn-default-whatsapp" data-access-token="${item.access_token}" data-tt="tooltip" class="btn btn-success btn-xs"> <i class="fa fa-list"></i> Definir como padrão</a>
                         <a href="#" data-original-title="Deletar" id="btn-delete-whatsapp" data-access-token="${item.access_token}" data-tt="tooltip" class="btn btn-danger btn-xs"> <i class="fa fa-list"></i> Deletar</a>
                         </td>`;
                     html += '</tr>';

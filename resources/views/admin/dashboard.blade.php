@@ -140,7 +140,7 @@
     <span class="info-box-icon"><i class="fas fa-business-time"></i></span>
     <div class="info-box-content">
     <span class="info-box-text">Vencendo em 5 dias</span>
-    <span class="info-box-number">{{ $invoice->due }}</span>
+    <span class="info-box-number">{{ $invoice->five_days }}</span>
     </div>
 
     </div>

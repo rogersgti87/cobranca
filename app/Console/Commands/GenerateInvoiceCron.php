@@ -32,7 +32,7 @@ class GenerateInvoiceCron extends Command
     INNER JOIN services s ON a.service_id = s.id
     INNER JOIN users u ON a.user_id = u.id
     WHERE NOT EXISTS (SELECT * FROM invoices b WHERE a.id = b.customer_service_id AND b.date_invoice = CURRENT_DATE)
-    AND CURRENT_DATE = DATE_ADD(DATE_ADD(CONCAT(YEAR(CURRENT_DATE),'-',MONTH(CURRENT_DATE),'-','01'), INTERVAL 0 MONTH), INTERVAL 0 DAY) AND a.status = 'Ativo'";
+    AND CURRENT_DATE = DATE_ADD(DATE_ADD(CONCAT(YEAR(CURRENT_DATE),'-',MONTH(CURRENT_DATE),'-','01'), INTERVAL 0 MONTH), INTERVAL 0 DAY) AND a.status = 'Ativo' and a.period = 'Recorrente'";
 
    $verifyInvoices = DB::select($sql);
 

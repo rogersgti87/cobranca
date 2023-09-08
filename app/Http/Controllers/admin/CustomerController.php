@@ -75,7 +75,7 @@ class CustomerController extends Controller
                         ->whereraw("$field $operator $newValue")
                         ->paginate(20);
         }else{
-            $data = Customer::orderByRaw("$column_name")->where('user_id',auth()->user()->id)->paginate(15);
+            $data = Customer::orderByRaw("$column_name")->where('user_id',auth()->user()->id)->paginate(20);
         }
 
 

@@ -40,6 +40,7 @@
 
     <form class="form" enctype="multipart/form-data">
 
+        <input type="hidden" id="url" value="{{url($link)}}">
         <input type="hidden" id="user-id" value="{{ isset($data->id) ? $data->id : '' }}">
 
         <div class="col-md-12">
@@ -298,7 +299,7 @@
                     <th> Sessão</th>
                     <th> Padrão</th>
                     <th> Status</th>
-                    <th style="width: 200px;"></th>
+                    <th style="width: 100px;"></th>
                 </tr>
                 </thead>
                 <tbody class="tbodyCustom" id="load-whatsapp-sessions">
@@ -467,6 +468,75 @@ if(confirm("Deseja remover esta sessão?")){
 });
 //End edit session whatsapp
 
+$(document).on('click', '#btn-default-whatsapp', function(e) {
+
+    var url = '{{url("admin/user-default-whatsapp")}}';
+
+if(confirm("Deseja definir esta sessão como padrão?")){
+    var access_token = $(this).data('access-token');
+
+        e.preventDefault();
+        $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': "{{csrf_token()}}"
+                }
+            });
+        $.ajax({
+            url: `${url+'/'+access_token}`,
+            method:'POST',
+        success:function(data){
+            console.log(data);
+                Swal.fire({
+                    width:350,
+                    title: "<h5 style='color:#007bff'>Sessão definida como padrão!</h5>",
+                    icon: 'success',
+                    showConfirmButton: true,
+                    showClass: {
+                        popup: 'animate__animated animate__backInUp'
+                    },
+                    allowOutsideClick: false
+                });
+                loadWhatsapp();
+            },
+            error:function (xhr) {
+
+                if(xhr.status === 422){
+                    Swal.fire({
+                        text: xhr.responseJSON,
+                        width:300,
+                        icon: 'warning',
+                        color: '#007bff',
+                        confirmButtonColor: "#007bff",
+                        showClass: {
+                            popup: 'animate__animated animate__wobble'
+                        }
+                    });
+                } else{
+                    Swal.fire({
+                        text: xhr.responseJSON,
+                        width:300,
+                        icon: 'error',
+                        color: '#007bff',
+                        confirmButtonColor: "#007bff",
+                        showClass: {
+                            popup: 'animate__animated animate__wobble'
+                        }
+                    });
+                }
+
+
+            }
+
+    })
+
+
+}else{
+    return false;
+}
+
+});
+//End default session whatsapp
+
 function loadWhatsapp(){
 
 var user_id = $('#user-id').val();
@@ -481,7 +551,7 @@ $.ajax({
                 $.each(data, function(i, item) {
                     html += '<tr>';
                     html += `<td>${item.session}</td>`;
-                    html += `<td></td>`;
+                    html += `<td><a href="#" data-original-title="Definir como padrão" id="btn-default-whatsapp" data-access-token="${item.access_token}" data-tt="tooltip" class="btn btn-success btn-xs"> <i class="fa fa-list"></i> Definir como padrão</a></td>`;
                     html += `<td><label class="badge badge-${item.status == 'Conectado' ? 'success' : 'danger'}">${item.status}</label></td>`;
                     html += `<td>
                         <a href="#" data-original-title="Deletar" id="btn-delete-whatsapp" data-access-token="${item.access_token}" data-tt="tooltip" class="btn btn-danger btn-xs"> <i class="fa fa-list"></i> Deletar</a>

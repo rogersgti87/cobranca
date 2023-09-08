@@ -345,6 +345,12 @@ class UserController extends Controller
     }
 
 
+    public function defaultWhatsapp($access_token){
+        User::where('id',auth()->user()->id)->update(['api_access_token_whatsapp' => $access_token]);
+        return response()->json('Atualizado com sucesso!');
+    }
+
+
     public function webhook(){
 
         $user = User::where('id',auth()->user()->id)->first();

@@ -455,20 +455,25 @@ class WebHookController extends Controller
     ->where('invoices.status','Pendente')
     ->orwhere('invoices.status','Processamento')
     ->first();
+    \Log::info('Linha 458: '.$result);
+
 
     if($result != null){
 
         $title = '';
         $message_notification = '';
+        \Log::info('Linha 465');
 
 
             $title = 'Fatura';
             $message_notification = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura mudou o status para: <b>Pago</b>';
-            Invoice::where('id',$result->id)->where('transaction_id',$result->transaction_id)->update([
+            $ok = Invoice::where('id',$result->id)->where('transaction_id',$result->transaction_id)->update([
                 'status'       =>   'Pago',
                 'date_payment' =>   Carbon::now(),
                 'updated_at'   =>   Carbon::now()
             ]);
+
+            \Log::info('Linha 476: '.$ok);
 
             $invoice = Invoice::select('invoices.id','invoices.status','invoices.user_id','invoices.date_invoice','invoices.date_due','invoices.description',
             'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp','customers.type',

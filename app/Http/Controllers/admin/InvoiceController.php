@@ -114,6 +114,7 @@ class InvoiceController extends Controller
 
 
         try{
+
             $model->save();
 
             $invoice = Invoice::select('invoices.id','invoices.status','invoices.user_id','invoices.date_invoice','invoices.date_due','invoices.description',
@@ -133,6 +134,59 @@ class InvoiceController extends Controller
             ->where('invoices.id',$model->id)
             ->where('invoices.user_id',auth()->user()->id)
             ->first();
+
+
+            if($model->status == 'Pago' || $model->status == 'Cancelado'){
+
+                $details = [
+                    'type_send'                 => 'New',
+                    'title'                     => 'Nova fatura gerada',
+                    'message_customer'          => 'Olá '.$invoice->name.', tudo bem?',
+                    'message_notification'      => 'Esta é uma mensagem para notificá-lo(a) que sua Fatura foi gerada',
+                    'logo'                      => 'https://cobrancasegura.com.br/'.$invoice->user_image,
+                    'company'                   => $invoice->user_company,
+                    'user_whatsapp'             => removeEspeciais($invoice->user_whatsapp),
+                    'user_telephone'            => removeEspeciais($invoice->user_telephone),
+                    'user_email'                => $invoice->user_email,
+                    'user_access_token_wp'      => $invoice->api_access_token_whatsapp,
+                    'user_id'                   => $invoice->user_id,
+                    'customer'                  => $invoice->name,
+                    'customer_email'            => $invoice->email,
+                    'customer_email2'           => $invoice->email2,
+                    'customer_whatsapp'         => removeEspeciais($invoice->whatsapp),
+                    'notification_whatsapp'     => $invoice->notification_whatsapp,
+                    'customer_company'          => $invoice->company,
+                    'date_invoice'              => date('d/m/Y', strtotime($invoice->date_invoice)),
+                    'date_due'                  => date('d/m/Y', strtotime($invoice->date_due)),
+                    'price'                     => number_format($invoice->price, 2,',','.'),
+                    'gateway_payment'           => $invoice->gateway_payment,
+                    'payment_method'            => $invoice->payment_method,
+                    'service'                   => $invoice->service_name .' - '. $invoice->description,
+                    'invoice'                   => $invoice->id,
+                    'status'                    => $invoice->status,
+                    'url_base'                  => url('/'),
+                    'pix_qrcode_image_url'      => $invoice->image_url_pix,
+                    'pix_emv'                   => $invoice->pix_digitable,
+                    'pix_qrcode_base64'         => $invoice->qrcode_pix_base64,
+                    'billet_digitable_line'     => $invoice->billet_digitable,
+                    'billet_url_slip_base64'    => $invoice->billet_base64,
+                    'billet_url_slip'           => $invoice->billet_url,
+                ];
+
+
+                $details['body']  = view('mails.invoice',$details)->render();
+
+
+                if(isset($data['send_invoice_email']))
+                    InvoiceNotification::Email($details);
+
+                if(isset($data['send_invoice_whatsapp']))
+                    InvoiceNotification::Whatsapp($details);
+
+
+
+                return response()->json('Registro salvo com sucesso', 200);
+            }
 
 
             if($invoice->payment_method == 'Pix'){

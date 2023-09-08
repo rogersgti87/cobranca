@@ -265,7 +265,7 @@ class Invoice extends Model
             $responseBody = $response->body();
             $access_token = json_decode($responseBody)->access_token;
 
-            $response_generate_pix = Http::withOptions([
+            $response_generate_billet = Http::withOptions([
                 'cert' => storage_path('/app/'.$invoice['inter_crt_file']),
                 'ssl_key' => storage_path('/app/'.$invoice['inter_key_file']),
                 ])->withHeaders([

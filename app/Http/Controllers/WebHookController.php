@@ -467,7 +467,7 @@ class WebHookController extends Controller
 
             $title = 'Fatura';
             $message_notification = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura mudou o status para: <b>Pago</b>';
-            $ok = Invoice::where('id',$result->id)->where('transaction_id',$result->transaction_id)->update([
+            $ok = Invoice::where('id',$result->id)->update([
                 'status'       =>   'Pago',
                 'date_payment' =>   Carbon::now(),
                 'updated_at'   =>   Carbon::now()

@@ -130,7 +130,7 @@
 
                                                 <div class="form-group col-md-2 col-sm-12">
                                                     <label>Estado</label>
-                                                    <input type="text" class="form-control" name="state" id="state" autocomplete="off" readonly="readonly" value="{{isset($data->state) ? $data->state : ''}}">
+                                                    <input type="text" class="form-control" name="state" id="state" autocomplete="off" value="{{isset($data->state) ? $data->state : ''}}">
                                                 </div>
 
                                                 <div class="form-group col-md-4 col-sm-12">

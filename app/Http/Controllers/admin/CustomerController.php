@@ -114,13 +114,27 @@ class CustomerController extends Controller
             'document.required' => 'O Campo e-mail é obrigatório!',
             'document.unique'   => 'Documento já cadastrado!',
             'name.required'     => 'O campo nome é obrigatório!',
-            'email.required'     => 'O campo email é obrigatório!',
+            'email.required'    => 'O campo email é obrigatório!',
+            'cep.required'      => 'O CEP é obrigatório!',
+            'address.required'  => 'O campo endereço é obrigatório!',
+            'number.required'   => 'O campo número é obrigatório!',
+            'district.required' => 'O campo bairro é obrigatório!',
+            'city.required'     => 'O campo cidade é obrigatório!',
+            'state.required'    => 'O Campo estado é obrigatório!',
+            'state.max'         => 'O Campo estado deve ter no máximo 2 caracteres!',
         ];
 
         $validator = Validator::make($data, [
             'document' => "required|max:20|unique:customers,document,null,null,user_id,".auth()->user()->id,
             'name'     => 'required',
             'email'    => 'required',
+            'cep'      => 'required',
+            'address'  => 'required',
+            'address'  => 'required',
+            'number'   => 'required',
+            'district' => 'required',
+            'city'     => 'required',
+            'state'    => 'required|max:2',
         ], $messages);
 
         if( $validator->fails() ){
@@ -176,13 +190,27 @@ class CustomerController extends Controller
             'document.required' => 'O Campo e-mail é obrigatório!',
             'document.unique'   => 'Documento já cadastrado!',
             'name.required'     => 'O campo nome é obrigatório!',
-            'email.required'     => 'O campo email é obrigatório!',
+            'email.required'    => 'O campo email é obrigatório!',
+            'cep.required'      => 'O CEP é obrigatório!',
+            'address.required'  => 'O campo endereço é obrigatório!',
+            'number.required'   => 'O campo número é obrigatório!',
+            'district.required' => 'O campo bairro é obrigatório!',
+            'city.required'     => 'O campo cidade é obrigatório!',
+            'state.required'    => 'O Campo estado é obrigatório!',
+            'state.max'         => 'O Campo estado deve ter no máximo 2 caracteres!',
         ];
 
         $validator = Validator::make($data, [
-            'document'      => "required|max:20|unique:customers,document,$id,id,user_id,".auth()->user()->id,
+            'document' => "required|max:20|unique:customers,document,$id,id,user_id,".auth()->user()->id,
             'name'     => 'required',
             'email'    => 'required',
+            'cep'      => 'required',
+            'address'  => 'required',
+            'address'  => 'required',
+            'number'   => 'required',
+            'district' => 'required',
+            'city'     => 'required',
+            'state'    => 'required|max:2',
         ], $messages);
 
         if( $validator->fails() ){

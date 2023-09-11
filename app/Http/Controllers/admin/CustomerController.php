@@ -111,7 +111,7 @@ class CustomerController extends Controller
         $data = $this->request->all();
 
         $messages = [
-            'document.required' => 'O Campo e-mail é obrigatório!',
+            'document.required' => 'O Campo Documento é obrigatório!',
             'document.unique'   => 'Documento já cadastrado!',
             'name.required'     => 'O campo nome é obrigatório!',
             'email.required'    => 'O campo email é obrigatório!',
@@ -145,8 +145,8 @@ class CustomerController extends Controller
         $model->type                    = $data['type'];
         $model->document                = removeEspeciais($data['document']);
         $model->company                 = $data['company'];
-        $model->email                   = $data['email'];
-        $model->email2                  = $data['email2'];
+        $model->email                   = Str::lower($data['email']);
+        $model->email2                  = Str::lower($data['email2']);
         $model->status                  = $data['status'];
         $model->cep                     = $data['cep'];
         $model->address                 = $data['address'];
@@ -187,7 +187,7 @@ class CustomerController extends Controller
         $data = $this->request->all();
 
         $messages = [
-            'document.required' => 'O Campo e-mail é obrigatório!',
+            'document.required' => 'O Campo Documento é obrigatório!',
             'document.unique'   => 'Documento já cadastrado!',
             'name.required'     => 'O campo nome é obrigatório!',
             'email.required'    => 'O campo email é obrigatório!',
@@ -222,8 +222,8 @@ class CustomerController extends Controller
         $model->type                    = $data['type'];
         $model->document                = removeEspeciais($data['document']);
         $model->company                 = $data['company'];
-        $model->email                   = $data['email'];
-        $model->email2                  = $data['email2'];
+        $model->email                   = Str::lower($data['email']);
+        $model->email2                  = Str::lower($data['email2']);
         $model->status                  = $data['status'];
         $model->cep                     = $data['cep'];
         $model->address                 = $data['address'];

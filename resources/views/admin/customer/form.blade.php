@@ -410,7 +410,7 @@ $(window).on("load", function(){
                 data:data,
                 method:method,
                 success:function(data){
-                    console.log(data);
+                    //console.log(data);
                     var message = url_act == 'add' ? data.data : data;
                     Swal.fire({
                         width:350,
@@ -480,7 +480,7 @@ $(window).on("load", function(){
             var url = `{{ url("/admin/customer-services/form?customer_id=") }}${customer_id}&id=${customer_service_id}`;
         }
 
-        console.log(url);
+        //console.log(url);
         $.get(url,
             $(this)
             .addClass('modal-scrollfix')
@@ -525,7 +525,7 @@ $(window).on("load", function(){
                 data:data,
                 method:method,
                 success:function(data){
-                    console.log(data);
+                    //console.log(data);
                     Swal.fire({
                         width:350,
                         title: "<h5 style='color:#007bff'>" + data + "</h5>",
@@ -582,7 +582,7 @@ function loadCustomerServices(){
                 url: "{{url('/admin/load-customer-services')}}"+'/'+customer_id,
                 method: 'GET',
                 success:function(data){
-                    console.log(data);
+                    //console.log(data);
                     $('#load-customer-services').html('');
                     var html = '';
                     $.each(data, function(i, item) {
@@ -702,11 +702,11 @@ $(document).on('click', '#btn-delete-customer-service', function(e) {
         }else{
             $("#modalInvoiceLabel").html('Editar Fatura');
             var invoice = $(this).data('invoice');
-            console.log(invoice);
+            //console.log(invoice);
             var url = `{{ url("/admin/invoices/form?customer_id=") }}${customer_id}&id=${invoice}`;
         }
 
-        console.log(url);
+        //console.log(url);
         $.get(url,
             $(this)
             .addClass('modal-scrollfix')
@@ -763,7 +763,7 @@ $(document).on('click', '#btn-delete-customer-service', function(e) {
                 success:function(data){
                     $("#btn-save-invoice").attr("disabled", false);
                     $("#btn-save-invoice").html('<i class="fa fa-check"></i> Salvar');
-                    console.log(data);
+                    //console.log(data);
                     Swal.fire({
                         width:350,
                         title: "<h5 style='color:#007bff'>" + data + "</h5>",
@@ -822,7 +822,7 @@ function loadInvoices(){
                 url: "{{url('/admin/load-invoices')}}"+'/'+customer_id,
                 method: 'GET',
                 success:function(data){
-                    console.log(data);
+                    //console.log(data);
                     $('#load-invoices').html('');
                     var html = '';
                     $.each(data, function(i, item) {
@@ -944,7 +944,7 @@ $(document).on('click', '#btn-delete-invoice', function(e) {
             var invoice = $(this).data('invoice');
             var url = "{{url('/admin/load-invoice-notifications')}}"+'/'+invoice;
 
-        console.log(url);
+        //console.log(url);
         $.get(url,
             $(this)
             .addClass('modal-scrollfix')

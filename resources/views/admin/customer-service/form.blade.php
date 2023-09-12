@@ -54,6 +54,7 @@
                 <div class="form-group col-md-4 col-sm-12">
                     <label>Período</label>
                     <select class="form-control custom-select" name="period" id="period">
+                        <option value="">Selecione o Período</option>
                         <option {{ isset($data->period) && $data->period === 'Recorrente' ? 'selected' : '' }} value="Recorrente">Recorrente</option>
                         <option {{ isset($data->period) && $data->period === 'Único' ? 'selected' : '' }} value="Único">Único</option>
                     </select>
@@ -62,6 +63,7 @@
                 <div class="form-group col-md-4 col-sm-12">
                     <label>Gateway Pagamento</label>
                     <select class="form-control custom-select" name="gateway_payment" id="gateway_payment">
+                        <option value="">Selecione o Gateway de Pagamento</option>
                         <option {{ isset($data->gateway_payment) && $data->gateway_payment === 'Estabelecimento' ? 'selected' : '' }} value="Estabelecimento">Estabelecimento</option>
                         <option {{ isset($data->gateway_payment) && $data->gateway_payment === 'Pag Hiper' ? 'selected' : '' }} value="Pag Hiper">Pag Hiper</option>
                         <option {{ isset($data->gateway_payment) && $data->gateway_payment === 'Mercado Pago' ? 'selected' : '' }} value="Mercado Pago">Mercado Pago</option>
@@ -73,6 +75,7 @@
                 <div class="form-group col-md-4 col-sm-12">
                     <label>Forma de Pagamento</label>
                     <select class="form-control custom-select" name="payment_method" id="payment_method">
+                        <option value="">Selecione a Forma de Pagamento</option>
                         <option {{ isset($data->payment_method) && $data->payment_method === 'Pix' ? 'selected' : '' }} value="Pix">Pix</option>
                         <option {{ isset($data->payment_method) && $data->payment_method === 'Boleto' ? 'selected' : '' }} value="Boleto">Boleto</option>
                         <option {{ isset($data->payment_method) && $data->payment_method === 'Depósito' ? 'selected' : '' }} value="Depósito">Depósito</option>

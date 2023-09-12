@@ -247,10 +247,33 @@ class Invoice extends Model
         public static function generateBilletIntermedium($invoice){
 
 
-                $date_multa = Carbon::parse($invoice['date_due'])->addDays(1);
-                if(date('l') == 'Saturday' || date('l') == 'Sábado'){
-                    $date_multa = Carbon::parse($invoice['date_due'])->addDays(2);
-                }
+            if($invoice['inter_host'] == ''){
+                return ['status' => 'reject', 'message' => 'HOST banco inter não cadastrado!'];
+            }
+
+            if($invoice['inter_client_id'] == ''){
+                return ['status' => 'reject', 'message' => 'CLIENT ID banco inter não cadastrado!'];
+            }
+            if($invoice['inter_client_secret'] == ''){
+                return ['status' => 'reject', 'message' => 'CLIENT SECRET banco inter não cadastrado!'];
+            }
+            if($invoice['inter_crt_file'] == ''){
+                return ['status' => 'reject', 'message' => 'Certificado CRT banco inter não cadastrado!'];
+            }
+            if(!file_exists(storage_path('/app/'.$invoice['inter_crt_file']))){
+                return ['status' => 'reject', 'message' => 'Certificado CRT banco inter não existe!'];
+            }
+
+            if($invoice['inter_key_file'] == ''){
+                return ['status' => 'reject', 'message' => 'Certificado KEY banco inter não cadastrado!'];
+            }
+            if(!file_exists(storage_path('/app/'.$invoice['inter_key_file']))){
+                return ['status' => 'reject', 'message' => 'Certificado KEY banco inter não existe!'];
+            }
+
+
+
+
 
             $response = Http::withOptions([
                 'cert' => storage_path('/app/'.$invoice['inter_crt_file']),
@@ -262,8 +285,19 @@ class Invoice extends Model
                 'grant_type' => 'client_credentials',
             ]);
 
-            $responseBody = $response->body();
-            $access_token = json_decode($responseBody)->access_token;
+            if ($response->successful()) {
+                $responseBody = $response->body();
+                $access_token = json_decode($responseBody)->access_token;
+            }else{
+                return ['status' => 'reject', 'message' => 'Erro ao autenticar com o Banco Inter, informe ao Administrador do sistema!'];
+            }
+
+
+
+            $date_multa = Carbon::parse($invoice['date_due'])->addDays(1);
+            if(date('l') == 'Saturday' || date('l') == 'Sábado'){
+                $date_multa = Carbon::parse($invoice['date_due'])->addDays(2);
+            }
 
             $response_generate_billet = Http::withOptions([
                 'cert' => storage_path('/app/'.$invoice['inter_crt_file']),
@@ -298,7 +332,6 @@ class Invoice extends Model
               ]
               ]);
 
-
             if ($response_generate_billet->successful()) {
 
                 $result_generate_billet = $response_generate_billet->json();
@@ -309,8 +342,8 @@ class Invoice extends Model
                 return ['status' => 'ok', 'transaction' => $result_generate_billet];
             }else{
                 $result_generate_billet = $response_generate_billet->json();
-                \Log::info(json_decode($result_generate_billet));
-                return ['status' => 'reject', 'message' => json_decode($result_generate_billet)];
+                \Log::info($result_generate_billet);
+                return ['status' => 'reject', 'title' => $result_generate_billet['title'], 'message' => $result_generate_billet['violacoes']];
             }
 
 
@@ -393,18 +426,52 @@ class Invoice extends Model
 
             public static function generatePixIntermedium($invoice){
 
-            $response = Http::withOptions([
-                'cert' => storage_path('/app/'.$invoice['inter_crt_file']),
-                'ssl_key' => storage_path('/app/'.$invoice['inter_key_file']),
-            ])->asForm()->post($invoice['inter_host'].'oauth/v2/token', [
-                'client_id' => $invoice['inter_client_id'],
-                'client_secret' => $invoice['inter_client_secret'],
-                'scope' => $invoice['inter_scope'],
-                'grant_type' => 'client_credentials',
-            ]);
+                if($invoice['inter_host'] == ''){
+                    return ['status' => 'reject', 'message' => 'HOST banco inter não cadastrado!'];
+                }
 
-            $responseBody = $response->body();
-            $access_token = json_decode($responseBody)->access_token;
+                if($invoice['inter_client_id'] == ''){
+                    return ['status' => 'reject', 'message' => 'CLIENT ID banco inter não cadastrado!'];
+                }
+                if($invoice['inter_client_secret'] == ''){
+                    return ['status' => 'reject', 'message' => 'CLIENT SECRET banco inter não cadastrado!'];
+                }
+                if($invoice['inter_crt_file'] == ''){
+                    return ['status' => 'reject', 'message' => 'Certificado CRT banco inter não cadastrado!'];
+                }
+                if(!file_exists(storage_path('/app/'.$invoice['inter_crt_file']))){
+                    return ['status' => 'reject', 'message' => 'Certificado CRT banco inter não existe!'];
+                }
+
+                if($invoice['inter_key_file'] == ''){
+                    return ['status' => 'reject', 'message' => 'Certificado KEY banco inter não cadastrado!'];
+                }
+                if(!file_exists(storage_path('/app/'.$invoice['inter_key_file']))){
+                    return ['status' => 'reject', 'message' => 'Certificado KEY banco inter não existe!'];
+                }
+
+
+
+
+
+                $response = Http::withOptions([
+                    'cert' => storage_path('/app/'.$invoice['inter_crt_file']),
+                    'ssl_key' => storage_path('/app/'.$invoice['inter_key_file']),
+                ])->asForm()->post($invoice['inter_host'].'oauth/v2/token', [
+                    'client_id' => $invoice['inter_client_id'],
+                    'client_secret' => $invoice['inter_client_secret'],
+                    'scope' => $invoice['inter_scope'],
+                    'grant_type' => 'client_credentials',
+                ]);
+
+                if ($response->successful()) {
+                    $responseBody = $response->body();
+                    $access_token = json_decode($responseBody)->access_token;
+                }else{
+                    return ['status' => 'reject', 'message' => 'Erro ao autenticar com o Banco Inter, informe ao Administrador do sistema!'];
+                }
+
+
 
             $txid = generateUniqueId();
 
@@ -462,9 +529,10 @@ class Invoice extends Model
 
                 return ['status' => 'ok', 'transaction' => $result_generate_pix];
             }else{
+
                 $result_generate_pix = $response_generate_pix->json();
                 \Log::info($result_generate_pix);
-                return ['status' => 'reject', 'message' => $result_generate_pix];
+                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => $result_generate_pix['violacoes']];
             }
 
         }

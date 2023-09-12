@@ -193,6 +193,7 @@ class InvoiceController extends Controller
                 if($invoice->gateway_payment == 'Pag Hiper'){
                     $generatePixPH = Invoice::generatePixPH($invoice);
                     if($generatePixPH['status'] == 'reject'){
+                        $invoice->delete();
                         return response()->json($generatePixPH['message'], 422);
                     }
                     try {
@@ -213,12 +214,14 @@ class InvoiceController extends Controller
 
                     } catch (\Exception $e) {
                         \Log::error($e->getMessage());
+                        $invoice->delete();
                         return response()->json($e->getMessage(), 422);
                     }
 
                 }elseif($invoice->gateway_payment == 'Mercado Pago'){
                     $generatePixMP = Invoice::generatePixMP($invoice->id);
                     if($generatePixMP['status'] == 'reject'){
+                        $invoice->delete();
                         return response()->json($generatePixMP['message'], 422);
                     }
                     try {
@@ -239,13 +242,20 @@ class InvoiceController extends Controller
 
                     } catch (\Exception $e) {
                         \Log::error($e->getMessage());
+                        $invoice->delete();
                         return response()->json($e->getMessage(), 422);
                     }
 
                 }elseif($invoice->gateway_payment == 'Intermedium'){
                     $generatePixIntermedium = Invoice::generatePixIntermedium($invoice);
                     if($generatePixIntermedium['status'] == 'reject'){
-                        return response()->json($generatePixIntermedium['message'], 422);
+                        $invoice->delete();
+                        $msgInterPix = '';
+                        foreach($generatePixIntermedium['message'] as $messageInterPix){
+                            $msgInterPix .= $messageInterPix['razao'].' - '.$messageInterPix['propriedade'].',';
+                        }
+
+                        return response()->json($generatePixIntermedium['title'].': '.$msgInterPix, 422);
                     }
                     try {
 
@@ -263,6 +273,7 @@ class InvoiceController extends Controller
                         ]);
 
                     } catch (\Exception $e) {
+                        $invoice->delete();
                         \Log::error($e->getMessage());
                         return response()->json($e->getMessage(), 422);
                     }
@@ -273,6 +284,7 @@ class InvoiceController extends Controller
                 if($invoice->gateway_payment == 'Pag Hiper'){
                     $generateBilletPH = Invoice::generateBilletPH($invoice);
                     if($generateBilletPH['status'] == 'reject'){
+                        $invoice->delete();
                         return response()->json($generateBilletPH['message'], 422);
                     }
                     try {
@@ -294,6 +306,7 @@ class InvoiceController extends Controller
                             'billet_digitable'  =>  $generateBilletPH['transaction']->bank_slip->digitable_line
                         ]);
                     } catch (\Exception $e) {
+                        $invoice->delete();
                         \Log::error($e->getMessage());
                         return response()->json($e->getMessage(), 422);
                     }
@@ -302,7 +315,13 @@ class InvoiceController extends Controller
 
                     $generateBilletIntermedium = Invoice::generateBilletIntermedium($invoice);
                     if($generateBilletIntermedium['status'] == 'reject'){
-                        return response()->json($generateBilletIntermedium['message'], 422);
+                        $invoice->delete();
+                        $msgInterBillet = '';
+                        foreach($generateBilletIntermedium['message'] as $messageInterBillet){
+                            $msgInterBillet .= $messageInterBillet['razao'].' - '.$messageInterBillet['propriedade'].' - '.$messageInterBillet['valor'].',';
+                        }
+
+                        return response()->json($generateBilletIntermedium['title'].': '.$msgInterBillet, 422);
                     }
                     try {
 
@@ -340,6 +359,7 @@ class InvoiceController extends Controller
                             'billet_digitable'  =>  $generateBilletIntermedium['transaction']->linhaDigitavel
                         ]);
                     } catch (\Exception $e) {
+                        $invoice->delete();
                         \Log::error($e->getMessage());
                         return response()->json($e->getMessage(), 422);
                     }

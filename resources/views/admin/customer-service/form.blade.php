@@ -60,7 +60,7 @@
                     </select>
                 </div>
 
-                <div class="form-group col-md-4 col-sm-12">
+                <div class="form-group col-md-6 col-sm-12">
                     <label>Gateway Pagamento</label>
                     <select class="form-control custom-select" name="gateway_payment" id="gateway_payment">
                         <option value="">Selecione o Gateway de Pagamento</option>
@@ -72,7 +72,7 @@
                     </select>
                 </div>
 
-                <div class="form-group col-md-4 col-sm-12">
+                <div class="form-group col-md-6 col-sm-12">
                     <label>Forma de Pagamento</label>
                     <select class="form-control custom-select" name="payment_method" id="payment_method">
                         <option value="">Selecione a Forma de Pagamento</option>

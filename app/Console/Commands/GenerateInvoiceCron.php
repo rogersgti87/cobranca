@@ -24,6 +24,7 @@ class GenerateInvoiceCron extends Command
   public function handle()
   {
 
+    //Nova SQL para gerar faturas antes do vencimento
 
     // $sql = "SELECT DATE_ADD(CONCAT(YEAR(a.created_at),'-',MONTH(a.created_at),'-',a.day_due), INTERVAL TIMESTAMPDIFF(month, a.created_at, now()) + 1 MONTH) as date_due, CURDATE(),
     // a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsapp, c.company, a.description,a.price, u.access_token_mp,c.type,

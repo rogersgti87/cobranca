@@ -170,6 +170,32 @@
 
                     </fieldset>
 
+                    <fieldset>
+                        <legend>Configurações da Fatura</legend>
+
+                        <div class="form-row">
+
+                    <div class="form-group col-md-4 col-sm-12">
+                        <label>Dia parar gerar as faturas</label>
+                        <select class="form-control custom-select" name="day_generate_invoice" id="day_generate_invoice">
+                            <option {{ isset($data->day_generate_invoice) && $data->day_generate_invoice === 15 ? 'selected' : '' }} value="15">15</option>
+                            <option {{ isset($data->day_generate_invoice) && $data->day_generate_invoice === 20 ? 'selected' : '' }} value="20">20</option>
+                            <option {{ isset($data->day_generate_invoice) && $data->day_generate_invoice === 25 ? 'selected' : '' }} value="25">25</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group col-md-4 col-sm-12">
+                        <label>Enviar fatura no dia que for gerada?</label>
+                        <select class="form-control custom-select" name="send_generate_invoice" id="send_generate_invoice">
+                            <option {{ isset($data->send_generate_invoice) && $data->send_generate_invoice === 'Não' ? 'selected' : '' }} value="Não">Não</option>
+                            <option {{ isset($data->send_generate_invoice) && $data->send_generate_invoice === 'Sim' ? 'selected' : '' }} value="Sim">Sim</option>
+                        </select>
+                    </div>
+
+                    </div>
+
+                    </fieldset>
+
 
                     <fieldset>
                         <legend>Dados da API</legend>

@@ -158,8 +158,8 @@ class UserController extends Controller
         $model->district                    = $data['district'];
         $model->city                        = $data['city'];
         $model->state                       = $data['state'];
-        $model->api_host_whatsapp           = $data['api_host_whatsapp'];
-        $model->api_access_token_whatsapp   = $data['api_access_token_whatsapp'];
+        //$model->api_host_whatsapp           = $data['api_host_whatsapp'];
+        //$model->api_access_token_whatsapp   = $data['api_access_token_whatsapp'];
         $model->token_paghiper              = $data['token_paghiper'];
         $model->key_paghiper                = $data['key_paghiper'];
         $model->access_token_mp             = $data['access_token_mp'];
@@ -170,6 +170,8 @@ class UserController extends Controller
         $model->inter_webhook_url_billet    = $data['inter_webhook_url_billet'];
         $model->inter_webhook_url_pix       = $data['inter_webhook_url_pix'];
         $model->inter_chave_pix             = $data['inter_chave_pix'];
+        $model->day_generate_invoice        = $data['day_generate_invoice'];
+        $model->send_generate_invoice       = $data['send_generate_invoice'];
 
 
 
@@ -256,8 +258,8 @@ class UserController extends Controller
         $model->district                    = $data['district'];
         $model->city                        = $data['city'];
         $model->state                       = $data['state'];
-        $model->api_host_whatsapp           = $data['api_host_whatsapp'];
-        $model->api_access_token_whatsapp   = $data['api_access_token_whatsapp'];
+        //$model->api_host_whatsapp           = $data['api_host_whatsapp'];
+        //$model->api_access_token_whatsapp   = $data['api_access_token_whatsapp'];
         $model->token_paghiper              = $data['token_paghiper'];
         $model->key_paghiper                = $data['key_paghiper'];
         $model->access_token_mp             = $data['access_token_mp'];
@@ -268,6 +270,8 @@ class UserController extends Controller
         $model->inter_webhook_url_billet    = $data['inter_webhook_url_billet'];
         $model->inter_webhook_url_pix       = $data['inter_webhook_url_pix'];
         $model->inter_chave_pix             = $data['inter_chave_pix'];
+        $model->day_generate_invoice        = $data['day_generate_invoice'];
+        $model->send_generate_invoice       = $data['send_generate_invoice'];
 
         if(!file_exists(storage_path('app/certificates')))
             \File::makeDirectory(storage_path('app/certificates'));

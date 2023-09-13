@@ -6,6 +6,8 @@ use Illuminate\Console\Command;
 use DB;
 use Carbon\Carbon;
 use App\Models\Invoice;
+use App\Models\InvoiceNotification;
+use App\Models\User;
 use Illuminate\Support\Facades\Http;
 
 
@@ -24,32 +26,37 @@ class GenerateInvoiceCron extends Command
   public function handle()
   {
 
+
+$users = User::where('status','Ativo')->get();
+
+foreach($users as $user){
+
     //Nova SQL para gerar faturas antes do vencimento
-
-    // $sql = "SELECT DATE_ADD(CONCAT(YEAR(a.created_at),'-',MONTH(a.created_at),'-',a.day_due), INTERVAL TIMESTAMPDIFF(month, a.created_at, now()) + 1 MONTH) as date_due, CURDATE(),
-    // a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsapp, c.company, a.description,a.price, u.access_token_mp,c.type,
-    //     u.inter_host,u.inter_client_id,u.inter_client_secret,u.inter_scope,u.inter_crt_file,u.inter_key_file,u.inter_crt_file_webhook,u.inter_chave_pix,
-    //     a.gateway_payment,a.payment_method,a.period, CURRENT_DATE date_invoice,
-    //     a.status, 'Pendente',CURRENT_TIMESTAMP created_at,CURRENT_TIMESTAMP updated_at FROM customer_services a
-    //     INNER JOIN customers c ON a.customer_id = c.id
-    //     INNER JOIN services s ON a.service_id = s.id
-    //     INNER JOIN users u ON a.user_id = u.id
-    //     WHERE NOT EXISTS (SELECT * FROM invoices b WHERE a.id = b.customer_service_id AND b.date_invoice = CURRENT_DATE) AND a.status = 'Ativo' and a.period = 'Recorrente'
-    //      and DATE_ADD(DATE_ADD(CONCAT(YEAR(a.created_at),'-',MONTH(a.created_at),'-',a.day_due), INTERVAL TIMESTAMPDIFF(month, a.created_at, now()) + 1 MONTH), INTERVAL - 5  DAY) = CURDATE()
-    //      AND (a.end_billing >= CURDATE() OR a.end_billing IS NULL)";
-
-
-    $sql = "SELECT a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsapp, c.company, a.description,a.price, u.access_token_mp,c.type,
+$sql = "SELECT DATE_ADD(CONCAT(YEAR(a.start_billing),'-',MONTH(a.start_billing),'-',a.day_due), INTERVAL TIMESTAMPDIFF(month, a.start_billing, now()) + 1 MONTH) as date_due, CURDATE(),
+a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsapp, c.company, a.description,a.price, u.access_token_mp,c.type,
     u.inter_host,u.inter_client_id,u.inter_client_secret,u.inter_scope,u.inter_crt_file,u.inter_key_file,u.inter_crt_file_webhook,u.inter_chave_pix,
-    a.gateway_payment,a.payment_method,a.period, CURRENT_DATE date_invoice, DATE_ADD(CONCAT(YEAR(CURRENT_DATE),'-',MONTH(CURRENT_DATE),'-',a.day_due), INTERVAL 0 MONTH) date_due,
+    a.gateway_payment,a.payment_method,a.period, CURRENT_DATE date_invoice,
     a.status, 'Pendente',CURRENT_TIMESTAMP created_at,CURRENT_TIMESTAMP updated_at FROM customer_services a
     INNER JOIN customers c ON a.customer_id = c.id
     INNER JOIN services s ON a.service_id = s.id
     INNER JOIN users u ON a.user_id = u.id
-    WHERE NOT EXISTS (SELECT * FROM invoices b WHERE a.id = b.customer_service_id AND b.date_invoice = CURRENT_DATE)
-    AND CURRENT_DATE = DATE_ADD(DATE_ADD(CONCAT(YEAR(CURRENT_DATE),'-',MONTH(CURRENT_DATE),'-','01'), INTERVAL 0 MONTH), INTERVAL 0 DAY) AND a.status = 'Ativo' and a.period = 'Recorrente'";
+    WHERE NOT EXISTS (SELECT * FROM invoices b WHERE a.id = b.customer_service_id AND b.date_invoice = CURRENT_DATE) AND a.status = 'Ativo' and a.period = 'Recorrente'
+    and day(CURDATE()) = ".$user->day_generate_invoice."
+    and CURDATE() >= a.start_billing AND (a.end_billing >= CURDATE() OR a.end_billing IS NULL)";
 
-   $verifyInvoices = DB::select($sql);
+    $verifyInvoices = DB::select($sql);
+
+//     $sql = "SELECT a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsapp, c.company, a.description,a.price, u.access_token_mp,c.type,
+//     u.inter_host,u.inter_client_id,u.inter_client_secret,u.inter_scope,u.inter_crt_file,u.inter_key_file,u.inter_crt_file_webhook,u.inter_chave_pix,
+//     a.gateway_payment,a.payment_method,a.period, CURRENT_DATE date_invoice, DATE_ADD(CONCAT(YEAR(CURRENT_DATE),'-',MONTH(CURRENT_DATE),'-',a.day_due), INTERVAL 0 MONTH) date_due,
+//     a.status, 'Pendente',CURRENT_TIMESTAMP created_at,CURRENT_TIMESTAMP updated_at FROM customer_services a
+//     INNER JOIN customers c ON a.customer_id = c.id
+//     INNER JOIN services s ON a.service_id = s.id
+//     INNER JOIN users u ON a.user_id = u.id
+//     WHERE NOT EXISTS (SELECT * FROM invoices b WHERE a.id = b.customer_service_id AND b.date_invoice = CURRENT_DATE)
+//     AND CURRENT_DATE = DATE_ADD(DATE_ADD(CONCAT(YEAR(CURRENT_DATE),'-',MONTH(CURRENT_DATE),'-','01'), INTERVAL 0 MONTH), INTERVAL 0 DAY) AND a.status = 'Ativo' and a.period = 'Recorrente'";
+
+//    $verifyInvoices = DB::select($sql);
 
 //   return $verifyInvoices;
 
@@ -231,8 +238,52 @@ class GenerateInvoiceCron extends Command
 
 
 
+    $details = [
+        'type_send'                 => 'New',
+        'title'                     => 'Nova fatura gerada',
+        'message_customer'          => 'Olá '.$invoice->name.', tudo bem?',
+        'message_notification'      => 'Esta é uma mensagem para notificá-lo(a) que sua Fatura foi gerada',
+        'logo'                      => 'https://cobrancasegura.com.br/'.$invoice->user_image,
+        'company'                   => $invoice->user_company,
+        'user_whatsapp'             => removeEspeciais($invoice->user_whatsapp),
+        'user_telephone'            => removeEspeciais($invoice->user_telephone),
+        'user_email'                => $invoice->user_email,
+        'user_access_token_wp'      => $invoice->api_access_token_whatsapp,
+        'user_id'                   => $invoice->user_id,
+        'customer'                  => $invoice->name,
+        'customer_email'            => $invoice->email,
+        'customer_email2'           => $invoice->email2,
+        'customer_whatsapp'         => removeEspeciais($invoice->whatsapp),
+        'notification_whatsapp'     => $invoice->notification_whatsapp,
+        'customer_company'          => $invoice->company,
+        'date_invoice'              => date('d/m/Y', strtotime($invoice->date_invoice)),
+        'date_due'                  => date('d/m/Y', strtotime($invoice->date_due)),
+        'price'                     => number_format($invoice->price, 2,',','.'),
+        'gateway_payment'           => $invoice->gateway_payment,
+        'payment_method'            => $invoice->payment_method,
+        'service'                   => $invoice->service_name .' - '. $invoice->description,
+        'invoice'                   => $invoice->id,
+        'status'                    => $invoice->status,
+        'url_base'                  => url('/'),
+        'pix_qrcode_image_url'      => $invoice->image_url_pix,
+        'pix_emv'                   => $invoice->pix_digitable,
+        'pix_qrcode_base64'         => $invoice->qrcode_pix_base64,
+        'billet_digitable_line'     => $invoice->billet_digitable,
+        'billet_url_slip_base64'    => $invoice->billet_base64,
+        'billet_url_slip'           => $invoice->billet_url,
+    ];
+
+
+    $details['body']  = view('mails.invoice',$details)->render();
+
+    InvoiceNotification::Email($details);
+
+    if($invoice->notification_whatsapp)
+        InvoiceNotification::Whatsapp($details);
+
      }
 
+    }//end foreach users
 
 
   }

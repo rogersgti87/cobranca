@@ -176,7 +176,7 @@
                         <div class="form-row">
 
                     <div class="form-group col-md-4 col-sm-12">
-                        <label>Dia parar gerar as faturas</label>
+                        <label>Dia para gerar as faturas</label>
                         <select class="form-control custom-select" name="day_generate_invoice" id="day_generate_invoice">
                             <option {{ isset($data->day_generate_invoice) && $data->day_generate_invoice === 15 ? 'selected' : '' }} value="15">15</option>
                             <option {{ isset($data->day_generate_invoice) && $data->day_generate_invoice === 20 ? 'selected' : '' }} value="20">20</option>

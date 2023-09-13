@@ -24,6 +24,7 @@ class CreateCustomerServicesTable extends Migration
             $table->string('period');
             $table->string('gateway_payment');
             $table->string('payment_method');
+            $table->date('start_billing');
             $table->date('end_billing')->nullable();
             $table->enum('status', ['Ativo','Inativo']);
             $table->timestamps();

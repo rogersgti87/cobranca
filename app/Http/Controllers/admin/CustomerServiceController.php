@@ -71,7 +71,8 @@ class CustomerServiceController extends Controller
         $messages = [
             'service_id.required'           => 'O Campo Serviço é obrigatório!',
             'description.unique'            => 'O campo descrição é obrigatório!',
-            'price.required'                => 'O campo preço é obrigatório!',
+            'price.required'                => 'O campo Valor é obrigatório!',
+            'start_billing.required'        => 'O campo Data Inicio Cobrança é obrigatório',
             'period.required'               => 'O campo periodo é obrigatório',
             'gateway_payment.required'      => 'O campo Gateway de pagamento é obrigatório',
             'payment_method.required'       => 'O campo Forma de pagamento é obrigatório!',
@@ -81,6 +82,7 @@ class CustomerServiceController extends Controller
             'service_id'        =>  'required',
             'description'       =>  'required',
             'price'             =>  'required',
+            'start_billing'     =>  'required',
             'period'            =>  'required',
             'gateway_payment'   =>  'required',
             'payment_method'    =>  'required',
@@ -100,6 +102,7 @@ class CustomerServiceController extends Controller
         $model->period              = $data['period'];
         $model->gateway_payment     = $data['gateway_payment'];
         $model->payment_method      = $data['payment_method'];
+        $model->start_billing       = $data['start_billing'];
         $model->end_billing         = $data['end_billing'];
 
         try{
@@ -405,16 +408,18 @@ class CustomerServiceController extends Controller
         $messages = [
             'service_id.required'           => 'O Campo Serviço é obrigatório!',
             'description.unique'            => 'O campo descrição é obrigatório!',
-            'price.required'                => 'O campo preço é obrigatório!',
+            'price.required'                => 'O campo Valor é obrigatório!',
+            'start_billing.required'        => 'O campo Data Inicio Cobrança é obrigatório',
             'period.required'               => 'O campo periodo é obrigatório',
             'gateway_payment.required'      => 'O campo Gateway de pagamento é obrigatório',
             'payment_method.required'       => 'O campo Forma de pagamento é obrigatório!',
         ];
 
         $validator = Validator::make($data, [
-            'service_id'        => 'required',
-            'description'       => 'required',
-            'price'             => 'required',
+            'service_id'        =>  'required',
+            'description'       =>  'required',
+            'price'             =>  'required',
+            'start_billing'     =>  'required',
             'period'            =>  'required',
             'gateway_payment'   =>  'required',
             'payment_method'    =>  'required',
@@ -434,6 +439,7 @@ class CustomerServiceController extends Controller
         $model->period              = $data['period'];
         $model->gateway_payment     = $data['gateway_payment'];
         $model->payment_method      = $data['payment_method'];
+        $model->start_billing       = $data['start_billing'];
         $model->end_billing         = $data['end_billing'];
 
         try{

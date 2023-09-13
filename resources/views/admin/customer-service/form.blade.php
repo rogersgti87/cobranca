@@ -30,7 +30,7 @@
                 </div>
 
 
-                <div class="form-group col-md-4 col-sm-12">
+                <div class="form-group col-md-2 col-sm-12">
                     <label>Dia Vencimento</label>
                     <select class="form-control custom-select" name="day_due" id="day_due">
                         <option {{ isset($data->day_due) && $data->day_due === 1 ? 'selected' : '' }} value="1">1</option>
@@ -68,23 +68,9 @@
                     </select>
                 </div>
 
-                <div class="form-group col-md-4 col-sm-12">
-                    <label>Preço</label>
+                <div class="form-group col-md-2 col-sm-12">
+                    <label>Valor</label>
                     <input type="text" class="form-control money" name="price" id="price" autocomplete="off" required value="{{isset($data->price) ? number_format($data->price,2,',','.') : ''}}">
-                </div>
-
-                <div class="form-group col-md-4 col-sm-12">
-                    <label>Período</label>
-                    <select class="form-control custom-select" name="period" id="period">
-                        <option value="">Selecione o Período</option>
-                        <option {{ isset($data->period) && $data->period === 'Recorrente' ? 'selected' : '' }} value="Recorrente">Recorrente</option>
-                        <option {{ isset($data->period) && $data->period === 'Único' ? 'selected' : '' }} value="Único">Único</option>
-                    </select>
-                </div>
-
-                <div class="form-group col-md-4 col-sm-12">
-                    <label>Data limite Cobrança <i class="far fa-question-circle" data-original-title="Gerar cobrança até a data definida." data-placement="right" data-tt="tooltip"></i></label>
-                    <input type="date" class="form-control" min="{{ date('Y-m-d') }}" name="end_billing" id="end_billing" autocomplete="off" value="{{isset($data->end_billing) ? $data->end_billing : ''}}">
                 </div>
 
                 <div class="form-group col-md-4 col-sm-12">
@@ -110,6 +96,27 @@
                         <option {{ isset($data->payment_method) && $data->payment_method === 'Cartão' ? 'selected' : '' }} value="Cartão">Cartão</option>
                     </select>
                 </div>
+
+                <div class="form-group col-md-4 col-sm-12">
+                    <label>Data Inicio Cobrança <i class="far fa-question-circle" data-original-title="Gerar cobrança a partir da data definida." data-placement="right" data-tt="tooltip"></i></label>
+                    <input type="date" class="form-control" min="{{ date('Y-m-d') }}" name="start_billing" id="start_billing" autocomplete="off" value="{{isset($data->start_billing) ? $data->start_billing : ''}}">
+                </div>
+
+                <div class="form-group col-md-4 col-sm-12">
+                    <label>Data Fim Cobrança <i class="far fa-question-circle" data-original-title="Gerar cobrança até a data definida." data-placement="right" data-tt="tooltip"></i></label>
+                    <input type="date" class="form-control" min="{{ date('Y-m-d') }}" name="end_billing" id="end_billing" autocomplete="off" value="{{isset($data->end_billing) ? $data->end_billing : ''}}">
+                </div>
+
+                <div class="form-group col-md-4 col-sm-12">
+                    <label>Período</label>
+                    <select class="form-control custom-select" name="period" id="period">
+                        <option value="">Selecione o Período</option>
+                        <option {{ isset($data->period) && $data->period === 'Recorrente' ? 'selected' : '' }} value="Recorrente">Recorrente</option>
+                        <option {{ isset($data->period) && $data->period === 'Único' ? 'selected' : '' }} value="Único">Único</option>
+                    </select>
+                </div>
+
+
 
 
 

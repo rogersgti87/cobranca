@@ -33,15 +33,37 @@
                 <div class="form-group col-md-4 col-sm-12">
                     <label>Dia Vencimento</label>
                     <select class="form-control custom-select" name="day_due" id="day_due">
+                        <option {{ isset($data->day_due) && $data->day_due === 1 ? 'selected' : '' }} value="1">1</option>
+                        <option {{ isset($data->day_due) && $data->day_due === 2 ? 'selected' : '' }} value="2">2</option>
+                        <option {{ isset($data->day_due) && $data->day_due === 3 ? 'selected' : '' }} value="3">3</option>
+                        <option {{ isset($data->day_due) && $data->day_due === 4 ? 'selected' : '' }} value="4">4</option>
                         <option {{ isset($data->day_due) && $data->day_due === 5 ? 'selected' : '' }} value="5">5</option>
+                        <option {{ isset($data->day_due) && $data->day_due === 6 ? 'selected' : '' }} value="6">6</option>
                         <option {{ isset($data->day_due) && $data->day_due === 7 ? 'selected' : '' }} value="7">7</option>
+                        <option {{ isset($data->day_due) && $data->day_due === 8 ? 'selected' : '' }} value="8">8</option>
+                        <option {{ isset($data->day_due) && $data->day_due === 9 ? 'selected' : '' }} value="9">9</option>
                         <option {{ isset($data->day_due) && $data->day_due === 10 ? 'selected' : '' }} value="10">10</option>
+                        <option {{ isset($data->day_due) && $data->day_due === 11 ? 'selected' : '' }} value="11">11</option>
                         <option {{ isset($data->day_due) && $data->day_due === 12 ? 'selected' : '' }} value="12">12</option>
+                        <option {{ isset($data->day_due) && $data->day_due === 13 ? 'selected' : '' }} value="13">13</option>
+                        <option {{ isset($data->day_due) && $data->day_due === 14 ? 'selected' : '' }} value="14">14</option>
                         <option {{ isset($data->day_due) && $data->day_due === 15 ? 'selected' : '' }} value="15">15</option>
+                        <option {{ isset($data->day_due) && $data->day_due === 16 ? 'selected' : '' }} value="16">16</option>
                         <option {{ isset($data->day_due) && $data->day_due === 17 ? 'selected' : '' }} value="17">17</option>
+                        <option {{ isset($data->day_due) && $data->day_due === 18 ? 'selected' : '' }} value="18">18</option>
+                        <option {{ isset($data->day_due) && $data->day_due === 19 ? 'selected' : '' }} value="19">19</option>
                         <option {{ isset($data->day_due) && $data->day_due === 20 ? 'selected' : '' }} value="20">20</option>
+                        <option {{ isset($data->day_due) && $data->day_due === 21 ? 'selected' : '' }} value="21">21</option>
+                        <option {{ isset($data->day_due) && $data->day_due === 22 ? 'selected' : '' }} value="22">22</option>
+                        <option {{ isset($data->day_due) && $data->day_due === 23 ? 'selected' : '' }} value="23">23</option>
+                        <option {{ isset($data->day_due) && $data->day_due === 24 ? 'selected' : '' }} value="24">24</option>
                         <option {{ isset($data->day_due) && $data->day_due === 25 ? 'selected' : '' }} value="25">25</option>
+                        <option {{ isset($data->day_due) && $data->day_due === 26 ? 'selected' : '' }} value="26">26</option>
+                        <option {{ isset($data->day_due) && $data->day_due === 27 ? 'selected' : '' }} value="27">27</option>
                         <option {{ isset($data->day_due) && $data->day_due === 28 ? 'selected' : '' }} value="28">28</option>
+                        <option {{ isset($data->day_due) && $data->day_due === 29 ? 'selected' : '' }} value="29">29</option>
+                        <option {{ isset($data->day_due) && $data->day_due === 30 ? 'selected' : '' }} value="30">30</option>
+                        <option {{ isset($data->day_due) && $data->day_due === 31 ? 'selected' : '' }} value="31">31</option>
 
                     </select>
                 </div>
@@ -60,7 +82,12 @@
                     </select>
                 </div>
 
-                <div class="form-group col-md-6 col-sm-12">
+                <div class="form-group col-md-4 col-sm-12">
+                    <label>Data limite Cobrança <i class="far fa-question-circle" data-original-title="Gerar cobrança até a data definida." data-placement="right" data-tt="tooltip"></i></label>
+                    <input type="date" class="form-control" min="{{ date('Y-m-d') }}" name="end_billing" id="end_billing" autocomplete="off" value="{{isset($data->end_billing) ? $data->end_billing : ''}}">
+                </div>
+
+                <div class="form-group col-md-4 col-sm-12">
                     <label>Gateway Pagamento</label>
                     <select class="form-control custom-select" name="gateway_payment" id="gateway_payment">
                         <option value="">Selecione o Gateway de Pagamento</option>
@@ -72,7 +99,7 @@
                     </select>
                 </div>
 
-                <div class="form-group col-md-6 col-sm-12">
+                <div class="form-group col-md-4 col-sm-12">
                     <label>Forma de Pagamento</label>
                     <select class="form-control custom-select" name="payment_method" id="payment_method">
                         <option value="">Selecione a Forma de Pagamento</option>

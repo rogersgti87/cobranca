@@ -116,7 +116,7 @@ class RememberInvoiceCron extends Command
 
     }
 
-    else if(Carbon::parse($invoice->date_due)->diffInDays(Carbon::now()->format('Y-m-d')) == 4 ){
+    else if(Carbon::parse($invoice->date_due)->diffInDays(Carbon::now()->format('Y-m-d')) == 5 ){
         $details['title']         = 'Nova fatura gerada';
         $details['message_notification'] = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura foi gerada.';
 

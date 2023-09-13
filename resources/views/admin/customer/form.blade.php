@@ -490,6 +490,7 @@ $(window).on("load", function(){
                 // console.log(data);
                 $("#form-content-customer-service").html(data);
                 $('.money').mask('000.000.000.000.000,00', {reverse: true});
+                $('[data-tt="tooltip"]').tooltip();
                 // aqui quando selecionar um serviço, buscar qual o valor dele e atualizar o campo de preço.
                 $('#service_id').on('change', function() {
                     var service_id = $(this).val();
@@ -601,6 +602,7 @@ function loadCustomerServices(){
 
                     });
                     $('#load-customer-services').append(html);
+                    $('[data-tt="tooltip"]').tooltip();
 
                 },
                 error:function (xhr) {

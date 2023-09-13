@@ -100,6 +100,7 @@ class CustomerServiceController extends Controller
         $model->period              = $data['period'];
         $model->gateway_payment     = $data['gateway_payment'];
         $model->payment_method      = $data['payment_method'];
+        $model->end_billing         = $data['end_billing'];
 
         try{
             $model->save();
@@ -433,6 +434,7 @@ class CustomerServiceController extends Controller
         $model->period              = $data['period'];
         $model->gateway_payment     = $data['gateway_payment'];
         $model->payment_method      = $data['payment_method'];
+        $model->end_billing         = $data['end_billing'];
 
         try{
             $model->save();

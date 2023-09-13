@@ -24,6 +24,20 @@ class GenerateInvoiceCron extends Command
   public function handle()
   {
 
+
+    // $sql = "SELECT DATE_ADD(CONCAT(YEAR(a.created_at),'-',MONTH(a.created_at),'-',a.day_due), INTERVAL TIMESTAMPDIFF(month, a.created_at, now()) + 1 MONTH) as date_due, CURDATE(),
+    // a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsapp, c.company, a.description,a.price, u.access_token_mp,c.type,
+    //     u.inter_host,u.inter_client_id,u.inter_client_secret,u.inter_scope,u.inter_crt_file,u.inter_key_file,u.inter_crt_file_webhook,u.inter_chave_pix,
+    //     a.gateway_payment,a.payment_method,a.period, CURRENT_DATE date_invoice,
+    //     a.status, 'Pendente',CURRENT_TIMESTAMP created_at,CURRENT_TIMESTAMP updated_at FROM customer_services a
+    //     INNER JOIN customers c ON a.customer_id = c.id
+    //     INNER JOIN services s ON a.service_id = s.id
+    //     INNER JOIN users u ON a.user_id = u.id
+    //     WHERE NOT EXISTS (SELECT * FROM invoices b WHERE a.id = b.customer_service_id AND b.date_invoice = CURRENT_DATE) AND a.status = 'Ativo' and a.period = 'Recorrente'
+    //      and DATE_ADD(DATE_ADD(CONCAT(YEAR(a.created_at),'-',MONTH(a.created_at),'-',a.day_due), INTERVAL TIMESTAMPDIFF(month, a.created_at, now()) + 1 MONTH), INTERVAL - 5  DAY) = CURDATE()
+    //      AND (a.end_billing >= CURDATE() OR a.end_billing IS NULL)";
+
+
     $sql = "SELECT a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsapp, c.company, a.description,a.price, u.access_token_mp,c.type,
     u.inter_host,u.inter_client_id,u.inter_client_secret,u.inter_scope,u.inter_crt_file,u.inter_key_file,u.inter_crt_file_webhook,u.inter_chave_pix,
     a.gateway_payment,a.payment_method,a.period, CURRENT_DATE date_invoice, DATE_ADD(CONCAT(YEAR(CURRENT_DATE),'-',MONTH(CURRENT_DATE),'-',a.day_due), INTERVAL 0 MONTH) date_due,

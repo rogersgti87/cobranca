@@ -10,6 +10,7 @@ use App\Models\Invoice;
 use App\Models\InvoiceNotification;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Queue;
 
 
 class GenerateInvoiceCron extends Command
@@ -48,20 +49,33 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
 
     $verifyInvoices = collect($verifyInvoices);
 
+    $queueSize = Queue::size($user->id);
+
+    if ($queueSize > 0) {
+        $this->info('A Fila já tem trabalho pendente');
+        return 'A Fila já tem trabalho pendente';
+    }
+
     if($verifyInvoices != null){
+        $count = 1;
+        foreach($verifyInvoices as $vInvoice){
 
-        foreach($verifyInvoices->chunk(5) as $chunk){
-
-            foreach ($chunk as $vInvoice) {
+            //foreach ($chunk as $vInvoice) {
                 $job = new sendInvoice($vInvoice);
                 $job->onQueue($vInvoice->user_id);
                 dispatch($job);
+            //}
+
+            if($count > 5){
+                dispatch(new GenerateInvoiceCron())->delay(now()->addMinutes(1));
+                $this->info('Notificação enviada.');
+                return 'Notificação enviada.';
             }
 
-            dispatch(new GenerateInvoiceCron())->delay(now()->addMinutes(5));
+            $count++;
 
          }
-
+         $this->info('Notificações em fila iniciadas.');
     }
 
     }//end foreach users

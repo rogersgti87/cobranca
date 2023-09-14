@@ -260,6 +260,7 @@ class sendInvoice implements ShouldQueue
         InvoiceNotification::Whatsapp($details);
 
 
+    return "Notificação para o cliente {$invoice->name} está na fila para processamento.";
 
     }
 }

@@ -375,8 +375,16 @@ class CustomerServiceController extends Controller
                 if(isset($data['send_invoice_email']))
                     InvoiceNotification::Email($details);
 
-                if(isset($data['send_invoice_whatsapp']))
-                    InvoiceNotification::Whatsapp($details);
+                if(isset($data['send_invoice_whatsapp'])){
+                    try{
+                        InvoiceNotification::Whatsapp($details);
+                    }catch (\Exception $e) {
+                        \Log::error($e->getMessage());
+                        InvoiceNotification::Whatsapp($details);
+                        return response()->json('Erro ao enviar notificação via whatsapp, será feito mais uma tentativa. Caso o erro persista, verifique sua conexão com o whatsapp ou clique em reenviar notificação em faturas. ', 422);
+                        }
+                }
+
 
 
 

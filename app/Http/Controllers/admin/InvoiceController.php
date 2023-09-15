@@ -881,7 +881,14 @@ public function loadInvoices(){
 public function invoiceNotificate($invoice_id){
 
     $options = $this->request->input('selectedOptions');
-    $status_whatsapp = 'Não enviado';
+
+
+    $status_whatsapp = [
+        'mensagem' => 'Não enviado',
+        'pix'      => 'Não enviado',
+        'boleto'   => 'Não enviado'
+    ];
+
     $status_email    = 'Não enviado';
 
 

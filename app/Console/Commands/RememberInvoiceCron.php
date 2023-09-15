@@ -116,7 +116,7 @@ class RememberInvoiceCron extends Command
 
     }
 
-    else if(Carbon::parse($invoice->date_due)->diffInDays(Carbon::now()->format('Y-m-d')) == 5 ){
+    else if(Carbon::parse($invoice->date_due)->subDays(5)->format('Y-m-d') == Carbon::now()->format('Y-m-d')){
         if($invoice->send_generate_invoice == 'Não'){
             $details['title']         = 'Nova Fatura Gerada';
             $details['message_notification'] = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura foi gerada.';
@@ -156,7 +156,7 @@ class RememberInvoiceCron extends Command
     }
 
     }
-    else if(Carbon::parse($invoice->date_due)->diffInDays(Carbon::now()->format('Y-m-d')) == 2 ){
+    else if(Carbon::parse($invoice->date_due)->subDays(2)->format('Y-m-d') == Carbon::now()->format('Y-m-d')){
         $details['title']         = 'Sua Fatura vencerá em 2 dias';
         $details['message_notification'] = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura vencerá em 2 dias.';
 

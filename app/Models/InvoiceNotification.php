@@ -81,6 +81,8 @@ class InvoiceNotification extends Model
         $status_email = 'Erro eo enviar';
     }
 
+    return $status_email;
+
     }
 
     public static function Whatsapp($data){

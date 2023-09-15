@@ -144,6 +144,8 @@ class InvoiceNotification extends Model
             'updated_at'        => Carbon::now()
         ]);
 
+        sleep(2);
+
         if($data['status'] == 'Pendente') {
 
             //Enviar imagem qrcode pix

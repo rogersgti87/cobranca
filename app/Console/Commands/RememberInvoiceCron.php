@@ -25,7 +25,7 @@ class RememberInvoiceCron extends Command
   {
 
     $sql = "SELECT i.id,i.status,i.user_id,i.date_invoice,i.date_due,i.description,c.email,c.email2,c.phone,c.whatsapp,
-    c.name,c.notification_whatsapp,c.company,c.document,c.phone,c.address,c.number,c.complement,c.type,u.send_generate_invoice,
+    c.name,c.notification_whatsapp,c.notification_email,c.company,c.document,c.phone,c.address,c.number,c.complement,c.type,u.send_generate_invoice,
     c.district,c.city,c.state,c.cep,i.gateway_payment, i.payment_method,s.id AS service_id,s.name AS service_name,i.price,
     u.access_token_mp, u.company user_company, u.whatsapp user_whatsapp, u.image user_image, u.telephone user_telephone,
      u.email user_email, u.api_access_token_whatsapp,i.image_url_pix, i.pix_digitable, i.qrcode_pix_base64,u.inter_chave_pix,
@@ -60,6 +60,7 @@ class RememberInvoiceCron extends Command
         'customer_email2'           => $invoice->email2,
         'customer_whatsapp'         => removeEspeciais($invoice->whatsapp),
         'notification_whatsapp'     => $invoice->notification_whatsapp,
+        'notification_email'        => $invoice->notification_email,
         'customer_company'          => $invoice->company,
         'date_invoice'              => date('d/m/Y', strtotime($invoice->date_invoice)),
         'date_due'                  => date('d/m/Y', strtotime($invoice->date_due)),

@@ -67,7 +67,7 @@
                             <legend>Integrações</legend>
                             @if(isset($data->id))
                                 <button type="button" data-toggle="modal" data-target="#modal-whatsapp" id="{{ isset($data->id) ? $data->id : '' }}" data-original-title="NOVO QRCODE" data-tt="tooltip" class="btn btn-success btn-md"> <i class="fa fa-qrcode"></i> WHATSAPP</button>
-                                <button type="button" data-toggle="modal" data-target="#modal-inter" id="{{ isset($data->id) ? $data->id : '' }}" data-original-title="Configurar Banco Inter" data-tt="tooltip" class="btn btn-md" style="background:#ff8c00;color:#fff;"><i class="fas fa-university"></i> BANCO INTER</button>
+                                <button type="button" id="btn-modal-inter" data-user-id="{{ isset($data->id) ? $data->id : '' }}" data-original-title="Configurar Banco Inter" data-tt="tooltip" class="btn btn-md" style="background:#ff8c00;color:#fff;"><i class="fas fa-university"></i> BANCO INTER</button>
                                 <button type="button" data-toggle="modal" data-target="#modal-ph" id="{{ isset($data->id) ? $data->id : '' }}" data-original-title="Configurar PagHiper" data-tt="tooltip" class="btn btn-md" style="background:blue;color:#fff;"><i class="fas fa-university"></i> PAG HIPER</button>
                                 <button type="button" data-toggle="modal" data-target="#modal-mp" id="{{ isset($data->id) ? $data->id : '' }}" data-original-title="Configurar Mercado Pago" data-tt="tooltip" class="btn btn-md" style="background:#48c5d6;color:#fff;"><i class="fas fa-university"></i> MERCADO PAGO</button>
                             @endif
@@ -305,7 +305,7 @@
 
 
 
- <!-- Modal Product -->
+ <!-- Modal Whatsapp -->
  <div class="modal fade" id="modal-whatsapp">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -345,7 +345,59 @@
   </div><!-- /.modal -->
 
 
+   <!-- Modal Banco Inter -->
+ <div class="modal fade" id="modal-inter">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header" style="background:#ff8c00;color:#fff;">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        <div class="modal-body-inter">
+
+
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-success" id="btn-save-inter"><i class="fa fa-check"></i> Salvar</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fa fa-times"></i> Fechar</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+
+
+
 @section('scripts')
+
+
+<script>
+
+   // Open Modal - Inter
+   $(document).on("click", "#btn-modal-inter", function() {
+        var type = $(this).data('type');
+        var customer_id = "{{ isset($data) ? $data->id : ''}}";
+        $("#modal-inter").modal('show');
+        var customer_service_id = $(this).data('customer-service-id');
+        var url = `{{ url("/admin/customer-services/form?customer_id=") }}${customer_id}&id=${customer_service_id}`;
+
+        //console.log(url);
+        $.get(url,
+            $(this)
+            .addClass('modal-scrollfix')
+            .find('#form-content-customer-service')
+            .html('Carregando...'),
+            function(data) {
+                // console.log(data);
+                $("#form-content-customer-service").html(data);
+                $('[data-tt="tooltip"]').tooltip();
+
+
+            });
+    });
+
+
+</script>
 
 <script>
 

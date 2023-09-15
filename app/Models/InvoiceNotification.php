@@ -37,6 +37,9 @@ class InvoiceNotification extends Model
         );
         }
 
+
+        if($data['notification_email'] == 's'){
+
         $response = Http::withHeaders(
             [
                 "Accept"        =>  "application/json",
@@ -81,6 +84,7 @@ class InvoiceNotification extends Model
         $status_email = 'Erro eo enviar';
     }
 
+}
     return $status_email;
 
     }

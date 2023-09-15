@@ -91,7 +91,7 @@ class Invoice extends Model
       public static function generatePixMP($invoice_id){
 
         $invoice = DB::table('invoices as i')
-                    ->select('i.id','c.email','c.email2','c.name','c.document','c.phone','c.notification_whatsapp','c.address','c.number','c.complement',
+                    ->select('i.id','c.email','c.email2','c.name','c.document','c.phone','c.notification_whatsapp','c.notification_email','c.address','c.number','c.complement',
                     'c.district','c.city','c.state','c.cep','s.id as service_id','s.name as service_name','i.price as service_price','u.token_paghiper',
                     'u.key_paghiper','u.access_token_mp','u.company',
                     DB::raw("DATEDIFF (i.date_due,i.date_invoice) as days_due_date"))

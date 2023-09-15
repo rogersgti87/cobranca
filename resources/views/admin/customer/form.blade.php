@@ -189,7 +189,7 @@
 
 
 
-                                                <div class="form-group col-md-3 col-sm-12">
+                                                <div class="form-group col-md-2 col-sm-12">
                                                     <label>Notificar Whatsapp?</label>
                                                     <select class="form-control custom-select" name="notification_whatsapp" id="notification_whatsapp">
                                                         <option {{ isset($data->notification_whatsapp) && $data->notification_whatsapp === 's' ? 'selected' : '' }} value="s">Sim</option>
@@ -197,7 +197,15 @@
                                                     </select>
                                                 </div>
 
-                                                <div class="form-group col-md-3 col-sm-12">
+                                                <div class="form-group col-md-2 col-sm-12">
+                                                    <label>Notificar Email?</label>
+                                                    <select class="form-control custom-select" name="notification_email" id="notification_email">
+                                                        <option {{ isset($data->notification_email) && $data->notification_email === 's' ? 'selected' : '' }} value="s">Sim</option>
+                                                        <option {{ isset($data->notification_email) && $data->notification_email === 'n' ? 'selected' : '' }} value="n">Não</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="form-group col-md-2 col-sm-12">
                                                     <label>Status</label>
                                                     <select class="form-control custom-select" name="status" id="status">
                                                         <option {{ isset($data->status) && $data->status === 'Ativo' ? 'selected' : '' }} value="Ativo">Ativo</option>

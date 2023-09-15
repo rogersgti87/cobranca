@@ -124,7 +124,7 @@ class WebHookController extends Controller
     }
 
         $invoice = Invoice::select('invoices.id','invoices.status','invoices.user_id','invoices.date_invoice','invoices.date_due','invoices.description',
-        'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp','customers.type',
+        'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp','customers.notification_email','customers.type',
         'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement',
         'customers.district','customers.city','customers.state','customers.cep','invoices.gateway_payment','invoices.payment_method',
         'services.id as service_id','services.name as service_name','invoices.price','users.access_token_mp','users.company as user_company','users.inter_chave_pix',
@@ -156,6 +156,7 @@ class WebHookController extends Controller
             'customer_email2'           => $invoice->email2,
             'customer_whatsapp'         => removeEspeciais($invoice->whatsapp),
             'notification_whatsapp'     => $invoice->notification_whatsapp,
+            'notification_email'        => $invoice->notification_email,
             'customer_company'          => $invoice->company,
             'date_invoice'              => date('d/m/Y', strtotime($invoice->date_invoice)),
             'date_due'                  => date('d/m/Y', strtotime($invoice->date_due)),
@@ -248,7 +249,7 @@ class WebHookController extends Controller
 
 
         $invoice = Invoice::select('invoices.id','invoices.status','invoices.user_id','invoices.date_invoice','invoices.date_due','invoices.description',
-        'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp',
+        'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp','customers.notification_email',
         'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement','customers.type',
         'customers.district','customers.city','customers.state','customers.cep','invoices.gateway_payment','invoices.payment_method',
         'services.id as service_id','services.name as service_name','invoices.price','users.access_token_mp','users.company as user_company','users.inter_chave_pix',
@@ -282,6 +283,7 @@ class WebHookController extends Controller
                 'customer_email2'           => $invoice->email2,
                 'customer_whatsapp'         => removeEspeciais($invoice->whatsapp),
                 'notification_whatsapp'     => $invoice->notification_whatsapp,
+                'notification_email'        => $invoice->notification_email,
                 'customer_company'          => $invoice->company,
                 'date_invoice'              => date('d/m/Y', strtotime($invoice->date_invoice)),
                 'date_due'                  => date('d/m/Y', strtotime($invoice->date_due)),
@@ -367,7 +369,7 @@ class WebHookController extends Controller
         }
 
             $invoice = Invoice::select('invoices.id','invoices.status','invoices.user_id','invoices.date_invoice','invoices.date_due','invoices.description',
-            'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp','customers.type',
+            'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp','customers.notification_email','customers.type',
             'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement',
             'customers.district','customers.city','customers.state','customers.cep','invoices.gateway_payment','invoices.payment_method',
             'services.id as service_id','services.name as service_name','invoices.price','users.access_token_mp','users.company as user_company','users.inter_chave_pix',
@@ -399,6 +401,7 @@ class WebHookController extends Controller
                 'customer_email2'           => $invoice->email2,
                 'customer_whatsapp'         => removeEspeciais($invoice->whatsapp),
                 'notification_whatsapp'     => $invoice->notification_whatsapp,
+                'notification_email'        => $invoice->notification_email,
                 'customer_company'          => $invoice->company,
                 'date_invoice'              => date('d/m/Y', strtotime($invoice->date_invoice)),
                 'date_due'                  => date('d/m/Y', strtotime($invoice->date_due)),
@@ -476,7 +479,7 @@ class WebHookController extends Controller
             \Log::info('Linha 476: '.$ok);
 
             $invoice = Invoice::select('invoices.id','invoices.status','invoices.user_id','invoices.date_invoice','invoices.date_due','invoices.description',
-            'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp','customers.type',
+            'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp','customers.notification_email','customers.type',
             'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement',
             'customers.district','customers.city','customers.state','customers.cep','invoices.gateway_payment','invoices.payment_method',
             'services.id as service_id','services.name as service_name','invoices.price','users.access_token_mp','users.company as user_company','users.inter_chave_pix',
@@ -508,6 +511,7 @@ class WebHookController extends Controller
                 'customer_email2'           => $invoice->email2,
                 'customer_whatsapp'         => removeEspeciais($invoice->whatsapp),
                 'notification_whatsapp'     => $invoice->notification_whatsapp,
+                'notification_email'        => $invoice->notification_email,
                 'customer_company'          => $invoice->company,
                 'date_invoice'              => date('d/m/Y', strtotime($invoice->date_invoice)),
                 'date_due'                  => date('d/m/Y', strtotime($invoice->date_due)),

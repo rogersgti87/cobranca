@@ -94,6 +94,8 @@ class InvoiceNotification extends Model
         $whats_billet_url_slip          = $data['billet_url_slip'];
         $whats_billet_base64            = $data['billet_url_slip_base64'];
 
+        \Log::info('QRCODEPIX: '.$data['pix_qrcode_base64']);
+
         $data['text_whatsapp'] = "*MENSAGEM AUTOMÁTICA*\n\n";
         $data['text_whatsapp'] .= "$message_customer\n\n";
         $data['text_whatsapp'] .= "$message_notification \n\n";

@@ -910,8 +910,15 @@ public function invoiceNotificate($invoice_id){
 
 
                 if($invoice->status == 'Pendente'){
-                    $title = 'Nova fatura gerada';
-                    $message_notification = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura foi gerada';
+
+                    if($invoice->date_due < Carbon::now()->format('Y-m-d') ){
+                        $details['title']         = 'Sua Fatura venceu';
+                        $details['message_notification'] = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura está vencida.';
+                    }else{
+                        $title = 'Nova fatura gerada';
+                        $message_notification = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura foi gerada';
+                    }
+
                 }
 
                 if($invoice->status == 'Pago'){

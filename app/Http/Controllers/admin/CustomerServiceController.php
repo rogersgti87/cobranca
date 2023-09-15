@@ -119,7 +119,8 @@ class CustomerServiceController extends Controller
                 $newInvoice->gateway_payment     = $model->gateway_payment;
                 $newInvoice->payment_method      = $model->payment_method;
                 $newInvoice->date_invoice        = Carbon::now();
-                $newInvoice->date_due            = $model->date_due >= Carbon::parse(Carbon::now())->format('Y-m-d') ? $model->date_due : Carbon::parse(Carbon::now())->format('Y-m-d');
+                //$newInvoice->date_due            = $model->date_due >= Carbon::parse(Carbon::now())->format('Y-m-d') ? $model->date_due : Carbon::parse(Carbon::now())->format('Y-m-d');
+                $newInvoice->date_due            = $model->date_due;
                 $newInvoice->date_payment        = null;
                 $newInvoice->status              = 'Pendente';
                 $newInvoice->save();

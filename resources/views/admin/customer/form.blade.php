@@ -3,6 +3,44 @@
 @section('content')
 
 
+<style>
+    /* Estilos personalizados para a caixa de diálogo */
+    .custom-swal {
+        font-family: Arial, sans-serif;
+        color: #333;
+        font-size: 12px;
+    }
+
+    /* Estilos personalizados para o título da caixa de diálogo */
+    .custom-swal .swal2-title {
+        font-size: 24px;
+        color: #007bff;
+    }
+
+    /* Estilos personalizados para o texto da caixa de diálogo */
+    .custom-swal .swal2-content {
+        font-size: 14px;
+    }
+ /* Estilos personalizados para os checkboxes */
+ .checkbox-container {
+            display: inline-flex; /* Alinhar os elementos em linha horizontal */
+            align-items: center;
+            margin-right: 20px; /* Espaçamento entre os checkboxes */
+        }
+
+        /* Aumentar o tamanho do checkbox */
+        .checkbox-container input[type="checkbox"] {
+            width: 20px; /* Largura do checkbox */
+            height: 20px; /* Altura do checkbox */
+        }
+
+        .checkbox-container label {
+            margin: 0; /* Remova margens para ajustar melhor o texto */
+            display: flex;
+            align-items: center;
+        }
+</style>
+
  <!-- Content Wrapper. Contains page content -->
  <div class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -364,11 +402,138 @@
  </div>
  <!-- Modal :: Form Invoice -->
 
-
 @section('scripts')
 
 
     <script src="{{url('/vendor/laravel-filemanager/js/stand-alone-button-normal.js')}}"></script>
+
+
+
+    <script>
+        function sendNotification(invoice_id){
+            console.log(invoice_id);
+
+            // Criação dos checkboxes e rótulos dentro de elementos div para alinhar na mesma linha
+        const whatsappContainer = document.createElement('div');
+        whatsappContainer.classList.add('checkbox-container');
+
+        const whatsappCheckbox = document.createElement('input');
+        whatsappCheckbox.type = 'checkbox';
+        whatsappCheckbox.id = 'whatsapp-checkbox';
+        whatsappCheckbox.value = 'whatsapp';
+        whatsappContainer.appendChild(whatsappCheckbox);
+
+        const whatsappLabel = document.createElement('label');
+        whatsappLabel.textContent = 'WhatsApp';
+        whatsappLabel.setAttribute('for', 'whatsapp-checkbox');
+        whatsappContainer.appendChild(whatsappLabel);
+
+        const emailContainer = document.createElement('div');
+        emailContainer.classList.add('checkbox-container');
+
+        const emailCheckbox = document.createElement('input');
+        emailCheckbox.type = 'checkbox';
+        emailCheckbox.id = 'email-checkbox';
+        emailCheckbox.value = 'email';
+        emailContainer.appendChild(emailCheckbox);
+
+        const emailLabel = document.createElement('label');
+        emailLabel.textContent = 'Email';
+        emailLabel.setAttribute('for', 'email-checkbox');
+        emailContainer.appendChild(emailLabel);
+
+        // Criando o formulário e adicionando os elementos criados
+        const form = document.createElement('form');
+        form.appendChild(whatsappContainer);
+        form.appendChild(emailContainer);
+
+            Swal.fire({
+                title: 'Selecione as opções:',
+                html: form,
+                    // '<div class="col-md-12"><div class="inline">'+
+                    // '<div class="col-6"><input class="form-control" type="checkbox" id="whatsapp-checkbox" value="whatsapp"> WhatsApp</div>' +
+                    // '<div class="col-6"><input class="form-control" type="checkbox" id="email-checkbox" value="email"> Email</div>'+
+                    // '</div></div>',
+                focusConfirm: false,
+                preConfirm: () => {
+                const selectedOptions = [];
+
+                if (whatsappCheckbox.checked) {
+                    selectedOptions.push(whatsappCheckbox.value);
+                }
+
+                if (emailCheckbox.checked) {
+                    selectedOptions.push(emailCheckbox.value);
+                }
+
+                if (selectedOptions.length === 0) {
+                    Swal.showValidationMessage('Selecione pelo menos uma opção');
+                }
+
+                return selectedOptions;
+            }
+            }).then((result) => {
+                if (!result.dismiss) {
+                    // Enviar os valores selecionados via API
+                    const selectedOptions = result.value;
+                    //console.log('Opções selecionadas: ', selectedOptions);
+
+                    // Aqui você pode enviar os valores selecionados via API
+                    // Substitua este código pelo chamado real da sua API
+                    // Exemplo de chamada da API usando fetch:
+
+                    const loadingAlert = Swal.fire({
+                    title: 'Aguarde...',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    onBeforeOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+
+                    var url = '{{url("admin/invoice-notificate")}}'+'/'+invoice_id;
+
+                    fetch(url, {
+                        method: 'POST',
+                        body: JSON.stringify({ selectedOptions }),
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': "{{csrf_token()}}",
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        var payment_method  = `<p><b class="text-primary">Forma de pagamento: </b>${data.payment_method}</p><hr>`;
+                        var result_whatsapp = `<p class="text-primary"><b>Whatsapp:</b></p> <p><b>Mensagem:</b> ${data.whatsapp.mensagem}</p><p><b>QRCODE:</b> ${data.whatsapp.pix}</p><p><b>Boleto:</b> ${data.whatsapp.boleto}</p>`;
+                        var result_email = `<p><b class="text-primary">E-mail:</b> ${data.email}</p>`;
+                        loadingAlert.close();
+
+                        Swal.fire({
+                        title: 'Notificações',
+                        html: payment_method+result_whatsapp+'<hr>'+result_email,
+                        icon: 'success',
+                        confirmButtonText: 'OK',
+                        customClass: {
+                            popup: 'custom-swal',
+                            title: 'swal2-title',
+                            content: 'swal2-content'
+                        }
+                    });
+
+                    })
+                    .catch(error => {
+                        console.error('Erro ao chamar a API: ', error);
+                        loadingAlert.close();
+                    });
+
+                }
+            });
+        }
+    </script>
+
+
+
 
 <script>
 
@@ -539,6 +704,7 @@ $(window).on("load", function(){
                     }).then((result) => {
                         $('#modalCustomerService').modal('hide');
                         loadCustomerServices();
+                        loadInvoices();
                     });
                 },
                 error:function (xhr) {
@@ -841,7 +1007,7 @@ function loadInvoices(){
                         html += `<td>
                             ${item.status == 'Pendente' ? '<a href="#" data-original-title="Editar fatura" id="btn-modal-invoice" data-type="edit-invoice" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-secondary btn-xs"> <i class="far fa-edit"></i></a>' : ''}
                             ${item.status != 'Pago' && item.status != 'Cancelado' ? '<a href="#" data-original-title="Consultar Status" id="btn-invoice-status" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-primary btn-xs"> <i class="fas fa-search"></i></a>' : ''}
-                            <a href="#" data-original-title="Reenviar Notificação" id="btn-notificate" data-invoice="${item.id}" data-placement="left" data-tt="tooltip" class="btn btn-info btn-xs"> <i class="fa fa-paper-plane"></i></a>
+                            <a href="#" data-original-title="Reenviar Notificação" onclick="sendNotification(${item.id})" id="btn-notificate" data-invoice="${item.id}" data-placement="left" data-tt="tooltip" class="btn btn-info btn-xs"> <i class="fa fa-paper-plane"></i></a>
                             <a href="#" data-original-title="Notificações" id="btn-modal-notifications" data-invoice="${item.id}" data-placement="left" data-tt="tooltip" class="btn btn-warning btn-xs"> <i style="padding:0 5px;" class="fa fa-info"></i></a>
                             ${item.status == 'Pendente' ? '<a href="#" data-original-title="Cancelar Fatura" id="btn-delete-invoice" data-placement="left" data-invoice="'+item.id+'" data-tt="tooltip" class="btn btn-danger btn-xs"> <i class="fas fa-undo-alt"></i></a>' : ''}
                             </td>`;

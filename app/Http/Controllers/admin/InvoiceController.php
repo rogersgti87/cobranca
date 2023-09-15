@@ -878,5 +878,115 @@ public function loadInvoices(){
 }
 
 
+public function invoiceNotificate($invoice_id){
+
+    $options = $this->request->input('selectedOptions');
+    $status_whatsapp = 'Não enviado';
+    $status_email    = 'Não enviado';
+
+
+    $invoice = Invoice::select('invoices.id','invoices.status','invoices.user_id','invoices.date_invoice','invoices.date_due','invoices.description',
+                'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp',
+                'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement',
+                'customers.district','customers.city','customers.state','customers.cep','invoices.gateway_payment','invoices.payment_method',
+                'services.id as service_id','services.name as service_name','invoices.price','users.access_token_mp','users.company as user_company','users.inter_chave_pix',
+                'users.whatsapp as user_whatsapp','users.image as user_image', 'users.telephone as user_telephone', 'users.email as user_email','users.api_access_token_whatsapp')
+                ->join('customer_services','invoices.customer_service_id','customer_services.id')
+                ->join('customers','customer_services.customer_id','customers.id')
+                ->join('services','customer_services.service_id','services.id')
+                ->join('users','users.id','invoices.user_id')
+                ->where('invoices.id',$invoice_id)
+                ->first();
+
+                $title = '';
+                $message_notification = '';
+
+
+                if($invoice->status == 'Pendente'){
+                    $title = 'Nova fatura gerada';
+                    $message_notification = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura foi gerada';
+                }
+
+                if($invoice->status == 'Pago'){
+                    $title = 'Fatura';
+                    $message_notification = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura mudou o status para: <b>Pago</b>';
+                }
+
+                if($invoice->status == 'Processamento'){
+                    $title = 'Fatura';
+                    $message_notification = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura mudou o status para: <b>Processamento</b>';
+                }
+
+                if($invoice->status == 'Cancelado'){
+                    $title = 'Fatura';
+                    $message_notification = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura mudou o status para: <b>Cancelado</b>';
+                }
+
+
+
+                $details = [
+                    'type_send'                 => 'Confirm',
+                    'title'                     => $title,
+                    'message_customer'          => 'Olá '.$invoice->name.', tudo bem?',
+                    'message_notification'      => $message_notification,
+                    'logo'                      => 'https://cobrancasegura.com.br/'.$invoice->user_image,
+                    'company'                   => $invoice->user_company,
+                    'user_whatsapp'             => removeEspeciais($invoice->user_whatsapp),
+                    'user_telephone'            => removeEspeciais($invoice->user_telephone),
+                    'user_email'                => $invoice->user_email,
+                    'user_access_token_wp'      => $invoice->api_access_token_whatsapp,
+                    'user_id'                   => $invoice->user_id,
+                    'customer'                  => $invoice->name,
+                    'customer_email'            => $invoice->email,
+                    'customer_email2'           => $invoice->email2,
+                    'customer_whatsapp'         => removeEspeciais($invoice->whatsapp),
+                    'notification_whatsapp'     => $invoice->notification_whatsapp,
+                    'customer_company'          => $invoice->company,
+                    'date_invoice'              => date('d/m/Y', strtotime($invoice->date_invoice)),
+                    'date_due'                  => date('d/m/Y', strtotime($invoice->date_due)),
+                    'price'                     => number_format($invoice->price, 2,',','.'),
+                    'date_payment'              => $invoice->date_payment != null ? date('d/m/Y', strtotime($invoice->date_payment)) : '',
+                    'gateway_payment'           => $invoice->gateway_payment,
+                    'payment_method'            => $invoice->payment_method,
+                    'service'                   => $invoice->service_name.' - '.$invoice->description,
+                    'invoice'                   => $invoice->id,
+                    'status'                    => $invoice->status,
+                    'url_base'                  => url('/'),
+                    'status_payment'            => $invoice->status,
+                    'pix_emv'                   => $invoice->pix_digitable,
+                    'pix_qrcode_base64'         => $invoice->qrcode_pix_base64,
+                    'billet_digitable_line'     => $invoice->billet_digitable,
+                    'billet_url_slip_base64'    => $invoice->billet_base64,
+                    'billet_url_slip'           => $invoice->billet_url,
+                    'pix_qrcode_image_url'      => $invoice->image_url_pix
+                ];
+
+
+                $details['body']  = view('mails.invoice',$details)->render();
+
+                foreach($options as $option){
+                    if($option == 'whatsapp'){
+                        if($invoice->notification_whatsapp){
+                            $result_whatsapp = InvoiceNotification::Whatsapp($details);
+                            $status_whatsapp = [
+                                'mensagem' => $result_whatsapp['message'],
+                                'pix'      => $result_whatsapp['image'],
+                                'boleto'   => $result_whatsapp['file'],
+                            ];
+                        }
+                    }
+
+                    if($option == 'email'){
+                        $result_email =  InvoiceNotification::Email($details);
+                        $status_email = $result_email;
+
+                    }
+                }
+
+
+    return response()->json(['payment_method' => $invoice->payment_method,'whatsapp' => $status_whatsapp, 'email' => $status_email]);
+
+}
+
 
 }

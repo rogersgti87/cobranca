@@ -15,6 +15,8 @@ class InvoiceNotification extends Model
     public static function Email($data){
 
 
+        $status_email          = 'Não enviado';
+
         if($data['customer_email2'] != null){
             $emails = array(
                 [
@@ -53,6 +55,9 @@ class InvoiceNotification extends Model
                 "htmlContent"   => $data['body']
           ]);
 
+          if ($response->successful()) {
+
+        $status_email = 'Enviado';
         $result = $response->getBody();
 
          \Log::info('Debug Email: '. json_encode(json_decode($result)));
@@ -72,12 +77,18 @@ class InvoiceNotification extends Model
             'created_at'        => Carbon::now(),
             'updated_at'        => Carbon::now()
         ]);
-
+    }else{
+        $status_email = 'Erro eo enviar';
+    }
 
     }
 
     public static function Whatsapp($data){
 
+
+        $status_message       = 'Não enviado';
+        $status_image         = 'Não enviado';
+        $status_file          = 'Não enviado';
 
         $message_customer               = $data['message_customer'];
         $whats_invoice_id               = $data['invoice'];
@@ -122,9 +133,11 @@ class InvoiceNotification extends Model
 
         $whats_status           = json_decode($result);
         if($whats_status->status == 'success'){
+            $status_message          = 'Enviado';
             $whats_message_status   = $whats_status->status;
             $whats_message          = json_encode($whats_status);
         }else{
+            $status_message          = 'Erro ao enviar';
             $whats_message_status   = json_encode($whats_status);
             $whats_message          = '';
         }
@@ -162,9 +175,11 @@ class InvoiceNotification extends Model
 
             $whats_status           = json_decode($result);
         if($whats_status->status == 'success'){
+            $status_image          = 'Enviado';
             $whats_message_status   = $whats_status->status;
             $whats_message          = json_encode($whats_status);
         }else{
+            $status_image          = 'Erro ao enviar';
             $whats_message_status   = json_encode($whats_status);
             $whats_message          = '';
         }
@@ -206,9 +221,11 @@ class InvoiceNotification extends Model
 
             $whats_status           = json_decode($result);
         if($whats_status->status == 'success'){
+            $status_file          = 'Enviado';
             $whats_message_status   = $whats_status->status;
             $whats_message          = json_encode($whats_status);
         }else{
+            $status_file          = 'Erro ao enviar';
             $whats_message_status   = json_encode($whats_status);
             $whats_message          = '';
         }
@@ -232,6 +249,7 @@ class InvoiceNotification extends Model
     }
     }
 
+    return ['message' => $status_message, 'image' => $status_image, 'file' => $status_file];
 
     }
 

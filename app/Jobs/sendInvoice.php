@@ -253,7 +253,7 @@ class sendInvoice implements ShouldQueue
 
     }
 
-
+dd($invoice);
     $getInvoice = Invoice::select('invoices.id','invoices.status','invoices.user_id','invoices.date_invoice','invoices.date_due','invoices.description',
     'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp','customers.notification_email','customers.type',
     'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement',

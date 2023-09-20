@@ -76,6 +76,7 @@ class sendInvoice implements ShouldQueue
         ->where('invoices.user_id',$this->vInvoice->user_id)
         ->first();
 
+        dd($invoice);
 
         if($invoice->payment_method == 'Pix'){
             if($invoice->gateway_payment == 'Pag Hiper'){
@@ -269,7 +270,6 @@ class sendInvoice implements ShouldQueue
     ->where('invoices.user_id',$this->vInvoice->user_id)
     ->first();
 
-    dd($getInvoice);
 
     $details = [
         'type_send'                 => 'New',

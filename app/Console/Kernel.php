@@ -13,7 +13,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        commands\InvoiceJobCron::class,
+        //commands\InvoiceJobCron::class,
         commands\GenerateInvoiceCron::class,
         commands\RememberInvoiceCron::class,
     ];
@@ -27,7 +27,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
-        $schedule->command('invoicejob:cron')->everyMinute();
+        //$schedule->command('invoicejob:cron')->everyMinute();
         $schedule->command('generateinvoice:cron')->everyMinute();
         $schedule->command('rememberinvoice:cron')->twiceDaily(9, 14);
 

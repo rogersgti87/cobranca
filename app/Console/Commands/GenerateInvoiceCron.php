@@ -52,7 +52,7 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
     $queueSize = Queue::size($user->id);
 
     if ($queueSize > 0) {
-        $this->info('A Fila já tem trabalho pendente');
+        //$this->info('A Fila já tem trabalho pendente');
         return 'A Fila já tem trabalho pendente';
     }
 
@@ -68,14 +68,14 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
 
             if($count > 5){
                 dispatch(new GenerateInvoiceCron())->delay(now()->addMinutes(1));
-                $this->info('Notificação enviada.');
+                //$this->info('Notificação enviada.');
                 return 'Notificação enviada.';
             }
 
             $count++;
 
          }
-         $this->info('Notificações em fila iniciadas.');
+         //$this->info('Notificações em fila iniciadas.');
          \Log::info('Notificações em fila iniciadas.');
     }
 

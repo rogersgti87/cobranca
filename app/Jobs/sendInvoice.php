@@ -63,7 +63,7 @@ class sendInvoice implements ShouldQueue
         'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement',
         'customers.district','customers.city','customers.state','customers.cep','invoices.gateway_payment','invoices.payment_method',
         'services.id as service_id','services.name as service_name','invoices.price','users.access_token_mp','users.company as user_company',
-        'users.whatsapp as user_whatsapp','users.image as user_image', 'users.telephone as user_telephone', 'users.email as user_email',
+        'users.whatsapp as user_whatsapp','users.image as user_image', 'users.telephone as user_telephone', 'users.email as user_email','users.send_generate_invoice',
         'users.api_access_token_whatsapp','users.token_paghiper','users.key_paghiper','invoices.image_url_pix','invoices.pix_digitable',
         'invoices.qrcode_pix_base64','invoices.billet_digitable','invoices.billet_base64','invoices.billet_url','users.inter_chave_pix',
         'users.inter_host','users.inter_client_id','users.inter_client_secret','users.inter_scope','users.inter_crt_file','users.inter_key_file','users.inter_crt_file_webhook',
@@ -75,7 +75,6 @@ class sendInvoice implements ShouldQueue
         ->where('invoices.id',$newInvoice)
         ->where('invoices.user_id',$this->vInvoice->user_id)
         ->first();
-
 
 
         if($invoice->payment_method == 'Pix'){
@@ -257,7 +256,7 @@ class sendInvoice implements ShouldQueue
     'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement',
     'customers.district','customers.city','customers.state','customers.cep','invoices.gateway_payment','invoices.payment_method',
     'services.id as service_id','services.name as service_name','invoices.price','users.access_token_mp','users.company as user_company',
-    'users.whatsapp as user_whatsapp','users.image as user_image', 'users.telephone as user_telephone', 'users.email as user_email',
+    'users.whatsapp as user_whatsapp','users.image as user_image', 'users.telephone as user_telephone', 'users.email as user_email','users.send_generate_invoice',
     'users.api_access_token_whatsapp','users.token_paghiper','users.key_paghiper','invoices.image_url_pix','invoices.pix_digitable',
     'invoices.qrcode_pix_base64','invoices.billet_digitable','invoices.billet_base64','invoices.billet_url','users.inter_chave_pix',
     'users.inter_host','users.inter_client_id','users.inter_client_secret','users.inter_scope','users.inter_crt_file','users.inter_key_file','users.inter_crt_file_webhook',
@@ -269,7 +268,6 @@ class sendInvoice implements ShouldQueue
     ->where('invoices.id',$newInvoice)
     ->where('invoices.user_id',$this->vInvoice->user_id)
     ->first();
-
 
     $details = [
         'type_send'                 => 'New',
@@ -306,8 +304,6 @@ class sendInvoice implements ShouldQueue
         'billet_url_slip_base64'    => $getInvoice->billet_base64,
         'billet_url_slip'           => $getInvoice->billet_url,
     ];
-
-
 
 
     \Log::info('Linha 312 send_generate_invoice : '.$getInvoice->send_generate_invoice);

@@ -312,10 +312,13 @@ class sendInvoice implements ShouldQueue
 
     if($getInvoice->send_generate_invoice == 'Sim'){
 
-    InvoiceNotification::Email($details);
+        if($getInvoice->notification_email == 's'){
+            InvoiceNotification::Email($details);
+        }
+        if($getInvoice->notification_whatsapp == 's'){
+            InvoiceNotification::Whatsapp($details);
+        }
 
-    if($getInvoice->notification_whatsapp)
-        InvoiceNotification::Whatsapp($details);
 
     }
 

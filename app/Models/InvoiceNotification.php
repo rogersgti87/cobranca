@@ -14,7 +14,6 @@ class InvoiceNotification extends Model
 
     public static function Email($data){
 
-
         $status_email          = 'Não enviado';
 
         if($data['customer_email2'] != null){

@@ -28,6 +28,7 @@ class GenerateInvoiceCron extends Command
   public function handle()
   {
 
+\Log::info('Job Generate invoice.');
 
 $users = User::where('status','Ativo')->get();
 

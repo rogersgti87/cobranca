@@ -41,6 +41,7 @@ class sendInvoice implements ShouldQueue
     public function handle()
     {
 
+        dd('teste');
         $newInvoice = DB::table('invoices')->insertGetId([
             'user_id'               => $this->vInvoice->user_id,
             'customer_service_id'   => $this->vInvoice->id,

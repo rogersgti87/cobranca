@@ -62,7 +62,7 @@ class sendInvoice implements ShouldQueue
         'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement',
         'customers.district','customers.city','customers.state','customers.cep','invoices.gateway_payment','invoices.payment_method',
         'services.id as service_id','services.name as service_name','invoices.price','users.access_token_mp','users.company as user_company',
-        'users.whatsapp as user_whatsapp','users.image as user_image', 'users.telephone as user_telephone', 'users.email as user_email',
+        'users.whatsapp as user_whatsapp','users.image as user_image', 'users.telephone as user_telephone', 'users.email as user_email','users.send_generate_invoice',
         'users.api_access_token_whatsapp','users.token_paghiper','users.key_paghiper','users.inter_chave_pix',
         'invoices.image_url_pix','invoices.pix_digitable','invoices.qrcode_pix_base64','invoices.billet_digitable','invoices.billet_base64','invoices.billet_url',
         'users.inter_host','users.inter_client_id','users.inter_client_secret','users.inter_scope','users.inter_crt_file','users.inter_key_file','users.inter_crt_file_webhook',
@@ -167,6 +167,7 @@ class sendInvoice implements ShouldQueue
 
                 $generateBilletIntermedium = Invoice::generateBilletIntermedium($invoice);
                 if($generateBilletIntermedium['status'] == 'reject'){
+                    \Log::info('Linha 170: '.$generateBilletIntermedium['message']);
                     return response()->json($generateBilletIntermedium['message'], 422);
                 }
                 try {
@@ -179,7 +180,7 @@ class sendInvoice implements ShouldQueue
                         'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement',
                         'customers.district','customers.city','customers.state','customers.cep','invoices.gateway_payment','invoices.payment_method',
                         'services.id as service_id','services.name as service_name','invoices.price','users.access_token_mp','users.company as user_company',
-                        'users.whatsapp as user_whatsapp','users.image as user_image', 'users.telephone as user_telephone', 'users.email as user_email',
+                        'users.whatsapp as user_whatsapp','users.image as user_image', 'users.telephone as user_telephone', 'users.email as user_email','users.send_generate_invoice',
                         'users.api_access_token_whatsapp','users.token_paghiper','users.key_paghiper','invoices.image_url_pix','invoices.pix_digitable',
                         'invoices.qrcode_pix_base64','invoices.billet_digitable','invoices.billet_base64','invoices.billet_url','invoices.transaction_id','users.inter_chave_pix',
                         'users.inter_host','users.inter_client_id','users.inter_client_secret','users.inter_scope','users.inter_crt_file','users.inter_key_file','users.inter_crt_file_webhook',
@@ -220,7 +221,7 @@ class sendInvoice implements ShouldQueue
     'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement',
     'customers.district','customers.city','customers.state','customers.cep','invoices.gateway_payment','invoices.payment_method',
     'services.id as service_id','services.name as service_name','invoices.price','users.access_token_mp','users.company as user_company',
-    'users.whatsapp as user_whatsapp','users.image as user_image', 'users.telephone as user_telephone', 'users.email as user_email',
+    'users.whatsapp as user_whatsapp','users.image as user_image', 'users.telephone as user_telephone', 'users.email as user_email','users.send_generate_invoice',
     'users.api_access_token_whatsapp','users.token_paghiper','users.key_paghiper','users.inter_chave_pix',
     'invoices.image_url_pix','invoices.pix_digitable','invoices.qrcode_pix_base64','invoices.billet_digitable','invoices.billet_base64','invoices.billet_url',
     'users.inter_host','users.inter_client_id','users.inter_client_secret','users.inter_scope','users.inter_crt_file','users.inter_key_file','users.inter_crt_file_webhook',
@@ -273,11 +274,15 @@ class sendInvoice implements ShouldQueue
 
     $details['body']  = view('mails.invoice',$details)->render();
 
+
+    if($invoice->send_generate_invoice == 'Sim'){
+
     InvoiceNotification::Email($details);
 
     if($invoice->notification_whatsapp)
         InvoiceNotification::Whatsapp($details);
 
+    }
 
     return "Notificação para o cliente {$invoice->name} está na fila para processamento.";
 

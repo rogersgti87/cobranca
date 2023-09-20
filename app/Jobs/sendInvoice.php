@@ -311,9 +311,9 @@ class sendInvoice implements ShouldQueue
     ];
 
 
-    \Log::info('Linha 312 send_generate_invoice : '.$getInvoice->send_generate_invoice);
+    \Log::info('Linha 314 send_generate_invoice : '.$getInvoice->send_generate_invoice);
     if($getInvoice->send_generate_invoice == 'Sim'){
-        \Log::info('Linha 314 notification_email: '.$getInvoice->notification_email);
+        \Log::info('Linha 316 notification_email: '.$getInvoice->notification_email);
         if($getInvoice->notification_email == 's'){
             $details['body']  = view('mails.invoice',$details)->render();
             InvoiceNotification::Email($details);

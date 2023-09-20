@@ -13,7 +13,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        commands\InvoiceJobCron::class,
+        //commands\InvoiceJobCron::class,
         commands\GenerateInvoiceCron::class,
         commands\RememberInvoiceCron::class,
     ];

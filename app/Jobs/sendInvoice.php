@@ -325,7 +325,7 @@ class sendInvoice implements ShouldQueue
 
     }
 
-    return "Notificação para o cliente {$getInvoice['name']} está na fila para processamento.";
+    return "Notificação para o cliente está na fila para processamento.";
 
     }
 }

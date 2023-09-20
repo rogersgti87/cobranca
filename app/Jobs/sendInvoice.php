@@ -251,7 +251,7 @@ class sendInvoice implements ShouldQueue
     }
 
 
-    $invoice = Invoice::select('invoices.id','invoices.status','invoices.user_id','invoices.date_invoice','invoices.date_due','invoices.description',
+    $getInvoice = Invoice::select('invoices.id','invoices.status','invoices.user_id','invoices.date_invoice','invoices.date_due','invoices.description',
     'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp','customers.notification_email','customers.type',
     'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement',
     'customers.district','customers.city','customers.state','customers.cep','invoices.gateway_payment','invoices.payment_method',
@@ -273,53 +273,53 @@ class sendInvoice implements ShouldQueue
     $details = [
         'type_send'                 => 'New',
         'title'                     => 'Nova fatura gerada',
-        'message_customer'          => 'Olá '.$invoice->name.', tudo bem?',
+        'message_customer'          => 'Olá '.$getInvoice->name.', tudo bem?',
         'message_notification'      => 'Esta é uma mensagem para notificá-lo(a) que sua Fatura foi gerada',
-        'logo'                      => 'https://cobrancasegura.com.br/'.$invoice->user_image,
-        'company'                   => $invoice->user_company,
-        'user_whatsapp'             => removeEspeciais($invoice->user_whatsapp),
-        'user_telephone'            => removeEspeciais($invoice->user_telephone),
-        'user_email'                => $invoice->user_email,
-        'user_access_token_wp'      => $invoice->api_access_token_whatsapp,
-        'user_id'                   => $invoice->user_id,
-        'customer'                  => $invoice->name,
-        'customer_email'            => $invoice->email,
-        'customer_email2'           => $invoice->email2,
-        'customer_whatsapp'         => removeEspeciais($invoice->whatsapp),
-        'notification_whatsapp'     => $invoice->notification_whatsapp,
-        'notification_email'        => $invoice->notification_email,
-        'customer_company'          => $invoice->company,
-        'date_invoice'              => date('d/m/Y', strtotime($invoice->date_invoice)),
-        'date_due'                  => date('d/m/Y', strtotime($invoice->date_due)),
-        'price'                     => number_format($invoice->price, 2,',','.'),
-        'gateway_payment'           => $invoice->gateway_payment,
-        'payment_method'            => $invoice->payment_method,
-        'service'                   => $invoice->service_name .' - '. $invoice->description,
-        'invoice'                   => $invoice->id,
-        'status'                    => $invoice->status,
+        'logo'                      => 'https://cobrancasegura.com.br/'.$getInvoice->user_image,
+        'company'                   => $getInvoice->user_company,
+        'user_whatsapp'             => removeEspeciais($getInvoice->user_whatsapp),
+        'user_telephone'            => removeEspeciais($getInvoice->user_telephone),
+        'user_email'                => $getInvoice->user_email,
+        'user_access_token_wp'      => $getInvoice->api_access_token_whatsapp,
+        'user_id'                   => $getInvoice->user_id,
+        'customer'                  => $getInvoice->name,
+        'customer_email'            => $getInvoice->email,
+        'customer_email2'           => $getInvoice->email2,
+        'customer_whatsapp'         => removeEspeciais($getInvoice->whatsapp),
+        'notification_whatsapp'     => $getInvoice->notification_whatsapp,
+        'notification_email'        => $getInvoice->notification_email,
+        'customer_company'          => $getInvoice->company,
+        'date_invoice'              => date('d/m/Y', strtotime($getInvoice->date_invoice)),
+        'date_due'                  => date('d/m/Y', strtotime($getInvoice->date_due)),
+        'price'                     => number_format($getInvoice->price, 2,',','.'),
+        'gateway_payment'           => $getInvoice->gateway_payment,
+        'payment_method'            => $getInvoice->payment_method,
+        'service'                   => $getInvoice->service_name .' - '. $getInvoice->description,
+        'invoice'                   => $getInvoice->id,
+        'status'                    => $getInvoice->status,
         'url_base'                  => url('/'),
-        'pix_qrcode_image_url'      => $invoice->image_url_pix,
-        'pix_emv'                   => $invoice->pix_digitable,
-        'pix_qrcode_base64'         => $invoice->qrcode_pix_base64,
-        'billet_digitable_line'     => $invoice->billet_digitable,
-        'billet_url_slip_base64'    => $invoice->billet_base64,
-        'billet_url_slip'           => $invoice->billet_url,
+        'pix_qrcode_image_url'      => $getInvoice->image_url_pix,
+        'pix_emv'                   => $getInvoice->pix_digitable,
+        'pix_qrcode_base64'         => $getInvoice->qrcode_pix_base64,
+        'billet_digitable_line'     => $getInvoice->billet_digitable,
+        'billet_url_slip_base64'    => $getInvoice->billet_base64,
+        'billet_url_slip'           => $getInvoice->billet_url,
     ];
 
 
     $details['body']  = view('mails.invoice',$details)->render();
 
 
-    if($invoice->send_generate_invoice == 'Sim'){
+    if($getInvoice->send_generate_invoice == 'Sim'){
 
     InvoiceNotification::Email($details);
 
-    if($invoice->notification_whatsapp)
+    if($getInvoice->notification_whatsapp)
         InvoiceNotification::Whatsapp($details);
 
     }
 
-    return "Notificação para o cliente {$invoice->name} está na fila para processamento.";
+    return "Notificação para o cliente {$getInvoice->name} está na fila para processamento.";
 
     }
 }

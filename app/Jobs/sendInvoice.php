@@ -272,60 +272,60 @@ class sendInvoice implements ShouldQueue
     ->where('invoices.user_id',$invoice['user_id'])
     ->first();
 
-    dd($getInvoice['id']);
+
 
     $details = [
         'type_send'                 => 'New',
         'title'                     => 'Nova fatura gerada',
-        'message_customer'          => 'Olá '.$getInvoice->name.', tudo bem?',
+        'message_customer'          => 'Olá '.$getInvoice['name'].', tudo bem?',
         'message_notification'      => 'Esta é uma mensagem para notificá-lo(a) que sua Fatura foi gerada',
-        'logo'                      => 'https://cobrancasegura.com.br/'.$getInvoice->user_image,
-        'company'                   => $getInvoice->user_company,
-        'user_whatsapp'             => removeEspeciais($getInvoice->user_whatsapp),
-        'user_telephone'            => removeEspeciais($getInvoice->user_telephone),
-        'user_email'                => $getInvoice->user_email,
-        'user_access_token_wp'      => $getInvoice->api_access_token_whatsapp,
-        'user_id'                   => $getInvoice->user_id,
-        'customer'                  => $getInvoice->name,
-        'customer_email'            => $getInvoice->email,
-        'customer_email2'           => $getInvoice->email2,
-        'customer_whatsapp'         => removeEspeciais($getInvoice->whatsapp),
-        'notification_whatsapp'     => $getInvoice->notification_whatsapp,
-        'notification_email'        => $getInvoice->notification_email,
-        'customer_company'          => $getInvoice->company,
-        'date_invoice'              => date('d/m/Y', strtotime($getInvoice->date_invoice)),
-        'date_due'                  => date('d/m/Y', strtotime($getInvoice->date_due)),
-        'price'                     => number_format($getInvoice->price, 2,',','.'),
-        'gateway_payment'           => $getInvoice->gateway_payment,
-        'payment_method'            => $getInvoice->payment_method,
-        'service'                   => $getInvoice->service_name .' - '. $getInvoice->description,
-        'invoice'                   => $getInvoice->id,
-        'status'                    => $getInvoice->status,
+        'logo'                      => 'https://cobrancasegura.com.br/'.$getInvoice['user_image'],
+        'company'                   => $getInvoice['user_company'],
+        'user_whatsapp'             => removeEspeciais($getInvoice['user_whatsapp']),
+        'user_telephone'            => removeEspeciais($getInvoice['user_telephone']),
+        'user_email'                => $getInvoice['user_email'],
+        'user_access_token_wp'      => $getInvoice['api_access_token_whatsapp'],
+        'user_id'                   => $getInvoice['user_id'],
+        'customer'                  => $getInvoice['name'],
+        'customer_email'            => $getInvoice['email'],
+        'customer_email2'           => $getInvoice['email2'],
+        'customer_whatsapp'         => removeEspeciais($getInvoice['whatsapp']),
+        'notification_whatsapp'     => $getInvoice['notification_whatsapp'],
+        'notification_email'        => $getInvoice['notification_email'],
+        'customer_company'          => $getInvoice['company'],
+        'date_invoice'              => date('d/m/Y', strtotime($getInvoice['date_invoice'])),
+        'date_due'                  => date('d/m/Y', strtotime($getInvoice['date_due'])),
+        'price'                     => number_format($getInvoice['price'], 2,',','.'),
+        'gateway_payment'           => $getInvoice['gateway_payment'],
+        'payment_method'            => $getInvoice['payment_method'],
+        'service'                   => $getInvoice['service_name'] .' - '. $getInvoice['description'],
+        'invoice'                   => $getInvoice['id'],
+        'status'                    => $getInvoice['status'],
         'url_base'                  => url('/'),
-        'pix_qrcode_image_url'      => $getInvoice->image_url_pix,
-        'pix_emv'                   => $getInvoice->pix_digitable,
-        'pix_qrcode_base64'         => $getInvoice->qrcode_pix_base64,
-        'billet_digitable_line'     => $getInvoice->billet_digitable,
-        'billet_url_slip_base64'    => $getInvoice->billet_base64,
-        'billet_url_slip'           => $getInvoice->billet_url,
+        'pix_qrcode_image_url'      => $getInvoice['image_url_pix'],
+        'pix_emv'                   => $getInvoice['pix_digitable'],
+        'pix_qrcode_base64'         => $getInvoice['qrcode_pix_base64'],
+        'billet_digitable_line'     => $getInvoice['billet_digitable'],
+        'billet_url_slip_base64'    => $getInvoice['billet_base64'],
+        'billet_url_slip'           => $getInvoice['billet_url'],
     ];
 
 
-    \Log::info('Linha 314 send_generate_invoice : '.$getInvoice->send_generate_invoice);
-    if($getInvoice->send_generate_invoice == 'Sim'){
-        \Log::info('Linha 316 notification_email: '.$getInvoice->notification_email);
-        if($getInvoice->notification_email == 's'){
+    \Log::info('Linha 314 send_generate_invoice : '.$getInvoice['send_generate_invoice']);
+    if($getInvoice['send_generate_invoice'] == 'Sim'){
+        \Log::info('Linha 316 notification_email: '.$getInvoice['notification_email']);
+        if($getInvoice['notification_email'] == 's'){
             $details['body']  = view('mails.invoice',$details)->render();
             InvoiceNotification::Email($details);
         }
-        if($getInvoice->notification_whatsapp == 's'){
+        if($getInvoice['notification_whatsapp'] == 's'){
             InvoiceNotification::Whatsapp($details);
         }
 
 
     }
 
-    return "Notificação para o cliente {$getInvoice->name} está na fila para processamento.";
+    return "Notificação para o cliente {$getInvoice['name']} está na fila para processamento.";
 
     }
 }

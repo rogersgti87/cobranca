@@ -76,6 +76,7 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
 
          }
          $this->info('Notificações em fila iniciadas.');
+         \Log::info('Notificações em fila iniciadas.');
     }
 
     }//end foreach users

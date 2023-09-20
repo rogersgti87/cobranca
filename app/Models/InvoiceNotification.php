@@ -257,6 +257,8 @@ class InvoiceNotification extends Model
     }
     }
 
+    \Log::info('Linha 260:'. json_encode(['message' => $status_message, 'image' => $status_image, 'file' => $status_file]));
+
     return ['message' => $status_message, 'image' => $status_image, 'file' => $status_file];
 
     }

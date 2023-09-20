@@ -127,9 +127,12 @@ class WebHookController extends Controller
         'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp','customers.notification_email','customers.type',
         'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement',
         'customers.district','customers.city','customers.state','customers.cep','invoices.gateway_payment','invoices.payment_method',
-        'services.id as service_id','services.name as service_name','invoices.price','users.access_token_mp','users.company as user_company','users.inter_chave_pix',
+        'services.id as service_id','services.name as service_name','invoices.price','users.access_token_mp','users.company as user_company',
+        'users.whatsapp as user_whatsapp','users.image as user_image', 'users.telephone as user_telephone', 'users.email as user_email',
+        'users.api_access_token_whatsapp','users.token_paghiper','users.key_paghiper','invoices.image_url_pix','invoices.pix_digitable',
+        'invoices.qrcode_pix_base64','invoices.billet_digitable','invoices.billet_base64','invoices.billet_url','users.inter_chave_pix',
         'users.inter_host','users.inter_client_id','users.inter_client_secret','users.inter_scope','users.inter_crt_file','users.inter_key_file','users.inter_crt_file_webhook',
-        'users.whatsapp as user_whatsapp','users.image as user_image', 'users.telephone as user_telephone', 'users.email as user_email','users.api_access_token_whatsapp')
+        DB::raw("DATEDIFF (invoices.date_due,invoices.date_invoice) as days_due_date"))
         ->join('customer_services','invoices.customer_service_id','customer_services.id')
         ->join('customers','customer_services.customer_id','customers.id')
         ->join('services','customer_services.service_id','services.id')
@@ -249,12 +252,15 @@ class WebHookController extends Controller
 
 
         $invoice = Invoice::select('invoices.id','invoices.status','invoices.user_id','invoices.date_invoice','invoices.date_due','invoices.description',
-        'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp','customers.notification_email',
-        'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement','customers.type',
+        'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp','customers.notification_email','customers.type',
+        'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement',
         'customers.district','customers.city','customers.state','customers.cep','invoices.gateway_payment','invoices.payment_method',
-        'services.id as service_id','services.name as service_name','invoices.price','users.access_token_mp','users.company as user_company','users.inter_chave_pix',
+        'services.id as service_id','services.name as service_name','invoices.price','users.access_token_mp','users.company as user_company',
+        'users.whatsapp as user_whatsapp','users.image as user_image', 'users.telephone as user_telephone', 'users.email as user_email',
+        'users.api_access_token_whatsapp','users.token_paghiper','users.key_paghiper','invoices.image_url_pix','invoices.pix_digitable',
+        'invoices.qrcode_pix_base64','invoices.billet_digitable','invoices.billet_base64','invoices.billet_url','users.inter_chave_pix',
         'users.inter_host','users.inter_client_id','users.inter_client_secret','users.inter_scope','users.inter_crt_file','users.inter_key_file','users.inter_crt_file_webhook',
-        'users.whatsapp as user_whatsapp','users.image as user_image', 'users.telephone as user_telephone', 'users.email as user_email','users.api_access_token_whatsapp')
+        DB::raw("DATEDIFF (invoices.date_due,invoices.date_invoice) as days_due_date"))
         ->join('customer_services','invoices.customer_service_id','customer_services.id')
         ->join('customers','customer_services.customer_id','customers.id')
         ->join('services','customer_services.service_id','services.id')
@@ -372,9 +378,12 @@ class WebHookController extends Controller
             'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp','customers.notification_email','customers.type',
             'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement',
             'customers.district','customers.city','customers.state','customers.cep','invoices.gateway_payment','invoices.payment_method',
-            'services.id as service_id','services.name as service_name','invoices.price','users.access_token_mp','users.company as user_company','users.inter_chave_pix',
+            'services.id as service_id','services.name as service_name','invoices.price','users.access_token_mp','users.company as user_company',
+            'users.whatsapp as user_whatsapp','users.image as user_image', 'users.telephone as user_telephone', 'users.email as user_email',
+            'users.api_access_token_whatsapp','users.token_paghiper','users.key_paghiper','invoices.image_url_pix','invoices.pix_digitable',
+            'invoices.qrcode_pix_base64','invoices.billet_digitable','invoices.billet_base64','invoices.billet_url','users.inter_chave_pix',
             'users.inter_host','users.inter_client_id','users.inter_client_secret','users.inter_scope','users.inter_crt_file','users.inter_key_file','users.inter_crt_file_webhook',
-            'users.whatsapp as user_whatsapp','users.image as user_image', 'users.telephone as user_telephone', 'users.email as user_email','users.api_access_token_whatsapp')
+            DB::raw("DATEDIFF (invoices.date_due,invoices.date_invoice) as days_due_date"))
             ->join('customer_services','invoices.customer_service_id','customer_services.id')
             ->join('customers','customer_services.customer_id','customers.id')
             ->join('services','customer_services.service_id','services.id')
@@ -482,9 +491,12 @@ class WebHookController extends Controller
             'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp','customers.notification_email','customers.type',
             'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement',
             'customers.district','customers.city','customers.state','customers.cep','invoices.gateway_payment','invoices.payment_method',
-            'services.id as service_id','services.name as service_name','invoices.price','users.access_token_mp','users.company as user_company','users.inter_chave_pix',
+            'services.id as service_id','services.name as service_name','invoices.price','users.access_token_mp','users.company as user_company',
+            'users.whatsapp as user_whatsapp','users.image as user_image', 'users.telephone as user_telephone', 'users.email as user_email',
+            'users.api_access_token_whatsapp','users.token_paghiper','users.key_paghiper','invoices.image_url_pix','invoices.pix_digitable',
+            'invoices.qrcode_pix_base64','invoices.billet_digitable','invoices.billet_base64','invoices.billet_url','users.inter_chave_pix',
             'users.inter_host','users.inter_client_id','users.inter_client_secret','users.inter_scope','users.inter_crt_file','users.inter_key_file','users.inter_crt_file_webhook',
-            'users.whatsapp as user_whatsapp','users.image as user_image', 'users.telephone as user_telephone', 'users.email as user_email','users.api_access_token_whatsapp')
+            DB::raw("DATEDIFF (invoices.date_due,invoices.date_invoice) as days_due_date"))
             ->join('customer_services','invoices.customer_service_id','customer_services.id')
             ->join('customers','customer_services.customer_id','customers.id')
             ->join('services','customer_services.service_id','services.id')

@@ -251,6 +251,7 @@ class sendInvoice implements ShouldQueue
         'customer_email2'           => $invoice->email2,
         'customer_whatsapp'         => removeEspeciais($invoice->whatsapp),
         'notification_whatsapp'     => $invoice->notification_whatsapp,
+        'notification_email'        => $invoice->notification_email,
         'customer_company'          => $invoice->company,
         'date_invoice'              => date('d/m/Y', strtotime($invoice->date_invoice)),
         'date_due'                  => date('d/m/Y', strtotime($invoice->date_due)),

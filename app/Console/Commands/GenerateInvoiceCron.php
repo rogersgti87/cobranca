@@ -7,7 +7,6 @@ use Illuminate\Console\Command;
 use DB;
 use Carbon\Carbon;
 use App\Models\Invoice;
-use App\Models\InvoiceNotification;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
@@ -35,7 +34,6 @@ foreach($users as $user){
     $queueSize = Queue::size($user->id);
 
     if ($queueSize > 0) {
-        //$this->info('A Fila já tem trabalho pendente');
         return 'A Fila já tem trabalho pendente';
     }
 
@@ -58,28 +56,21 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
     if($verifyInvoices != null){
         $count = 1;
         foreach($verifyInvoices as $vInvoice){
-
-            //foreach ($chunk as $vInvoice) {
                 $job = new sendInvoice($vInvoice);
                 $job->onQueue($vInvoice->user_id);
                 dispatch($job);
-            //}
 
             if($count > 5){
-                //dispatch(new GenerateInvoiceCron())->delay(now()->addMinutes(1));
-                //dispatch(new GenerateInvoiceCron());
-                //$this->info('Notificação enviada.');
                 return 'Notificação enviada.';
             }
 
             $count++;
 
          }
-         //$this->info('Notificações em fila iniciadas.');
          \Log::info('Notificações em fila iniciadas.');
     }
 
-    }//end foreach users
+    }
 
 
   }

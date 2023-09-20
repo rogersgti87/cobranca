@@ -253,7 +253,7 @@ class sendInvoice implements ShouldQueue
 
     }
 
-dd($invoice);
+
     $getInvoice = Invoice::select('invoices.id','invoices.status','invoices.user_id','invoices.date_invoice','invoices.date_due','invoices.description',
     'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp','customers.notification_email','customers.type',
     'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement',
@@ -268,9 +268,11 @@ dd($invoice);
     ->join('customers','customer_services.customer_id','customers.id')
     ->join('services','customer_services.service_id','services.id')
     ->join('users','users.id','invoices.user_id')
-    ->where('invoices.id',$invoice->id)
-    ->where('invoices.user_id',$invoice->user_id)
+    ->where('invoices.id',$invoice['id'])
+    ->where('invoices.user_id',$invoice['user_id'])
     ->first();
+
+    dd($getInvoice);
 
     $details = [
         'type_send'                 => 'New',

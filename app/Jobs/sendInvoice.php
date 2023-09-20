@@ -58,7 +58,7 @@ class sendInvoice implements ShouldQueue
 
 
         $invoice = Invoice::select('invoices.id','invoices.status','invoices.user_id','invoices.date_invoice','invoices.date_due','invoices.description',
-        'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp','customers.type',
+        'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp','customers.notification_email','customers.type',
         'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement',
         'customers.district','customers.city','customers.state','customers.cep','invoices.gateway_payment','invoices.payment_method',
         'services.id as service_id','services.name as service_name','invoices.price','users.access_token_mp','users.company as user_company',
@@ -175,7 +175,7 @@ class sendInvoice implements ShouldQueue
                         \File::makeDirectory(public_path('boleto'));
 
                         $invoicePDF = Invoice::select('invoices.id','invoices.status','invoices.user_id','invoices.date_invoice','invoices.date_due','invoices.description',
-                        'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp','customers.type',
+                        'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp','customers.notification_email','customers.type',
                         'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement',
                         'customers.district','customers.city','customers.state','customers.cep','invoices.gateway_payment','invoices.payment_method',
                         'services.id as service_id','services.name as service_name','invoices.price','users.access_token_mp','users.company as user_company',
@@ -216,7 +216,7 @@ class sendInvoice implements ShouldQueue
 
 
     $invoice = Invoice::select('invoices.id','invoices.status','invoices.user_id','invoices.date_invoice','invoices.date_due','invoices.description',
-    'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp','customers.type',
+    'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp','customers.notification_email','customers.type',
     'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement',
     'customers.district','customers.city','customers.state','customers.cep','invoices.gateway_payment','invoices.payment_method',
     'services.id as service_id','services.name as service_name','invoices.price','users.access_token_mp','users.company as user_company',

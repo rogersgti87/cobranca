@@ -224,6 +224,7 @@ class CustomerServiceController extends Controller
                             //QrCode::format('png')->size(220)->generate($generatePixIntermedium['transaction']->pixCopiaECola, public_path(). '/pix/' . $invoice->user_id.'_'.$invoice->id.'.'.'png');
 
                             $imageQRCODE = 'https://gerarqrcodepix.com.br/api/v1?brcode='.$generatePixIntermedium['transaction']->pixCopiaECola;
+                            \File::put(public_path(). '/pix/' . $invoice->user_id.'_'.$invoice->id.'.'.'png', file_get_contents($imageQRCODE));
 
                             $image_pix   = config()->get('app.url').'/pix/'.$invoice->user_id.'_'.$invoice->id.'.png';
 

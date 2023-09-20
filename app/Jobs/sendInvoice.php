@@ -151,6 +151,8 @@ class sendInvoice implements ShouldQueue
 
                     $imageQRCODE = 'https://gerarqrcodepix.com.br/api/v1?brcode='.$generatePixIntermedium['transaction']->pixCopiaECola;
 
+                    \File::put(public_path(). '/pix/' . $invoice->user_id.'_'.$invoice->id.'.'.'png', file_get_contents($imageQRCODE));
+
                     $image_pix   = config()->get('app.url').'/pix/'.$invoice->user_id.'_'.$invoice->id.'.png';
 
                     $invoice->update([
@@ -251,7 +253,6 @@ class sendInvoice implements ShouldQueue
 
     }
 
-dd($invoice->id, $invoice->user_id);
 
     $getInvoice = Invoice::select('invoices.id','invoices.status','invoices.user_id','invoices.date_invoice','invoices.date_due','invoices.description',
     'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp','customers.notification_email','customers.type',

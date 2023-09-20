@@ -135,12 +135,12 @@ class sendInvoice implements ShouldQueue
                 try {
                 $generatePixIntermedium = Invoice::generatePixIntermedium($invoice);
                 if($generatePixIntermedium['status'] == 'reject'){
-                    $msgInterPix = '';
-                    foreach($generatePixIntermedium['message'] as $messageInterPix){
-                        $msgInterPix .= $messageInterPix['razao'].' - '.$messageInterPix['propriedade'].',';
-                    }
+                    // $msgInterPix = '';
+                    // foreach($generatePixIntermedium['message'] as $messageInterPix){
+                    //     $msgInterPix .= $messageInterPix['razao'].' - '.$messageInterPix['propriedade'].',';
+                    // }
 
-                    \Log::info($generatePixIntermedium['title'].': '.$msgInterPix, 422);
+                    \Log::info(json_encode($generatePixIntermedium['message']));
                 }
                 try {
 
@@ -245,7 +245,7 @@ class sendInvoice implements ShouldQueue
                     ]);
                 } catch (\Exception $e) {
                     \Log::error($e->getMessage());
-                    return response()->json($e->getMessage(), 422);
+                    //return response()->json($e->getMessage(), 422);
                 }
 
             }

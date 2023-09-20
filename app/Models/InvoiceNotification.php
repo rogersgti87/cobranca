@@ -37,6 +37,8 @@ class InvoiceNotification extends Model
         );
         }
 
+        \Log::info('Linha 40: '.json_encode($data));
+        \Log::info('Linha 41: '.$data['notification_email']);
 
         if($data['notification_email'] == 's'){
 

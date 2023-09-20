@@ -272,7 +272,7 @@ class sendInvoice implements ShouldQueue
     ->where('invoices.user_id',$invoice['user_id'])
     ->first();
 
-    dd($getInvoice);
+    dd($getInvoice['id']);
 
     $details = [
         'type_send'                 => 'New',

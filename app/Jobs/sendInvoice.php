@@ -77,6 +77,8 @@ class sendInvoice implements ShouldQueue
         ->first();
 
 
+        dd($invoice);
+
         if($invoice->payment_method == 'Pix'){
             if($invoice->gateway_payment == 'Pag Hiper'){
                 try {

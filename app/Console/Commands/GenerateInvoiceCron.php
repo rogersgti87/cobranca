@@ -42,7 +42,7 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
     INNER JOIN services s ON a.service_id = s.id
     INNER JOIN users u ON a.user_id = u.id
     WHERE NOT EXISTS (SELECT * FROM invoices b WHERE a.id = b.customer_service_id AND b.date_invoice = CURRENT_DATE) AND a.status = 'Ativo' and a.period = 'Recorrente'
-    and day(CURDATE()) = ".$user->day_generate_invoice."
+    and u.day_generate_invoice = day(CURDATE())
     and CURDATE() >= a.start_billing AND (a.end_billing >= CURDATE() OR a.end_billing IS NULL)";
 
     $verifyInvoices = DB::select($sql);
@@ -67,7 +67,8 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
             //}
 
             if($count > 5){
-                dispatch(new GenerateInvoiceCron())->delay(now()->addMinutes(1));
+                //dispatch(new GenerateInvoiceCron())->delay(now()->addMinutes(1));
+                dispatch(new GenerateInvoiceCron());
                 //$this->info('Notificação enviada.');
                 return 'Notificação enviada.';
             }

@@ -14,6 +14,7 @@ use App\Models\Invoice;
 use App\Models\InvoiceNotification;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class sendInvoice implements ShouldQueue
 {
@@ -131,6 +132,40 @@ class sendInvoice implements ShouldQueue
 
 
 
+            } elseif($invoice->gateway_payment == 'Intermedium'){
+                try {
+                $generatePixIntermedium = Invoice::generatePixIntermedium($invoice);
+                if($generatePixIntermedium['status'] == 'reject'){
+                    $msgInterPix = '';
+                    foreach($generatePixIntermedium['message'] as $messageInterPix){
+                        $msgInterPix .= $messageInterPix['razao'].' - '.$messageInterPix['propriedade'].',';
+                    }
+
+                    \Log::info($generatePixIntermedium['title'].': '.$msgInterPix, 422);
+                }
+                try {
+
+                    if(!file_exists(public_path('pix')))
+                        \File::makeDirectory(public_path('pix'));
+
+                    QrCode::format('png')->size(220)->generate($generatePixIntermedium['transaction']->pixCopiaECola, public_path(). '/pix/' . $invoice->user_id.'_'.$invoice->id.'.'.'png');
+
+                    $image_pix   = config()->get('app.url').'/pix/'.$invoice->user_id.'_'.$invoice->id.'.png';
+
+                    $invoice->update([
+                        'image_url_pix'     => $image_pix,
+                        'pix_digitable'     => $generatePixIntermedium['transaction']->pixCopiaECola,
+                        'qrcode_pix_base64' => base64_encode(file_get_contents($image_pix)),
+                    ]);
+
+                } catch (\Exception $e) {
+                    $invoice->delete();
+                    \Log::error($e->getMessage());
+                    //return response()->json($e->getMessage(), 422);
+                }
+            } catch (\Exception $e) {
+                \Log::error($e->getMessage());
+            }
             }
         } elseif($invoice->payment_method == 'Boleto'){
 

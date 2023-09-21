@@ -43,6 +43,10 @@ class RememberInvoiceCron extends Command
 
     foreach($verifyInvoices as $invoice){
 
+
+
+
+
     $details = [
         'type_send'                 => 'New',
         'title'                     => 'Nova fatura gerada',

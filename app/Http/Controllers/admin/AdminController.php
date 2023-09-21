@@ -34,6 +34,16 @@ class AdminController extends Controller
 
     public function index(){
 
+        // $invoices = Invoice::select('id','user_id','payment_method','image_url_pix','pix_digitable')->where('status','Pendente')->where('payment_method','Pix')->get();
+
+        // foreach($invoices as $invoice){
+        //     $image = 'https://gerarqrcodepix.com.br/api/v1?brcode=$invoice->pix_digitable';
+        //     \File::put(public_path(). '/pix/' . $invoice->user_id.'_'.$invoice->id.'.'.'png', file_get_contents("$image"));
+        // }
+
+
+        // return 1;
+
         $total_customers  = Customer::where('user_id',auth()->user()->id)->count();
         $invoice = Invoice::select(DB::raw("
         (select count(*) from invoices where user_id = ".auth()->user()->id." ) as total,

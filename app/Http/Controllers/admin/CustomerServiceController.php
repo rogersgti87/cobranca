@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Image;
 use DB;
+use App\Models\User;
 use App\Models\Service;
 use App\Models\CustomerService;
 use App\Models\Invoice;
@@ -15,6 +16,7 @@ use App\Models\InvoiceNotification;
 use RuntimeException;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Http;
+
 
 class CustomerServiceController extends Controller
 {
@@ -110,6 +112,9 @@ class CustomerServiceController extends Controller
 
 
             if(isset($data['generate_invoice'])){
+                $user = User::where('id',auth()->user()->id)->first();
+
+
 
                 $newInvoice = new Invoice();
                 $newInvoice->user_id             = $model->user_id;
@@ -119,7 +124,7 @@ class CustomerServiceController extends Controller
                 $newInvoice->gateway_payment     = $model->gateway_payment;
                 $newInvoice->payment_method      = $model->payment_method;
                 $newInvoice->date_invoice        = Carbon::now();
-                $newInvoice->date_due            = $model->day_due >= Carbon::parse(Carbon::now())->format('d') ? Carbon::createFromDate(Carbon::now())->day($model->day_due) : Carbon::parse(Carbon::now())->format('Y-m-d');
+                $newInvoice->date_due            = $model->day_due > $user->day_generate_invoice ? Carbon::createFromDate(Carbon::now())->day($model->day_due)->addMonth() : Carbon::createFromDate(Carbon::now())->day($model->day_due);
                 $newInvoice->date_payment        = null;
                 $newInvoice->status              = 'Pendente';
                 $newInvoice->save();

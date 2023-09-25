@@ -93,6 +93,27 @@ class InvoiceNotification extends Model
     public static function Whatsapp($data){
 
 
+        if($data['user_access_token_wp'] == null){
+            return 'Sem access token cadastrado';
+        }
+
+        $response = Http::withHeaders([
+            "Content-Type"  => "application/json",
+        ])->get('https://zapestrategico.com.br/api/check-session-cobranca/'.$data['user_access_token_wp']);
+
+        if ($response->successful()) {
+
+            $result = $response->getBody();
+            $check_session = json_decode($result)->status;
+
+            if($check_session != 'Conectado'){
+                return 'Whatsapp desconectado';
+            }
+
+        }else{
+            return 'Whatsapp desconectado';
+        }
+
         $status_message       = 'Não enviado';
         $status_image         = 'Não enviado';
         $status_file          = 'Não enviado';

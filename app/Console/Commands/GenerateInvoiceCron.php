@@ -284,8 +284,6 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
             }
 
 
-
-
             $getInvoice = Invoice::select('invoices.id','invoices.status','invoices.user_id','invoices.date_invoice','invoices.date_due','invoices.description',
             'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp','customers.notification_email','customers.type',
             'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement',
@@ -301,7 +299,6 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
             ->join('services','customer_services.service_id','services.id')
             ->join('users','users.id','invoices.user_id')
             ->where('invoices.id',$invoice['id'])
-            ->where('invoices.user_id',$invoice['user_id'])
             ->first();
 
 

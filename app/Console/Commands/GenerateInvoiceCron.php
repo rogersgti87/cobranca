@@ -29,16 +29,6 @@ class GenerateInvoiceCron extends Command
   public function handle()
   {
 
-$users = User::where('status','Ativo')->get();
-
-foreach($users as $user){
-
-    $queueSize = Queue::size($user->id);
-
-    if ($queueSize > 0) {
-        return 'A Fila já tem trabalho pendente';
-    }
-
 $sql = "SELECT
 case
  when DATE_ADD(CONCAT(YEAR(a.start_billing),'-',MONTH(a.start_billing),'-',a.day_due), INTERVAL TIMESTAMPDIFF(month, a.start_billing, now()) + 1 MONTH) is null THEN last_day(CURDATE() + INTERVAL 1 MONTH)
@@ -64,9 +54,6 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
     if($verifyInvoices != null){
 
         foreach($verifyInvoices as $vInvoice){
-                // $job = new sendInvoice($vInvoice);
-                // $job->onQueue($vInvoice->user_id);
-                // dispatch($job);
 
                 $newInvoice = DB::table('invoices')->insertGetId([
                     'user_id'               => $vInvoice->user_id,
@@ -128,7 +115,6 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
 
                         } catch (\Exception $e) {
                             \Log::error($e->getMessage());
-                            Invoice::where('id',$newInvoice)->delete();
                         }
 
                     }elseif($invoice->gateway_payment == 'Mercado Pago'){
@@ -155,7 +141,6 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
 
                         } catch (\Exception $e) {
                             \Log::error($e->getMessage());
-                            Invoice::where('id',$newInvoice)->delete();
                         }
 
 
@@ -170,7 +155,6 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
                             // }
 
                             \Log::info(json_encode($generatePixIntermedium['message']));
-                            Invoice::where('id',$newInvoice)->delete();
                         }
                         try {
 
@@ -192,7 +176,6 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
                             ]);
 
                         } catch (\Exception $e) {
-                            Invoice::where('id',$newInvoice)->delete();
                             \Log::error($e->getMessage());
                             //return response()->json($e->getMessage(), 422);
                         }
@@ -228,7 +211,6 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
                             ]);
                         } catch (\Exception $e) {
                             \Log::error($e->getMessage());
-                            Invoice::where('id',$newInvoice)->delete();
                         }
 
                     }elseif($invoice->gateway_payment == 'Intermedium'){
@@ -283,6 +265,7 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
 
             }
 
+            \Log::info('Linha 268: '.$invoice['id']);
 
             $getInvoice = Invoice::select('invoices.id','invoices.status','invoices.user_id','invoices.date_invoice','invoices.date_due','invoices.description',
             'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp','customers.notification_email','customers.type',
@@ -372,7 +355,7 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
 
     }
 
-    }
+
 
 
   }

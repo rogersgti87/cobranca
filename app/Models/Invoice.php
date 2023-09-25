@@ -378,13 +378,20 @@ class Invoice extends Model
 
             ])->get($invoice['inter_host'].'cobranca/v2/boletos/'.$invoice['transaction_id'].'/pdf');
 
-            $responseBodyPdf = $response_pdf_billet->getBody();
+            if ($response_pdf_billet->successful()) {
 
-            \Log::info('Linha 383: '.json_encode($responseBodyPdf));
+                $responseBodyPdf = $response_pdf_billet->getBody();
 
-            $pdf = json_decode($responseBodyPdf)->pdf;
+                \Log::info('Linha 383: '.json_encode($responseBodyPdf));
 
-            return $pdf;
+                $pdf = json_decode($responseBodyPdf)->pdf;
+
+                return $pdf;
+
+            }else{
+                \Log::info('Erro ao gerar pdf pagamento intermedium: '.$response_pdf_billet->json());
+            }
+
 
         }
 

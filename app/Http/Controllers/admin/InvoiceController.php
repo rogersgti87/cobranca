@@ -263,7 +263,7 @@ class InvoiceController extends Controller
                         if(!file_exists(public_path('pix')))
                             \File::makeDirectory(public_path('pix'));
 
-                        QrCode::format('png')->size(220)->generate($generatePixIntermedium['transaction']->pixCopiaECola, public_path(). '/pix/' . $invoice->user_id.'_'.$invoice->id.'.'.'png');                        
+                        QrCode::format('png')->size(220)->generate($generatePixIntermedium['transaction']->pixCopiaECola, public_path(). '/pix/' . $invoice->user_id.'_'.$invoice->id.'.'.'png');
 
                         $image_pix   = config()->get('app.url').'/pix/'.$invoice->user_id.'_'.$invoice->id.'.png';
 

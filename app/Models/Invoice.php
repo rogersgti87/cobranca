@@ -355,6 +355,8 @@ class Invoice extends Model
 
         public static function getBilletPDFIntermedium($invoice){
 
+            \Log::info('Transaction_id: '.$invoice['transaction_id']);
+
             $response = Http::withOptions([
                 'cert' => storage_path('/app/'.$invoice['inter_crt_file']),
                 'ssl_key' => storage_path('/app/'.$invoice['inter_key_file']),
@@ -367,6 +369,8 @@ class Invoice extends Model
 
             $responseBody = $response->body();
             $access_token = json_decode($responseBody)->access_token;
+
+            \Log::info('access_token: '.$access_token);
 
             $response_pdf_billet = Http::withOptions(
                 [

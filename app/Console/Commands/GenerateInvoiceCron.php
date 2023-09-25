@@ -55,7 +55,7 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
     INNER JOIN users u ON a.user_id = u.id
     WHERE NOT EXISTS (SELECT * FROM invoices b WHERE a.id = b.customer_service_id AND b.date_invoice = CURRENT_DATE) AND a.status = 'Ativo' and a.period = 'Recorrente'
     and u.day_generate_invoice = day(CURDATE())
-    and CURDATE() >= a.start_billing AND (a.end_billing >= CURDATE() OR a.end_billing IS NULL) limit 3";
+    and CURDATE() >= a.start_billing AND (a.end_billing >= CURDATE() OR a.end_billing IS NULL) limit 2";
 
     $verifyInvoices = DB::select($sql);
 

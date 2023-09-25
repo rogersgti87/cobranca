@@ -237,7 +237,6 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
                         $generateBilletIntermedium = Invoice::generateBilletIntermedium($invoice);
                         if($generateBilletIntermedium['status'] == 'reject'){
                             \Log::info('Linha 170: '.$generateBilletIntermedium['message']);
-                            Invoice::where('id',$newInvoice)->delete();
                         }
                         try {
 
@@ -276,7 +275,6 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
                             ]);
                         } catch (\Exception $e) {
                             \Log::error($e->getMessage());
-                            Invoice::where('id',$newInvoice)->delete();
                             //return response()->json($e->getMessage(), 422);
                         }
 

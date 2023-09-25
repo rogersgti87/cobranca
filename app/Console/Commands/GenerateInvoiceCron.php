@@ -49,7 +49,7 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
     INNER JOIN users u ON a.user_id = u.id
     WHERE NOT EXISTS (SELECT * FROM invoices b WHERE a.id = b.customer_service_id AND b.date_invoice = CURRENT_DATE) AND a.status = 'Ativo' and a.period = 'Recorrente'
     and u.day_generate_invoice = day(CURDATE())
-    and CURDATE() >= a.start_billing AND (a.end_billing >= CURDATE() OR a.end_billing IS NULL) limit 5";
+    and CURDATE() >= a.start_billing AND (a.end_billing >= CURDATE() OR a.end_billing IS NULL) limit 3";
 
     $verifyInvoices = DB::select($sql);
 
@@ -122,6 +122,7 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
 
                         } catch (\Exception $e) {
                             \Log::error($e->getMessage());
+                            Invoice::where('id',$newInvoice)->delete();
                         }
 
                     }elseif($invoice->gateway_payment == 'Mercado Pago'){
@@ -148,6 +149,7 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
 
                         } catch (\Exception $e) {
                             \Log::error($e->getMessage());
+                            Invoice::where('id',$newInvoice)->delete();
                         }
 
 
@@ -162,6 +164,7 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
                             // }
 
                             \Log::info(json_encode($generatePixIntermedium['message']));
+                            Invoice::where('id',$newInvoice)->delete();
                         }
                         try {
 
@@ -183,7 +186,7 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
                             ]);
 
                         } catch (\Exception $e) {
-                            $invoice->delete();
+                            Invoice::where('id',$newInvoice)->delete();
                             \Log::error($e->getMessage());
                             //return response()->json($e->getMessage(), 422);
                         }
@@ -219,6 +222,7 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
                             ]);
                         } catch (\Exception $e) {
                             \Log::error($e->getMessage());
+                            Invoice::where('id',$newInvoice)->delete();
                         }
 
                     }elseif($invoice->gateway_payment == 'Intermedium'){
@@ -227,7 +231,7 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
                         $generateBilletIntermedium = Invoice::generateBilletIntermedium($invoice);
                         if($generateBilletIntermedium['status'] == 'reject'){
                             \Log::info('Linha 170: '.$generateBilletIntermedium['message']);
-                            return response()->json($generateBilletIntermedium['message'], 422);
+                            Invoice::where('id',$newInvoice)->delete();
                         }
                         try {
 
@@ -266,6 +270,7 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
                             ]);
                         } catch (\Exception $e) {
                             \Log::error($e->getMessage());
+                            Invoice::where('id',$newInvoice)->delete();
                             //return response()->json($e->getMessage(), 422);
                         }
 
@@ -339,9 +344,11 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
                 if($getInvoice['notification_email'] == 's'){
                     if( $getInvoice['payment_method'] == 'Boleto' && $getInvoice['billet_digitable'] == null){
                         \Log::info('Linha 341: boleto em branco');
+                        Invoice::where('id',$newInvoice)->delete();
                     }
                     else if( $getInvoice['payment_method'] == 'Pix' && $getInvoice['pix_digitable'] == null){
                         \Log::info('Linha 344: pix em branco');
+                        Invoice::where('id',$newInvoice)->delete();
                     }else{
                         $details['body']  = view('mails.invoice',$details)->render();
                         InvoiceNotification::Email($details);

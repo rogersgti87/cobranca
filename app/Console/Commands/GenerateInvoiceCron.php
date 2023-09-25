@@ -337,10 +337,19 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
 
             if($getInvoice['send_generate_invoice'] == 'Sim'){
                 if($getInvoice['notification_email'] == 's'){
-                    $details['body']  = view('mails.invoice',$details)->render();
-                    InvoiceNotification::Email($details);
+                    if( $getInvoice['payment_method'] == 'Boleto' && $getInvoice['billet_digitable'] == null){
+                        \Log::info('Linha 341: boleto em branco');
+                    }
+                    else if( $getInvoice['payment_method'] == 'Pix' && $getInvoice['pix_digitable'] == null){
+                        \Log::info('Linha 344: pix em branco');
+                    }else{
+                        $details['body']  = view('mails.invoice',$details)->render();
+                        InvoiceNotification::Email($details);
+                    }
+
                 }
                 if($getInvoice['notification_whatsapp'] == 's'){
+
                     InvoiceNotification::Whatsapp($details);
                 }
 

@@ -307,6 +307,10 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
             ->first();
 
 
+            if($getInvoice == null){
+                \Log::info('Linha 311 Getinoice null:');
+                return 1;
+            }
 
             $details = [
                 'type_send'                 => 'New',

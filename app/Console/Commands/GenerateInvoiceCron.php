@@ -335,21 +335,17 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
 
 
 
-            // if($getInvoice['send_generate_invoice'] == 'Sim'){
-            //     if($getInvoice['notification_email'] == 's'){
-            //         $details['body']  = view('mails.invoice',$details)->render();
-            //         InvoiceNotification::Email($details);
-            //     }
-            //     if($getInvoice['notification_whatsapp'] == 's'){
-            //         InvoiceNotification::Whatsapp($details);
-            //     }
+            if($getInvoice['send_generate_invoice'] == 'Sim'){
+                if($getInvoice['notification_email'] == 's'){
+                    $details['body']  = view('mails.invoice',$details)->render();
+                    InvoiceNotification::Email($details);
+                }
+                if($getInvoice['notification_whatsapp'] == 's'){
+                    InvoiceNotification::Whatsapp($details);
+                }
 
 
-            // }
-
-            return "Notificação para o cliente está na fila para processamento.";
-
-
+            }
 
 
          }

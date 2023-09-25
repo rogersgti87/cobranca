@@ -380,6 +380,8 @@ class Invoice extends Model
 
             $responseBodyPdf = $response_pdf_billet->getBody();
 
+            \Log::info('Linha 383: '.json_encode($responseBodyPdf));
+
             $pdf = json_decode($responseBodyPdf)->pdf;
 
             return $pdf;

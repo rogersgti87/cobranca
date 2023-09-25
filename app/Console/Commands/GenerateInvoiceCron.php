@@ -332,11 +332,9 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
                 if($getInvoice['notification_email'] == 's'){
                     if( $getInvoice['payment_method'] == 'Boleto' && $getInvoice['billet_digitable'] == null){
                         \Log::info('Linha 341: boleto em branco');
-                        Invoice::where('id',$newInvoice)->delete();
                     }
                     else if( $getInvoice['payment_method'] == 'Pix' && $getInvoice['pix_digitable'] == null){
                         \Log::info('Linha 344: pix em branco');
-                        Invoice::where('id',$newInvoice)->delete();
                     }else{
                         $details['body']  = view('mails.invoice',$details)->render();
                         InvoiceNotification::Email($details);

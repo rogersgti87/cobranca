@@ -104,7 +104,7 @@ class InvoiceNotification extends Model
         if ($response->successful()) {
 
             $result = $response->getBody();
-            $check_session = json_decode($result)->status;
+            $check_session = json_decode($result);
 
             if($check_session != 'Conectado'){
                 return 'Whatsapp desconectado';

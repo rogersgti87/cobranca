@@ -159,6 +159,8 @@ class InvoiceNotification extends Model
             "message"       => $data['text_whatsapp']
         ]);
 
+        if ($response->successful()) {
+
         $result = $response->getBody();
 
         $whats_status           = json_decode($result);
@@ -186,6 +188,11 @@ class InvoiceNotification extends Model
             'created_at'        => Carbon::now(),
             'updated_at'        => Carbon::now()
         ]);
+
+    }else{
+        $whats_message          = $response->getBody();
+        return ['message' => json_encode(json_decode($whats_message)->message), 'image' => '', 'file' => ''];
+    }
 
         if($data['status'] == 'Pendente') {
 

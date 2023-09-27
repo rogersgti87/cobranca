@@ -107,11 +107,13 @@ class InvoiceNotification extends Model
             $check_session = json_decode($result);
 
             if($check_session != 'Conectado'){
-                return 'Whatsapp desconectado';
+//                return 'Whatsapp desconectado';
+            return ['message' => 'Whatsapp desconectado', 'image' => '', 'file' => ''];
             }
 
         }else{
-            return 'Whatsapp desconectado';
+            \Log::info('Linha 115: Whatsapp desconectado');
+            return 'Erro ao conectar a API do Whatsapp';
         }
 
         $status_message       = 'Não enviado';

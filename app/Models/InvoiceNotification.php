@@ -97,14 +97,14 @@ class InvoiceNotification extends Model
             return 'Sem access token cadastrado';
         }
 
-        $response = Http::withHeaders([
+        $response_check = Http::withHeaders([
             "Content-Type"  => "application/json",
         ])->get('https://zapestrategico.com.br/api/check-session-cobranca/'.$data['user_access_token_wp']);
 
-        if ($response->successful()) {
+        if ($response_check->successful()) {
 
-            $result = $response->getBody();
-            $check_session = json_decode($result);
+            $result_check = $response_check->getBody();
+            $check_session = json_decode($result_check);
 
             if($check_session != 'Conectado'){
 //                return 'Whatsapp desconectado';

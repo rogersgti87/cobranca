@@ -178,7 +178,7 @@ class InvoiceController extends Controller
 
         }
 
-
+dd('teste');
             if(isset($data['send_invoice_email']))
                 InvoiceNotification::Email($model['id']);
 

@@ -12,9 +12,86 @@ class InvoiceNotification extends Model
 {
 
 
-    public static function Email($data){
+    public static function Email($invoice_id){
 
-        $status_email          = 'Não enviado';
+
+        $invoice = ViewInvoice::where('id',$invoice_id)->first();
+
+        if($invoice->notification_email == 's'){
+
+        $status_email = 'Não enviado';
+
+        if($invoice->status == 'Pendente'){
+
+            if($invoice->date_due == Carbon::now()->format('Y-m-d') ){
+                $title                      = 'Sua Fatura vence hoje';
+                $message_notification       = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura vence hoje.';
+            }
+
+            if(Carbon::parse($invoice->date_due)->subDays(5)->format('Y-m-d') == Carbon::now()->format('Y-m-d')){
+                if($invoice->send_generate_invoice == 'Não'){
+                    $title                  = 'Nova Fatura Gerada';
+                    $message_notification   = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura foi gerada.';
+                }else{
+                    $title                  = 'Sua Fatura vencerá em 5 dias';
+                    $message_notification   = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura vencerá em 5 dias.';
+                }
+            }
+
+            if(Carbon::parse($invoice->date_due)->subDays(2)->format('Y-m-d') == Carbon::now()->format('Y-m-d')){
+                $title                      = 'Sua Fatura vencerá em 2 dias';
+                $message_notification       = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura vencerá em 2 dias.';
+            }
+
+            if($invoice->date_due < Carbon::now()->format('Y-m-d') ){
+                $title                      = 'Sua Fatura venceu';
+                $message_notification       = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura está vencida.';
+            }
+
+        }else{
+            $title = 'Fatura';
+            $message_notification = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura mudou o status para: <b>'.$invoice->status.'</b>';
+        }
+
+
+        $data = [
+            'type_send'                 => 'New',
+            'title'                     => $title,
+            'message_customer'          => 'Olá '.$invoice->name.', tudo bem?',
+            'message_notification'      => $message_notification,
+            'logo'                      => 'https://cobrancasegura.com.br/'.$invoice->user_image,
+            'company'                   => $invoice->user_company,
+            'user_whatsapp'             => removeEspeciais($invoice->user_whatsapp),
+            'user_telephone'            => removeEspeciais($invoice->user_telephone),
+            'user_email'                => $invoice->user_email,
+            'user_access_token_wp'      => $invoice->api_access_token_whatsapp,
+            'user_id'                   => $invoice->user_id,
+            'customer'                  => $invoice->name,
+            'customer_email'            => $invoice->email,
+            'customer_email2'           => $invoice->email2,
+            'customer_whatsapp'         => removeEspeciais($invoice->whatsapp),
+            'notification_whatsapp'     => $invoice->notification_whatsapp,
+            'notification_email'        => $invoice->notification_email,
+            'customer_company'          => $invoice->company,
+            'date_invoice'              => date('d/m/Y', strtotime($invoice->date_invoice)),
+            'date_due'                  => date('d/m/Y', strtotime($invoice->date_due)),
+            'price'                     => number_format($invoice->price, 2,',','.'),
+            'gateway_payment'           => $invoice->gateway_payment,
+            'payment_method'            => $invoice->payment_method,
+            'service'                   => $invoice->service_name .' - '. $invoice->description,
+            'invoice'                   => $invoice->id,
+            'status'                    => $invoice->status,
+            'url_base'                  => url('/'),
+            'pix_qrcode_image_url'      => $invoice->image_url_pix,
+            'pix_emv'                   => $invoice->pix_digitable,
+            'pix_qrcode_base64'         => $invoice->qrcode_pix_base64,
+            'billet_digitable_line'     => $invoice->billet_digitable,
+            'billet_url_slip_base64'    => $invoice->billet_base64,
+            'billet_url_slip'           => $invoice->billet_url,
+        ];
+
+
+        $data['body']  = view('mails.invoice',$data)->render();
 
         if($data['customer_email2'] != null){
             $emails = array(
@@ -35,9 +112,6 @@ class InvoiceNotification extends Model
             ]
         );
         }
-
-        \Log::info('Linha 40: '.json_encode($data));
-        \Log::info('Linha 41: '.$data['notification_email']);
 
         if($data['notification_email'] == 's'){
 
@@ -64,7 +138,6 @@ class InvoiceNotification extends Model
         $status_email = 'Enviado';
         $result = $response->getBody();
 
-         \Log::info('Debug Email: '. json_encode(json_decode($result)));
         $email_id = json_decode($result)->messageId;
 
 
@@ -87,19 +160,99 @@ class InvoiceNotification extends Model
 
 }
     return $status_email;
+}
 
     }
 
-    public static function Whatsapp($data){
+    public static function Whatsapp($invoice_id){
+
+        $invoice = ViewInvoice::where('id',$invoice_id)->first();
+
+        if(date('l') != 'Sunday'){
+
+            $now = Carbon::now();
+            $start = Carbon::createFromTimeString('08:00');
+            $end = Carbon::createFromTimeString('19:00');
+
+            if ($now->between($start, $end)) {
+                if($invoice->notification_whatsapp == 's'){
+
+        if($invoice->status == 'Pendente'){
+
+            if($invoice->date_due == Carbon::now()->format('Y-m-d') ){
+                $title                      = 'Sua Fatura vence hoje';
+                $message_notification       = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura vence hoje.';
+            }
+
+            if(Carbon::parse($invoice->date_due)->subDays(5)->format('Y-m-d') == Carbon::now()->format('Y-m-d')){
+                if($invoice->send_generate_invoice == 'Não'){
+                    $title                  = 'Nova Fatura Gerada';
+                    $message_notification   = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura foi gerada.';
+                }else{
+                    $title                  = 'Sua Fatura vencerá em 5 dias';
+                    $message_notification   = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura vencerá em 5 dias.';
+                }
+            }
+
+            if(Carbon::parse($invoice->date_due)->subDays(2)->format('Y-m-d') == Carbon::now()->format('Y-m-d')){
+                $title                      = 'Sua Fatura vencerá em 2 dias';
+                $message_notification       = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura vencerá em 2 dias.';
+            }
+
+            if($invoice->date_due < Carbon::now()->format('Y-m-d') ){
+                $title                      = 'Sua Fatura venceu';
+                $message_notification       = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura está vencida.';
+            }
+
+        }else{
+            $title = 'Fatura';
+            $message_notification = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura mudou o status para: <b>'.$invoice->status.'</b>';
+        }
+
+        $data = [
+            'type_send'                 => 'New',
+            'title'                     => $title,
+            'message_customer'          => 'Olá '.$invoice->name.', tudo bem?',
+            'message_notification'      => $message_notification,
+            'logo'                      => 'https://cobrancasegura.com.br/'.$invoice->user_image,
+            'company'                   => $invoice->user_company,
+            'user_whatsapp'             => removeEspeciais($invoice->user_whatsapp),
+            'user_telephone'            => removeEspeciais($invoice->user_telephone),
+            'user_email'                => $invoice->user_email,
+            'user_access_token_wp'      => $invoice->api_access_token_whatsapp,
+            'user_id'                   => $invoice->user_id,
+            'customer'                  => $invoice->name,
+            'customer_email'            => $invoice->email,
+            'customer_email2'           => $invoice->email2,
+            'customer_whatsapp'         => removeEspeciais($invoice->whatsapp),
+            'notification_whatsapp'     => $invoice->notification_whatsapp,
+            'notification_email'        => $invoice->notification_email,
+            'customer_company'          => $invoice->company,
+            'date_invoice'              => date('d/m/Y', strtotime($invoice->date_invoice)),
+            'date_due'                  => date('d/m/Y', strtotime($invoice->date_due)),
+            'price'                     => number_format($invoice->price, 2,',','.'),
+            'gateway_payment'           => $invoice->gateway_payment,
+            'payment_method'            => $invoice->payment_method,
+            'service'                   => $invoice->service_name .' - '. $invoice->description,
+            'invoice'                   => $invoice->id,
+            'status'                    => $invoice->status,
+            'url_base'                  => url('/'),
+            'pix_qrcode_image_url'      => $invoice->image_url_pix,
+            'pix_emv'                   => $invoice->pix_digitable,
+            'pix_qrcode_base64'         => $invoice->qrcode_pix_base64,
+            'billet_digitable_line'     => $invoice->billet_digitable,
+            'billet_url_slip_base64'    => $invoice->billet_base64,
+            'billet_url_slip'           => $invoice->billet_url,
+        ];
 
 
-        if($data['user_access_token_wp'] == null){
+        if($invoice->user_access_token_wp == null){
             return 'Sem access token cadastrado';
         }
 
         $response_check = Http::withHeaders([
             "Content-Type"  => "application/json",
-        ])->get('https://zapestrategico.com.br/api/check-session-cobranca/'.$data['user_access_token_wp']);
+        ])->get('https://zapestrategico.com.br/api/check-session-cobranca/'.$invoice->user_access_token_wp);
 
         if ($response_check->successful()) {
 
@@ -107,12 +260,11 @@ class InvoiceNotification extends Model
             $check_session = json_decode($result_check);
 
             if($check_session != 'Conectado'){
-//                return 'Whatsapp desconectado';
-            return ['message' => 'Whatsapp desconectado', 'image' => '', 'file' => ''];
+                return ['message' => 'Whatsapp desconectado', 'image' => '', 'file' => ''];
             }
 
         }else{
-            \Log::info('Linha 115: Whatsapp desconectado');
+            \Log::info('Linha 188: Whatsapp desconectado');
             return 'Erro ao conectar a API do Whatsapp';
         }
 
@@ -134,8 +286,6 @@ class InvoiceNotification extends Model
         $whats_billet_digitable_line    = $data['billet_digitable_line'];
         $whats_billet_url_slip          = $data['billet_url_slip'];
         $whats_billet_base64            = $data['billet_url_slip_base64'];
-
-        \Log::info('QRCODEPIX: '.$data['pix_qrcode_base64']);
 
         $data['text_whatsapp'] = "*MENSAGEM AUTOMÁTICA*\n\n";
         $data['text_whatsapp'] .= "$message_customer\n\n";
@@ -283,14 +433,18 @@ class InvoiceNotification extends Model
             ]);
 
         }
+
+            }
+        }
     }
     }
 
-    \Log::info('Linha 260:'. json_encode(['message' => $status_message, 'image' => $status_image, 'file' => $status_file]));
+    \Log::info('Linha 430:'. json_encode(['message' => $status_message, 'image' => $status_image, 'file' => $status_file]));
 
     return ['message' => $status_message, 'image' => $status_image, 'file' => $status_file];
-
     }
+
+}
 
 
 

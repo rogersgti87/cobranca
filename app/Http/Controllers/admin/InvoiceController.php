@@ -115,123 +115,35 @@ class InvoiceController extends Controller
 
             $model->save();
 
-            $invoice = ViewInvoice::where('user_id',auth()->user()->id)->where('id',$model->id)->first();
-
             if($model->status == 'Pago' || $model->status == 'Cancelado'){
 
-                $details = [
-                    'type_send'                 => 'New',
-                    'title'                     => 'Nova fatura gerada',
-                    'message_customer'          => 'Olá '.$invoice->name.', tudo bem?',
-                    'message_notification'      => 'Esta é uma mensagem para notificá-lo(a) que sua Fatura foi gerada',
-                    'logo'                      => 'https://cobrancasegura.com.br/'.$invoice->user_image,
-                    'company'                   => $invoice->user_company,
-                    'user_whatsapp'             => removeEspeciais($invoice->user_whatsapp),
-                    'user_telephone'            => removeEspeciais($invoice->user_telephone),
-                    'user_email'                => $invoice->user_email,
-                    'user_access_token_wp'      => $invoice->api_access_token_whatsapp,
-                    'user_id'                   => $invoice->user_id,
-                    'customer'                  => $invoice->name,
-                    'customer_email'            => $invoice->email,
-                    'customer_email2'           => $invoice->email2,
-                    'customer_whatsapp'         => removeEspeciais($invoice->whatsapp),
-                    'notification_whatsapp'     => $invoice->notification_whatsapp,
-                    'notification_email'        => $invoice->notification_email,
-                    'customer_company'          => $invoice->company,
-                    'date_invoice'              => date('d/m/Y', strtotime($invoice->date_invoice)),
-                    'date_due'                  => date('d/m/Y', strtotime($invoice->date_due)),
-                    'price'                     => number_format($invoice->price, 2,',','.'),
-                    'gateway_payment'           => $invoice->gateway_payment,
-                    'payment_method'            => $invoice->payment_method,
-                    'service'                   => $invoice->service_name .' - '. $invoice->description,
-                    'invoice'                   => $invoice->id,
-                    'status'                    => $invoice->status,
-                    'url_base'                  => url('/'),
-                    'pix_qrcode_image_url'      => $invoice->image_url_pix,
-                    'pix_emv'                   => $invoice->pix_digitable,
-                    'pix_qrcode_base64'         => $invoice->qrcode_pix_base64,
-                    'billet_digitable_line'     => $invoice->billet_digitable,
-                    'billet_url_slip_base64'    => $invoice->billet_base64,
-                    'billet_url_slip'           => $invoice->billet_url,
-                ];
-
-
-                $details['body']  = view('mails.invoice',$details)->render();
-
-
                 if(isset($data['send_invoice_email']))
-                    InvoiceNotification::Email($details);
+                    InvoiceNotification::Email($model['id']);
 
                 if(isset($data['send_invoice_whatsapp']))
-                    InvoiceNotification::Whatsapp($details);
-
-
+                    InvoiceNotification::Whatsapp($model['id']);
 
                 return response()->json('Registro salvo com sucesso', 200);
             }
 
 
-            if($invoice->payment_method == 'Pix'){
-                if($invoice->gateway_payment == 'Pag Hiper'){
-                    $generatePixPH = Invoice::generatePixPH($invoice);
+            if($model['payment_method'] == 'Pix'){
+                //PIX PAG HIPER
+                if($model['gateway_payment'] == 'Pag Hiper'){
+                    $generatePixPH = Invoice::generatePixPH($model['id']);
                     if($generatePixPH['status'] == 'reject'){
-                        $invoice->delete();
                         return response()->json($generatePixPH['message'], 422);
                     }
-                    try {
 
-
-                        if(!file_exists(public_path('pix')))
-                            \File::makeDirectory(public_path('pix'));
-
-                        \File::put(public_path(). '/pix/' . $invoice->user_id.'_'.$invoice->id.'.'.'png', base64_decode($generatePixPH['transaction']->pix_code->qrcode_base64));
-
-
-                        $invoice->update([
-                            'transaction_id'    => $generatePixPH['transaction']->transaction_id,
-                            'image_url_pix'     => 'https://cobrancasegura.com.br/pix/'.$invoice->user_id.'_'.$invoice->id.'.png',
-                            'pix_digitable'     => $generatePixPH['transaction']->pix_code->emv,
-                            'qrcode_pix_base64' => $generatePixPH['transaction']->pix_code->qrcode_base64,
-                        ]);
-
-                    } catch (\Exception $e) {
-                        \Log::error($e->getMessage());
-                        $invoice->delete();
-                        return response()->json($e->getMessage(), 422);
-                    }
-
-                }elseif($invoice->gateway_payment == 'Mercado Pago'){
-                    $generatePixMP = Invoice::generatePixMP($invoice->id);
+                }elseif($model['gateway_payment'] == 'Mercado Pago'){
+                    $generatePixMP = Invoice::generatePixMP($model['id']);
                     if($generatePixMP['status'] == 'reject'){
-                        $invoice->delete();
                         return response()->json($generatePixMP['message'], 422);
                     }
-                    try {
 
-                        $getInfoPixMP = Invoice::verifyStatusPixMP($invoice->access_token_mp,$generatePixMP['transaction_id']);
-
-                        if(!file_exists(public_path('pix')))
-                            \File::makeDirectory(public_path('pix'));
-
-                        \File::put(public_path(). '/pix/' . $invoice->user_id.'_'.$invoice->id.'.'.'png', base64_decode($getInfoPixMP->qr_code_base64));
-
-                        $invoice->update([
-                            'transaction_id'    => $generatePixMP['transaction_id'],
-                            'image_url_pix'     => 'https://cobrancasegura.com.br/pix/'.$invoice->user_id.'_'.$invoice->id.'.png',
-                            'pix_digitable'     => $getInfoPixMP->qr_code,
-                            'qrcode_pix_base64' => $getInfoPixMP->qr_code_base64,
-                        ]);
-
-                    } catch (\Exception $e) {
-                        \Log::error($e->getMessage());
-                        $invoice->delete();
-                        return response()->json($e->getMessage(), 422);
-                    }
-
-                }elseif($invoice->gateway_payment == 'Intermedium'){
-                    $generatePixIntermedium = Invoice::generatePixIntermedium($invoice);
+                }elseif($model['gateway_payment'] == 'Intermedium'){
+                    $generatePixIntermedium = Invoice::generatePixIntermedium($model['id']);
                     if($generatePixIntermedium['status'] == 'reject'){
-                        $invoice->delete();
                         $msgInterPix = '';
                         foreach($generatePixIntermedium['message'] as $messageInterPix){
                             $msgInterPix .= $messageInterPix['razao'].' - '.$messageInterPix['propriedade'].',';
@@ -239,66 +151,20 @@ class InvoiceController extends Controller
 
                         return response()->json($generatePixIntermedium['title'].': '.$msgInterPix, 422);
                     }
-                    try {
-
-                        if(!file_exists(public_path('pix')))
-                            \File::makeDirectory(public_path('pix'));
-
-                        QrCode::format('png')->size(220)->generate($generatePixIntermedium['transaction']->pixCopiaECola, public_path(). '/pix/' . $invoice->user_id.'_'.$invoice->id.'.'.'png');
-
-                        $image_pix   = config()->get('app.url').'/pix/'.$invoice->user_id.'_'.$invoice->id.'.png';
-
-
-                        $invoice->update([
-                            'image_url_pix'     => $image_pix,
-                            'pix_digitable'     => $generatePixIntermedium['transaction']->pixCopiaECola,
-                            'qrcode_pix_base64' => base64_encode(file_get_contents($image_pix)),
-                        ]);
-
-                    } catch (\Exception $e) {
-                        $invoice->delete();
-                        \Log::error($e->getMessage());
-                        return response()->json($e->getMessage(), 422);
-                    }
 
                 }
-            } elseif($invoice->payment_method == 'Boleto'){
+            } elseif($model['payment_method'] == 'Boleto'){
 
-                if($invoice->gateway_payment == 'Pag Hiper'){
-                    $generateBilletPH = Invoice::generateBilletPH($invoice);
+                if($model['gateway_payment'] == 'Pag Hiper'){
+                    $generateBilletPH = Invoice::generateBilletPH($model['id']);
                     if($generateBilletPH['status'] == 'reject'){
-                        $invoice->delete();
                         return response()->json($generateBilletPH['message'], 422);
                     }
-                    try {
 
-                        if(!file_exists(public_path('boleto')))
-                            \File::makeDirectory(public_path('boleto'));
+                }elseif($model['gateway_payment'] == 'Intermedium'){
 
-                        $contents = Http::get($generateBilletPH['transaction']->bank_slip->url_slip_pdf)->body();
-                        \File::put(public_path(). '/boleto/' .  $invoice->user_id.'_'.$invoice->id.'.'.'pdf', $contents);
-
-                        $billet_pdf   = 'https://cobrancasegura.com.br/boleto/'.$invoice->user_id.'_'.$invoice->id.'.pdf';
-
-                        $base64_pdf = chunk_split(base64_encode(file_get_contents($billet_pdf)));
-
-                        $invoice->update([
-                            'transaction_id'    =>  $generateBilletPH['transaction']->transaction_id,
-                            'billet_url'        =>  $generateBilletPH['transaction']->bank_slip->url_slip,
-                            'billet_base64'     =>  $base64_pdf,
-                            'billet_digitable'  =>  $generateBilletPH['transaction']->bank_slip->digitable_line
-                        ]);
-                    } catch (\Exception $e) {
-                        $invoice->delete();
-                        \Log::error($e->getMessage());
-                        return response()->json($e->getMessage(), 422);
-                    }
-
-                }elseif($invoice->gateway_payment == 'Intermedium'){
-
-                    $generateBilletIntermedium = Invoice::generateBilletIntermedium($invoice);
+                    $generateBilletIntermedium = Invoice::generateBilletIntermedium($model['id']);
                     if($generateBilletIntermedium['status'] == 'reject'){
-                        $invoice->delete();
                         $msgInterBillet = '';
                         foreach($generateBilletIntermedium['message'] as $messageInterBillet){
                             $msgInterBillet .= $messageInterBillet['razao'].' - '.$messageInterBillet['propriedade'].' - '.$messageInterBillet['valor'].',';
@@ -306,83 +172,18 @@ class InvoiceController extends Controller
 
                         return response()->json($generateBilletIntermedium['title'].': '.$msgInterBillet, 422);
                     }
-                    try {
-
-                        if(!file_exists(public_path('boleto')))
-                            \File::makeDirectory(public_path('boleto'));
-
-                            $invoicePDF = ViewInvoice::where('id',$invoice->id)->first();
-
-                        $getBilletPDFIntermedium = Invoice::getBilletPDFIntermedium($invoicePDF);
-
-                        \File::put(public_path(). '/boleto/' . $invoicePDF->user_id.'_'.$invoicePDF->id.'.'.'pdf', base64_decode($getBilletPDFIntermedium));
-
-                        $billet_pdf   = 'https://cobrancasegura.com.br/boleto/'.$invoicePDF->user_id.'_'.$invoicePDF->id.'.pdf';
-
-                        $invoice->update([
-                            'transaction_id'    =>  $generateBilletIntermedium['transaction']->nossoNumero,
-                            'billet_url'        =>  $billet_pdf,
-                            'billet_base64'     =>  $getBilletPDFIntermedium,
-                            'billet_digitable'  =>  $generateBilletIntermedium['transaction']->linhaDigitavel
-                        ]);
-                    } catch (\Exception $e) {
-                        $invoice->delete();
-                        \Log::error($e->getMessage());
-                        return response()->json($e->getMessage(), 422);
-                    }
 
                 }
 
 
         }
 
-        $invoice = ViewInvoice::where('id',$model->id)->where('user_id',auth()->user()->id)->first();
-
-            $details = [
-                'type_send'                 => 'New',
-                'title'                     => 'Nova fatura gerada',
-                'message_customer'          => 'Olá '.$invoice->name.', tudo bem?',
-                'message_notification'      => 'Esta é uma mensagem para notificá-lo(a) que sua Fatura foi gerada',
-                'logo'                      => 'https://cobrancasegura.com.br/'.$invoice->user_image,
-                'company'                   => $invoice->user_company,
-                'user_whatsapp'             => removeEspeciais($invoice->user_whatsapp),
-                'user_telephone'            => removeEspeciais($invoice->user_telephone),
-                'user_email'                => $invoice->user_email,
-                'user_access_token_wp'      => $invoice->api_access_token_whatsapp,
-                'user_id'                   => $invoice->user_id,
-                'customer'                  => $invoice->name,
-                'customer_email'            => $invoice->email,
-                'customer_email2'           => $invoice->email2,
-                'customer_whatsapp'         => removeEspeciais($invoice->whatsapp),
-                'notification_whatsapp'     => $invoice->notification_whatsapp,
-                'notification_email'        => $invoice->notification_email,
-                'customer_company'          => $invoice->company,
-                'date_invoice'              => date('d/m/Y', strtotime($invoice->date_invoice)),
-                'date_due'                  => date('d/m/Y', strtotime($invoice->date_due)),
-                'price'                     => number_format($invoice->price, 2,',','.'),
-                'gateway_payment'           => $invoice->gateway_payment,
-                'payment_method'            => $invoice->payment_method,
-                'service'                   => $invoice->service_name .' - '. $invoice->description,
-                'invoice'                   => $invoice->id,
-                'status'                    => $invoice->status,
-                'url_base'                  => url('/'),
-                'pix_qrcode_image_url'      => $invoice->image_url_pix,
-                'pix_emv'                   => $invoice->pix_digitable,
-                'pix_qrcode_base64'         => $invoice->qrcode_pix_base64,
-                'billet_digitable_line'     => $invoice->billet_digitable,
-                'billet_url_slip_base64'    => $invoice->billet_base64,
-                'billet_url_slip'           => $invoice->billet_url,
-            ];
-
-
-            $details['body']  = view('mails.invoice',$details)->render();
-
 
             if(isset($data['send_invoice_email']))
-                InvoiceNotification::Email($details);
+                InvoiceNotification::Email($model['id']);
 
             if(isset($data['send_invoice_whatsapp']))
-                InvoiceNotification::Whatsapp($details);
+                InvoiceNotification::Whatsapp($model['id']);
 
         } catch(\Exception $e){
             \Log::error($e->getMessage());
@@ -393,7 +194,6 @@ class InvoiceController extends Controller
 
 
     }
-
 
 
 

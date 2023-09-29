@@ -183,8 +183,8 @@ class InvoiceNotification extends Model
 
             if ($now->between($start, $end)) {
                 if($invoice['notification_whatsapp'] == 's'){
-                    \Log::info('Linha 187');
                     if($invoice['status'] == 'Pendente'){
+                        \Log::info('Linha 187');
                         $title                  = 'Fatura';
                         $message_notification   = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura foi gerada.';
 
@@ -218,6 +218,7 @@ class InvoiceNotification extends Model
                         $message_notification = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura mudou o status para: <b>'.$invoice['status'].'</b>';
                     }
 
+                    \Log::info('Linha 221');
         $data = [
             'type_send'                 => 'New',
             'title'                     => $title,
@@ -258,7 +259,7 @@ class InvoiceNotification extends Model
         if($invoice['user_access_token_wp'] == null){
             return 'Sem access token cadastrado';
         }
-        \Log::info('Linha 261');
+
         $response_check = Http::withHeaders([
             "Content-Type"  => "application/json",
         ])->get('https://zapestrategico.com.br/api/check-session-cobranca/'.$invoice['user_access_token_wp']);

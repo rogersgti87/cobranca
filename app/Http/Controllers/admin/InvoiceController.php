@@ -131,7 +131,6 @@ class InvoiceController extends Controller
                 //PIX PAG HIPER
                 if($model['gateway_payment'] == 'Pag Hiper'){
                     $generatePixPH = Invoice::generatePixPH($model['id']);
-                    dd($generatePixPH);
                     if($generatePixPH['status'] == 'reject'){
                         return response()->json($generatePixPH['message'], 422);
                     }

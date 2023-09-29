@@ -17,6 +17,8 @@ class InvoiceNotification extends Model
 
         $invoice = ViewInvoice::where('id',$invoice_id)->first();
 
+        dd($invoice);
+
         if($invoice['notification_email'] == 's'){
 
         $status_email = 'Não enviado';

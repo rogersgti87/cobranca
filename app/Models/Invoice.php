@@ -139,7 +139,6 @@ class Invoice extends Model
             $result = json_decode($result)->pix_create_request;
 
             if($result->result == 'success'){
-                \Log::info('Linha 142');
                 Invoice::where('id',$invoice_id)->update([
                     'transaction_id'    => $result->transaction_id,
                     'image_url_pix'     => 'https://cobrancasegura.com.br/pix/'.$invoice['user_id'].'_'.$invoice['id'].'.png',
@@ -147,13 +146,9 @@ class Invoice extends Model
                     'qrcode_pix_base64' => $result->pix_code->qrcode_base64,
                 ]);
 
-                \Log::info('Linha 150');
                 \File::put(public_path(). '/pix/' . $invoice['user_id'].'_'.$invoice['id'].'.'.'png', base64_decode($result->pix_code->qrcode_base64));
-                \Log::info('Linha 152');
             }
 
-
-            \Log::info('Linha 156');
             if($result->result == 'reject'){
                 \Log::info('Linha 181: '.$result->response_message);
                 return ['status' => 'reject', 'message' => $result->response_message];
@@ -164,7 +159,6 @@ class Invoice extends Model
             return ['status' => 'reject', 'message' => 'Erro interno no servidor'];
         }
 
-        \Log::info('Linha 167');
     }
 
 

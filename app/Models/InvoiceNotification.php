@@ -180,13 +180,13 @@ class InvoiceNotification extends Model
             $now = Carbon::now();
             \Log::info('Horario: '.$now);
             $start = Carbon::createFromTimeString('08:00');
-            $end = Carbon::createFromTimeString('23:00');
+            $end = Carbon::createFromTimeString('21:00');
 
             if ($now->between($start, $end)) {
                 if($invoice['notification_whatsapp'] == 's'){
-
+                    \Log::info('Linha 187');
                     if($invoice['status'] == 'Pendente'){
-
+                        \Log::info('Linha 189');
                         $title                  = 'Fatura';
                         $message_notification   = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura foi gerada.';
 
@@ -219,7 +219,7 @@ class InvoiceNotification extends Model
                         $title = 'Fatura';
                         $message_notification = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura mudou o status para: <b>'.$invoice['status'].'</b>';
                     }
-
+                    \Log::info('Linha 222');
         $data = [
             'type_send'                 => 'New',
             'title'                     => $title,

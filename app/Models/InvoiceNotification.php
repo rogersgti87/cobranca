@@ -178,8 +178,9 @@ class InvoiceNotification extends Model
         if(date('l') != 'Sunday'){
 
             $now = Carbon::now();
+            \Log::info('Horario: '.$now);
             $start = Carbon::createFromTimeString('08:00');
-            $end = Carbon::createFromTimeString('21:00');
+            $end = Carbon::createFromTimeString('23:00');
 
             if ($now->between($start, $end)) {
                 if($invoice['notification_whatsapp'] == 's'){

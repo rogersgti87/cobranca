@@ -115,7 +115,7 @@ class InvoiceController extends Controller
 
             $model->save();
 
-            if($model->status == 'Pago' || $model->status == 'Cancelado'){
+            if($model['status'] == 'Pago' || $model['status'] == 'Cancelado'){
 
                 if(isset($data['send_invoice_email']))
                     InvoiceNotification::Email($model['id']);
@@ -178,7 +178,7 @@ class InvoiceController extends Controller
 
         }
 
-dd('teste');
+
             if(isset($data['send_invoice_email']))
                 InvoiceNotification::Email($model['id']);
 

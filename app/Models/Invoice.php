@@ -147,6 +147,8 @@ class Invoice extends Model
                 ]);
 
                 \File::put(public_path(). '/pix/' . $invoice['user_id'].'_'.$invoice['id'].'.'.'png', base64_decode($result->pix_code->qrcode_base64));
+
+                //return ['status' => 'success', 'message' => 'ok'];
             }
 
             if($result->result == 'reject'){

@@ -254,15 +254,13 @@ class InvoiceNotification extends Model
             'billet_url_slip'           => $invoice['billet_url'],
         ];
 
-        \Log::info('Linha 257');
-
-        if($invoice['user_access_token_wp'] == null){
+        if($data['user_access_token_wp'] == null){
             return 'Sem access token cadastrado';
         }
-        \Log::info('Linha 262');
+
         $response_check = Http::withHeaders([
             "Content-Type"  => "application/json",
-        ])->get('https://zapestrategico.com.br/api/check-session-cobranca/'.$invoice['user_access_token_wp']);
+        ])->get('https://zapestrategico.com.br/api/check-session-cobranca/'.$data['user_access_token_wp']);
 
         if ($response_check->successful()) {
 

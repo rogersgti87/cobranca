@@ -171,6 +171,10 @@ class InvoiceNotification extends Model
 
         $invoice = ViewInvoice::where('id',$invoice_id)->first();
 
+        $status_message       = 'Não enviado';
+        $status_image         = 'Não enviado';
+        $status_file          = 'Não enviado';
+
         if(date('l') != 'Sunday'){
 
             $now = Carbon::now();
@@ -274,9 +278,7 @@ class InvoiceNotification extends Model
             return 'Erro ao conectar a API do Whatsapp';
         }
 
-        $status_message       = 'Não enviado';
-        $status_image         = 'Não enviado';
-        $status_file          = 'Não enviado';
+
 
         $message_customer               = $data['message_customer'];
         $whats_invoice_id               = $data['invoice'];

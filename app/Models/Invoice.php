@@ -142,13 +142,13 @@ class Invoice extends Model
 
                 Invoice::where('id',$invoice_id)->update([
                     'transaction_id'    => $result->transaction_id,
-                    'image_url_pix'     => 'https://cobrancasegura.com.br/pix/'.$invoice->user_id.'_'.$invoice->id.'.png',
+                    'image_url_pix'     => 'https://cobrancasegura.com.br/pix/'.$invoice['user_id'].'_'.$invoice['id'].'.png',
                     'pix_digitable'     => $result->pix_code->emv,
                     'qrcode_pix_base64' => $result->pix_code->qrcode_base64,
                 ]);
 
 
-                \File::put(public_path(). '/pix/' . $invoice->user_id.'_'.$invoice->id.'.'.'png', base64_decode($result->pix_code->qrcode_base64));
+                \File::put(public_path(). '/pix/' . $invoice['user_id'].'_'.$invoice['id'].'.'.'png', base64_decode($result->pix_code->qrcode_base64));
 
             }
 

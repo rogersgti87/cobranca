@@ -178,18 +178,18 @@ class Invoice extends Model
 
         $invoice = ViewInvoice::where('id',$invoice_id)->first();
 
-        \MercadoPago\SDK::setAccessToken($invoice->access_token_mp);
+        \MercadoPago\SDK::setAccessToken($invoice['access_token_mp']);
 
         $payment = new \MercadoPago\Payment();
-        $payment->transaction_amount    = $invoice->service_price;
-        $payment->statement_descriptor  = $invoice->company;
-        $payment->description           = $invoice->service_name;
+        $payment->transaction_amount    = $invoice['service_price'];
+        $payment->statement_descriptor  = $invoice['company'];
+        $payment->description           = $invoice['service_name'];
         $payment->payment_method_id     = "pix";
         $payment->notification_url      = 'https://cobrancasegura.com.br/webhook/mercadopago?source_news=webhooks';
-        $payment->external_reference    = $invoice->id;
+        $payment->external_reference    = $invoice['id'];
         $payment->date_of_expiration    = Carbon::now()->addDays(40)->format('Y-m-d\TH:i:s') . '.000-04:00';
         $payment->payer = array(
-            "email"    => $invoice->email
+            "email"    => $invoice['email']
         );
 
         $status_payment = $payment->save();
@@ -201,7 +201,7 @@ class Invoice extends Model
             return ['status' => 'reject', 'message' => 'Erro ao Gerar Pix'];
         }else{
 
-            \MercadoPago\SDK::setAccessToken($invoice->access_token_mp);
+            \MercadoPago\SDK::setAccessToken($invoice['access_token_mp']);
 
             try{
                 //$invoice = Invoice::where('id',$invoice_id)->first();
@@ -209,14 +209,14 @@ class Invoice extends Model
 
                 Invoice::where('id',$invoice_id)->update([
                     'transaction_id'    => $payment_id,
-                    'image_url_pix'     => 'https://cobrancasegura.com.br/pix/'.$invoice->user_id.'_'.$invoice->id.'.png',
+                    'image_url_pix'     => 'https://cobrancasegura.com.br/pix/'.$invoice['user_id'].'_'.$invoice['id'].'.png',
                     'pix_digitable'     => $payment->point_of_interaction->transaction_data->qr_code,
                     'qrcode_pix_base64' => $payment->point_of_interaction->transaction_data->qr_code_base64,
                 ]);
 
-                $invoice = Invoice::where('id',$invoice_id)->first();
+                //$invoice = Invoice::where('id',$invoice_id)->first();
 
-                \File::put(public_path(). '/pix/' . $invoice->user_id.'_'.$invoice->id.'.'.'png', base64_decode($payment->point_of_interaction->transaction_data->qr_code_base64));
+                \File::put(public_path(). '/pix/' . $invoice['user_id'].'_'.$invoice['id'].'.'.'png', base64_decode($payment->point_of_interaction->transaction_data->qr_code_base64));
 
                 return ['status' => 'success', 'message' => 'OK'];
 

@@ -115,6 +115,8 @@ class Invoice extends Model
 
         $invoice = ViewInvoice::where('id',$invoice_id)->first();
 
+        dd($invoice);
+
         $response = Http::withHeaders([
             'accept' => 'application/json',
             'content-type' => 'application/json',

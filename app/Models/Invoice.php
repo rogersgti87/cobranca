@@ -247,52 +247,6 @@ class Invoice extends Model
         public static function generateBilletIntermedium($invoice){
 
 
-            if($invoice['inter_host'] == ''){
-                return ['status' => 'reject', 'message' => 'HOST banco inter não cadastrado!'];
-            }
-
-            if($invoice['inter_client_id'] == ''){
-                return ['status' => 'reject', 'message' => 'CLIENT ID banco inter não cadastrado!'];
-            }
-            if($invoice['inter_client_secret'] == ''){
-                return ['status' => 'reject', 'message' => 'CLIENT SECRET banco inter não cadastrado!'];
-            }
-            if($invoice['inter_crt_file'] == ''){
-                return ['status' => 'reject', 'message' => 'Certificado CRT banco inter não cadastrado!'];
-            }
-            if(!file_exists(storage_path('/app/'.$invoice['inter_crt_file']))){
-                return ['status' => 'reject', 'message' => 'Certificado CRT banco inter não existe!'];
-            }
-
-            if($invoice['inter_key_file'] == ''){
-                return ['status' => 'reject', 'message' => 'Certificado KEY banco inter não cadastrado!'];
-            }
-            if(!file_exists(storage_path('/app/'.$invoice['inter_key_file']))){
-                return ['status' => 'reject', 'message' => 'Certificado KEY banco inter não existe!'];
-            }
-
-
-
-
-
-            $response = Http::withOptions([
-                'cert' => storage_path('/app/'.$invoice['inter_crt_file']),
-                'ssl_key' => storage_path('/app/'.$invoice['inter_key_file']),
-            ])->asForm()->post($invoice['inter_host'].'oauth/v2/token', [
-                'client_id' => $invoice['inter_client_id'],
-                'client_secret' => $invoice['inter_client_secret'],
-                'scope' => $invoice['inter_scope'],
-                'grant_type' => 'client_credentials',
-            ]);
-
-            if ($response->successful()) {
-                $responseBody = $response->body();
-                $access_token = json_decode($responseBody)->access_token;
-            }else{
-                return ['status' => 'reject', 'message' => 'Erro ao autenticar com o Banco Inter, informe ao Administrador do sistema!'];
-            }
-
-
 
             $date_multa = Carbon::parse($invoice['date_due'])->addDays(1);
             if(date('l') == 'Saturday' || date('l') == 'Sábado'){

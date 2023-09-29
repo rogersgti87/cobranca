@@ -91,7 +91,7 @@ class InvoiceNotification extends Model
             'billet_url_slip'           => $invoice['billet_url'],
         ];
 
-dd($data);
+
         $data['body']  = view('mails.invoice',$data)->render();
 
         if($data['customer_email2'] != null){

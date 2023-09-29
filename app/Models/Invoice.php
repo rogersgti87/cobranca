@@ -147,9 +147,8 @@ class Invoice extends Model
                     'qrcode_pix_base64' => $result->pix_code->qrcode_base64,
                 ]);
 
-                $invoice = Invoice::where('id',$invoice_id)->first();
 
-                \File::put(public_path(). '/pix/' . $invoice->user_id.'_'.$invoice->id.'.'.'png', base64_decode($invoice->pix_code->qrcode_base64));
+                \File::put(public_path(). '/pix/' . $invoice->user_id.'_'.$invoice->id.'.'.'png', base64_decode($result->pix_code->qrcode_base64));
 
             }
 

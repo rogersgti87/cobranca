@@ -181,7 +181,7 @@ class Invoice extends Model
         \MercadoPago\SDK::setAccessToken($invoice['access_token_mp']);
 
         $payment = new \MercadoPago\Payment();
-        $payment->transaction_amount    = $invoice['service_price'];
+        $payment->transaction_amount    = $invoice['price'];
         $payment->statement_descriptor  = $invoice['company'];
         $payment->description           = $invoice['service_name'];
         $payment->payment_method_id     = "pix";

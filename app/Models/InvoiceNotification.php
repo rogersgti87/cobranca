@@ -178,7 +178,6 @@ class InvoiceNotification extends Model
         if(date('l') != 'Sunday'){
 
             $now = Carbon::now();
-            \Log::info('Horario: '.$now);
             $start = Carbon::createFromTimeString('08:00');
             $end = Carbon::createFromTimeString('21:00');
 
@@ -186,7 +185,6 @@ class InvoiceNotification extends Model
                 if($invoice['notification_whatsapp'] == 's'){
                     \Log::info('Linha 187');
                     if($invoice['status'] == 'Pendente'){
-                        \Log::info('Linha 189');
                         $title                  = 'Fatura';
                         $message_notification   = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura foi gerada.';
 
@@ -219,7 +217,7 @@ class InvoiceNotification extends Model
                         $title = 'Fatura';
                         $message_notification = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura mudou o status para: <b>'.$invoice['status'].'</b>';
                     }
-                    \Log::info('Linha 222');
+
         $data = [
             'type_send'                 => 'New',
             'title'                     => $title,
@@ -260,7 +258,7 @@ class InvoiceNotification extends Model
         if($invoice['user_access_token_wp'] == null){
             return 'Sem access token cadastrado';
         }
-
+        \Log::info('Linha 261');
         $response_check = Http::withHeaders([
             "Content-Type"  => "application/json",
         ])->get('https://zapestrategico.com.br/api/check-session-cobranca/'.$invoice['user_access_token_wp']);
@@ -271,6 +269,7 @@ class InvoiceNotification extends Model
             $check_session = json_decode($result_check);
 
             if($check_session != 'Conectado'){
+                \Log::info('Linha 272');
                 return ['message' => 'Whatsapp desconectado', 'image' => '', 'file' => ''];
             }
 
@@ -279,7 +278,7 @@ class InvoiceNotification extends Model
             return 'Erro ao conectar a API do Whatsapp';
         }
 
-
+        \Log::info('Linha 281');
 
         $message_customer               = $data['message_customer'];
         $whats_invoice_id               = $data['invoice'];

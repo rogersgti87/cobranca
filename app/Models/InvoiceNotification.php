@@ -245,6 +245,7 @@ class InvoiceNotification extends Model
             'billet_url_slip'           => $invoice->billet_url,
         ];
 
+dd($data);
 
         if($invoice->user_access_token_wp == null){
             return 'Sem access token cadastrado';

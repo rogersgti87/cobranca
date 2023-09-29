@@ -97,6 +97,8 @@ class WebHookController extends Controller
             'date_payment' =>   Null,
             'updated_at'   =>   Carbon::now()
         ]);
+        InvoiceNotification::Email($invoice->id);
+        InvoiceNotification::Whatsapp($invoice->id);
     }
     if($result->status == 'completed' || $result->status == 'paid'){
         Invoice::where('id',$result->order_id)->where('transaction_id',$result->transaction_id)->update([
@@ -104,6 +106,8 @@ class WebHookController extends Controller
             'date_payment' =>   isset($data['paid_date']) ? date('d/m/Y', strtotime($data['paid_date'])) : Carbon::now(),
             'updated_at'   =>   Carbon::now()
         ]);
+        InvoiceNotification::Email($invoice->id);
+        InvoiceNotification::Whatsapp($invoice->id);
     }
 
     if($result->status == 'canceled' || $result->status == 'refunded'){
@@ -112,11 +116,12 @@ class WebHookController extends Controller
             'date_payment' =>   Null,
             'updated_at'   =>   Carbon::now()
         ]);
+        InvoiceNotification::Email($invoice->id);
+        InvoiceNotification::Whatsapp($invoice->id);
     }
 
 
-        InvoiceNotification::Email($invoice->id);
-        InvoiceNotification::Whatsapp($invoice->id);
+
 
 
     }
@@ -135,26 +140,19 @@ class WebHookController extends Controller
                 ->where('transaction_id',$data['data']['id'])
                 ->where('invoices.status','Pendente')
                 ->first();
-            \Log::info('Linha: 214 - '.$invoice);
     if($invoice != null){
 
         \MercadoPago\SDK::setAccessToken($invoice->access_token_mp);
         $payment = \MercadoPago\Payment::find_by_id($invoice->transaction_id);
-        \Log::info('Linha: 219 - '.json_encode($invoice->transaction_id));
-        \Log::info('Linha: 220 - '.json_encode($payment->status));
-
-        $title = '';
-        $message_notification = '';
-
 
         if($payment->status == 'approved'){
-            \Log::info('Linha: 227 - '.json_encode($payment->status));
             $result_invoice = Invoice::where('id',$invoice->id)->where('transaction_id',$invoice->transaction_id)->update([
                 'status'       =>   'Pago',
                 'date_payment' =>   Carbon::parse(now())->format('Y-m-d'),
                 'updated_at'   =>   Carbon::now()
             ]);
-            \Log::info('Linha: 235 - '.json_encode($result_invoice));
+            InvoiceNotification::Email($invoice->id);
+            InvoiceNotification::Whatsapp($invoice->id);
         }
 
         if($payment->status == 'cancelled'){
@@ -163,10 +161,11 @@ class WebHookController extends Controller
                 'date_payment' =>   Null,
                 'updated_at'   =>   Carbon::now()
             ]);
-        }
-
             InvoiceNotification::Email($invoice->id);
             InvoiceNotification::Whatsapp($invoice->id);
+        }
+
+
 
     }
 
@@ -199,6 +198,8 @@ class WebHookController extends Controller
                 'date_payment' =>   Carbon::now(),
                 'updated_at'   =>   Carbon::now()
             ]);
+            InvoiceNotification::Email($result->id);
+            InvoiceNotification::Whatsapp($result->id);
         }
 
         if($status == 'CANCELADO'){
@@ -207,10 +208,9 @@ class WebHookController extends Controller
                 'date_payment' =>   Null,
                 'updated_at'   =>   Carbon::now()
             ]);
-        }
-
             InvoiceNotification::Email($result->id);
             InvoiceNotification::Whatsapp($result->id);
+        }
 
     }
 

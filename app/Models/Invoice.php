@@ -80,8 +80,11 @@ class Invoice extends Model
 
 
           if ($response->successful()) {
+
             $result = $response->getBody();
             $result = json_decode($result)->create_request;
+
+            if($result->result == 'success'){
 
             $contents = Http::get($result->bank_slip->url_slip_pdf)->body();
             \File::put(public_path(). '/boleto/' .  $invoice->user_id.'_'.$invoice->id.'.'.'pdf', $contents);
@@ -95,6 +98,9 @@ class Invoice extends Model
                 'billet_digitable'  =>  $result->bank_slip->digitable_line
             ]);
 
+            return ['status' => 'success', 'message' => 'ok'];
+
+        }
             if($result->result == 'reject'){
                 \Log::info(json_encode($result->response_message));
                 return ['status' => 'reject', 'message' => $result->response_message];
@@ -211,6 +217,8 @@ class Invoice extends Model
                 $invoice = Invoice::where('id',$invoice_id)->first();
 
                 \File::put(public_path(). '/pix/' . $invoice->user_id.'_'.$invoice->id.'.'.'png', base64_decode($payment->point_of_interaction->transaction_data->qr_code_base64));
+
+                return ['status' => 'success', 'message' => 'OK'];
 
             } catch(\Exception $e){
                 \Log::error($e->getMessage());

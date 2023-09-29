@@ -23,6 +23,9 @@ class InvoiceNotification extends Model
 
         if($invoice['status'] == 'Pendente'){
 
+            $title                  = 'Fatura';
+            $message_notification   = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura foi gerada.';
+
             if($invoice['date_due'] == Carbon::now()->format('Y-m-d') ){
                 $title                      = 'Sua Fatura vence hoje';
                 $message_notification       = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura vence hoje.';
@@ -48,7 +51,7 @@ class InvoiceNotification extends Model
                 $message_notification       = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura está vencida.';
             }
 
-        }else{
+        } else {
             $title = 'Fatura';
             $message_notification = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura mudou o status para: <b>'.$invoice['status'].'</b>';
         }
@@ -177,37 +180,40 @@ class InvoiceNotification extends Model
             if ($now->between($start, $end)) {
                 if($invoice['notification_whatsapp'] == 's'){
 
-        if($invoice['status'] == 'Pendente'){
+                    if($invoice['status'] == 'Pendente'){
 
-            if($invoice['date_due'] == Carbon::now()->format('Y-m-d') ){
-                $title                      = 'Sua Fatura vence hoje';
-                $message_notification       = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura vence hoje.';
-            }
+                        $title                  = 'Fatura';
+                        $message_notification   = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura foi gerada.';
 
-            if(Carbon::parse($invoice['date_due'])->subDays(5)->format('Y-m-d') == Carbon::now()->format('Y-m-d')){
-                if($invoice['send_generate_invoice'] == 'Não'){
-                    $title                  = 'Nova Fatura Gerada';
-                    $message_notification   = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura foi gerada.';
-                }else{
-                    $title                  = 'Sua Fatura vencerá em 5 dias';
-                    $message_notification   = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura vencerá em 5 dias.';
-                }
-            }
+                        if($invoice['date_due'] == Carbon::now()->format('Y-m-d') ){
+                            $title                      = 'Sua Fatura vence hoje';
+                            $message_notification       = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura vence hoje.';
+                        }
 
-            if(Carbon::parse($invoice['date_due'])->subDays(2)->format('Y-m-d') == Carbon::now()->format('Y-m-d')){
-                $title                      = 'Sua Fatura vencerá em 2 dias';
-                $message_notification       = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura vencerá em 2 dias.';
-            }
+                        if(Carbon::parse($invoice['date_due'])->subDays(5)->format('Y-m-d') == Carbon::now()->format('Y-m-d')){
+                            if($invoice['send_generate_invoice'] == 'Não'){
+                                $title                  = 'Nova Fatura Gerada';
+                                $message_notification   = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura foi gerada.';
+                            }else{
+                                $title                  = 'Sua Fatura vencerá em 5 dias';
+                                $message_notification   = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura vencerá em 5 dias.';
+                            }
+                        }
 
-            if($invoice['date_due'] < Carbon::now()->format('Y-m-d') ){
-                $title                      = 'Sua Fatura venceu';
-                $message_notification       = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura está vencida.';
-            }
+                        if(Carbon::parse($invoice['date_due'])->subDays(2)->format('Y-m-d') == Carbon::now()->format('Y-m-d')){
+                            $title                      = 'Sua Fatura vencerá em 2 dias';
+                            $message_notification       = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura vencerá em 2 dias.';
+                        }
 
-        }else{
-            $title = 'Fatura';
-            $message_notification = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura mudou o status para: <b>'.$invoice['status'].'</b>';
-        }
+                        if($invoice['date_due'] < Carbon::now()->format('Y-m-d') ){
+                            $title                      = 'Sua Fatura venceu';
+                            $message_notification       = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura está vencida.';
+                        }
+
+                    } else {
+                        $title = 'Fatura';
+                        $message_notification = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura mudou o status para: <b>'.$invoice['status'].'</b>';
+                    }
 
         $data = [
             'type_send'                 => 'New',

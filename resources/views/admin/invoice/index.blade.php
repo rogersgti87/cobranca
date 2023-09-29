@@ -739,6 +739,7 @@ $(document).on('click', '#btn-invoice-status', function(e) {
                 html += `<td>${item.gateway_payment+' ('+item.payment_method })</td>`;
                 html += `<td class="badge ${item.status == 'Pago' ? 'badge-success' : item.status == 'Pendente' ? 'badge-warning' : 'badge-danger'}">${item.status}</td>`;
                 html += `<td>
+                            <a href="{{ url('admin/customers/form?act=edit&id=')}}${item.customer_id}" data-original-title="Editar cliente" id="btn-edit-customer" data-placement="left" data-tt="tooltip" class="btn btn-secondary btn-xs"> <i class="fas fa-user"></i></a>
                             ${item.status == 'Pendente' ? '<a href="#" data-original-title="Editar fatura" id="btn-modal-invoice" data-type="edit-invoice" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-secondary btn-xs"> <i class="far fa-edit"></i></a>' : ''}
                             ${item.status != 'Pago' && item.status != 'Cancelado' ? '<a href="#" data-original-title="Consultar Status" id="btn-invoice-status" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-primary btn-xs"> <i class="fas fa-search"></i></a>' : ''}
                             <a href="#" data-original-title="Reenviar Notificação" onclick="sendNotification(${item.id})" id="btn-notificate" data-invoice="${item.id}" data-placement="left" data-tt="tooltip" class="btn btn-info btn-xs"> <i class="fa fa-paper-plane"></i></a>
@@ -752,6 +753,7 @@ $(document).on('click', '#btn-invoice-status', function(e) {
             }
 
             $('#list-invoices').append(html);
+            $('[data-tt="tooltip"]').tooltip();
 
                 currentPage = data.result.current_page;
                 prevPage = data.result.prev_page_url ? currentPage - 1 : currentPage;

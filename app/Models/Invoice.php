@@ -617,8 +617,8 @@ class Invoice extends Model
 
         public static function generateBilletPixIntermedium($invoice_id){
 
-            if(!file_exists(public_path('boletopix')))
-                \File::makeDirectory(public_path('boletopix'));
+            if(!file_exists(public_path('boleto')))
+                \File::makeDirectory(public_path('boleto'));
 
             $invoice = ViewInvoice::where('id',$invoice_id)->first();
 
@@ -768,7 +768,7 @@ class Invoice extends Model
                     $pdf = json_decode($responseBodyPdf)->pdf;
 
                     \File::put(public_path(). '/boleto/' . $invoice['user_id'].'_'.$invoice['id'].'.'.'pdf', base64_decode($pdf));
-                    $billet_pdf   = 'https://cobrancasegura.com.br/boletopix/'.$invoice['user_id'].'_'.$invoice['id'].'.pdf';
+                    $billet_pdf   = 'https://cobrancasegura.com.br/boleto/'.$invoice['user_id'].'_'.$invoice['id'].'.pdf';
 
                     Invoice::where('id',$invoice_id)->update([
                         'transaction_id'    =>  $result_generate_billet->codigoCobranca,

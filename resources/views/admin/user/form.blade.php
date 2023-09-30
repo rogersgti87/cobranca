@@ -752,7 +752,7 @@ $(document).on('click', '#btn-save-inter', function(e) {
                         width:350,
                         title: "<h5 style='color:#007bff'>" + data + "</h5>",
                         icon: 'success',
-                        showConfirmButton: false,
+                        showConfirmButton: true,
                         showClass: {
                             popup: 'animate__animated animate__backInUp'
                         },

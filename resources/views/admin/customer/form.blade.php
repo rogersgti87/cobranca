@@ -279,7 +279,7 @@
                       <div class="tab-pane fade" id="custom-tabs-four-messages" role="tabpanel" aria-labelledby="custom-tabs-four-messages-tab">
                         <div class="col-md-12">
                             <div class="card-box">
-                                <a href="#" data-original-title="Adicionar Fatura" data-toggle="tooltip" class="btn btn-secondary" id="btn-modal-invoice" data-type="add-invoice"><i class="fa fa-save fa-1x"></i> Adcionar Fatura</a>
+                                {{-- <a href="#" data-original-title="Adicionar Fatura" data-toggle="tooltip" class="btn btn-secondary" id="btn-modal-invoice" data-type="add-invoice"><i class="fa fa-save fa-1x"></i> Adcionar Fatura</a> --}}
                                 <br>
                                 <br>
                                 <div class="table-responsive fixed-solution">
@@ -307,7 +307,7 @@
 
                                 <br>
                                 <br>
-                                <a href="#" data-original-title="Adicionar Fatura" data-toggle="tooltip" class="btn btn-secondary" id="btn-modal-invoice" data-type="add-invoice"><i class="fa fa-save fa-1x"></i> Adcionar Fatura</a>
+                                {{-- <a href="#" data-original-title="Adicionar Fatura" data-toggle="tooltip" class="btn btn-secondary" id="btn-modal-invoice" data-type="add-invoice"><i class="fa fa-save fa-1x"></i> Adcionar Fatura</a> --}}
 
                             </div>
 

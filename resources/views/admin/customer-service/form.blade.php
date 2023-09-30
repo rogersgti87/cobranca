@@ -11,7 +11,7 @@
                     <select class="form-control custom-select" name="service_id" id="service_id">
                         <option value="">Selecione um serviço</option>
                         @foreach($services as $service)
-                            <option {{ isset($data->service_id) && $data->service_id == $service->id ? 'selected' : '' }} value="{{ $service->id }}" data-price={{ $service->price }}>{{ $service->name }}</option>
+                            <option {{ isset($data->service_id) && $data->service_id == $service->id ? 'selected' : '' }} value="{{ $service->id }}" data-price="{{ $service->price }}">{{ $service->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -81,7 +81,7 @@
                         <option {{ isset($data->gateway_payment) && $data->gateway_payment === 'Pag Hiper' ? 'selected' : '' }} value="Pag Hiper">Pag Hiper</option>
                         <option {{ isset($data->gateway_payment) && $data->gateway_payment === 'Mercado Pago' ? 'selected' : '' }} value="Mercado Pago">Mercado Pago</option>
                         <option {{ isset($data->gateway_payment) && $data->gateway_payment === 'Intermedium' ? 'selected' : '' }} value="Intermedium">Intermedium</option>
-                        <option {{ isset($data->gateway_payment) && $data->gateway_payment === 'Cora' ? 'selected' : '' }} value="Cora">Cora(em breve)</option>
+                        {{-- <option {{ isset($data->gateway_payment) && $data->gateway_payment === 'Cora' ? 'selected' : '' }} value="Cora">Cora(em breve)</option> --}}
                     </select>
                 </div>
 
@@ -89,12 +89,12 @@
                     <label>Forma de Pagamento</label>
                     <select class="form-control custom-select" name="payment_method" id="payment_method">
                         <option value="">Selecione a Forma de Pagamento</option>
-                        <option {{ isset($data->payment_method) && $data->payment_method === 'Pix' ? 'selected' : '' }} value="Pix">Pix</option>
+                        {{-- <option {{ isset($data->payment_method) && $data->payment_method === 'Pix' ? 'selected' : '' }} value="Pix">Pix</option>
                         <option {{ isset($data->payment_method) && $data->payment_method === 'Boleto' ? 'selected' : '' }} value="Boleto">Boleto</option>
                         <option {{ isset($data->payment_method) && $data->payment_method === 'BoletoPix' ? 'selected' : '' }} value="BoletoPix">BoletoPix</option>
                         <option {{ isset($data->payment_method) && $data->payment_method === 'Depósito' ? 'selected' : '' }} value="Depósito">Depósito</option>
                         <option {{ isset($data->payment_method) && $data->payment_method === 'Dinheiro' ? 'selected' : '' }} value="Dinheiro">Dinheiro</option>
-                        <option {{ isset($data->payment_method) && $data->payment_method === 'Cartão' ? 'selected' : '' }} value="Cartão">Cartão</option>
+                        <option {{ isset($data->payment_method) && $data->payment_method === 'Cartão' ? 'selected' : '' }} value="Cartão">Cartão</option> --}}
                     </select>
                 </div>
 
@@ -130,6 +130,12 @@
                         <input type="checkbox" class="form-check-input" name="generate_invoice" id="generate_invoice" value="1">
                         <label class="form-check-label" for="generate_invoice">Marque para <b>Gerar Fatura</b> do serviço</label>
                       </div>
+                      <div class="form-group col-md-12 col-sm-12" id="date_due" style="display: none;">
+                        <div class="form-group col-md-4 col-sm-12">
+                        <label>Data de vencimento</label>
+                        <input type="date" class="form-control" min="{{ date('Y-m-d') }}" name="date_due" id="date_due" autocomplete="off"  value="">
+                        </div>
+                    </div>
                     </div>
                     <div class="form-row">
                       <div class="form-group form-check">
@@ -154,3 +160,46 @@
 
     </div>
     </div>
+
+    <script>
+    $(document).ready(function(){
+
+        const checkbox = document.getElementById("generate_invoice");
+        checkbox.addEventListener("click", function() {
+        if (checkbox.checked) {
+            $('#date_due').show();
+        }else{
+            $('#date_due').hide();
+        }
+        });
+
+    $('#gateway_payment').change(function(){
+        var escolha = $(this).val();
+        $('#payment_method').empty();
+        var payment_method = "{{ isset($data->payment_method) ? $data->payment_method : '' }}";
+        // Preenche o segundo select com base na escolha do primeiro select
+        if(escolha === 'Estabelecimento'){
+            $('#payment_method').append(`<option value="Boleto" ${payment_method == 'Boleto' ? 'selected' : ''}>Boleto</option>`);
+            $('#payment_method').append(`<option value="Pix" ${payment_method == 'Pix' ? 'selected' : ''}>Pix</option>`);
+            $('#payment_method').append(`<option value="Dinheiro" ${payment_method == 'Dinheiro' ? 'selected' : ''}>Dinheiro</option>`);
+            $('#payment_method').append(`<option value="Cartão" ${payment_method == 'Cartão' ? 'selected' : ''}>Cartão</option>`);
+        }
+        else if(escolha === 'Pag Hiper'){
+            $('#payment_method').append(`<option value="Boleto" ${payment_method == 'Boleto' ? 'selected' : ''}>Boleto</option>`);
+            $('#payment_method').append(`<option value="Pix" ${payment_method == 'Pix' ? 'selected' : ''}>Pix</option>`);
+        }
+        else if(escolha === 'Mercado Pago'){
+            $('#payment_method').append(`<option value="Pix" ${payment_method == 'Pix' ? 'selected' : ''}>Pix</option>`);
+        }
+        else if(escolha === 'Intermedium'){
+            $('#payment_method').append(`<option value="Boleto" ${payment_method == 'Boleto' ? 'selected' : ''}>Boleto</option>`);
+            $('#payment_method').append(`<option value="BoletoPix" ${payment_method == 'BoletoPix' ? 'selected' : ''}>BoletoPix</option>`);
+            $('#payment_method').append(`<option value="Pix" ${payment_method == 'Pix' ? 'selected' : ''}>Pix</option>`);
+        }
+
+    });
+
+    $('#gateway_payment').trigger('change');
+});
+
+    </script>

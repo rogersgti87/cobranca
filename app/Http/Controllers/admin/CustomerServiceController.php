@@ -106,7 +106,6 @@ class CustomerServiceController extends Controller
         $model->payment_method      = $data['payment_method'];
         $model->start_billing       = $data['start_billing'];
         $model->end_billing         = $data['end_billing'];
-
         try{
             $model->save();
 
@@ -124,10 +123,7 @@ class CustomerServiceController extends Controller
                 $newInvoice->gateway_payment     = $model->gateway_payment;
                 $newInvoice->payment_method      = $model->payment_method;
                 $newInvoice->date_invoice        = Carbon::now();
-                $newInvoice->date_due            = $model->day_due > $user->day_generate_invoice ? Carbon::createFromDate(Carbon::now())->day($model->day_due)->addMonth() : Carbon::createFromDate(Carbon::now())->day($model->day_due);
-                if($newInvoice->date_due < Carbon::now()){
-                    $newInvoice->date_due = Carbon::createFromDate(Carbon::now())->day($model->day_due)->addMonth();
-                }
+                $newInvoice->date_due            = $data['date_due'];
                 $newInvoice->date_payment        = null;
                 $newInvoice->status              = 'Pendente';
                 $newInvoice->save();

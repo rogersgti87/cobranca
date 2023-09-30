@@ -212,42 +212,89 @@ class WebHookController extends Controller
             InvoiceNotification::Whatsapp($result->id);
         }
 
+        if($status == 'EXPIRADO'){
+            Invoice::where('id',$result->id)->where('transaction_id',$result->transaction_id)->update([
+                'status'       =>   'Expirado',
+                'date_payment' =>   Null,
+                'updated_at'   =>   Carbon::now()
+            ]);
+        }
+
     }
 
+  }
+
+
+  public function intermediumBilletPix(Request $request) {
+    $data = $request->all();
+    \Log::info('Linha 222  - Retorno webhook intermedium boletopix: '.json_encode($data));
+
+    $seuNumero      = $data[0]['seuNumero'];
+    $codigoCobranca = $data[0]['codigoCobranca'];
+    $status         = $data[0]['situacao'];
+
+    $result = Invoice::where('id',$seuNumero)->where('transaction_id',$codigoCobranca)
+    ->where('invoices.status','Pendente')
+    ->orwhere('invoices.status','Processamento')
+    ->first();
+
+    if($result != null){
+
+        if($status == 'RECEBIDO'){
+            Invoice::where('id',$result->id)->where('transaction_id',$result->transaction_id)->update([
+                'status'       =>   'Pago',
+                'date_payment' =>   Carbon::now(),
+                'updated_at'   =>   Carbon::now()
+            ]);
+            InvoiceNotification::Email($result->id);
+            InvoiceNotification::Whatsapp($result->id);
+        }
+
+        if($status == 'CANCELADO'){
+            Invoice::where('id',$result->id)->where('transaction_id',$result->transaction_id)->update([
+                'status'       =>   'Cancelado',
+                'date_payment' =>   Null,
+                'updated_at'   =>   Carbon::now()
+            ]);
+            InvoiceNotification::Email($result->id);
+            InvoiceNotification::Whatsapp($result->id);
+        }
+
+        if($status == 'EXPIRADO'){
+            Invoice::where('id',$result->id)->where('transaction_id',$result->transaction_id)->update([
+                'status'       =>   'Expirado',
+                'date_payment' =>   Null,
+                'updated_at'   =>   Carbon::now()
+            ]);
+        }
+
+    }
 
   }
 
   public function intermediumPix(Request $request) {
     $data = $request->all();
-    \Log::info('Linha 449  - Retorno webhook intermedium: '.json_encode($data));
+    \Log::info('Linha 261  - Retorno webhook intermedium pix: '.json_encode($data));
 
     $txid = $data['pix'][0]['txid'];
-    \Log::info($txid);
 
     $result = Invoice::where('transaction_id',$txid)
     ->where('invoices.status','Pendente')
     ->orwhere('invoices.status','Processamento')
     ->first();
-    \Log::info('Linha 458: '.$result);
-
 
     if($result != null){
 
         \Log::info('Linha 236');
 
-            $ok = Invoice::where('id',$result->id)->update([
+            Invoice::where('id',$result->id)->update([
                 'status'       =>   'Pago',
                 'date_payment' =>   Carbon::now(),
                 'updated_at'   =>   Carbon::now()
             ]);
 
-            \Log::info('Linha 244: '.$ok);
-
             InvoiceNotification::Email($result->id);
             InvoiceNotification::Whatsapp($result->id);
-
-
-
 
     }
 

@@ -163,7 +163,7 @@ class InvoiceController extends Controller
 
                 }elseif($model['gateway_payment'] == 'Intermedium'){
 
-                    $generateBilletIntermedium = Invoice::generateBilletPixIntermedium($model['id']);
+                    $generateBilletIntermedium = Invoice::generateBilletIntermedium($model['id']);
                     if($generateBilletIntermedium['status'] == 'reject'){
                         $msgInterBillet = '';
                         foreach($generateBilletIntermedium['message'] as $messageInterBillet){
@@ -174,9 +174,23 @@ class InvoiceController extends Controller
                     }
 
                 }
-
-
         }
+        elseif($model['payment_method'] == 'BoletoPix'){
+
+            if($model['gateway_payment'] == 'Intermedium'){
+
+                $generateBilletIntermedium = Invoice::generateBilletPixIntermedium($model['id']);
+                if($generateBilletIntermedium['status'] == 'reject'){
+                    $msgInterBillet = '';
+                    foreach($generateBilletIntermedium['message'] as $messageInterBillet){
+                        $msgInterBillet .= $messageInterBillet['razao'].' - '.$messageInterBillet['propriedade'].' - '.$messageInterBillet['valor'].',';
+                    }
+
+                    return response()->json($generateBilletIntermedium['title'].': '.$msgInterBillet, 422);
+                }
+
+            }
+    }
 
 
             if(isset($data['send_invoice_email']))
@@ -317,7 +331,14 @@ class InvoiceController extends Controller
                     }
                 }
             }
-
+            else if($invoice->payment_method == 'BoletoPix' && $invoice->transaction_id != ''){
+                if($invoice->gateway_payment == 'Intermedium'){
+                    $status = Invoice::cancelBilletPixIntermedium(auth()->user()->id,$invoice->transaction_id);
+                    if($status == 'success'){
+                        $status = 'success';
+                    }
+                }
+            }
 
             if($status == 'success' || $invoice->payment_method == 'Dinheiro' || $invoice->payment_method == 'Cartão' || $invoice->payment_method == 'Depósito' || $invoice->transaction_id == ''){
                 $model->where('id',$id)->where('user_id',auth()->user()->id)->update([
@@ -400,35 +421,36 @@ class InvoiceController extends Controller
             $result = json_decode($result)->status_request;
 
 
-            $title = '';
-            $message_notification = '';
+
 
             if($result->status == 'completed' || $result->status == 'paid'){
-                $title = 'Fatura #';
-                $message_notification = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura mudou o status para: <b>Pago</b>';
                 Invoice::where('id',$checkInvoice->id)->where('user_id',auth()->user()->id)->update([
                     'status'       =>   'Pago',
                     'date_payment' =>   isset($result->status_date) ? date('d/m/Y', strtotime($result->status_date)) : Carbon::now(),
                     'updated_at'   =>   Carbon::now()
                 ]);
+                if($checkInvoice->notification_email == 's'){
+                    InvoiceNotification::Email($invoice_id);
+                }
+                if($checkInvoice->notification_whatsapp == 's'){
+                    InvoiceNotification::Whatsapp($invoice_id);
+                }
             }
 
             if($result->status == 'canceled' || $result->status == 'refunded'){
-                $title = 'Fatura';
-                $message_notification = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura mudou o status para: <b>Cancelado</b>';
                 Invoice::where('id',$checkInvoice->id)->where('user_id',auth()->user()->id)->update([
                     'status'       =>   'Cancelado',
                     'date_payment' =>   Null,
                     'updated_at'   =>   Carbon::now()
                 ]);
+                if($checkInvoice->notification_email == 's'){
+                    InvoiceNotification::Email($invoice_id);
+                }
+                if($checkInvoice->notification_whatsapp == 's'){
+                    InvoiceNotification::Whatsapp($invoice_id);
+                }
             }
 
-            if($checkInvoice->notification_email == 's'){
-                InvoiceNotification::Email($invoice_id);
-            }
-            if($checkInvoice->notification_whatsapp == 's'){
-                InvoiceNotification::Whatsapp($invoice_id);
-            }
 
 
             }

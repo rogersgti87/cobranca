@@ -617,8 +617,8 @@ class Invoice extends Model
 
         public static function generateBilletPixIntermedium($invoice_id){
 
-            if(!file_exists(public_path('boleto')))
-                \File::makeDirectory(public_path('boleto'));
+            if(!file_exists(public_path('boletopix')))
+                \File::makeDirectory(public_path('boletopix'));
 
             $invoice = ViewInvoice::where('id',$invoice_id)->first();
 
@@ -767,8 +767,8 @@ class Invoice extends Model
                     $responseBodyPdf = $response_pdf_billet->getBody();
                     $pdf = json_decode($responseBodyPdf)->pdf;
 
-                    \File::put(public_path(). '/boleto/' . $invoice['user_id'].'_'.$invoice['id'].'.'.'pdf', base64_decode($pdf));
-                    $billet_pdf   = 'https://cobrancasegura.com.br/boleto/'.$invoice['user_id'].'_'.$invoice['id'].'.pdf';
+                    \File::put(public_path(). '/boletopix/' . $invoice['user_id'].'_'.$invoice['id'].'.'.'pdf', base64_decode($pdf));
+                    $billet_pdf   = 'https://cobrancasegura.com.br/boletopix/'.$invoice['user_id'].'_'.$invoice['id'].'.pdf';
 
                     Invoice::where('id',$invoice_id)->update([
                         'transaction_id'    =>  $result_generate_billet->codigoCobranca,
@@ -794,55 +794,67 @@ class Invoice extends Model
 
 
 
-        public static function getBilletPDFIntermedium($invoice){
-
-            \Log::info('Transaction_id: '.$invoice['transaction_id']);
-
-            $response = Http::withOptions([
-                'cert' => storage_path('/app/'.$invoice['inter_crt_file']),
-                'ssl_key' => storage_path('/app/'.$invoice['inter_key_file']),
-            ])->asForm()->post($invoice['inter_host'].'oauth/v2/token', [
-                'client_id' => $invoice['inter_client_id'],
-                'client_secret' => $invoice['inter_client_secret'],
-                'scope' => $invoice['inter_scope'],
-                'grant_type' => 'client_credentials',
-            ]);
-
-            $responseBody = $response->body();
-            $access_token = json_decode($responseBody)->access_token;
-
-            \Log::info('access_token: '.$access_token);
-
-            $response_pdf_billet = Http::withOptions(
-                [
-                'cert' => storage_path('/app/'.$invoice['inter_crt_file']),
-                'ssl_key' => storage_path('/app/'.$invoice['inter_key_file'])
-                ]
-                )->withHeaders([
-                'Authorization' => 'Bearer ' . $access_token
-
-            ])->get($invoice['inter_host'].'cobranca/v2/boletos/'.$invoice['transaction_id'].'/pdf');
-
-            if ($response_pdf_billet->successful()) {
-
-                $responseBodyPdf = $response_pdf_billet->getBody();
-
-                \Log::info('Linha 383: '.json_encode($responseBodyPdf));
-
-                $pdf = json_decode($responseBodyPdf)->pdf;
-
-                return $pdf;
-
-            }else{
-                \Log::info('Erro ao gerar pdf pagamento intermedium: '.$response_pdf_billet->json());
-            }
-
-
-        }
-
         public static function cancelBilletIntermedium($user_id, $transaction_id){
 
             $user = User::where('id',$user_id)->first();
+
+            $access_token = $user['access_token_inter'];
+
+            if($user['inter_host'] == ''){
+                return response()->json('HOST banco inter não cadastrado!', 422);
+            }
+            if($user['inter_client_id'] == ''){
+                return response()->json('CLIENT ID banco inter não cadastrado!', 422);
+            }
+            if($user['inter_client_secret'] == ''){
+                return response()->json('CLIENT SECRET banco inter não cadastrado!', 422);
+            }
+            if($user['inter_crt_file'] == ''){
+                return response()->json('Certificado CRT banco inter não cadastrado!', 422);
+            }
+            if(!file_exists(storage_path('/app/'.$user['inter_crt_file']))){
+                return response()->json('Certificado CRT banco inter não existe!', 422);
+            }
+            if($user['inter_key_file'] == ''){
+                return response()->json('Certificado KEY banco inter não cadastrado!', 422);
+            }
+            if(!file_exists(storage_path('/app/'.$user['inter_key_file']))){
+                return response()->json('Certificado KEY banco inter não existe!', 422);
+            }
+
+            $check_access_token = Http::withOptions(
+                [
+                'cert' => storage_path('/app/'.$user['inter_crt_file']),
+                'ssl_key' => storage_path('/app/'.$user['inter_key_file'])
+                ]
+                )->withHeaders([
+                'Authorization' => 'Bearer ' . $access_token
+            ])->get('https://cdpj.partners.bancointer.com.br/cobranca/v3/cobrancas?dataInicial=2023-01-01&dataFinal=2023-01-01');
+
+            if ($check_access_token->unauthorized()) {
+                $response = Http::withOptions([
+                    'cert' => storage_path('/app/'.$user['inter_crt_file']),
+                    'ssl_key' => storage_path('/app/'.$user['inter_key_file']),
+                ])->asForm()->post($user['inter_host'].'oauth/v2/token', [
+                    'client_id' => $user['inter_client_id'],
+                    'client_secret' => $user['inter_client_secret'],
+                    'scope' => $user['inter_scope'],
+                    'grant_type' => 'client_credentials',
+                ]);
+
+                if ($response->successful()) {
+                    $responseBody = $response->body();
+                    $access_token = json_decode($responseBody)->access_token;
+                    User::where('id',$user['id'])->update([
+                        'access_token_inter' => $access_token
+                    ]);
+
+                    $user = User::where('id',$user_id)->first();
+                }else{
+                    return response()->json('Verifique suas credenciais, erro ao autenticar!', 422);
+                }
+            }
+
 
             $response = Http::withOptions([
                 'cert' => storage_path('/app/'.$user->inter_crt_file),
@@ -877,6 +889,86 @@ class Invoice extends Model
             }
 
 
+            public static function cancelBilletPixIntermedium($user_id, $transaction_id){
+
+                $user = User::where('id',$user_id)->first();
+
+
+                $access_token = $user['access_token_inter'];
+
+            if($user['inter_host'] == ''){
+                return response()->json('HOST banco inter não cadastrado!', 422);
+            }
+            if($user['inter_client_id'] == ''){
+                return response()->json('CLIENT ID banco inter não cadastrado!', 422);
+            }
+            if($user['inter_client_secret'] == ''){
+                return response()->json('CLIENT SECRET banco inter não cadastrado!', 422);
+            }
+            if($user['inter_crt_file'] == ''){
+                return response()->json('Certificado CRT banco inter não cadastrado!', 422);
+            }
+            if(!file_exists(storage_path('/app/'.$user['inter_crt_file']))){
+                return response()->json('Certificado CRT banco inter não existe!', 422);
+            }
+            if($user['inter_key_file'] == ''){
+                return response()->json('Certificado KEY banco inter não cadastrado!', 422);
+            }
+            if(!file_exists(storage_path('/app/'.$user['inter_key_file']))){
+                return response()->json('Certificado KEY banco inter não existe!', 422);
+            }
+
+            $check_access_token = Http::withOptions(
+                [
+                'cert' => storage_path('/app/'.$user['inter_crt_file']),
+                'ssl_key' => storage_path('/app/'.$user['inter_key_file'])
+                ]
+                )->withHeaders([
+                'Authorization' => 'Bearer ' . $access_token
+            ])->get('https://cdpj.partners.bancointer.com.br/cobranca/v3/cobrancas?dataInicial=2023-01-01&dataFinal=2023-01-01');
+
+            if ($check_access_token->unauthorized()) {
+                $response = Http::withOptions([
+                    'cert' => storage_path('/app/'.$user['inter_crt_file']),
+                    'ssl_key' => storage_path('/app/'.$user['inter_key_file']),
+                ])->asForm()->post($user['inter_host'].'oauth/v2/token', [
+                    'client_id' => $user['inter_client_id'],
+                    'client_secret' => $user['inter_client_secret'],
+                    'scope' => $user['inter_scope'],
+                    'grant_type' => 'client_credentials',
+                ]);
+
+                if ($response->successful()) {
+                    $responseBody = $response->body();
+                    $access_token = json_decode($responseBody)->access_token;
+                    User::where('id',$user['id'])->update([
+                        'access_token_inter' => $access_token
+                    ]);
+
+                    $user = User::where('id',$user_id)->first();
+                }else{
+                    return response()->json('Verifique suas credenciais, erro ao autenticar!', 422);
+                }
+            }
+
+
+                $response_cancel_billet = Http::withOptions([
+                    'cert' => storage_path('/app/'.$user->inter_crt_file),
+                    'ssl_key' => storage_path('/app/'.$user->inter_key_file),
+                ])->withHeaders([
+                    'Authorization' => 'Bearer ' . $access_token
+
+                ])->post($user->inter_host.'cobranca/v3/cobrancas/'.$transaction_id.'/cancelar',[
+                    "motivoCancelamento" => "ACERTOS"
+                ]);
+
+                if ($response_cancel_billet->successful()) {
+                    return 'success';
+                }else{
+                    \Log::info('Erro ao cancelar pagamento intermedium: '.$response_cancel_billet->json());
+                }
+
+                }
 
 
 
@@ -885,19 +977,62 @@ class Invoice extends Model
 
             $user = User::where('id',$user_id)->first();
 
-            $response = Http::withOptions([
-                'cert' => storage_path('/app/'.$user->inter_crt_file),
-                'ssl_key' => storage_path('/app/'.$user->inter_key_file),
-            ])->asForm()->post($user->inter_host.'oauth/v2/token', [
-                'client_id' => $user->inter_client_id,
-                'client_secret' => $user->inter_client_secret,
-                'scope' => $user->inter_scope,
-                'grant_type' => 'client_credentials',
-            ]);
+            $access_token = $user['access_token_inter'];
 
-            $responseBody = $response->body();
-            $access_token = json_decode($responseBody)->access_token;
+            if($user['inter_host'] == ''){
+                return response()->json('HOST banco inter não cadastrado!', 422);
+            }
+            if($user['inter_client_id'] == ''){
+                return response()->json('CLIENT ID banco inter não cadastrado!', 422);
+            }
+            if($user['inter_client_secret'] == ''){
+                return response()->json('CLIENT SECRET banco inter não cadastrado!', 422);
+            }
+            if($user['inter_crt_file'] == ''){
+                return response()->json('Certificado CRT banco inter não cadastrado!', 422);
+            }
+            if(!file_exists(storage_path('/app/'.$user['inter_crt_file']))){
+                return response()->json('Certificado CRT banco inter não existe!', 422);
+            }
+            if($user['inter_key_file'] == ''){
+                return response()->json('Certificado KEY banco inter não cadastrado!', 422);
+            }
+            if(!file_exists(storage_path('/app/'.$user['inter_key_file']))){
+                return response()->json('Certificado KEY banco inter não existe!', 422);
+            }
 
+            $check_access_token = Http::withOptions(
+                [
+                'cert' => storage_path('/app/'.$user['inter_crt_file']),
+                'ssl_key' => storage_path('/app/'.$user['inter_key_file'])
+                ]
+                )->withHeaders([
+                'Authorization' => 'Bearer ' . $access_token
+            ])->get('https://cdpj.partners.bancointer.com.br/cobranca/v3/cobrancas?dataInicial=2023-01-01&dataFinal=2023-01-01');
+
+            if ($check_access_token->unauthorized()) {
+                $response = Http::withOptions([
+                    'cert' => storage_path('/app/'.$user['inter_crt_file']),
+                    'ssl_key' => storage_path('/app/'.$user['inter_key_file']),
+                ])->asForm()->post($user['inter_host'].'oauth/v2/token', [
+                    'client_id' => $user['inter_client_id'],
+                    'client_secret' => $user['inter_client_secret'],
+                    'scope' => $user['inter_scope'],
+                    'grant_type' => 'client_credentials',
+                ]);
+
+                if ($response->successful()) {
+                    $responseBody = $response->body();
+                    $access_token = json_decode($responseBody)->access_token;
+                    User::where('id',$user['id'])->update([
+                        'access_token_inter' => $access_token
+                    ]);
+
+                    $user = User::where('id',$user_id)->first();
+                }else{
+                    return response()->json('Verifique suas credenciais, erro ao autenticar!', 422);
+                }
+            }
 
             $response_cancel_billet = Http::withOptions([
                 'cert' => storage_path('/app/'.$user->inter_crt_file),

@@ -169,7 +169,7 @@ class CustomerServiceController extends Controller
 
                     }elseif($model['gateway_payment'] == 'Intermedium'){
 
-                        $generateBilletIntermedium = Invoice::generateBilletPixIntermedium($newInvoice['id']);
+                        $generateBilletIntermedium = Invoice::generateBilletIntermedium($newInvoice['id']);
                         if($generateBilletIntermedium['status'] == 'reject'){
                             $msgInterBillet = '';
                             foreach($generateBilletIntermedium['message'] as $messageInterBillet){
@@ -183,6 +183,23 @@ class CustomerServiceController extends Controller
 
 
             }
+
+            elseif($model['payment_method'] == 'BoletoPix'){
+
+            if($model['gateway_payment'] == 'Intermedium'){
+
+                $generateBilletIntermedium = Invoice::generateBilletPixIntermedium($model['id']);
+                if($generateBilletIntermedium['status'] == 'reject'){
+                    $msgInterBillet = '';
+                    foreach($generateBilletIntermedium['message'] as $messageInterBillet){
+                        $msgInterBillet .= $messageInterBillet['razao'].' - '.$messageInterBillet['propriedade'].' - '.$messageInterBillet['valor'].',';
+                    }
+
+                    return response()->json($generateBilletIntermedium['title'].': '.$msgInterBillet, 422);
+                }
+
+            }
+    }
 
 
                 if(isset($data['send_invoice_email']))

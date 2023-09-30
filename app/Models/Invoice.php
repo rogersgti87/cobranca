@@ -239,7 +239,7 @@ class Invoice extends Model
 
         $user = User::where('id',$invoice['user_id'])->first();
 
-        $access_token = $user->access_token_inter;
+        $access_token = $user['access_token_inter'];
 
         if($access_token == null){
             \Log::info('Access token inválido!');
@@ -281,19 +281,19 @@ class Invoice extends Model
 
         if ($check_access_token->unauthorized()) {
             $response = Http::withOptions([
-                'cert' => storage_path('/app/'.$user->inter_crt_file),
-                'ssl_key' => storage_path('/app/'.$user->inter_key_file),
-            ])->asForm()->post($user->inter_host.'oauth/v2/token', [
-                'client_id' => $user->inter_client_id,
-                'client_secret' => $user->inter_client_secret,
-                'scope' => $user->inter_scope,
+                'cert' => storage_path('/app/'.$user['inter_crt_file']),
+                'ssl_key' => storage_path('/app/'.$user['inter_key_file']),
+            ])->asForm()->post($user['inter_host'].'oauth/v2/token', [
+                'client_id' => $user['inter_client_id'],
+                'client_secret' => $user['inter_client_secret'],
+                'scope' => $user['inter_scope'],
                 'grant_type' => 'client_credentials',
             ]);
 
             if ($response->successful()) {
                 $responseBody = $response->body();
                 $access_token = json_decode($responseBody)->access_token;
-                User::where('id',$user->id)->update([
+                User::where('id',$user['id'])->update([
                     'access_token_inter' => $access_token
                 ]);
 
@@ -352,9 +352,9 @@ class Invoice extends Model
             $result_generate_pix = $response_generate_pix->json();
             $result_generate_pix = json_decode($response_generate_pix);
 
-            QrCode::format('png')->size(220)->generate($result_generate_pix->pixCopiaECola, public_path(). '/pix/' . $invoice->user_id.'_'.$invoice->id.'.'.'png');
+            QrCode::format('png')->size(220)->generate($result_generate_pix->pixCopiaECola, public_path(). '/pix/' . $invoice['user_id'].'_'.$invoice['id'].'.'.'png');
 
-            $image_pix   = config()->get('app.url').'/pix/'.$invoice->user_id.'_'.$invoice->id.'.png';
+            $image_pix   = config()->get('app.url').'/pix/'.$invoice['user_id'].'_'.$invoice['id'].'.png';
 
             Invoice::where('id',$invoice_id)->update([
                 'transaction_id'    => $result_generate_pix->txid,
@@ -362,6 +362,8 @@ class Invoice extends Model
                 'pix_digitable'     => $result_generate_pix->pixCopiaECola,
                 'qrcode_pix_base64' => base64_encode(file_get_contents($image_pix)),
             ]);
+
+            return ['status' => 'success', 'title' => 'OK', 'message' => [['razao' => 'OK', 'propriedade' => 'OK']]];
 
         }else{
 

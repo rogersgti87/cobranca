@@ -224,12 +224,6 @@
 
                     </fieldset>
 
-                    <fieldset>
-                        <legend>Dados da API Banco Inter</legend>
-
-
-                </fieldset>
-
 
                 </div>
 

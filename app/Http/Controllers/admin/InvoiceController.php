@@ -163,7 +163,7 @@ class InvoiceController extends Controller
 
                 }elseif($model['gateway_payment'] == 'Intermedium'){
 
-                    $generateBilletIntermedium = Invoice::generateBilletIntermedium($model['id']);
+                    $generateBilletIntermedium = Invoice::generateBilletPixIntermedium($model['id']);
                     if($generateBilletIntermedium['status'] == 'reject'){
                         $msgInterBillet = '';
                         foreach($generateBilletIntermedium['message'] as $messageInterBillet){

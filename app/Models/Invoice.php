@@ -615,6 +615,187 @@ class Invoice extends Model
 
 
 
+        public static function generateBilletPixIntermedium($invoice_id){
+
+            if(!file_exists(public_path('boletopix')))
+                \File::makeDirectory(public_path('boletopix'));
+
+            $invoice = ViewInvoice::where('id',$invoice_id)->first();
+
+            $user = User::where('id',$invoice['user_id'])->first();
+
+            $access_token = $user['access_token_inter'];
+
+            if($access_token == null){
+                \Log::info('Access token inválido!');
+                return ['status' => 'reject', 'title' => 'Erro ao gerar BoletoPix', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Access token inválido!']]];
+            }
+
+
+            if($user['inter_host'] == ''){
+                return ['status' => 'reject', 'title' => 'Erro ao gerar BoletoPix', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'HOST banco inter não cadastrado!']]];
+            }
+            if($user['inter_client_id'] == ''){
+                return ['status' => 'reject', 'title' => 'Erro ao gerar BoletoPix', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'CLIENT ID banco inter não cadastrado!']]];
+            }
+            if($user['inter_client_secret'] == ''){
+                return ['status' => 'reject', 'title' => 'Erro ao gerar BoletoPix', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'CLIENT SECRET banco inter não cadastrado!']]];
+            }
+            if($user['inter_crt_file'] == ''){
+                return ['status' => 'reject', 'title' => 'Erro ao gerar BoletoPix', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado CRT banco inter não cadastrado!']]];
+            }
+            if(!file_exists(storage_path('/app/'.$user['inter_crt_file']))){
+                return ['status' => 'reject', 'title' => 'Erro ao gerar BoletoPix', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado CRT banco inter não existe!']]];
+            }
+            if($user['inter_key_file'] == ''){
+                return ['status' => 'reject', 'title' => 'Erro ao gerar BoletoPix', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado KEY banco inter não cadastrado!']]];
+            }
+            if(!file_exists(storage_path('/app/'.$user['inter_key_file']))){
+                return ['status' => 'reject', 'title' => 'Erro ao gerar BoletoPix', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado KEY banco inter não existe!']]];
+            }
+
+
+            $check_access_token = Http::withOptions(
+                [
+                'cert' => storage_path('/app/'.$user['inter_crt_file']),
+                'ssl_key' => storage_path('/app/'.$user['inter_key_file'])
+                ]
+                )->withHeaders([
+                'Authorization' => 'Bearer ' . $access_token
+            ])->get('https://cdpj.partners.bancointer.com.br/cobranca/v3/cobrancas?dataInicial=2023-01-01&dataFinal=2023-01-01');
+
+            if ($check_access_token->unauthorized()) {
+                $response = Http::withOptions([
+                    'cert' => storage_path('/app/'.$user['inter_crt_file']),
+                    'ssl_key' => storage_path('/app/'.$user['inter_key_file']),
+                ])->asForm()->post($user['inter_host'].'oauth/v2/token', [
+                    'client_id' => $user['inter_client_id'],
+                    'client_secret' => $user['inter_client_secret'],
+                    'scope' => $user['inter_scope'],
+                    'grant_type' => 'client_credentials',
+                ]);
+
+                if ($response->successful()) {
+                    $responseBody = $response->body();
+                    $access_token = json_decode($responseBody)->access_token;
+                    User::where('id',$user->id)->update([
+                        'access_token_inter' => $access_token
+                    ]);
+
+                    $invoice = ViewInvoice::where('id',$invoice_id)->first();
+                }else{
+                    return ['status' => 'reject', 'title' => 'Erro ao gerar BoletoPix', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Access token Expirado ou inválido!']]];
+                }
+            }
+
+
+            $date_multa = Carbon::parse($invoice['date_due'])->addDays(1);
+            if(date('l') == 'Saturday' || date('l') == 'Sábado'){
+                $date_multa = Carbon::parse($invoice['date_due'])->addDays(2);
+            }
+
+            $response_generate_billet = Http::withOptions([
+                'cert' => storage_path('/app/'.$invoice['inter_crt_file']),
+                'ssl_key' => storage_path('/app/'.$invoice['inter_key_file']),
+                ])->withHeaders([
+                'Authorization' => 'Bearer ' . $access_token
+              ])->post($invoice['inter_host'].'cobranca/v3/cobrancas',[
+                "seuNumero"=> $invoice['id'],
+                "valorNominal"=> $invoice['price'],
+                "dataVencimento"=> $invoice['date_due'],
+                "numDiasAgenda"=> 60,
+                "pagador"=> [
+                  "cpfCnpj"=> $invoice['document'],
+                  "nome"=> $invoice['name'],
+                  "email"=> $invoice['email'],
+                  "telefone"=> substr($invoice['whatsapp'],2),
+                  "cep"=> removeEspeciais($invoice['cep']),
+                  "numero"=> $invoice['number'],
+                  "complemento"=> $invoice['complement'],
+                  "bairro"=> $invoice['district'],
+                  "cidade"=> $invoice['city'],
+                  "uf"=> $invoice['state'],
+                  "endereco"=> $invoice['address'],
+                  "ddd"=> substr($invoice['whatsapp'],0,2),
+                  "tipoPessoa"=> $invoice['type'] == 'Física' ? 'FISICA' : 'JURIDICA'
+                ],
+                "multa"=> [
+                "codigoMulta"=> "PERCENTUAL",
+                "data"=> $date_multa,
+                "taxa"=> 1,
+                "valor"=> 0
+              ]
+              ]);
+
+            if ($response_generate_billet->successful()) {
+
+                $result_generate_billet = $response_generate_billet->json();
+                $result_generate_billet = json_decode($response_generate_billet);
+
+
+
+                $response_get_billet = Http::withOptions(
+                    [
+                    'cert' => storage_path('/app/'.$user['inter_crt_file']),
+                    'ssl_key' => storage_path('/app/'.$user['inter_key_file'])
+                    ]
+                    )->withHeaders([
+                    'Authorization' => 'Bearer ' . $access_token
+
+                ])->get($invoice['inter_host'].'cobranca/v3/cobrancas/'.$result_generate_billet->codigoCobranca);
+
+                if ($response_get_billet->successful()) {
+
+                    $result_get_billet = $response_get_billet->json();
+                    $result_get_billet = json_decode($response_get_billet);
+
+                }else{
+                    \Log::info('Erro ao obter cobranca boletopix intermedium: '.$response_get_billet->json());
+                }
+
+
+                $response_pdf_billet = Http::withOptions(
+                    [
+                    'cert' => storage_path('/app/'.$user['inter_crt_file']),
+                    'ssl_key' => storage_path('/app/'.$user['inter_key_file'])
+                    ]
+                    )->withHeaders([
+                    'Authorization' => 'Bearer ' . $access_token
+
+                ])->get($invoice['inter_host'].'cobranca/v3/cobrancas/'.$result_generate_billet->codigoCobranca.'/pdf');
+
+                if ($response_pdf_billet->successful()) {
+
+                    $responseBodyPdf = $response_pdf_billet->getBody();
+                    $pdf = json_decode($responseBodyPdf)->pdf;
+
+                    \File::put(public_path(). '/boleto/' . $invoice['user_id'].'_'.$invoice['id'].'.'.'pdf', base64_decode($pdf));
+                    $billet_pdf   = 'https://cobrancasegura.com.br/boletopix/'.$invoice['user_id'].'_'.$invoice['id'].'.pdf';
+
+                    Invoice::where('id',$invoice_id)->update([
+                        'transaction_id'    =>  $result_generate_billet->codigoCobranca,
+                        'billet_url'        =>  $billet_pdf,
+                        'billet_base64'     =>  $pdf,
+                        'billet_digitable'  =>  $result_get_billet->boleto->linhaDigitavel
+                    ]);
+                    return ['status' => 'success', 'title' => 'OK', 'message' => [['razao' => 'OK', 'propriedade' => 'OK']]];
+
+                }else{
+                    \Log::info('Erro ao gerar pdf pagamento intermedium: '.$response_pdf_billet->json());
+                }
+
+
+            }else{
+                $result_generate_billet = $response_generate_billet->json();
+                \Log::info($result_generate_billet);
+                return ['status' => 'reject', 'title' => $result_generate_billet['title'], 'message' => $result_generate_billet['violacoes']];
+            }
+
+
+        }
+
+
+
 
         public static function getBilletPDFIntermedium($invoice){
 

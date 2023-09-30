@@ -720,10 +720,8 @@ class Invoice extends Model
                   "tipoPessoa"=> $invoice['type'] == 'Física' ? 'FISICA' : 'JURIDICA'
                 ],
                 "multa"=> [
-                "codigoMulta"=> "PERCENTUAL",
-                "data"=> $date_multa,
-                "taxa"=> 1,
-                "valor"=> 0
+                "codigo"=> "PERCENTUAL",
+                "taxa"=> 1
               ]
               ]);
 

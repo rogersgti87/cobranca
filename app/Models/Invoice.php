@@ -590,7 +590,7 @@ class Invoice extends Model
                     \File::put(public_path(). '/boleto/' . $invoice['user_id'].'_'.$invoice['id'].'.'.'pdf', base64_decode($pdf));
                     $billet_pdf   = 'https://cobrancasegura.com.br/boleto/'.$invoice['user_id'].'_'.$invoice['id'].'.pdf';
 
-                    $invoice->update([
+                    Invoice::where('id',$invoice_id)->update([
                         'transaction_id'    =>  $result_generate_billet->nossoNumero,
                         'billet_url'        =>  $billet_pdf,
                         'billet_base64'     =>  $pdf,

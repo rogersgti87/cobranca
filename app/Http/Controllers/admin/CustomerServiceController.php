@@ -94,6 +94,12 @@ class CustomerServiceController extends Controller
             return response()->json($validator->errors()->first(), 422);
         }
 
+        if(isset($data['generate_invoice'])){
+            if($data['date_due'] == ''){
+                return response()->json('Você marcou a opção Gerar Fatura, Selecione a Data de vencimento.', 422);
+            }
+        }
+
         $model->user_id             = auth()->user()->id;
         $model->customer_id         = $data['customer_id'];
         $model->service_id          = $data['service_id'];

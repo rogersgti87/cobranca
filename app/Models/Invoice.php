@@ -460,7 +460,7 @@ class Invoice extends Model
 
             $user = User::where('id',$invoice['user_id'])->first();
 
-            $access_token = $user->access_token_inter;
+            $access_token = $user['access_token_inter'];
 
             if($access_token == null){
                 \Log::info('Access token inválido!');
@@ -502,12 +502,12 @@ class Invoice extends Model
 
             if ($check_access_token->unauthorized()) {
                 $response = Http::withOptions([
-                    'cert' => storage_path('/app/'.$user->inter_crt_file),
-                    'ssl_key' => storage_path('/app/'.$user->inter_key_file),
-                ])->asForm()->post($user->inter_host.'oauth/v2/token', [
-                    'client_id' => $user->inter_client_id,
-                    'client_secret' => $user->inter_client_secret,
-                    'scope' => $user->inter_scope,
+                    'cert' => storage_path('/app/'.$user['inter_crt_file']),
+                    'ssl_key' => storage_path('/app/'.$user['inter_key_file']),
+                ])->asForm()->post($user['inter_host'].'oauth/v2/token', [
+                    'client_id' => $user['inter_client_id'],
+                    'client_secret' => $user['inter_client_secret'],
+                    'scope' => $user['inter_scope'],
                     'grant_type' => 'client_credentials',
                 ]);
 
@@ -587,8 +587,8 @@ class Invoice extends Model
                     $responseBodyPdf = $response_pdf_billet->getBody();
                     $pdf = json_decode($responseBodyPdf)->pdf;
 
-                    \File::put(public_path(). '/boleto/' . $invoice->user_id.'_'.$invoice->id.'.'.'pdf', base64_decode($pdf));
-                    $billet_pdf   = 'https://cobrancasegura.com.br/boleto/'.$invoice->user_id.'_'.$invoice->id.'.pdf';
+                    \File::put(public_path(). '/boleto/' . $invoice['user_id'].'_'.$invoice['id'].'.'.'pdf', base64_decode($pdf));
+                    $billet_pdf   = 'https://cobrancasegura.com.br/boleto/'.$invoice['user_id'].'_'.$invoice['id'].'.pdf';
 
                     $invoice->update([
                         'transaction_id'    =>  $result_generate_billet->nossoNumero,
@@ -596,6 +596,7 @@ class Invoice extends Model
                         'billet_base64'     =>  $pdf,
                         'billet_digitable'  =>  $result_generate_billet->linhaDigitavel
                     ]);
+                    return ['status' => 'success', 'title' => 'OK', 'message' => [['razao' => 'OK', 'propriedade' => 'OK']]];
 
                 }else{
                     \Log::info('Erro ao gerar pdf pagamento intermedium: '.$response_pdf_billet->json());

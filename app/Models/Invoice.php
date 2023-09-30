@@ -794,7 +794,6 @@ class Invoice extends Model
 
 
 
-
         public static function getBilletPDFIntermedium($invoice){
 
             \Log::info('Transaction_id: '.$invoice['transaction_id']);

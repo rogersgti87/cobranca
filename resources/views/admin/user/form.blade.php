@@ -67,7 +67,7 @@
                             <legend>Integrações</legend>
                             @if(isset($data->id))
                                 <button type="button" data-toggle="modal" data-target="#modal-whatsapp" id="{{ isset($data->id) ? $data->id : '' }}" data-original-title="NOVO QRCODE" data-tt="tooltip" class="btn btn-success btn-md"> <i class="fa fa-qrcode"></i> WHATSAPP</button>
-                                <button type="button" id="btn-modal-inter" data-user-id="{{ isset($data->id) ? $data->id : '' }}" data-original-title="Configurar Banco Inter" data-tt="tooltip" class="btn btn-md" style="background:#ff8c00;color:#fff;"><i class="fas fa-university"></i> BANCO INTER</button>
+                                <button type="button" data-toggle="modal" data-target="#modal-inter" data-original-title="Configurar Banco Inter" data-tt="tooltip" class="btn btn-md" style="background:#ff8c00;color:#fff;"><i class="fas fa-university"></i> BANCO INTER</button>
                                 <button type="button" data-toggle="modal" data-target="#modal-ph" id="{{ isset($data->id) ? $data->id : '' }}" data-original-title="Configurar PagHiper" data-tt="tooltip" class="btn btn-md" style="background:blue;color:#fff;"><i class="fas fa-university"></i> PAG HIPER</button>
                                 <button type="button" data-toggle="modal" data-target="#modal-mp" id="{{ isset($data->id) ? $data->id : '' }}" data-original-title="Configurar Mercado Pago" data-tt="tooltip" class="btn btn-md" style="background:#48c5d6;color:#fff;"><i class="fas fa-university"></i> MERCADO PAGO</button>
                             @endif
@@ -227,58 +227,7 @@
                     <fieldset>
                         <legend>Dados da API Banco Inter</legend>
 
-                    <div class="form-row">
-                    <div class="form-group col-md-3 col-sm-12">
-                        <label>Host</label>
-                        <input type="text" class="form-control" name="inter_host" id="inter_host" autocomplete="off" value="{{isset($data->inter_host) ? $data->inter_host : 'https://cdpj.partners.bancointer.com.br/'}}">
-                    </div>
 
-                    <div class="form-group col-md-3 col-sm-12">
-                        <label>Client ID</label>
-                        <input type="text" class="form-control" name="inter_client_id" id="inter_client_id" autocomplete="off" value="{{isset($data->inter_client_id) ? $data->inter_client_id : ''}}">
-                    </div>
-
-                    <div class="form-group col-md-3 col-sm-12">
-                        <label>Client Secret</label>
-                        <input type="text" class="form-control" name="inter_client_secret" id="inter_client_secret" autocomplete="off" value="{{isset($data->inter_client_secret) ? $data->inter_client_secret : ''}}">
-                    </div>
-
-                    <div class="form-group col-md-3 col-sm-12">
-                        <label>Chave PIX</label>
-                        <input type="text" class="form-control" name="inter_chave_pix" id="inter_chave_pix" autocomplete="off" value="{{isset($data->inter_chave_pix) ? $data->inter_chave_pix : ''}}">
-                    </div>
-
-                    <div class="form-group col-md-12 col-sm-12">
-                        <label>Scope</label>
-                        <input type="text" class="form-control" name="inter_scope" id="inter_scope" autocomplete="off" value="{{isset($data->inter_scope) ? $data->inter_scope : 'boleto-cobranca.read boleto-cobranca.write extrato.read cob.write cob.read cobv.write cobv.read pix.write pix.read webhook.read webhook.write'}}">
-                    </div>
-
-                    <div class="form-group col-md-4 col-sm-12">
-                        <label>Arquivo CRT <span style="font-size:10px !important;" class="text-xs badge badge-{{isset($data->inter_crt_file) && $data->inter_crt_file != null ? 'success' : 'danger'}}">{{isset($data->inter_crt_file) && $data->inter_crt_file != null ? 'Arquivo enviado' : 'Arquivo não enviado'}}</span></label>
-                        <input type="file" class="form-control" name="inter_crt_file" id="inter_crt_file" autocomplete="off" value="">
-                    </div>
-
-                    <div class="form-group col-md-4 col-sm-12">
-                        <label>Arquivo KEY <span style="font-size:10px !important;" class="text-xs badge badge-{{isset($data->inter_key_file) && $data->inter_key_file != null ? 'success' : 'danger'}}">{{isset($data->inter_key_file) && $data->inter_key_file != null ? 'Arquivo enviado' : 'Arquivo não enviado'}}</span></label>
-                        <input type="file" class="form-control" name="inter_key_file" id="inter_key_file" autocomplete="off" value="">
-                    </div>
-
-                    <div class="form-group col-md-4 col-sm-12">
-                        <label>Arquivo CRT WebHook <span style="font-size:10px !important;" class="text-xs badge badge-{{isset($data->inter_crt_file_webhook) && $data->inter_crt_file_webhook != null ? 'success' : 'danger'}}">{{isset($data->inter_crt_file_webhook) && $data->inter_crt_file_webhook != null ? 'Arquivo enviado' : 'Arquivo não enviado'}}</span></label>
-                        <input type="file" class="form-control" name="inter_crt_file_webhook" id="inter_crt_file_webhook" autocomplete="off" value="">
-                    </div>
-
-                     <div class="form-group col-md-6 col-sm-12">
-                        <label>URL Webhook Boleto</label>
-                        <input type="text" class="form-control" name="inter_webhook_url_billet" id="inter_webhook_url_billet" autocomplete="off" value="{{isset($data->inter_webhook_url_billet) ? $data->inter_webhook_url_billet : 'https://cobrancasegura.com.br/webhook/intermediumbillet'}}">
-                    </div>
-
-                    <div class="form-group col-md-6 col-sm-12">
-                        <label>URL Webhook Pix</label>
-                        <input type="text" class="form-control" name="inter_webhook_url_pix" id="inter_webhook_url_pix" autocomplete="off" value="{{isset($data->inter_webhook_url_pix) ? $data->inter_webhook_url_pix : 'https://cobrancasegura.com.br/webhook/intermediumpix'}}">
-                    </div>
-
-                </div>
                 </fieldset>
 
 
@@ -355,7 +304,54 @@
             </button>
           </div>
         <div class="modal-body-inter">
+            <div class="col-md-12">
+                <form id="form-inter" enctype="multipart/form-data">
+            <div class="form-row">
 
+                <input type="hidden" class="form-control" name="inter_host" id="inter_host" autocomplete="off" value="{{isset($data->inter_host) ? $data->inter_host : 'https://cdpj.partners.bancointer.com.br/'}}">
+
+                <div class="form-group col-md-4 col-sm-12">
+                    <label>Client ID</label>
+                    <input type="text" class="form-control" name="inter_client_id" id="inter_client_id" autocomplete="off" value="{{isset($data->inter_client_id) ? $data->inter_client_id : ''}}">
+                </div>
+
+                <div class="form-group col-md-4 col-sm-12">
+                    <label>Client Secret</label>
+                    <input type="text" class="form-control" name="inter_client_secret" id="inter_client_secret" autocomplete="off" value="{{isset($data->inter_client_secret) ? $data->inter_client_secret : ''}}">
+                </div>
+
+                <div class="form-group col-md-4 col-sm-12">
+                    <label>Chave PIX</label>
+                    <input type="text" class="form-control" name="inter_chave_pix" id="inter_chave_pix" autocomplete="off" value="{{isset($data->inter_chave_pix) ? $data->inter_chave_pix : ''}}">
+                </div>
+
+                <div class="form-group col-md-12 col-sm-12">
+                    <label>Scope</label>
+                    <input type="text" class="form-control" name="inter_scope" id="inter_scope" autocomplete="off" value="{{isset($data->inter_scope) ? $data->inter_scope : 'boleto-cobranca.read boleto-cobranca.write extrato.read cob.write cob.read cobv.write cobv.read pix.write pix.read webhook.read webhook.write'}}">
+                </div>
+
+                <div class="form-group col-md-6 col-sm-12">
+                    <label>Arquivo CRT <span style="font-size:10px !important;" class="text-xs badge badge-{{isset($data->inter_crt_file) && $data->inter_crt_file != null ? 'success' : 'danger'}}">{{isset($data->inter_crt_file) && $data->inter_crt_file != null ? 'Arquivo enviado' : 'Arquivo não enviado'}}</span></label>
+                    <input type="file" class="form-control" name="inter_crt_file" id="inter_crt_file" autocomplete="off" value="">
+                </div>
+
+                <div class="form-group col-md-6 col-sm-12">
+                    <label>Arquivo KEY <span style="font-size:10px !important;" class="text-xs badge badge-{{isset($data->inter_key_file) && $data->inter_key_file != null ? 'success' : 'danger'}}">{{isset($data->inter_key_file) && $data->inter_key_file != null ? 'Arquivo enviado' : 'Arquivo não enviado'}}</span></label>
+                    <input type="file" class="form-control" name="inter_key_file" id="inter_key_file" autocomplete="off" value="">
+                </div>
+
+                {{-- <div class="form-group col-md-4 col-sm-12">
+                    <label>Arquivo CRT WebHook <span style="font-size:10px !important;" class="text-xs badge badge-{{isset($data->inter_crt_file_webhook) && $data->inter_crt_file_webhook != null ? 'success' : 'danger'}}">{{isset($data->inter_crt_file_webhook) && $data->inter_crt_file_webhook != null ? 'Arquivo enviado' : 'Arquivo não enviado'}}</span></label>
+                    <input type="file" class="form-control" name="inter_crt_file_webhook" id="inter_crt_file_webhook" autocomplete="off" value="">
+                </div> --}}
+
+                    <input type="hidden" class="form-control" name="inter_webhook_url_billet" id="inter_webhook_url_billet" autocomplete="off" value="{{isset($data->inter_webhook_url_billet) ? $data->inter_webhook_url_billet : 'https://cobrancasegura.com.br/webhook/intermediumbillet'}}">
+                    <input type="hidden" class="form-control" name="inter_webhook_url_billet_pix" id="inter_webhook_url_billet_pix" autocomplete="off" value="{{isset($data->inter_webhook_url_billet_pix) ? $data->inter_webhook_url_billet_pix : 'https://cobrancasegura.com.br/webhook/intermediumbilletpix'}}">
+                    <input type="hidden" class="form-control" name="inter_webhook_url_pix" id="inter_webhook_url_pix" autocomplete="off" value="{{isset($data->inter_webhook_url_pix) ? $data->inter_webhook_url_pix : 'https://cobrancasegura.com.br/webhook/intermediumpix'}}">
+                </div>
+                </form>
+
+            </div>
 
         </div>
         <div class="modal-footer">
@@ -370,34 +366,6 @@
 
 @section('scripts')
 
-
-<script>
-
-   // Open Modal - Inter
-   $(document).on("click", "#btn-modal-inter", function() {
-        var type = $(this).data('type');
-        var customer_id = "{{ isset($data) ? $data->id : ''}}";
-        $("#modal-inter").modal('show');
-        var customer_service_id = $(this).data('customer-service-id');
-        var url = `{{ url("/admin/customer-services/form?customer_id=") }}${customer_id}&id=${customer_service_id}`;
-
-        //console.log(url);
-        $.get(url,
-            $(this)
-            .addClass('modal-scrollfix')
-            .find('#form-content-customer-service')
-            .html('Carregando...'),
-            function(data) {
-                // console.log(data);
-                $("#form-content-customer-service").html(data);
-                $('[data-tt="tooltip"]').tooltip();
-
-
-            });
-    });
-
-
-</script>
 
 <script>
 
@@ -759,6 +727,71 @@ $.ajax({
 
         });
 
+
+
+//Save Inter
+$(document).on('click', '#btn-save-inter', function(e) {
+            e.preventDefault();
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': "{{csrf_token()}}"
+                }
+            });
+
+            var data = new FormData($('#form-inter')[0]);
+
+            $.ajax({
+                url: '{{url('admin/user-inter')}}',
+                data:data,
+                method:'POST',
+                processData: false,
+                contentType: false,
+                success:function(data){
+                    console.log(data);
+                    Swal.fire({
+                        width:350,
+                        title: "<h5 style='color:#007bff'>" + data + "</h5>",
+                        icon: 'success',
+                        showConfirmButton: false,
+                        showClass: {
+                            popup: 'animate__animated animate__backInUp'
+                        },
+                        allowOutsideClick: false,
+                    });
+                },
+                error:function (xhr) {
+
+                    if(xhr.status === 422){
+                        Swal.fire({
+                            text: xhr.responseJSON,
+                            width:300,
+                            icon: 'warning',
+                            color: '#007bff',
+                            confirmButtonColor: "#007bff",
+                            showClass: {
+                                popup: 'animate__animated animate__wobble'
+                            }
+                        });
+                    } else{
+                        Swal.fire({
+                            text: xhr.responseJSON,
+                            width:300,
+                            icon: 'error',
+                            color: '#007bff',
+                            confirmButtonColor: "#007bff",
+                            showClass: {
+                                popup: 'animate__animated animate__wobble'
+                            }
+                        });
+                    }
+
+
+                }
+            });
+
+
+
+        });
 
     </script>
 

@@ -163,40 +163,11 @@ class UserController extends Controller
         $model->token_paghiper              = $data['token_paghiper'];
         $model->key_paghiper                = $data['key_paghiper'];
         $model->access_token_mp             = $data['access_token_mp'];
-        $model->inter_host                  = $data['inter_host'];
-        $model->inter_client_id             = $data['inter_client_id'];
-        $model->inter_client_secret         = $data['inter_client_secret'];
-        $model->inter_scope                 = $data['inter_scope'];
-        $model->inter_webhook_url_billet    = $data['inter_webhook_url_billet'];
-        $model->inter_webhook_url_pix       = $data['inter_webhook_url_pix'];
-        $model->inter_chave_pix             = $data['inter_chave_pix'];
         $model->day_generate_invoice        = $data['day_generate_invoice'];
         $model->send_generate_invoice       = $data['send_generate_invoice'];
 
 
 
-
-        if(!file_exists(storage_path('app/certificates')))
-            \File::makeDirectory(storage_path('app/certificates'));
-
-        if($this->request->has('inter_crt_file')){
-            $inter_crt_file = $this->request->file('inter_crt_file');
-            $inter_crt_file->storeAs('certificates/',auth()->user()->id.'_inter_crt_file.crt');
-            $model->inter_crt_file = 'certificates/'.auth()->user()->id.'_inter_crt_file.crt';
-        }
-
-
-        if($this->request->has('inter_key_file')){
-            $inter_key_file = $this->request->file('inter_key_file');
-            $inter_key_file->storeAs('certificates/',auth()->user()->id.'_inter_key_file.key');
-            $model->inter_key_file = 'certificates/'.auth()->user()->id.'_inter_key_file.key';
-        }
-
-        if($this->request->has('inter_crt_file_webhook')){
-            $inter_crt_file_webhook = $this->request->file('inter_crt_file_webhook');
-            $inter_crt_file_webhook->storeAs('certificates/',auth()->user()->id.'_inter_crt_file_webhook.crt');
-            $model->inter_crt_file_webhook = 'certificates/'.auth()->user()->id.'_inter_crt_file_webhook.crt';
-        }
 
         try{
             $model->save();
@@ -263,38 +234,10 @@ class UserController extends Controller
         $model->token_paghiper              = $data['token_paghiper'];
         $model->key_paghiper                = $data['key_paghiper'];
         $model->access_token_mp             = $data['access_token_mp'];
-        $model->inter_host                  = $data['inter_host'];
-        $model->inter_client_id             = $data['inter_client_id'];
-        $model->inter_client_secret         = $data['inter_client_secret'];
-        $model->inter_scope                 = $data['inter_scope'];
-        $model->inter_webhook_url_billet    = $data['inter_webhook_url_billet'];
-        $model->inter_webhook_url_pix       = $data['inter_webhook_url_pix'];
-        $model->inter_chave_pix             = $data['inter_chave_pix'];
         $model->day_generate_invoice        = $data['day_generate_invoice'];
         $model->send_generate_invoice       = $data['send_generate_invoice'];
 
-        if(!file_exists(storage_path('app/certificates')))
-            \File::makeDirectory(storage_path('app/certificates'));
 
-
-        if($this->request->has('inter_crt_file')){
-            $inter_crt_file = $this->request->file('inter_crt_file');
-            $inter_crt_file->storeAs('certificates/',auth()->user()->id.'_inter_crt_file.crt');
-            $model->inter_crt_file = 'certificates/'.auth()->user()->id.'_inter_crt_file.crt';
-        }
-
-
-        if($this->request->has('inter_key_file')){
-            $inter_key_file = $this->request->file('inter_key_file');
-            $inter_key_file->storeAs('certificates/',auth()->user()->id.'_inter_key_file.key');
-            $model->inter_key_file = 'certificates/'.auth()->user()->id.'_inter_key_file.key';
-        }
-
-        if($this->request->has('inter_crt_file_webhook')){
-            $inter_crt_file_webhook = $this->request->file('inter_crt_file_webhook');
-            $inter_crt_file_webhook->storeAs('certificates/',auth()->user()->id.'_inter_crt_file_webhook.crt');
-            $model->inter_crt_file_webhook = 'certificates/'.auth()->user()->id.'_inter_crt_file_webhook.crt';
-        }
 
         try{
             $model->save();
@@ -355,38 +298,149 @@ class UserController extends Controller
     }
 
 
-    public function webhook(){
+    public function inter(){
+
+
+        $model = User::where('id',auth()->user()->id)->first();
+
+        $data = $this->request->all();
+
+        $model->inter_host                  = $data['inter_host'];
+        $model->inter_client_id             = $data['inter_client_id'];
+        $model->inter_client_secret         = $data['inter_client_secret'];
+        $model->inter_scope                 = $data['inter_scope'];
+        $model->inter_webhook_url_billet    = $data['inter_webhook_url_billet'];
+        $model->inter_webhook_url_pix       = $data['inter_webhook_url_pix'];
+        $model->inter_chave_pix             = $data['inter_chave_pix'];
+
+        if(!file_exists(storage_path('app/certificates')))
+            \File::makeDirectory(storage_path('app/certificates'));
+
+
+        if($this->request->has('inter_crt_file')){
+            $inter_crt_file = $this->request->file('inter_crt_file');
+            $inter_crt_file->storeAs('certificates/',auth()->user()->id.'_inter_crt_file.crt');
+            $model->inter_crt_file = 'certificates/'.auth()->user()->id.'_inter_crt_file.crt';
+        }
+
+
+        if($this->request->has('inter_key_file')){
+            $inter_key_file = $this->request->file('inter_key_file');
+            $inter_key_file->storeAs('certificates/',auth()->user()->id.'_inter_key_file.key');
+            $model->inter_key_file = 'certificates/'.auth()->user()->id.'_inter_key_file.key';
+        }
+
+        if($this->request->has('inter_crt_file_webhook')){
+            $inter_crt_file_webhook = $this->request->file('inter_crt_file_webhook');
+            $inter_crt_file_webhook->storeAs('certificates/',auth()->user()->id.'_inter_crt_file_webhook.crt');
+            $model->inter_crt_file_webhook = 'certificates/'.auth()->user()->id.'_inter_crt_file_webhook.crt';
+        }
+
+        $model->save();
 
         $user = User::where('id',auth()->user()->id)->first();
 
-        $response = Http::withOptions([
-            'cert' => storage_path('/app/'.$user->inter_crt_file),
-            'ssl_key' => storage_path('/app/'.$user->inter_key_file),
-        ])->asForm()->post($user->inter_host.'oauth/v2/token', [
-            'client_id' => $user->inter_client_id,
-            'client_secret' => $user->inter_client_secret,
-            'scope' => $user->inter_scope,
-            'grant_type' => 'client_credentials',
-        ]);
+        $access_token = $user['access_token_inter'];
 
-        $responseBody = $response->body();
-        $access_token = json_decode($responseBody)->access_token;
+        if($user['inter_host'] == ''){
+            return response()->json('HOST banco inter não cadastrado!', 422);
+        }
+        if($user['inter_client_id'] == ''){
+            return response()->json('CLIENT ID banco inter não cadastrado!', 422);
+        }
+        if($user['inter_client_secret'] == ''){
+            return response()->json('CLIENT SECRET banco inter não cadastrado!', 422);
+        }
+        if($user['inter_crt_file'] == ''){
+            return response()->json('Certificado CRT banco inter não cadastrado!', 422);
+        }
+        if(!file_exists(storage_path('/app/'.$user['inter_crt_file']))){
+            return response()->json('Certificado CRT banco inter não existe!', 422);
+        }
+        if($user['inter_key_file'] == ''){
+            return response()->json('Certificado KEY banco inter não cadastrado!', 422);
+        }
+        if(!file_exists(storage_path('/app/'.$user['inter_key_file']))){
+            return response()->json('Certificado KEY banco inter não existe!', 422);
+        }
+
+        $check_access_token = Http::withOptions(
+            [
+            'cert' => storage_path('/app/'.$user['inter_crt_file']),
+            'ssl_key' => storage_path('/app/'.$user['inter_key_file'])
+            ]
+            )->withHeaders([
+            'Authorization' => 'Bearer ' . $access_token
+        ])->get('https://cdpj.partners.bancointer.com.br/cobranca/v3/cobrancas?dataInicial=2023-01-01&dataFinal=2023-01-01');
+
+        if ($check_access_token->unauthorized()) {
+            $response = Http::withOptions([
+                'cert' => storage_path('/app/'.$user['inter_crt_file']),
+                'ssl_key' => storage_path('/app/'.$user['inter_key_file']),
+            ])->asForm()->post($user['inter_host'].'oauth/v2/token', [
+                'client_id' => $user['inter_client_id'],
+                'client_secret' => $user['inter_client_secret'],
+                'scope' => $user['inter_scope'],
+                'grant_type' => 'client_credentials',
+            ]);
+
+            if ($response->successful()) {
+                $responseBody = $response->body();
+                $access_token = json_decode($responseBody)->access_token;
+                User::where('id',$user['id'])->update([
+                    'access_token_inter' => $access_token
+                ]);
+
+                $user = User::where('id',auth()->user()->id)->first();
+            }else{
+                return response()->json('Verifique suas credenciais, erro ao autenticar!', 422);
+            }
+        }
 
 
-        $response_generate_billet = Http::withOptions([
-            'cert' => storage_path('/app/'.$user->inter_crt_file),
-            'ssl_key' => storage_path('/app/'.$user->inter_key_file),
+        $response_webhook_billet = Http::withOptions([
+            'cert' => storage_path('/app/'.$user['inter_crt_file']),
+            'ssl_key' => storage_path('/app/'.$user['inter_key_file']),
             ])->withHeaders([
             'Authorization' => 'Bearer ' . $access_token
-          ])->put($user->inter_host.'cobranca/v2/boletos/webhook',[
+          ])->put($user['inter_host'].'cobranca/v2/boletos/webhook',[
             "webhookUrl"=> "https://cobrancasegura.com.br/webhook/intermediumbillet"
         ]);
 
-        if ($response_generate_billet->successful()) {
-            return 'Webhook salvo com sucesso!';
-        }else{
-            return 'Erro ao gravar Webhook!';
+        if ($response_webhook_billet->status() != 204) {
+            return response()->json('Erro ao gravar Webhook Boleto Inter!', 422);
         }
+
+        $response_webhook_pix = Http::withOptions([
+            'cert' => storage_path('/app/'.$user['inter_crt_file']),
+            'ssl_key' => storage_path('/app/'.$user['inter_key_file']),
+            ])->withHeaders([
+            'Authorization' => 'Bearer ' . $access_token
+          ])->put($user['inter_host'].'pix/v2/webhook/'.$user['inter_chave_pix'],[
+            "webhookUrl"=> "https://cobrancasegura.com.br/webhook/intermediumpix"
+        ]);
+
+        if ($response_webhook_pix->status() != 204) {
+            return response()->json('Erro ao gravar Webhook Boleto Inter!');
+        }
+
+        $response_webhook_pix = Http::withOptions([
+            'cert' => storage_path('/app/'.$user['inter_crt_file']),
+            'ssl_key' => storage_path('/app/'.$user['inter_key_file']),
+            ])->withHeaders([
+            'Authorization' => 'Bearer ' . $access_token
+          ])->put($user['inter_host'].'cobranca/v3/cobrancas/webhook/',[
+            "webhookUrl"=> "https://cobrancasegura.com.br/webhook/intermediumpix"
+        ]);
+
+        if ($response_webhook_pix->status() != 204) {
+            return response()->json('Erro ao gravar Webhook Boleto Inter!');
+        }
+
+
+        return response()->json('Salvo com sucesso!',200);
+
+
 
     }
 

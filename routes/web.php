@@ -45,6 +45,7 @@ Route::group(['prefix' => 'admin','middleware' => ['auth']], function(){
     Route::get('users/getsession',[UserController::class,'getSession']);
     Route::get('users/getqrcode',[UserController::class,'getQRCode']);
     Route::post('user-default-whatsapp/{access_token}',[UserController::class,'defaultWhatsapp']);
+    Route::post('user-inter',[UserController::class,'inter']);
 
     Route::get('settings',[SettingController::class,'form']);
     Route::put('settings',[SettingController::class,'update']);

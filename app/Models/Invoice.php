@@ -694,7 +694,7 @@ class Invoice extends Model
             //     $date_multa = Carbon::parse($invoice['date_due'])->addDays(2);
             // }
 
-
+                \Log::info('Linha 697: '. $invoice['date_due']);
             $response_generate_billet = Http::withOptions([
                 'cert' => storage_path('/app/'.$invoice['inter_crt_file']),
                 'ssl_key' => storage_path('/app/'.$invoice['inter_key_file']),

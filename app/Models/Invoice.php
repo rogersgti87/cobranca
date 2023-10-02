@@ -694,7 +694,7 @@ class Invoice extends Model
                 $date_multa = Carbon::parse($invoice['date_due'])->addDays(2);
             }
 
-            $response_generate_billet = Http::withOptions([
+            $response_generate_billet = Http::retry(3, 100)->withOptions([
                 'cert' => storage_path('/app/'.$invoice['inter_crt_file']),
                 'ssl_key' => storage_path('/app/'.$invoice['inter_key_file']),
                 ])->withHeaders([
@@ -732,7 +732,7 @@ class Invoice extends Model
 
 
 
-                $response_get_billet = Http::withOptions(
+                $response_get_billet = Http::retry(3, 100)->withOptions(
                     [
                     'cert' => storage_path('/app/'.$user['inter_crt_file']),
                     'ssl_key' => storage_path('/app/'.$user['inter_key_file'])
@@ -752,7 +752,7 @@ class Invoice extends Model
                 }
 
 
-                $response_pdf_billet = Http::withOptions(
+                $response_pdf_billet = Http::retry(3, 100)->withOptions(
                     [
                     'cert' => storage_path('/app/'.$user['inter_crt_file']),
                     'ssl_key' => storage_path('/app/'.$user['inter_key_file'])

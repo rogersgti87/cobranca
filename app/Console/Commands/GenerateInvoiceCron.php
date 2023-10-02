@@ -65,11 +65,10 @@ class GenerateInvoiceCron extends Command
 //                     'date_invoice'          => $vInvoice->date_invoice,
 //                     'date_due'              => $vInvoice->date_due,
 //                     'date_payment'          => null,
-//                     'status'                => 'Pendente',
+//                     'status'                => 'Gerada',
 //                     'created_at'            => $vInvoice->created_at,
 //                     'updated_at'            => $vInvoice->updated_at
 //                 ]);
-
 //          }
 
 //     }

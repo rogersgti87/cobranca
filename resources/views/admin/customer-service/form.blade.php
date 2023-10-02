@@ -164,17 +164,20 @@
     <script>
     $(document).ready(function(){
 
-        const checkbox = document.getElementById("generate_invoice");
-        checkbox.addEventListener("click", function() {
-        if (checkbox.checked) {
-            $('#date_due').show();
-        }else{
-            $('#date_due').hide();
-        }
-        });
+        @if(!isset($data))
+            const checkbox = document.getElementById("generate_invoice");
+            checkbox.addEventListener("click", function() {
+            if (checkbox.checked) {
+                $('#date_due').show();
+            }else{
+                $('#date_due').hide();
+            }
+            });
+        @endif
 
     $('#gateway_payment').change(function(){
         var escolha = $(this).val();
+        console.log(escolha);
         $('#payment_method').empty();
         var payment_method = "{{ isset($data->payment_method) ? $data->payment_method : '' }}";
         // Preenche o segundo select com base na escolha do primeiro select

@@ -277,8 +277,6 @@ class InvoiceNotification extends Model
             return 'Erro ao conectar a API do Whatsapp';
         }
 
-        \Log::info('Linha 281');
-
         $message_customer               = $data['message_customer'];
         $whats_invoice_id               = $data['invoice'];
         $message_notification           = whatsappBold($data['message_notification']);
@@ -446,7 +444,7 @@ class InvoiceNotification extends Model
     }
     }
 
-    \Log::info('Linha 430:'. json_encode(['message' => $status_message, 'image' => $status_image, 'file' => $status_file]));
+    //\Log::info('Linha 430:'. json_encode(['message' => $status_message, 'image' => $status_image, 'file' => $status_file]));
 
     return ['message' => $status_message, 'image' => $status_image, 'file' => $status_file];
     }

@@ -36,7 +36,7 @@ case
  DATE_ADD(CONCAT(YEAR(a.start_billing),'-',MONTH(a.start_billing),'-',a.day_due), INTERVAL TIMESTAMPDIFF(month, a.start_billing, now()) + 1 MONTH)
  end date_due,
  CURDATE(),
-a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsapp,c.notification_email, c.company, a.description,a.price, u.access_token_mp,c.type,
+a.id, a.user_id, c.id customer_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsapp,c.notification_email, c.company, a.description,a.price, u.access_token_mp,c.type,
     u.inter_host,u.inter_client_id,u.inter_client_secret,u.inter_scope,u.inter_crt_file,u.inter_key_file,u.inter_crt_file_webhook,u.inter_chave_pix,
     a.gateway_payment,a.payment_method,a.period, CURRENT_DATE date_invoice,
     a.status, 'Pendente',CURRENT_TIMESTAMP created_at,CURRENT_TIMESTAMP updated_at FROM customer_services a
@@ -57,6 +57,7 @@ a.id, a.user_id, c.name customer,c.email,c.email2,c.phone, c.notification_whatsa
 
                 $newInvoice = DB::table('invoices')->insertGetId([
                     'user_id'               => $vInvoice->user_id,
+                    'customer_id'           => $vInvoice->customer_id,
                     'customer_service_id'   => $vInvoice->id,
                     'description'           => $vInvoice->description,
                     'price'                 => $vInvoice->price,

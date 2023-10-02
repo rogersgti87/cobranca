@@ -779,7 +779,8 @@ class Invoice extends Model
                     return ['status' => 'success', 'title' => 'OK', 'message' => [['razao' => 'OK', 'propriedade' => 'OK']]];
 
                 }else{
-                    \Log::info('Erro ao gerar pdf pagamento intermedium: '.$response_pdf_billet->json());
+                    Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => $response_pdf_billet->json()]);
+                    \Log::info('Erro ao gerar pdf pagamento intermedium: '.json_encode($response_pdf_billet->json()));
                 }
 
 

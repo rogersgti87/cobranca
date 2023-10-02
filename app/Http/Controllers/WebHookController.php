@@ -276,7 +276,15 @@ class WebHookController extends Controller
     $data = $request->all();
     \Log::info('Linha 261  - Retorno webhook intermedium pix: '.json_encode($data));
 
-    $txid = $data['pix'][0]['txid'];
+    if(isset($data['pix'])){
+        $txid = $data['pix'][0]['txid'];
+    }else{
+        $txid = $data['codigoCobranca'];
+        if($data['situacao'] != 'RECEBIDO'){
+            return 'nao recebido!';
+        }
+    }
+
 
     $result = Invoice::where('transaction_id',$txid)
     ->where('invoices.status','Pendente')

@@ -553,7 +553,7 @@ public function invoiceNotificate($invoice_id){
             }
 
             if($option == 'email'){
-                if($invoice['notification_whatsapp'] == 's'){
+                if($invoice['notification_email'] == 's'){
                     $result_email =  InvoiceNotification::Email($invoice_id);
                     $status_email = $result_email;
                 }

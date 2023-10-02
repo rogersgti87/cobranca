@@ -786,6 +786,7 @@ class Invoice extends Model
 
             }else{
                 $result_generate_billet = $response_generate_billet->json();
+                Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => $result_generate_billet]);
                 \Log::info($result_generate_billet);
                 return ['status' => 'reject', 'title' => $result_generate_billet['title'], 'message' => $result_generate_billet['violacoes']];
             }

@@ -40,6 +40,8 @@ foreach($invoices as $invoice){
             if($generatePixPH['status'] == 'reject'){
                 Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => $generatePixPH['message']]);
                 return response()->json($generatePixPH['message'], 422);
+            }else{
+                Invoice::where('id',$invoice['id'])->update(['status' => 'Pendente']);
             }
 
         }elseif($invoice['gateway_payment'] == 'Mercado Pago'){
@@ -47,6 +49,8 @@ foreach($invoices as $invoice){
             if($generatePixMP['status'] == 'reject'){
                 Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => $generatePixMP['message']]);
                 return response()->json($generatePixMP['message'], 422);
+            }else{
+                Invoice::where('id',$invoice['id'])->update(['status' => 'Pendente']);
             }
 
         }elseif($invoice['gateway_payment'] == 'Intermedium'){
@@ -58,6 +62,8 @@ foreach($invoices as $invoice){
                 }
                 Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => $generatePixIntermedium['title'].': '.$msgInterPix]);
                 return response()->json($generatePixIntermedium['title'].': '.$msgInterPix, 422);
+            }else{
+                Invoice::where('id',$invoice['id'])->update(['status' => 'Pendente']);
             }
 
         }
@@ -68,6 +74,8 @@ foreach($invoices as $invoice){
             if($generateBilletPH['status'] == 'reject'){
                 Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => $generateBilletPH['message']]);
                 return response()->json($generateBilletPH['message'], 422);
+            }else{
+                Invoice::where('id',$invoice['id'])->update(['status' => 'Pendente']);
             }
 
         }elseif($invoice['gateway_payment'] == 'Intermedium'){
@@ -80,6 +88,8 @@ foreach($invoices as $invoice){
                 }
                 Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => $generateBilletIntermedium['title'].': '.$msgInterBillet]);
                 return response()->json($generateBilletIntermedium['title'].': '.$msgInterBillet, 422);
+            }else{
+                Invoice::where('id',$invoice['id'])->update(['status' => 'Pendente']);
             }
 
         }
@@ -99,6 +109,8 @@ if($invoice['gateway_payment'] == 'Intermedium'){
         }
         Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => $generateBilletIntermedium['title'].': '.$msgInterBillet]);
         return response()->json($generateBilletIntermedium['title'].': '.$msgInterBillet, 422);
+    }else{
+        Invoice::where('id',$invoice['id'])->update(['status' => 'Pendente']);
     }
 
 }

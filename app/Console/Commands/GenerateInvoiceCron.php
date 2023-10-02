@@ -27,7 +27,7 @@ class GenerateInvoiceCron extends Command
   public function handle()
   {
 
-$invoices = ViewInvoice::where('status','Gerando')->limit(5)->get();
+$invoices = ViewInvoice::where('status','Gerando')->limit(3)->get();
 
 if($invoices != null){
 
@@ -117,10 +117,10 @@ if($invoice['gateway_payment'] == 'Intermedium'){
 }
 
 
- //   if($invoice['send_generate_invoice'] == 'Sim'){
+   if($invoice['send_generate_invoice'] == 'Sim'){
         InvoiceNotification::Email($invoice['id']);
         InvoiceNotification::Whatsapp($invoice['id']);
-   // }
+   }
 
 
 }

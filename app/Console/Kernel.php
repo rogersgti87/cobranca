@@ -29,7 +29,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
         $schedule->command('createinvoice:cron')->twiceDaily(1, 4);
         $schedule->command('tokeninter:cron')->hourly();
-        //$schedule->command('generateinvoice:cron')->everyMinute();
+        $schedule->command('generateinvoice:cron')->everyMinute();
         $schedule->command('rememberinvoice:cron')->twiceDaily(9, 14);
 
     }

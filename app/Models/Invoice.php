@@ -622,8 +622,6 @@ class Invoice extends Model
 
             $invoice = ViewInvoice::where('id',$invoice_id)->first();
 
-            dd($invoice);
-
             $user = User::where('id',$invoice['user_id'])->first();
 
             $access_token = $user['access_token_inter'];

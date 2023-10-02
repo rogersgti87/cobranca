@@ -279,7 +279,7 @@ class WebHookController extends Controller
     if(isset($data['pix'])){
         $txid = $data['pix'][0]['txid'];
     }else{
-        $txid = $data['codigoCobranca'];
+        $txid = $data[0]['codigoCobranca'];
         if($data['situacao'] != 'RECEBIDO'){
             return 'nao recebido!';
         }

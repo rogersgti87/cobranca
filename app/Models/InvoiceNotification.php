@@ -140,9 +140,9 @@ class InvoiceNotification extends Model
 
         $status_email = 'Enviado';
         $result = $response->getBody();
-
+        \Log::info('Linha 143: '.json_encode($response->getBody()));
         $email_id = json_decode($result)->messageId;
-
+        \Log::info('Linha 145: '.$email_id);
 
         DB::table('invoice_notifications')->insert([
             'user_id'           => $data['user_id'],

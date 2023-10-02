@@ -97,8 +97,8 @@ class WebHookController extends Controller
             'date_payment' =>   Null,
             'updated_at'   =>   Carbon::now()
         ]);
-        InvoiceNotification::Email($invoice->id);
-        InvoiceNotification::Whatsapp($invoice->id);
+        //InvoiceNotification::Email($invoice->id);
+        //InvoiceNotification::Whatsapp($invoice->id);
     }
     if($result->status == 'completed' || $result->status == 'paid'){
         Invoice::where('id',$result->order_id)->where('transaction_id',$result->transaction_id)->update([
@@ -110,15 +110,15 @@ class WebHookController extends Controller
         InvoiceNotification::Whatsapp($invoice->id);
     }
 
-    if($result->status == 'canceled' || $result->status == 'refunded'){
-        Invoice::where('id',$result->order_id)->where('transaction_id',$result->transaction_id)->update([
-            'status'       =>   'Cancelado',
-            'date_payment' =>   Null,
-            'updated_at'   =>   Carbon::now()
-        ]);
-        InvoiceNotification::Email($invoice->id);
-        InvoiceNotification::Whatsapp($invoice->id);
-    }
+    // if($result->status == 'canceled' || $result->status == 'refunded'){
+    //     Invoice::where('id',$result->order_id)->where('transaction_id',$result->transaction_id)->update([
+    //         'status'       =>   'Cancelado',
+    //         'date_payment' =>   Null,
+    //         'updated_at'   =>   Carbon::now()
+    //     ]);
+    //     InvoiceNotification::Email($invoice->id);
+    //     InvoiceNotification::Whatsapp($invoice->id);
+    // }
 
 
 

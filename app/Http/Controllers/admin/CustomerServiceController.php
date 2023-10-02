@@ -117,7 +117,6 @@ class CustomerServiceController extends Controller
 
             if(isset($data['generate_invoice'])){
                 $user = User::where('id',auth()->user()->id)->first();
-
                 $newInvoice = new Invoice();
                 $newInvoice->user_id             = $model->user_id;
                 $newInvoice->customer_id         = $model->customer_id;
@@ -131,7 +130,6 @@ class CustomerServiceController extends Controller
                 $newInvoice->date_payment        = null;
                 $newInvoice->status              = 'Pendente';
                 $newInvoice->save();
-
 
                 if($model['payment_method'] == 'Pix'){
                     //PIX PAG HIPER

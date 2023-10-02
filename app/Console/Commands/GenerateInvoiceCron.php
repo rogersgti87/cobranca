@@ -29,6 +29,8 @@ class GenerateInvoiceCron extends Command
 
 $invoices = ViewInvoice::where('status','Gerando')->limit(10)->get();
 
+if($invoices != null){
+
 foreach($invoices as $invoice){
 
     if($invoice['payment_method'] == 'Pix'){
@@ -110,7 +112,7 @@ if($invoice['gateway_payment'] == 'Intermedium'){
 
 
 }
-
+}
 
   }
 

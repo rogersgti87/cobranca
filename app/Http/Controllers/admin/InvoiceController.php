@@ -478,7 +478,7 @@ public function loadInvoices(){
             ->join('services','services.id','customer_services.service_id')
             ->join('customers','customers.id','customer_services.customer_id')
             ->where('invoices.user_id',auth()->user()->id)
-            ->orderby('invoices.date_invoice','ASC');
+            ->orderby('invoices.date_due','ASC');
 
 
     if ($this->request->has('dateini') && $this->request->has('dateend')) {
@@ -504,13 +504,13 @@ public function loadInvoices(){
     }else{
 
         $query->select(DB::raw("$fields,
-        (select count(*) from invoices where date_invoice between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as qtd_invoices ,
-            (select count(*) from invoices where status = 'Pendente' and date_invoice between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as qtd_pendente,
-            (select count(*) from invoices where status = 'Pago'  and date_invoice between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as qtd_pago,
-            (select count(*) from invoices where status = 'Processamento'  and date_invoice between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as qtd_processamento,
-            (select count(*) from invoices where status = 'Cancelado'  and date_invoice between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as qtd_cancelado
+        (select count(*) from invoices where date_due between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as qtd_invoices ,
+            (select count(*) from invoices where status = 'Pendente' and date_due between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as qtd_pendente,
+            (select count(*) from invoices where status = 'Pago'  and date_due between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as qtd_pago,
+            (select count(*) from invoices where status = 'Processamento'  and date_due between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as qtd_processamento,
+            (select count(*) from invoices where status = 'Cancelado'  and date_due between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as qtd_cancelado
         "));
-        $query->whereBetween('invoices.date_invoice',[Carbon::now()->startOfMonth(),Carbon::now()->lastOfMonth()]);
+        $query->whereBetween('invoices.date_due',[Carbon::now()->startOfMonth(),Carbon::now()->lastOfMonth()]);
     }
 
     $data = $query->paginate(20);

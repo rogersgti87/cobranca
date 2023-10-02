@@ -182,6 +182,9 @@
     <script>
 
    $('#notifications-table').DataTable({
+            columnDefs: [
+            { type: 'date', targets: 4 }
+            ],
             order: [[4, 'desc']],
             responsive: true,
             language: {

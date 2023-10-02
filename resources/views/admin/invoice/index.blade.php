@@ -113,8 +113,8 @@
                 <div class="form-group col-md-3 col-6">
                     <label>Tipo</label>
                     <select class="form-control"  id="filter-type">
-                        <option value="date_invoice">Data da Fatura</option>
                         <option value="date_due">Data do Vencimento</option>
+                        <option value="date_invoice">Data da Fatura</option>
                     </select>
                 </div>
 

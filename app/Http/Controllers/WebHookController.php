@@ -274,13 +274,13 @@ class WebHookController extends Controller
 
   public function intermediumPix(Request $request) {
     $data = $request->all();
-    \Log::info('Linha 261  - Retorno webhook intermedium pix: '.json_encode($data));
+    \Log::info('Linha 277  - Retorno webhook intermedium pix: '.json_encode($data));
 
     if(isset($data['pix'])){
         $txid = $data['pix'][0]['txid'];
     }else{
         $txid = $data[0]['codigoCobranca'];
-        if($data['situacao'] != 'RECEBIDO'){
+        if($data[0]['situacao'] != 'RECEBIDO'){
             return 'nao recebido!';
         }
     }

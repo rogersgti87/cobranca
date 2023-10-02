@@ -689,10 +689,11 @@ class Invoice extends Model
             }
 
 
-            $date_multa = Carbon::parse($invoice['date_due'])->addDays(1);
-            if(date('l') == 'Saturday' || date('l') == 'Sábado'){
-                $date_multa = Carbon::parse($invoice['date_due'])->addDays(2);
-            }
+            // $date_multa = Carbon::parse($invoice['date_due'])->addDays(1);
+            // if(date('l') == 'Saturday' || date('l') == 'Sábado'){
+            //     $date_multa = Carbon::parse($invoice['date_due'])->addDays(2);
+            // }
+
 
             $response_generate_billet = Http::withOptions([
                 'cert' => storage_path('/app/'.$invoice['inter_crt_file']),

@@ -115,14 +115,12 @@ class CustomerServiceController extends Controller
         try{
             $model->save();
 
-
             if(isset($data['generate_invoice'])){
                 $user = User::where('id',auth()->user()->id)->first();
 
-
-
                 $newInvoice = new Invoice();
                 $newInvoice->user_id             = $model->user_id;
+                $newInvoice->customer_id         = $model->customer_id;
                 $newInvoice->customer_service_id = $model->id;
                 $newInvoice->description         = $model->description;
                 $newInvoice->price               = $model->price;
@@ -194,7 +192,7 @@ class CustomerServiceController extends Controller
                 if($generateBilletIntermedium['status'] == 'reject'){
                     $msgInterBillet = '';
                     foreach($generateBilletIntermedium['message'] as $messageInterBillet){
-                        $msgInterBillet .= $messageInterBillet['razao'].' - '.$messageInterBillet['propriedade'].' - '.$messageInterBillet['valor'].',';
+                        $msgInterBillet .= $messageInterBillet['razao'].' - '.$messageInterBillet['propriedade'];
                     }
 
                     return response()->json($generateBilletIntermedium['title'].': '.$msgInterBillet, 422);

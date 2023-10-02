@@ -27,7 +27,7 @@ class GenerateInvoiceCron extends Command
   public function handle()
   {
 
-$invoices = ViewInvoice::where('status','Gerando')->limit(4)->get();
+$invoices = ViewInvoice::where('status','Gerando')->limit(10)->get();
 
 if($invoices != null){
 

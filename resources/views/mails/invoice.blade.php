@@ -76,7 +76,7 @@
 
     @endif
 
-    @if($payment_method == 'Boleto')
+    @if($payment_method == 'Boleto' || $payment_method == 'BoletoPix')
         <p style="text-align:left">Para gerar o Boleto é só clicar abaixo:</p>
         <p style="text-align:left"><a href="{{$billet_url_slip}}" target="_blank"><img src="https://s7003039.sendpul.se/image/747991a0e145ac2bbe69f063a9402e69/files/emailservice/userfiles/afdeb61c8175066a32c78dbe45c9569d7003039/rogerti/boleto.png"></a></p>
         <p style="text-align:left">Código digitável:</p>

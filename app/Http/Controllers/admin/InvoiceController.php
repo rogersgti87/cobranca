@@ -542,7 +542,7 @@ public function invoiceNotificate($invoice_id){
 
         foreach($options as $option){
             if($option == 'whatsapp'){
-                if($invoice->notification_whatsapp == 's'){
+                if($invoice['notification_whatsapp'] == 's'){
                     $result_whatsapp = InvoiceNotification::Whatsapp($invoice_id);
                     $status_whatsapp = [
                         'mensagem' => $result_whatsapp['message'],
@@ -553,7 +553,7 @@ public function invoiceNotificate($invoice_id){
             }
 
             if($option == 'email'){
-                if($invoice->notification_whatsapp == 's'){
+                if($invoice['notification_whatsapp'] == 's'){
                     $result_email =  InvoiceNotification::Email($invoice_id);
                     $status_email = $result_email;
                 }

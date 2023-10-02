@@ -679,11 +679,15 @@ $(window).on("load", function(){
     //Save customer service
      $(document).on('click', '#btn-save-customer-service', function(e) {
             e.preventDefault();
+
+            $("#btn-save-customer-service").attr("disabled", true);
+            $("#btn-save-customer-service").text('Aguarde...');
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': "{{csrf_token()}}"
                 }
             });
+
             var data = $('#form-request-customer-service').serialize();
             var customer_service_id = $('#customer_service_id').val();
             if(customer_service_id != ''){
@@ -699,6 +703,9 @@ $(window).on("load", function(){
                 data:data,
                 method:method,
                 success:function(data){
+
+                    $("#btn-save-customer-service").attr("disabled", false);
+                    $("#btn-save-customer-service").html('<i class="fa fa-check"></i> Salvar');
                     //console.log(data);
                     Swal.fire({
                         width:350,
@@ -716,6 +723,8 @@ $(window).on("load", function(){
                     });
                 },
                 error:function (xhr) {
+                    $("#btn-save-customer-service").attr("disabled", false);
+                    $("#btn-save-customer-service").html('<i class="fa fa-check"></i> Salvar');
                     if(xhr.status === 422){
                         Swal.fire({
                             text: xhr.responseJSON,

@@ -251,8 +251,71 @@
  </div>
  <!-- Modal :: Form Invoice -->
 
+   <!-- Modal :: Log -->
+   <div class="modal fade" id="modal-error" tabindex="-1" role="dialog" aria-labelledby="modalErrorLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalErrorLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <style>
+
+                pre {
+                   background-color: ghostwhite;
+                   border: 1px solid silver;
+                   padding: 10px 20px;
+                   margin: 20px;
+                   }
+                .json-key {
+                   color: brown;
+                   }
+                .json-value {
+                   color: navy;
+                   }
+                .json-string {
+                   color: olive;
+                   }
+
+                </style>
+
+            <div class="modal-body" id="modal-content-error">
+
+                <!-- conteudo -->
+                <!-- conteudo -->
+            </div><!-- modal-body -->
+        </div>
+    </div>
+ </div>
+ <!-- Modal :: Log -->
+
 
 @section('scripts')
+
+<script>
+
+    // Open Modal - Error
+    $(document).on("click", "#btn-modal-error", function() {
+          var id = $(this).data('invoice');
+          console.log(id);
+          var url = "{{url('admin/invoice-error')}}"+'/'+id;
+          $("#modal-error").modal('show');
+          $.get(url,
+              $(this)
+              .addClass('modal-scrollfix')
+              .find('#modal-content-error')
+              .html('Carregando...'),
+              function(data) {
+                  var json = JSON.stringify(JSON.parse(data.msg_error), null, 2);
+                  $("#modal-content-error").html('<pre>'+json+'</pre>');
+              });
+      });
+
+  </script>
+
 
 <script>
     function sendNotification(invoice_id){
@@ -751,7 +814,7 @@ $(document).on('click', '#btn-invoice-status', function(e) {
                             <a href="{{ url('admin/customers/form?act=edit&id=')}}${item.customer_id}" data-original-title="Editar cliente" id="btn-edit-customer" data-placement="left" data-tt="tooltip" class="btn btn-secondary btn-xs"> <i class="fas fa-user"></i></a>
                             ${item.status == 'Pendente' || item.status == 'Erro' ? '<a href="#" data-original-title="Editar fatura" id="btn-modal-invoice" data-type="edit-invoice" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-secondary btn-xs"> <i class="far fa-edit"></i></a>' : ''}
                             ${item.status != 'Pago' && item.status != 'Cancelado' && item.status != 'Erro' ? '<a href="#" data-original-title="Consultar Status" id="btn-invoice-status" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-primary btn-xs"> <i class="fas fa-search"></i></a>' : ''}
-                            ${item.status == 'Erro' ? '<a href="#" data-original-title="Erros" id="btn-modal-erro" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-danger btn-xs"> <i class="fas fa-exclamation-triangle"></i></a>' : ''}
+                            ${item.status == 'Erro' ? '<a href="#" data-original-title="Erros" id="btn-modal-error" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-danger btn-xs"> <i class="fas fa-exclamation-triangle"></i></a>' : ''}
                             ${item.status != 'Erro' ? '<a href="#" data-original-title="Notificações" id="btn-modal-notifications" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-warning btn-xs"> <i style="padding:0 5px;" class="fa fa-info"></i></a>' : ''}
                             ${item.status == 'Pendente' ? '<a href="#" data-original-title="Cancelar Fatura" id="btn-delete-invoice" data-placement="left" data-invoice="'+item.id+'" data-tt="tooltip" class="btn btn-danger btn-xs"> <i class="fas fa-undo-alt"></i></a>' : ''}
                             </td>`;

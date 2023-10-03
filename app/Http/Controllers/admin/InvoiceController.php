@@ -566,4 +566,9 @@ public function invoiceNotificate($invoice_id){
 }
 
 
+public function error($id){
+    $data = Invoice::select('msg_erro')->where('id',$id)->first();
+    return response()->json($data);
+}
+
 }

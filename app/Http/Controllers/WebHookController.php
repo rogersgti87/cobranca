@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use App\Models\Config;
 use App\Models\Invoice;
 use App\Models\InvoiceNotification;
+use App\Models\LogGatewayPayment;
 use Illuminate\Support\Facades\Http;
 use DB;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -57,15 +58,17 @@ class WebHookController extends Controller
   public function paghiper(Request $request)
   {
     $data = $request->all();
-    \Log::info('Linha 60 - Retorno webhook paghiper: '.json_encode($data));
+    LogGatewayPayment::create([
+        'gateway'   => 'Pag Hiper',
+        'log'       =>  json_encode($data)
+    ]);
+
     $invoice = Invoice::select('invoices.id','invoices.transaction_id','users.token_paghiper','users.key_paghiper','invoices.payment_method')
                         ->join('users','users.id','invoices.user_id')
                         ->where('transaction_id',$data['transaction_id'])
                         ->where('invoices.status','Pendente')
                         ->orwhere('invoices.status','Processamento')
                         ->first();
-
-    \Log::info('Linha 68: '.json_encode($invoice));
 
     if($invoice != null){
         $url = '';
@@ -133,7 +136,11 @@ class WebHookController extends Controller
 
     $data = $request->all();
 
-    \Log::info($request->all());
+    LogGatewayPayment::create([
+        'gateway'   => 'Mercado Pago',
+        'log'       =>  json_encode($data)
+    ]);
+
 
     $invoice = Invoice::select('invoices.id as id','invoices.transaction_id','users.access_token_mp')
                 ->join('users','users.id','invoices.user_id')
@@ -161,8 +168,8 @@ class WebHookController extends Controller
                 'date_payment' =>   Null,
                 'updated_at'   =>   Carbon::now()
             ]);
-            InvoiceNotification::Email($invoice->id);
-            InvoiceNotification::Whatsapp($invoice->id);
+            //InvoiceNotification::Email($invoice->id);
+            //InvoiceNotification::Whatsapp($invoice->id);
         }
 
 
@@ -179,7 +186,11 @@ class WebHookController extends Controller
 
   public function intermediumBillet(Request $request) {
     $data = $request->all();
-    \Log::info('Linha 332  - Retorno webhook intermedium: '.json_encode($data));
+
+    LogGatewayPayment::create([
+        'gateway'   => 'Intermedium Boleto',
+        'log'       =>  json_encode($data)
+    ]);
 
     $seuNumero      = $data[0]['seuNumero'];
     $nossoNumero    = $data[0]['nossoNumero'];
@@ -208,8 +219,8 @@ class WebHookController extends Controller
                 'date_payment' =>   Null,
                 'updated_at'   =>   Carbon::now()
             ]);
-            InvoiceNotification::Email($result->id);
-            InvoiceNotification::Whatsapp($result->id);
+            //InvoiceNotification::Email($result->id);
+            //InvoiceNotification::Whatsapp($result->id);
         }
 
         if($status == 'EXPIRADO'){
@@ -227,7 +238,10 @@ class WebHookController extends Controller
 
   public function intermediumBilletPix(Request $request) {
     $data = $request->all();
-    \Log::info('Linha 222  - Retorno webhook intermedium boletopix: '.json_encode($data));
+    LogGatewayPayment::create([
+        'gateway'   => 'Intermedium Boleto Pix',
+        'log'       =>  json_encode($data)
+    ]);
 
     $seuNumero      = $data[0]['seuNumero'];
     $codigoCobranca = $data[0]['codigoCobranca'];
@@ -256,8 +270,8 @@ class WebHookController extends Controller
                 'date_payment' =>   Null,
                 'updated_at'   =>   Carbon::now()
             ]);
-            InvoiceNotification::Email($result->id);
-            InvoiceNotification::Whatsapp($result->id);
+            //InvoiceNotification::Email($result->id);
+            //InvoiceNotification::Whatsapp($result->id);
         }
 
         if($status == 'EXPIRADO'){
@@ -274,7 +288,11 @@ class WebHookController extends Controller
 
   public function intermediumPix(Request $request) {
     $data = $request->all();
-    \Log::info('Linha 277  - Retorno webhook intermedium pix: '.json_encode($data));
+
+    LogGatewayPayment::create([
+        'gateway'   => 'Intermedium Pix',
+        'log'       =>  json_encode($data)
+    ]);
 
     if(isset($data['pix'])){
         $txid = $data['pix'][0]['txid'];
@@ -292,8 +310,6 @@ class WebHookController extends Controller
     ->first();
 
     if($result != null){
-
-        \Log::info('Linha 236');
 
             Invoice::where('id',$result->id)->update([
                 'status'       =>   'Pago',

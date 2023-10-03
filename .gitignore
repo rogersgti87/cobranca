@@ -15,10 +15,12 @@ public/hot
 public_html/storage
 public_html/hot
 public/pix/*
-
+public/boleto/*
+public/boletopix/*
 storage/*.key
 .env
 Homestead.yaml
 Homestead.json
 /.vagrant
 .phpunit.result.cache
+.env

@@ -89,10 +89,7 @@ class WebHookController extends Controller
     ]);
 
     $result = $response->getBody();
-    \Log::info('Result linha 87: '.$result);
     $result = json_decode($result)->status_request;
-
-    \Log::info('Result Status linha 93: '.$result->status);
 
     if($result->status == 'reserved'){
         Invoice::where('id',$result->order_id)->where('transaction_id',$result->transaction_id)->update([

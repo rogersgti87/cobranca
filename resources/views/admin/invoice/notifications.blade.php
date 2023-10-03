@@ -75,6 +75,12 @@
 
 
 
+<div class="d-flex justify-content-center">
+    <button type="button" onclick="" data-invoice="" id="btn-notificate" class="btn btn-info btn-md"> Enviar Notificação</button>
+</div>
+
+
+
     <div class="table-responsive">
         <table class="display table-striped" style="width:100%" id="notifications-table">
             <thead>

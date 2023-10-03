@@ -256,7 +256,6 @@
 
 <script>
     function sendNotification(invoice_id){
-        console.log(invoice_id);
 
         // Criação dos checkboxes e rótulos dentro de elementos div para alinhar na mesma linha
     const whatsappContainer = document.createElement('div');
@@ -478,7 +477,6 @@ $("#modalNotifications").modal('show');
     $("#modalNotificationsLabel").html('Notificações');
     var invoice = $(this).data('invoice');
     var url = "{{url('/admin/load-invoice-notifications')}}"+'/'+invoice;
-
 //console.log(url);
 $.get(url,
     $(this)
@@ -487,6 +485,7 @@ $.get(url,
     .html('Carregando...'),
     function(data) {
         $("#form-content-notifications").html(data);
+        $('#btn-notificate').attr('onclick',`sendNotification(${invoice})`);
     });
 });
 
@@ -709,19 +708,29 @@ $(document).on('click', '#btn-invoice-status', function(e) {
 
         },
         success:function(data){
-            console.log(data);
-        $('#total_invoices').text('Total: '+data.result.data[0].qtd_invoices);
-        $('#total_invoices_curerency').text(parseFloat(data.result.data[0].total_currency).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
-        $('#total_pendent').text('Pendentes: '+data.result.data[0].qtd_pendente);
-        $('#pendent_invoices_curerency').text(parseFloat(data.result.data[0].pendente_currency).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
-        $('#total_pay').text('Pagas: '+data.result.data[0].qtd_pago);
-        $('#pay_invoices_curerency').text(parseFloat(data.result.data[0].pago_currency).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
-        $('#total_proccessing').text('Processamentos: '+data.result.data[0].qtd_processamento);
-        $('#proccessing_invoices_curerency').text(data.result.data[0].processamento_currency != null ? parseFloat(data.result.data[0].processamento_currency).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'R$0,00');
-        $('#total_cancelled').text('Canceladas: '+data.result.data[0].qtd_cancelado);
-        $('#cancelled_invoices_curerency').text(parseFloat(data.result.data[0].cancelado_currency).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
-
-
+            if(data.result.data.length == 0){
+                $('#total_invoices').text('Total: '+0);
+                $('#total_invoices_curerency').text(parseFloat(0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
+                $('#total_pendent').text('Pendentes: '+0);
+                $('#pendent_invoices_curerency').text(parseFloat(0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
+                $('#total_pay').text('Pagas: '+0);
+                $('#pay_invoices_curerency').text(parseFloat(0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
+                $('#total_proccessing').text('Processamentos: '+0);
+                $('#proccessing_invoices_curerency').text(parseFloat(0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
+                $('#total_cancelled').text('Canceladas: '+0);
+                $('#cancelled_invoices_curerency').text(parseFloat(0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
+            }else{
+                $('#total_invoices').text('Total: '+data.result.data[0].qtd_invoices);
+                $('#total_invoices_curerency').text(parseFloat(data.result.data[0].total_currency).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
+                $('#total_pendent').text('Pendentes: '+data.result.data[0].qtd_pendente);
+                $('#pendent_invoices_curerency').text(parseFloat(data.result.data[0].pendente_currency).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
+                $('#total_pay').text('Pagas: '+data.result.data[0].qtd_pago);
+                $('#pay_invoices_curerency').text(parseFloat(data.result.data[0].pago_currency).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
+                $('#total_proccessing').text('Processamentos: '+data.result.data[0].qtd_processamento);
+                $('#proccessing_invoices_curerency').text(data.result.data[0].processamento_currency != null ? parseFloat(data.result.data[0].processamento_currency).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'R$0,00');
+                $('#total_cancelled').text('Canceladas: '+data.result.data[0].qtd_cancelado);
+                $('#cancelled_invoices_curerency').text(parseFloat(data.result.data[0].cancelado_currency).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
+            }
         $('#list-invoices').html('');
 
 
@@ -740,10 +749,10 @@ $(document).on('click', '#btn-invoice-status', function(e) {
                 html += `<td class="badge ${item.status == 'Pago' ? 'badge-success' : item.status == 'Pendente' ? 'badge-warning' : 'badge-danger'}">${item.status}</td>`;
                 html += `<td>
                             <a href="{{ url('admin/customers/form?act=edit&id=')}}${item.customer_id}" data-original-title="Editar cliente" id="btn-edit-customer" data-placement="left" data-tt="tooltip" class="btn btn-secondary btn-xs"> <i class="fas fa-user"></i></a>
-                            ${item.status == 'Pendente' ? '<a href="#" data-original-title="Editar fatura" id="btn-modal-invoice" data-type="edit-invoice" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-secondary btn-xs"> <i class="far fa-edit"></i></a>' : ''}
-                            ${item.status != 'Pago' && item.status != 'Cancelado' ? '<a href="#" data-original-title="Consultar Status" id="btn-invoice-status" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-primary btn-xs"> <i class="fas fa-search"></i></a>' : ''}
-                            <a href="#" data-original-title="Reenviar Notificação" onclick="sendNotification(${item.id})" id="btn-notificate" data-invoice="${item.id}" data-placement="left" data-tt="tooltip" class="btn btn-info btn-xs"> <i class="fa fa-paper-plane"></i></a>
-                            <a href="#" data-original-title="Notificações" id="btn-modal-notifications" data-invoice="${item.id}" data-placement="left" data-tt="tooltip" class="btn btn-warning btn-xs"> <i style="padding:0 5px;" class="fa fa-info"></i></a>
+                            ${item.status == 'Pendente' || item.status == 'Erro' ? '<a href="#" data-original-title="Editar fatura" id="btn-modal-invoice" data-type="edit-invoice" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-secondary btn-xs"> <i class="far fa-edit"></i></a>' : ''}
+                            ${item.status != 'Pago' && item.status != 'Cancelado' && item.status != 'Erro' ? '<a href="#" data-original-title="Consultar Status" id="btn-invoice-status" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-primary btn-xs"> <i class="fas fa-search"></i></a>' : ''}
+                            ${item.status == 'Erro' ? '<a href="#" data-original-title="Erros" id="btn-modal-erro" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-danger btn-xs"> <i class="fas fa-exclamation-triangle"></i></a>' : ''}
+                            ${item.status != 'Erro' ? '<a href="#" data-original-title="Notificações" id="btn-modal-notifications" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-warning btn-xs"> <i style="padding:0 5px;" class="fa fa-info"></i></a>' : ''}
                             ${item.status == 'Pendente' ? '<a href="#" data-original-title="Cancelar Fatura" id="btn-delete-invoice" data-placement="left" data-invoice="'+item.id+'" data-tt="tooltip" class="btn btn-danger btn-xs"> <i class="fas fa-undo-alt"></i></a>' : ''}
                             </td>`;
                 html += '</tr>';

@@ -102,12 +102,12 @@ class Invoice extends Model
 
         }
             if($result->result == 'reject'){
-                \Log::info(json_encode($result->response_message));
+                Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => $result->response_message]);
                 return ['status' => 'reject', 'message' => $result->response_message];
             }
 
         } else{
-            \Log::info('Linha 96: '.json_encode($response->getBody()));
+            Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => json_encode($response->getBody())]);
             return ['status' => 'reject', 'message' => 'Erro interno no servidor'];
         }
 
@@ -158,12 +158,12 @@ class Invoice extends Model
             }
 
             if($result->result == 'reject'){
-                \Log::info('Linha 181: '.$result->response_message);
+                Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => $result->response_message]);
                 return ['status' => 'reject', 'message' => $result->response_message];
             }
 
         }else{
-            \Log::info('Linha 186: '.json_encode($response->getBody()));
+            Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => json_encode($response->getBody())]);
             return ['status' => 'reject', 'message' => 'Erro interno no servidor'];
         }
 
@@ -197,7 +197,7 @@ class Invoice extends Model
        $payment_id = $payment->id ? $payment->id : '';
 
        if($payment_id == ''){
-            \Log::info(json_encode($status_payment));
+            Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => json_encode($status_payment)]);
             return ['status' => 'reject', 'message' => 'Erro ao Gerar Pix'];
         }else{
 
@@ -242,30 +242,35 @@ class Invoice extends Model
         $access_token = $user['access_token_inter'];
 
         if($access_token == null){
-            \Log::info('Access token inválido!');
+            Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => 'Access token inválido!']);
             return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Access token inválido!']]];
         }
-
-
         if($user['inter_host'] == ''){
+            Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => 'HOST banco inter não cadastrado!']);
             return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'HOST banco inter não cadastrado!']]];
         }
         if($user['inter_client_id'] == ''){
+            Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => 'CLIENT ID banco inter não cadastrado!']);
             return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'CLIENT ID banco inter não cadastrado!']]];
         }
         if($user['inter_client_secret'] == ''){
+            Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => 'CLIENT SECRET banco inter não cadastrado!']);
             return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'CLIENT SECRET banco inter não cadastrado!']]];
         }
         if($user['inter_crt_file'] == ''){
+            Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => 'Certificado CRT banco inter não cadastrado!']);
             return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado CRT banco inter não cadastrado!']]];
         }
         if(!file_exists(storage_path('/app/'.$user['inter_crt_file']))){
+            Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => 'Certificado CRT banco inter não existe!']);
             return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado CRT banco inter não existe!']]];
         }
         if($user['inter_key_file'] == ''){
+            Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => 'Certificado KEY banco inter não cadastrado!']);
             return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado KEY banco inter não cadastrado!']]];
         }
         if(!file_exists(storage_path('/app/'.$user['inter_key_file']))){
+            Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => 'Certificado KEY banco inter não existe!']);
             return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado KEY banco inter não existe!']]];
         }
 
@@ -299,6 +304,7 @@ class Invoice extends Model
 
                 $invoice = ViewInvoice::where('id',$invoice_id)->first();
             }else{
+                Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => 'Access token Expirado ou inválido!']);
                 return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Access token Expirado ou inválido!']]];
             }
         }
@@ -368,7 +374,7 @@ class Invoice extends Model
         }else{
 
             $result_generate_pix = $response_generate_pix->json();
-            \Log::info($result_generate_pix);
+            Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => $result_generate_pix]);
             return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => $result_generate_pix['violacoes']];
         }
 
@@ -463,33 +469,37 @@ class Invoice extends Model
             $access_token = $user['access_token_inter'];
 
             if($access_token == null){
-                \Log::info('Access token inválido!');
-                return ['status' => 'reject', 'title' => 'Erro ao gerar Boleto', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Access token inválido!']]];
+                Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => 'Access token inválido!']);
+                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Access token inválido!']]];
             }
-
-
             if($user['inter_host'] == ''){
-                return ['status' => 'reject', 'title' => 'Erro ao gerar Boleto', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'HOST banco inter não cadastrado!']]];
+                Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => 'HOST banco inter não cadastrado!']);
+                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'HOST banco inter não cadastrado!']]];
             }
             if($user['inter_client_id'] == ''){
-                return ['status' => 'reject', 'title' => 'Erro ao gerar Boleto', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'CLIENT ID banco inter não cadastrado!']]];
+                Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => 'CLIENT ID banco inter não cadastrado!']);
+                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'CLIENT ID banco inter não cadastrado!']]];
             }
             if($user['inter_client_secret'] == ''){
-                return ['status' => 'reject', 'title' => 'Erro ao gerar Boleto', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'CLIENT SECRET banco inter não cadastrado!']]];
+                Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => 'CLIENT SECRET banco inter não cadastrado!']);
+                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'CLIENT SECRET banco inter não cadastrado!']]];
             }
             if($user['inter_crt_file'] == ''){
-                return ['status' => 'reject', 'title' => 'Erro ao gerar Boleto', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado CRT banco inter não cadastrado!']]];
+                Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => 'Certificado CRT banco inter não cadastrado!']);
+                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado CRT banco inter não cadastrado!']]];
             }
             if(!file_exists(storage_path('/app/'.$user['inter_crt_file']))){
-                return ['status' => 'reject', 'title' => 'Erro ao gerar Boleto', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado CRT banco inter não existe!']]];
+                Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => 'Certificado CRT banco inter não existe!']);
+                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado CRT banco inter não existe!']]];
             }
             if($user['inter_key_file'] == ''){
-                return ['status' => 'reject', 'title' => 'Erro ao gerar Boleto', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado KEY banco inter não cadastrado!']]];
+                Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => 'Certificado KEY banco inter não cadastrado!']);
+                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado KEY banco inter não cadastrado!']]];
             }
             if(!file_exists(storage_path('/app/'.$user['inter_key_file']))){
-                return ['status' => 'reject', 'title' => 'Erro ao gerar Boleto', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado KEY banco inter não existe!']]];
+                Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => 'Certificado KEY banco inter não existe!']);
+                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado KEY banco inter não existe!']]];
             }
-
 
             $check_access_token = Http::withOptions(
                 [
@@ -520,6 +530,7 @@ class Invoice extends Model
 
                     $invoice = ViewInvoice::where('id',$invoice_id)->first();
                 }else{
+                    Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => 'Access token Expirado ou inválido!']);
                     return ['status' => 'reject', 'title' => 'Erro ao gerar Boleto', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Access token Expirado ou inválido!']]];
                 }
             }
@@ -599,14 +610,13 @@ class Invoice extends Model
                     return ['status' => 'success', 'title' => 'OK', 'message' => [['razao' => 'OK', 'propriedade' => 'OK']]];
 
                 }else{
-                    \Log::info('Erro ao gerar pdf pagamento intermedium: '.$response_pdf_billet->json());
+                    Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => 'Erro ao gerar pdf pagamento intermedium: '.$response_pdf_billet->json()]);
                 }
-
 
 
             }else{
                 $result_generate_billet = $response_generate_billet->json();
-                \Log::info($result_generate_billet);
+                Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => $result_generate_billet]);
                 return ['status' => 'reject', 'title' => $result_generate_billet['title'], 'message' => $result_generate_billet['violacoes']];
             }
 
@@ -627,33 +637,37 @@ class Invoice extends Model
             $access_token = $user['access_token_inter'];
 
             if($access_token == null){
-                \Log::info('Access token inválido!');
-                return ['status' => 'reject', 'title' => 'Erro ao gerar BoletoPix', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Access token inválido!']]];
+                Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => 'Access token inválido!']);
+                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Access token inválido!']]];
             }
-
-
             if($user['inter_host'] == ''){
-                return ['status' => 'reject', 'title' => 'Erro ao gerar BoletoPix', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'HOST banco inter não cadastrado!']]];
+                Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => 'HOST banco inter não cadastrado!']);
+                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'HOST banco inter não cadastrado!']]];
             }
             if($user['inter_client_id'] == ''){
-                return ['status' => 'reject', 'title' => 'Erro ao gerar BoletoPix', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'CLIENT ID banco inter não cadastrado!']]];
+                Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => 'CLIENT ID banco inter não cadastrado!']);
+                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'CLIENT ID banco inter não cadastrado!']]];
             }
             if($user['inter_client_secret'] == ''){
-                return ['status' => 'reject', 'title' => 'Erro ao gerar BoletoPix', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'CLIENT SECRET banco inter não cadastrado!']]];
+                Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => 'CLIENT SECRET banco inter não cadastrado!']);
+                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'CLIENT SECRET banco inter não cadastrado!']]];
             }
             if($user['inter_crt_file'] == ''){
-                return ['status' => 'reject', 'title' => 'Erro ao gerar BoletoPix', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado CRT banco inter não cadastrado!']]];
+                Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => 'Certificado CRT banco inter não cadastrado!']);
+                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado CRT banco inter não cadastrado!']]];
             }
             if(!file_exists(storage_path('/app/'.$user['inter_crt_file']))){
-                return ['status' => 'reject', 'title' => 'Erro ao gerar BoletoPix', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado CRT banco inter não existe!']]];
+                Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => 'Certificado CRT banco inter não existe!']);
+                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado CRT banco inter não existe!']]];
             }
             if($user['inter_key_file'] == ''){
-                return ['status' => 'reject', 'title' => 'Erro ao gerar BoletoPix', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado KEY banco inter não cadastrado!']]];
+                Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => 'Certificado KEY banco inter não cadastrado!']);
+                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado KEY banco inter não cadastrado!']]];
             }
             if(!file_exists(storage_path('/app/'.$user['inter_key_file']))){
-                return ['status' => 'reject', 'title' => 'Erro ao gerar BoletoPix', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado KEY banco inter não existe!']]];
+                Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => 'Certificado KEY banco inter não existe!']);
+                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado KEY banco inter não existe!']]];
             }
-
 
             $check_access_token = Http::withOptions(
                 [
@@ -684,6 +698,7 @@ class Invoice extends Model
 
                     $invoice = ViewInvoice::where('id',$invoice_id)->first();
                 }else{
+                    Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => 'Access token Expirado ou inválido!']);
                     return ['status' => 'reject', 'title' => 'Erro ao gerar BoletoPix', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Access token Expirado ou inválido!']]];
                 }
             }
@@ -748,7 +763,7 @@ class Invoice extends Model
                     $result_get_billet = json_decode($response_get_billet);
 
                 }else{
-                    \Log::info('Erro ao obter cobranca boletopix intermedium: '.$response_get_billet->json());
+                    Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => 'Erro ao obter codigo boletopix intermedium: '.$response_get_billet->json()]);
                 }
 
 
@@ -779,15 +794,13 @@ class Invoice extends Model
                     return ['status' => 'success', 'title' => 'OK', 'message' => [['razao' => 'OK', 'propriedade' => 'OK']]];
 
                 }else{
-                    Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => $response_pdf_billet->json()]);
-                    \Log::info('Erro ao gerar pdf pagamento intermedium: '.json_encode($response_pdf_billet->json()));
+                    Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => 'Erro ao gerar pdf pagamento intermedium: '.json_encode($response_pdf_billet->json())]);
                 }
 
 
             }else{
                 $result_generate_billet = $response_generate_billet->json();
                 Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => $result_generate_billet]);
-                \Log::info($result_generate_billet);
                 return ['status' => 'reject', 'title' => $result_generate_billet['title'], 'message' => $result_generate_billet['violacoes']];
             }
 

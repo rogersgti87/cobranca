@@ -7,6 +7,7 @@ use App\Http\Controllers\admin\CustomerController;
 use App\Http\Controllers\admin\ServiceController;
 use App\Http\Controllers\admin\CustomerServiceController;
 use App\Http\Controllers\admin\InvoiceController;
+use App\Http\Controllers\admin\LogController;
 
 
 use App\Http\Controllers\front\HomeController;
@@ -87,6 +88,11 @@ Route::group(['prefix' => 'admin','middleware' => ['auth']], function(){
     Route::get('invoices-check-status/{invoice_id}',[InvoiceController::class,'checkStatus']);
     Route::get('load-invoices',[InvoiceController::class,'loadinvoices']);
     Route::post('invoice-notificate/{invoice_id}',[InvoiceController::class,'invoiceNotificate']);
+
+
+    Route::get('logs',[LogController::class,'index']);
+    Route::get('logs-list',[LogController::class,'list']);
+    Route::get('logs/{id}',[LogController::class,'getlog']);
 
 
 });

@@ -35,7 +35,7 @@ class LogController extends Controller
     public function list(){
         $data = LogGatewayPayment::when(request('date') != null, function($query){
             return $query->whereraw("cast(created_at as date) = '".request('date')."'");
-        })->paginate(2);
+        })->paginate(20);
 
         return view($this->datarequest['path'].'list')->with('data',$data);
 

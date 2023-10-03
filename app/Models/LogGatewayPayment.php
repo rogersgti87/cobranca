@@ -9,4 +9,9 @@ class LogGatewayPayment extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'gateway',
+        'log',
+    ];
+
 }

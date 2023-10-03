@@ -123,7 +123,14 @@
                 </a>
               </li>
 
-
+            @if(auth()->user()->id == 1)
+              <li class="nav-item">
+                <a href="{{url('admin/logs')}}" class="nav-link  {{Request::segment(2) == 'logs' ? 'active' : ''}}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Logs</p>
+                </a>
+              </li>
+            @endif
 
               <li class="nav-item">
                 <a href="{{ route('logout') }}" class="nav-link" onclick="event.preventDefault();

@@ -35,7 +35,7 @@ class StatusInterCron extends Command
 
         $access_token = $user['access_token_inter'];
 
-        $invoices = Invoice::where('gateway_payment','Intermedium')->where('status','Pendente')->get();
+        $invoices = Invoice::where('gateway_payment','Intermedium')->where('status','Pendente')->where('user_id',$user['id'])->get();
 
         foreach($invoices as $invoice){
             if($invoices != null){

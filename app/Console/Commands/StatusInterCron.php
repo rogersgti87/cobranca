@@ -86,6 +86,8 @@ class StatusInterCron extends Command
                                 InvoiceNotification::Whatsapp($invoice['id']);
                             }
 
+                        }else{
+                            \Log::info('Status Boleto: '. json_encode($response->body()));
                         }
 
                 }
@@ -111,6 +113,8 @@ class StatusInterCron extends Command
                                 InvoiceNotification::Whatsapp($invoice['id']);
                             }
 
+                        }else{
+                            \Log::info('Status BoletoPix: '. json_encode($response->body()));
                         }
 
                 }

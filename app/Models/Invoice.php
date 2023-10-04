@@ -1029,7 +1029,7 @@ class Invoice extends Model
             if ($response_cancel_billet->successful()) {
                 return 'success';
             }else{
-                \Log::info('Erro ao cancelar pagamento intermedium: '.$response_cancel_billet->json());
+                return ['status' => 'reject', 'title' => 'Erro ao cancelar Pix', 'message' => $response_cancel_billet->json()];
             }
 
             }

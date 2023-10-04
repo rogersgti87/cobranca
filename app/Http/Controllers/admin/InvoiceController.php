@@ -391,6 +391,11 @@ class InvoiceController extends Controller
 
                 else if($invoice->gateway_payment == 'Intermedium'){
                     $status = Invoice::cancelPixIntermedium(auth()->user()->id,$invoice->transaction_id);
+                    if($status == 'success'){
+                        $status = 'success';
+                    }else{
+                        return response()->json($status['message'],422);
+                    }
                 }
 
             }

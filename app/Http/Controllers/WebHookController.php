@@ -201,17 +201,17 @@ class WebHookController extends Controller
     if($result != null){
 
         if($status == 'PAGO'){
-            Invoice::where('id',$result->id)->where('transaction_id',$result->transaction_id)->update([
+            Invoice::where('id',$seuNumero)->update([
                 'status'       =>   'Pago',
                 'date_payment' =>   Carbon::now(),
                 'updated_at'   =>   Carbon::now()
             ]);
-            InvoiceNotification::Email($result->id);
-            InvoiceNotification::Whatsapp($result->id);
+            InvoiceNotification::Email($seuNumero);
+            InvoiceNotification::Whatsapp($seuNumero);
         }
 
         if($status == 'CANCELADO'){
-            Invoice::where('id',$result->id)->where('transaction_id',$result->transaction_id)->update([
+            Invoice::where('id',$seuNumero)->update([
                 'status'       =>   'Cancelado',
                 'date_payment' =>   Null,
                 'updated_at'   =>   Carbon::now()
@@ -221,7 +221,7 @@ class WebHookController extends Controller
         }
 
         if($status == 'EXPIRADO'){
-            Invoice::where('id',$result->id)->where('transaction_id',$result->transaction_id)->update([
+            Invoice::where('id',$seuNumero)->update([
                 'status'       =>   'Expirado',
                 'date_payment' =>   Null,
                 'updated_at'   =>   Carbon::now()
@@ -252,7 +252,7 @@ class WebHookController extends Controller
     if($result != null){
 
         if($status == 'RECEBIDO'){
-            Invoice::where('id',$result->id)->where('transaction_id',$result->transaction_id)->update([
+            Invoice::where('id',$seuNumero)->update([
                 'status'       =>   'Pago',
                 'date_payment' =>   Carbon::now(),
                 'updated_at'   =>   Carbon::now()
@@ -262,7 +262,7 @@ class WebHookController extends Controller
         }
 
         if($status == 'CANCELADO'){
-            Invoice::where('id',$result->id)->where('transaction_id',$result->transaction_id)->update([
+            Invoice::where('id',$seuNumero)->update([
                 'status'       =>   'Cancelado',
                 'date_payment' =>   Null,
                 'updated_at'   =>   Carbon::now()
@@ -272,7 +272,7 @@ class WebHookController extends Controller
         }
 
         if($status == 'EXPIRADO'){
-            Invoice::where('id',$result->id)->where('transaction_id',$result->transaction_id)->update([
+            Invoice::where('id',$seuNumero)->update([
                 'status'       =>   'Expirado',
                 'date_payment' =>   Null,
                 'updated_at'   =>   Carbon::now()

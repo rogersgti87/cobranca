@@ -14,8 +14,10 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         commands\CreateInvoiceCron::class,
+        commands\TokenInterCron::class,
         commands\GenerateInvoiceCron::class,
         commands\RememberInvoiceCron::class,
+        commands\StatusInterCron::class,
     ];
 
     /**
@@ -31,6 +33,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('tokeninter:cron')->hourly();
         $schedule->command('generateinvoice:cron')->everyMinute();
         $schedule->command('rememberinvoice:cron')->twiceDaily(9, 14);
+        $schedule->command('statusinter:cron')->everyThirtyMinutes();
 
     }
 

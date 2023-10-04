@@ -30,7 +30,7 @@ class TokenInterCron extends Command
   {
 
 
-    $users = User::where('status','Ativo')->get();
+    $users = User::where('status','Ativo')->where('use_intermedium','s')->get();
 
 
     foreach($users as $user){

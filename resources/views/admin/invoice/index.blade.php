@@ -300,7 +300,6 @@
     // Open Modal - Error
     $(document).on("click", "#btn-modal-error", function() {
           var id = $(this).data('invoice');
-          console.log(id);
           var url = "{{url('admin/invoice-error')}}"+'/'+id;
           $("#modal-error").modal('show');
           $.get(url,
@@ -309,7 +308,7 @@
               .find('#modal-content-error')
               .html('Carregando...'),
               function(data) {
-                  var json = JSON.stringify(JSON.parse(data.msg_error), null, 2);
+                  var json = JSON.stringify(JSON.parse(data.msg_erro), null, 2);
                   $("#modal-content-error").html('<pre>'+json+'</pre>');
               });
       });
@@ -349,7 +348,6 @@
     emailLabel.setAttribute('for', 'email-checkbox');
     emailContainer.appendChild(emailLabel);
 
-    // Criando o formulário e adicionando os elementos criados
     const form = document.createElement('form');
     form.appendChild(whatsappContainer);
     form.appendChild(emailContainer);
@@ -357,10 +355,6 @@
         Swal.fire({
             title: 'Selecione as opções:',
             html: form,
-                // '<div class="col-md-12"><div class="inline">'+
-                // '<div class="col-6"><input class="form-control" type="checkbox" id="whatsapp-checkbox" value="whatsapp"> WhatsApp</div>' +
-                // '<div class="col-6"><input class="form-control" type="checkbox" id="email-checkbox" value="email"> Email</div>'+
-                // '</div></div>',
             focusConfirm: false,
             preConfirm: () => {
             const selectedOptions = [];
@@ -381,13 +375,7 @@
         }
         }).then((result) => {
             if (!result.dismiss) {
-                // Enviar os valores selecionados via API
                 const selectedOptions = result.value;
-                //console.log('Opções selecionadas: ', selectedOptions);
-
-                // Aqui você pode enviar os valores selecionados via API
-                // Substitua este código pelo chamado real da sua API
-                // Exemplo de chamada da API usando fetch:
 
                 const loadingAlert = Swal.fire({
                 title: 'Aguarde...',

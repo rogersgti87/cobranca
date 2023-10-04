@@ -62,7 +62,7 @@ a.id, a.user_id, c.id customer_id, c.name customer,c.email,c.email2,c.phone, c.n
 //     INNER JOIN services s ON a.service_id = s.id
 //     INNER JOIN users u ON a.user_id = u.id
 //     WHERE NOT EXISTS (SELECT * FROM invoices b WHERE a.id = b.customer_service_id AND b.date_invoice = CURRENT_DATE) AND a.status = 'Ativo' and a.period = 'Recorrente'
-//    and a.customer_id = 61";
+//    and a.customer_id = 1";
 
     $verifyInvoices = DB::select($sql);
 

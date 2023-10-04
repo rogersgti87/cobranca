@@ -237,39 +237,121 @@ class InvoiceController extends Controller
             //'price'                 => 'required',
             'payment_method'        => 'required',
             //'date_invoice'          => 'required',
-            //'date_due'              => 'required',
-            'status'                => 'required',
+            'date_due'              => 'required',
+            //'status'                => 'required',
         ], $messages);
 
         if( $validator->fails() ){
             return response()->json($validator->errors()->first(), 422);
         }
 
-        if($data['status'] == 'Pago'){
-            if($data['date_payment'] == null){
-                return response()->json('Data de Pagamento é obrigatório!', 422);
-            }
-        }
+        // if($data['status'] == 'Pago'){
+        //     if($data['date_payment'] == null){
+        //         return response()->json('Data de Pagamento é obrigatório!', 422);
+        //     }
+        // }
 
         $model->user_id             = auth()->user()->id;
         //$model->customer_service_id = $data['customer_service_id'];
         //$model->description         = $data['description'];
-        //$model->price               = moeda($data['price']);
+        $model->price               = moeda($data['price']);
         $model->gateway_payment     = $data['gateway_payment'];
         $model->payment_method      = $data['payment_method'];
         //$model->date_invoice        = $data['date_invoice'];
-        //$model->date_due            = $data['date_due'];
+        $model->date_due            = $data['date_due'];
         $model->date_payment        = $data['date_payment'] != null ? $data['date_payment'] : null;
-        $model->status              = $data['status'];
+
+        if($data['date_payment'] != null){
+            $model->status   = 'Pago';
+        }
 
         try{
             $model->save();
 
-            if(isset($data['send_invoice_email']))
-                InvoiceNotification::Email($id);
+            if(isset($data['generate_invoice'])){
 
-            if(isset($data['send_invoice_whatsapp']))
-                InvoiceNotification::Whatsapp($id);
+                if($model['payment_method'] == 'Pix'){
+                    //PIX PAG HIPER
+                    if($model['gateway_payment'] == 'Pag Hiper'){
+                        $generatePixPH = Invoice::generatePixPH($model['id']);
+                        if($generatePixPH['status'] == 'reject'){
+                            return response()->json($generatePixPH['message'], 422);
+                        }
+
+                    }elseif($model['gateway_payment'] == 'Mercado Pago'){
+                        $generatePixMP = Invoice::generatePixMP($model['id']);
+                        if($generatePixMP['status'] == 'reject'){
+                            return response()->json($generatePixMP['message'], 422);
+                        }
+
+                    }elseif($model['gateway_payment'] == 'Intermedium'){
+                        $generatePixIntermedium = Invoice::generatePixIntermedium($model['id']);
+                        if($generatePixIntermedium['status'] == 'reject'){
+                            $msgInterPix = '';
+                            foreach($generatePixIntermedium['message'] as $messageInterPix){
+                                $msgInterPix .= $messageInterPix['razao'].' - '.$messageInterPix['propriedade'].',';
+                            }
+
+                            return response()->json($generatePixIntermedium['title'].': '.$msgInterPix, 422);
+                        }
+
+                    }
+                } elseif($model['payment_method'] == 'Boleto'){
+
+                    if($model['gateway_payment'] == 'Pag Hiper'){
+                        $generateBilletPH = Invoice::generateBilletPH($model['id']);
+                        if($generateBilletPH['status'] == 'reject'){
+                            return response()->json($generateBilletPH['message'], 422);
+                        }
+
+                    }elseif($model['gateway_payment'] == 'Intermedium'){
+
+                        $generateBilletIntermedium = Invoice::generateBilletIntermedium($model['id']);
+                        if($generateBilletIntermedium['status'] == 'reject'){
+                            $msgInterBillet = '';
+                            foreach($generateBilletIntermedium['message'] as $messageInterBillet){
+                                $msgInterBillet .= $messageInterBillet['razao'].' - '.$messageInterBillet['propriedade'].' - '.$messageInterBillet['valor'].',';
+                            }
+
+                            return response()->json($generateBilletIntermedium['title'].': '.$msgInterBillet, 422);
+                        }
+
+                    }
+
+
+            }
+
+            elseif($model['payment_method'] == 'BoletoPix'){
+
+            if($model['gateway_payment'] == 'Intermedium'){
+
+                $generateBilletIntermedium = Invoice::generateBilletPixIntermedium($model['id']);
+                if($generateBilletIntermedium['status'] == 'reject'){
+                    $msgInterBillet = '';
+                    foreach($generateBilletIntermedium['message'] as $messageInterBillet){
+                        $msgInterBillet .= $messageInterBillet['razao'].' - '.$messageInterBillet['propriedade'];
+                    }
+
+                    return response()->json($generateBilletIntermedium['title'].': '.$msgInterBillet, 422);
+                }
+
+            }
+    }
+
+
+                if(isset($data['send_invoice_email']))
+                    InvoiceNotification::Email($model['id']);
+
+                if(isset($data['send_invoice_whatsapp']))
+                    InvoiceNotification::Whatsapp($model['id']);
+
+
+
+
+
+
+            }
+
 
         } catch(\Exception $e){
             \Log::error($e->getMessage());

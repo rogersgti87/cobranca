@@ -254,7 +254,6 @@ class InvoiceController extends Controller
         $model->user_id             = auth()->user()->id;
         //$model->customer_service_id = $data['customer_service_id'];
         //$model->description         = $data['description'];
-        $model->price               = moeda($data['price']);
         $model->gateway_payment     = $data['gateway_payment'];
         $model->payment_method      = $data['payment_method'];
         //$model->date_invoice        = $data['date_invoice'];
@@ -265,6 +264,7 @@ class InvoiceController extends Controller
                 return response()->json('Data de vencimento é obrigatório!', 422);
             }else{
                 $model->date_due            = $data['date_due'];
+                $model->price               = moeda($data['price']);
             }
 
         }

@@ -237,7 +237,7 @@ class InvoiceController extends Controller
             //'price'                 => 'required',
             'payment_method'        => 'required',
             //'date_invoice'          => 'required',
-            'date_due'              => 'required',
+            //'date_due'              => 'required',
             //'status'                => 'required',
         ], $messages);
 
@@ -258,7 +258,17 @@ class InvoiceController extends Controller
         $model->gateway_payment     = $data['gateway_payment'];
         $model->payment_method      = $data['payment_method'];
         //$model->date_invoice        = $data['date_invoice'];
-        $model->date_due            = $data['date_due'];
+
+
+        if(isset($data['generate_invoice'])){
+            if($data['date_due'] == null){
+                return response()->json('Data de vencimento é obrigatório!', 422);
+            }else{
+                $model->date_due            = $data['date_due'];
+            }
+
+        }
+
         $model->date_payment        = $data['date_payment'] != null ? $data['date_payment'] : null;
 
         if($data['date_payment'] != null){

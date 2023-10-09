@@ -161,7 +161,9 @@ class CustomerController extends Controller
         $model->notification_email      = $data['notification_email'];
         $model->obs                     = $data['obs'];
         $model->birthdate               = isset($data['birthdate']) ? $data['birthdate'] : null;
-
+        $model->notificate_5_days       = $data['notificate_5_days'];
+        $model->notificate_2_days       = $data['notificate_2_days'];
+        $model->notificate_due          = $data['notificate_due'];
 
 
         try{
@@ -239,6 +241,9 @@ class CustomerController extends Controller
         $model->notification_email      = $data['notification_email'];
         $model->obs                     = $data['obs'];
         $model->birthdate               = isset($data['birthdate']) ? $data['birthdate'] : null;
+        $model->notificate_5_days       = $data['notificate_5_days'];
+        $model->notificate_2_days       = $data['notificate_2_days'];
+        $model->notificate_due          = $data['notificate_due'];
 
         try{
             $model->save();

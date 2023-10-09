@@ -126,11 +126,6 @@
                                                     <input type="text" class="form-control" name="company" id="company" autocomplete="off" required value="{{isset($data->company) ? $data->company : ''}}">
                                                 </div>
 
-                                                <div class="form-group col-md-2 col-sm-12">
-                                                    <label>Nascimento</label>
-                                                    <input type="date" max="{{date('Y-m-d')}}" class="form-control" name="birthdate" id="birthdate" autocomplete="off" required value="{{isset($data->birthdate) ? $data->birthdate : ''}}">
-                                                </div>
-
                                                 <div class="form-group col-md-5 col-sm-12">
                                                     <label>E-mail</label>
                                                     <input type="email" class="form-control" name="email" id="email" autocomplete="off" required value="{{isset($data->email) ? $data->email : ''}}">
@@ -146,7 +141,7 @@
                                                     <input type="text" class="form-control" name="cep" id="cep" autocomplete="off" required value="{{isset($data->cep) ? $data->cep : ''}}">
                                                 </div>
 
-                                                <div class="form-group col-md-8 col-sm-12">
+                                                <div class="form-group col-md-10 col-sm-12">
                                                     <label>Endereço</label>
                                                     <input type="text" class="form-control" name="address" id="address" autocomplete="off" required value="{{isset($data->address) ? $data->address : ''}}">
                                                 </div>
@@ -176,17 +171,20 @@
                                                     <input type="text" class="form-control" name="complement" id="complement" autocomplete="off" required value="{{isset($data->complement) ? $data->complement : ''}}">
                                                 </div>
 
-                                                <div class="form-group col-md-3 col-sm-12">
+                                                <div class="form-group col-md-4 col-sm-12">
+                                                    <label>Nascimento</label>
+                                                    <input type="date" max="{{date('Y-m-d')}}" class="form-control" name="birthdate" id="birthdate" autocomplete="off" required value="{{isset($data->birthdate) ? $data->birthdate : ''}}">
+                                                </div>
+
+                                                <div class="form-group col-md-4 col-sm-12">
                                                     <label>Telefone</label>
                                                     <input type="text" class="form-control" name="phone" id="telephone" autocomplete="off" required value="{{isset($data->phone) ? $data->phone : ''}}">
                                                 </div>
 
-                                                <div class="form-group col-md-3 col-sm-12">
+                                                <div class="form-group col-md-4 col-sm-12">
                                                     <label>Whatsapp</label>
                                                     <input type="text" class="form-control" name="whatsapp" id="whatsapp" autocomplete="off" required value="{{isset($data->whatsapp) ? $data->whatsapp : ''}}">
                                                 </div>
-
-
 
 
                                                 <div class="form-group col-md-2 col-sm-12">
@@ -202,6 +200,30 @@
                                                     <select class="form-control custom-select" name="notification_email" id="notification_email">
                                                         <option {{ isset($data->notification_email) && $data->notification_email === 's' ? 'selected' : '' }} value="s">Sim</option>
                                                         <option {{ isset($data->notification_email) && $data->notification_email === 'n' ? 'selected' : '' }} value="n">Não</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="form-group col-md-2 col-sm-12">
+                                                    <label>Notificar 5 dias antes?</label>
+                                                    <select class="form-control custom-select" name="notificate_5_days" id="notificate_5_days">
+                                                        <option {{ isset($data->notificate_5_days) && $data->notificate_5_days === 's' ? 'selected' : '' }} value="s">Sim</option>
+                                                        <option {{ isset($data->notificate_5_days) && $data->notificate_5_days === 'n' ? 'selected' : '' }} value="n">Não</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="form-group col-md-2 col-sm-12">
+                                                    <label>Notificar 2 dias antes?</label>
+                                                    <select class="form-control custom-select" name="notificate_2_days" id="notificate_2_days">
+                                                        <option {{ isset($data->notificate_2_days) && $data->notificate_2_days === 's' ? 'selected' : '' }} value="s">Sim</option>
+                                                        <option {{ isset($data->notificate_2_days) && $data->notificate_2_days === 'n' ? 'selected' : '' }} value="n">Não</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="form-group col-md-2 col-sm-12">
+                                                    <label>Notificar no vencimento?</label>
+                                                    <select class="form-control custom-select" name="notificate_due" id="notificate_due">
+                                                        <option {{ isset($data->notificate_due) && $data->notificate_due === 's' ? 'selected' : '' }} value="s">Sim</option>
+                                                        <option {{ isset($data->notificate_due) && $data->notificate_due === 'n' ? 'selected' : '' }} value="n">Não</option>
                                                     </select>
                                                 </div>
 

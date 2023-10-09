@@ -24,7 +24,7 @@ class RememberInvoiceCron extends Command
   public function handle()
   {
 
-    $sql = "SELECT i.id,i.status,i.user_id,i.date_invoice,i.date_due,i.description,c.email,c.email2,c.phone,c.whatsapp,
+    $sql = "SELECT i.id,i.status,i.user_id,i.date_invoice,i.date_due,i.description,c.email,c.email2,c.phone,c.whatsapp,c.notificate_5_days,c.notificate_2_days,c.notificate_due,
     c.name,c.notification_whatsapp,c.notification_email,c.company,c.document,c.phone,c.address,c.number,c.complement,c.type,u.send_generate_invoice,
     c.district,c.city,c.state,c.cep,i.gateway_payment, i.payment_method,s.id AS service_id,s.name AS service_name,i.price,
     u.access_token_mp, u.company user_company, u.whatsapp user_whatsapp, u.image user_image, u.telephone user_telephone,
@@ -45,6 +45,9 @@ class RememberInvoiceCron extends Command
 
 
     if($invoice->date_due == Carbon::now()->format('Y-m-d') ){
+
+        if($invoice->notificate_due == 's'){
+
         try {
             InvoiceNotification::Email($invoice->id);
         } catch (\Exception $e) {
@@ -68,8 +71,11 @@ class RememberInvoiceCron extends Command
             }
         }
     }
+    }
 
     else if(Carbon::parse($invoice->date_due)->subDays(5)->format('Y-m-d') == Carbon::now()->format('Y-m-d')){
+        if($invoice->notificate_5_days == 's'){
+
         try {
             InvoiceNotification::Email($invoice->id);
         } catch (\Exception $e) {
@@ -94,10 +100,12 @@ class RememberInvoiceCron extends Command
 
         }
     }
+}
 
     }
     else if(Carbon::parse($invoice->date_due)->subDays(2)->format('Y-m-d') == Carbon::now()->format('Y-m-d')){
 
+        if($invoice->notificate_2_days == 's'){
         try {
             InvoiceNotification::Email($invoice->id);
         } catch (\Exception $e) {
@@ -122,7 +130,7 @@ class RememberInvoiceCron extends Command
 
         }
     }
-
+        }
     }else if($invoice->date_due < Carbon::now()->format('Y-m-d') ){
 
         try {

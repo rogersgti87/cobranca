@@ -128,13 +128,13 @@ class StatusInterCron extends Command
                         ]
                         )->withHeaders([
                         'Authorization' => 'Bearer ' . $access_token
-                    ])->get('https://cdpj.partners.bancointer.com.br/cobranca/v3/cobrancas/'.$invoice['transaction_id']);
+                    ])->get('https://cdpj.partners.bancointer.com.br/pix/v2/cobv/'.$invoice['transaction_id']);
 
                         if ($response->successful()) {
                             $responseBody = $response->body();
-                            $status = json_decode($responseBody)->cobranca->situacao;
+                            $status = json_decode($responseBody)->status;
 
-                            if($status == 'RECEBIDO'){
+                            if($status == 'CONCLUIDA'){
                                 Invoice::where('transaction_id',$invoice['transaction_id'])->update(['status','Pago']);
                                 InvoiceNotification::Email($invoice['id']);
                                 InvoiceNotification::Whatsapp($invoice['id']);

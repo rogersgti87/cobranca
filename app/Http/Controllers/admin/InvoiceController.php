@@ -349,18 +349,17 @@ class InvoiceController extends Controller
     }
 
 
-                if(isset($data['send_invoice_email']))
-                    InvoiceNotification::Email($model['id']);
-
-                if(isset($data['send_invoice_whatsapp']))
-                    InvoiceNotification::Whatsapp($model['id']);
+}
 
 
+if(isset($data['send_invoice_email'])){
+    InvoiceNotification::Email($model['id']);
+}
 
 
-
-
-            }
+if(isset($data['send_invoice_whatsapp'])){
+    InvoiceNotification::Whatsapp($model['id']);
+}
 
 
         } catch(\Exception $e){

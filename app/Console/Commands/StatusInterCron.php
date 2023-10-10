@@ -119,6 +119,33 @@ class StatusInterCron extends Command
 
                 }
 
+                if($invoice['payment_method'] == 'Pix'){
+
+                    $response = Http::withOptions(
+                        [
+                        'cert' => storage_path('/app/'.$user['inter_crt_file']),
+                        'ssl_key' => storage_path('/app/'.$user['inter_key_file'])
+                        ]
+                        )->withHeaders([
+                        'Authorization' => 'Bearer ' . $access_token
+                    ])->get('https://cdpj.partners.bancointer.com.br/cobranca/v3/cobrancas/'.$invoice['transaction_id']);
+
+                        if ($response->successful()) {
+                            $responseBody = $response->body();
+                            $status = json_decode($responseBody)->cobranca->situacao;
+
+                            if($status == 'RECEBIDO'){
+                                Invoice::where('transaction_id',$invoice['transaction_id'])->update(['status','Pago']);
+                                InvoiceNotification::Email($invoice['id']);
+                                InvoiceNotification::Whatsapp($invoice['id']);
+                            }
+
+                        }else{
+                            \Log::info('Status Pix: '. json_encode($response->body()));
+                        }
+
+                }
+
 
 
             }

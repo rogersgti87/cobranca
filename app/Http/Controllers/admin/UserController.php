@@ -445,5 +445,37 @@ class UserController extends Controller
     }
 
 
+    public function ph(){
+
+
+        $model = User::where('id',auth()->user()->id)->first();
+
+        $data = $this->request->all();
+
+        $model->token_paghiper  = $data['token_paghiper'];
+        $model->key_paghiper    = $data['key_paghiper'];
+        $model->save();
+
+        return response()->json('Salvo com sucesso!',200);
+
+
+    }
+
+    public function mp(){
+
+
+        $model = User::where('id',auth()->user()->id)->first();
+
+        $data = $this->request->all();
+
+        $model->access_token_mp  = $data['access_token_mp'];
+        $model->save();
+
+        return response()->json('Salvo com sucesso!',200);
+
+
+    }
+
+
 
 }

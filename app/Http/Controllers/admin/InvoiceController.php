@@ -568,7 +568,7 @@ public function loadInvoices(){
 
 
     $fields = "invoices.id as id,invoices.description,invoices.payment_method,invoices.price,invoices.date_invoice,customers.id as customer_id, customers.name as customer_name,
-            invoices.date_due,invoices.date_payment,invoices.status,services.name as service_name,invoices.gateway_payment,invoices.payment_method,invoices.updated_at";
+            invoices.date_due,invoices.date_payment,invoices.status,services.name as service_name,invoices.gateway_payment,invoices.payment_method,invoices.billet_url,invoices.image_url_pix,invoices.updated_at";
 
     $query->join('customer_services','customer_services.id','invoices.customer_service_id')
             ->join('services','services.id','customer_services.service_id')

@@ -95,10 +95,20 @@
                     </a>
                   </li>
 
+                  @if(auth()->user()->id == 1)
                   <li class="nav-item">
                     <a href="{{url('admin/users')}}" class="nav-link {{Request::segment(2) == 'users' ? 'active' : ''}}">
                       <i class="far fa-circle nav-icon"></i>
                       <p>Usuários</p>
+                    </a>
+                  </li>
+                @endif
+
+
+                <li class="nav-item">
+                    <a href="{{url('admin/users/form?act=edit&id='.auth()->user()->id)}}" class="nav-link {{Request::segment(2) == 'users' ? 'active' : ''}}">
+                      <i class="far fa-circle nav-icon"></i>
+                      <p>Configurações</p>
                     </a>
                   </li>
 
@@ -120,6 +130,13 @@
                 <a href="{{url('admin/invoices')}}" class="nav-link  {{Request::segment(2) == 'invoices' ? 'active' : ''}}">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Faturas</p>
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a href="{{url('admin/payables')}}" class="nav-link  {{Request::segment(2) == 'payables' ? 'active' : ''}}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Contas a pagar</p>
                 </a>
               </li>
 

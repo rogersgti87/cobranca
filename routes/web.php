@@ -7,6 +7,7 @@ use App\Http\Controllers\admin\CustomerController;
 use App\Http\Controllers\admin\ServiceController;
 use App\Http\Controllers\admin\CustomerServiceController;
 use App\Http\Controllers\admin\InvoiceController;
+use App\Http\Controllers\admin\PayableController;
 use App\Http\Controllers\admin\LogController;
 
 
@@ -91,6 +92,15 @@ Route::group(['prefix' => 'admin','middleware' => ['auth']], function(){
     Route::get('load-invoices',[InvoiceController::class,'loadinvoices']);
     Route::post('invoice-notificate/{invoice_id}',[InvoiceController::class,'invoiceNotificate']);
     Route::get('invoice-error/{id}',[InvoiceController::class,'error']);
+
+
+    Route::get('payables',[PayableController::class,'index']);
+    Route::get('payables/form',[PayableController::class,'form']);
+    Route::post('payables',[PayableController::class,'store']);
+    Route::put('payables/{id}',[PayableController::class,'update']);
+    Route::post('payables/copy',[PayableController::class,'copy']);
+    Route::delete('payables/{id}',[PayableController::class,'destroy']);
+    Route::get('load-payables',[PayableController::class,'loadpayables']);
 
 
     Route::get('logs',[LogController::class,'index']);

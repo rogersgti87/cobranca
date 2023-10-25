@@ -17,7 +17,7 @@ class InvoiceNotification extends Model
 
         $invoice = ViewInvoice::where('id',$invoice_id)->first();
 
-        if($invoice['notification_email'] == 's'){
+        if($invoice['notification_email'] == 's' && $invoice['status'] != 'Erro'){
 
         $status_email = 'Não enviado';
 
@@ -180,7 +180,7 @@ class InvoiceNotification extends Model
             $end = Carbon::createFromTimeString('21:00');
 
             if ($now->between($start, $end)) {
-                if($invoice['notification_whatsapp'] == 's'){
+                if($invoice['notification_whatsapp'] == 's' && $invoice['status'] != 'Erro'){
                     if($invoice['status'] == 'Pendente'){
                         $title                  = 'Fatura';
                         $message_notification   = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura foi gerada.';
@@ -301,7 +301,7 @@ class InvoiceNotification extends Model
         $data['text_whatsapp'] .= "*Status:* $whats_status \n\n";
 
 
-        if($data['notification_whatsapp'] == 's'){
+        if($data['notification_whatsapp'] == 's' && $invoice['status'] != 'Erro'){
 
         $response = Http::withHeaders([
             "Content-Type"  => "application/json"

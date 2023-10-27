@@ -164,7 +164,7 @@
     <script>
     $(document).ready(function(){
 
-        // @if(!isset($data))
+
             const checkbox = document.getElementById("generate_invoice");
             checkbox.addEventListener("click", function() {
             if (checkbox.checked) {
@@ -173,7 +173,7 @@
                 $('#date_due').hide();
             }
             });
-        // @endif
+
 
     $('#gateway_payment').change(function(){
         var escolha = $(this).val();

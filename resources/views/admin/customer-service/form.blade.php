@@ -121,7 +121,7 @@
 
 
 
-                @if(!isset($data))
+                {{-- @if(!isset($data)) --}}
                 <div class="form-group col-md-12 col-sm-12">
 
                     <div id="group-generate-invoice">
@@ -152,7 +152,7 @@
                   </div>
 
                 </div>
-                @endif
+                {{-- @endif --}}
 
             </div>
         </div>

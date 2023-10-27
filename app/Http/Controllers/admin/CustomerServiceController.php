@@ -272,6 +272,12 @@ class CustomerServiceController extends Controller
             return response()->json($validator->errors()->first(), 422);
         }
 
+        if(isset($data['generate_invoice'])){
+            if($data['date_due'] == ''){
+                return response()->json('Você marcou a opção Gerar Fatura, Selecione a Data de vencimento.', 422);
+            }
+        }
+
         $model->user_id             = auth()->user()->id;
         $model->customer_id         = $data['customer_id'];
         $model->service_id          = $data['service_id'];
@@ -287,10 +293,124 @@ class CustomerServiceController extends Controller
 
         try{
             $model->save();
+
+            if(isset($data['generate_invoice'])){
+                $user = User::where('id',auth()->user()->id)->first();
+                $newInvoice = new Invoice();
+                $newInvoice->user_id             = $model->user_id;
+                $newInvoice->customer_id         = $model->customer_id;
+                $newInvoice->customer_service_id = $model->id;
+                $newInvoice->description         = $model->description;
+                $newInvoice->price               = $model->price;
+                $newInvoice->gateway_payment     = $model->gateway_payment;
+                $newInvoice->payment_method      = $model->payment_method;
+                $newInvoice->date_invoice        = Carbon::now();
+                $newInvoice->date_due            = $data['date_due'];
+                $newInvoice->date_payment        = null;
+                $newInvoice->status              = 'Pendente';
+                $newInvoice->save();
+
+                if($newInvoice['payment_method'] == 'Pix'){
+                    //PIX PAG HIPER
+                    if($newInvoice['gateway_payment'] == 'Pag Hiper'){
+                        $generatePixPH = Invoice::generatePixPH($newInvoice['id']);
+                        if($generatePixPH['status'] == 'reject'){
+                            CustomerService::where('id',$model->id)->delete();
+                            Invoice::where('id',$newInvoice['id'])->delete();
+                            return response()->json($generatePixPH['message'], 422);
+                        }
+
+                    }elseif($newInvoice['gateway_payment'] == 'Mercado Pago'){
+                        $generatePixMP = Invoice::generatePixMP($newInvoice['id']);
+                        if($generatePixMP['status'] == 'reject'){
+                            CustomerService::where('id',$model->id)->delete();
+                            Invoice::where('id',$newInvoice['id'])->delete();
+                            return response()->json($generatePixMP['message'], 422);
+                        }
+
+                    }elseif($newInvoice['gateway_payment'] == 'Intermedium'){
+                        $generatePixIntermedium = Invoice::generatePixIntermedium($newInvoice['id']);
+                        if($generatePixIntermedium['status'] == 'reject'){
+                            CustomerService::where('id',$model->id)->delete();
+                            Invoice::where('id',$newInvoice['id'])->delete();
+                            $msgInterPix = '';
+                            foreach($generatePixIntermedium['message'] as $messageInterPix){
+                                $msgInterPix .= $messageInterPix['razao'].' - '.$messageInterPix['propriedade'].',';
+                            }
+
+                            return response()->json($generatePixIntermedium['title'].': '.$msgInterPix, 422);
+                        }
+
+                    }
+                } elseif($newInvoice['payment_method'] == 'Boleto'){
+
+                    if($newInvoice['gateway_payment'] == 'Pag Hiper'){
+                        $generateBilletPH = Invoice::generateBilletPH($newInvoice['id']);
+                        if($generateBilletPH['status'] == 'reject'){
+                            CustomerService::where('id',$model->id)->delete();
+                            Invoice::where('id',$newInvoice['id'])->delete();
+                            return response()->json($generateBilletPH['message'], 422);
+                        }
+
+                    }elseif($newInvoice['gateway_payment'] == 'Intermedium'){
+
+                        $generateBilletIntermedium = Invoice::generateBilletIntermedium($newInvoice['id']);
+                        if($generateBilletIntermedium['status'] == 'reject'){
+                            CustomerService::where('id',$model->id)->delete();
+                            Invoice::where('id',$newInvoice['id'])->delete();
+                            $msgInterBillet = '';
+                            foreach($generateBilletIntermedium['message'] as $messageInterBillet){
+                                $msgInterBillet .= $messageInterBillet['razao'].' - '.$messageInterBillet['propriedade'].' - '.$messageInterBillet['valor'].',';
+                            }
+
+                            return response()->json($generateBilletIntermedium['title'].': '.$msgInterBillet, 422);
+                        }
+
+                    }
+
+
+            }
+
+            elseif($newInvoice['payment_method'] == 'BoletoPix'){
+
+            if($newInvoice['gateway_payment'] == 'Intermedium'){
+
+                $generateBilletIntermedium = Invoice::generateBilletPixIntermedium($newInvoice['id']);
+                if($generateBilletIntermedium['status'] == 'reject'){
+                    CustomerService::where('id',$model->id)->delete();
+                    Invoice::where('id',$newInvoice['id'])->delete();
+                    $msgInterBillet = '';
+                    foreach($generateBilletIntermedium['message'] as $messageInterBillet){
+                        $msgInterBillet .= $messageInterBillet['razao'].' - '.$messageInterBillet['propriedade'];
+                    }
+
+                    return response()->json($generateBilletIntermedium['title'].': '.$msgInterBillet, 422);
+                }
+
+            }
+    }
+
+
+                if(isset($data['send_invoice_email']))
+                    InvoiceNotification::Email($newInvoice['id']);
+
+                if(isset($data['send_invoice_whatsapp']))
+                    InvoiceNotification::Whatsapp($newInvoice['id']);
+
+
+
+
+
+
+            }
+
+
+
         } catch(\Exception $e){
             \Log::error($e->getMessage());
-            return response()->json('Erro interno, favor comunicar ao administrador', 500);
+            return response()->json($e->getMessage(), 500);
         }
+
 
 
         return response()->json('Registro salvo com sucesso', 200);

@@ -133,12 +133,15 @@
                 </a>
               </li>
 
+
+@if(auth()->user()->id == 1)
               <li class="nav-item">
                 <a href="{{url('admin/payables')}}" class="nav-link  {{Request::segment(2) == 'payables' ? 'active' : ''}}">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Contas a pagar</p>
                 </a>
               </li>
+              @endif
 
             @if(auth()->user()->id == 1)
               <li class="nav-item">

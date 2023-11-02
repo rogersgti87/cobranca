@@ -1110,6 +1110,7 @@ function loadInvoices(){
                             ${item.status == 'Erro' ? '<a href="#" data-original-title="Erros" id="btn-modal-error" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-danger btn-xs"> <i class="fas fa-exclamation-triangle"></i></a>' : ''}
                             ${item.status != 'Erro' ? '<a href="#" data-original-title="Notificações" id="btn-modal-notifications" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-warning btn-xs"> <i style="padding:0 5px;" class="fa fa-info"></i></a>' : ''}
                             ${item.status == 'Pendente' ? '<a href="#" data-original-title="Cancelar Fatura" id="btn-delete-invoice" data-placement="left" data-invoice="'+item.id+'" data-tt="tooltip" class="btn btn-danger btn-xs"> <i class="fas fa-undo-alt"></i></a>' : ''}
+                            ${item.status == 'Pendente' ? '<a href="'+`${item.payment_method == "Pix" ? item.image_url_pix : item.billet_url}`+'" target="_blank" data-original-title="Baixar Fatura" id="btn-download-invoice" data-placement="left" data-tt="tooltip" class="btn btn-primary btn-xs"> <i class="fas fa-download"></i></a>' : ''}
                             </td>`;
                         html += '</tr>';
 

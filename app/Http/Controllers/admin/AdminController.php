@@ -64,7 +64,7 @@ class AdminController extends Controller
 
         $year = Invoice::select('status', DB::raw('count(*) as count'))
             ->where('user_id',auth()->user()->id)
-            ->whereYear('date_invoice', Carbon::now()->year)
+            ->whereYear('date_due', Carbon::now()->year)
             ->groupBy('status')
             ->pluck('count', 'status')
             ->toArray();
@@ -73,7 +73,7 @@ class AdminController extends Controller
 
         $month = Invoice::select('status', DB::raw('count(*) as count'))
         ->where('user_id',auth()->user()->id)
-        ->whereMonth('date_invoice', Carbon::now()->month)
+        ->whereMonth('date_due', Carbon::now()->month)
         ->groupBy('status')
         ->pluck('count', 'status')
         ->toArray();

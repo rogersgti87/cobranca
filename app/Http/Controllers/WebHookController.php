@@ -335,6 +335,9 @@ public function teste(){
 
 }
 
+public function whatsapp($user_id){
+    return $user_id;
+}
 
 
 }

@@ -428,10 +428,11 @@ class InvoiceNotification extends Model
                     "mediatype"  =>  "document",
                     "caption"    =>  $whats_billet_digitable_line,
                     //"media"      => config('app.url').'/boleto/'.$whats_billet_url_slip,
-                    "media"      => strtr($whats_billet_base64, '-_', '+/'),
+                    "media"      => chunk_split($whats_billet_base64, 64, "\r\n"),
                     "fileName"   => 'Fatura_'.$whats_invoice_id.'.pdf'
                 ]
             ]);
+            \Log::info(chunk_split($whats_billet_base64, 64, "\r\n"));
             \Log::info($response->json());
         }
             if($whats_payment_method == 'BoletoPix'){

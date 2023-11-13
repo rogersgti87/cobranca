@@ -432,6 +432,7 @@ class InvoiceNotification extends Model
                     "fileName"   => 'Fatura_'.$whats_invoice_id.'.pdf'
                 ]
             ]);
+            \Log::info($response->json());
         }
             if($whats_payment_method == 'BoletoPix'){
                 $whats_billet_digitable_line = removeEspeciais($whats_billet_digitable_line);

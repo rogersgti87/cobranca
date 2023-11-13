@@ -432,7 +432,7 @@ class InvoiceNotification extends Model
                     "fileName"   => 'Fatura_'.$whats_invoice_id.'.pdf'
                 ]
             ]);
-
+        }
             if($whats_payment_method == 'BoletoPix'){
                 $whats_billet_digitable_line = removeEspeciais($whats_billet_digitable_line);
 
@@ -492,7 +492,6 @@ class InvoiceNotification extends Model
                 'updated_at'        => Carbon::now()
             ]);
 
-        }
 
         }
     }

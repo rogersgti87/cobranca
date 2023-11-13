@@ -316,12 +316,12 @@ class InvoiceNotification extends Model
             if($result['status'] == 'PENDING'){
                 $status                  = 'Success';
                 $status_message          = 'Enviado';
-                $whats_message_status    = $result;
+                //$whats_message_status    = $result;
                 $whats_message           = $result;
             }else{
                 $status                  = 'Error';
                 $status_message          = 'Erro ao enviar';
-                $whats_message_status   = $result;
+                //$whats_message_status   = $result;
                 $whats_message          = $result;
             }
         }
@@ -329,7 +329,7 @@ class InvoiceNotification extends Model
         if($response->badRequest()){
             $status                  = 'Error';
             $status_message          = 'Erro ao enviar';
-            $whats_message_status   = $result;
+            //$whats_message_status   = $result;
             $whats_message          = $result;
         }
 
@@ -341,7 +341,7 @@ class InvoiceNotification extends Model
             'subject'           => $data['title'],
             'email_id'          => '',
             'status'            => $status,
-            'message_status'    => $whats_message_status,
+            'message_status'    => null,
             'message'           => $whats_message,
             'created_at'        => Carbon::now(),
             'updated_at'        => Carbon::now()
@@ -379,12 +379,12 @@ class InvoiceNotification extends Model
                 if($result['status'] == 'PENDING'){
                     $status                  = 'Success';
                     $status_message          = 'Enviado';
-                    $whats_message_status    = $result;
+                    //$whats_message_status    = $result;
                     $whats_message           = $result;
                 }else{
                     $status                  = 'Error';
                     $status_message          = 'Erro ao enviar';
-                    $whats_message_status   = $result;
+                    //$whats_message_status   = $result;
                     $whats_message          = $result;
                 }
             }
@@ -392,7 +392,7 @@ class InvoiceNotification extends Model
             if($response->badRequest()){
                 $status                  = 'Error';
                 $status_message          = 'Erro ao enviar';
-                $whats_message_status   = $result;
+                //$whats_message_status   = $result;
                 $whats_message          = $result;
             }
 
@@ -404,7 +404,7 @@ class InvoiceNotification extends Model
                 'subject'           => $data['title'],
                 'email_id'          => '',
                 'status'            => $status,
-                'message_status'    => $whats_message_status,
+                'message_status'    => null,
                 'message'           => $whats_message,
                 'created_at'        => Carbon::now(),
                 'updated_at'        => Carbon::now()
@@ -461,12 +461,12 @@ class InvoiceNotification extends Model
                 if($result['status'] == 'PENDING'){
                     $status                  = 'Success';
                     $status_message          = 'Enviado';
-                    $whats_message_status    = $result;
+                    //$whats_message_status    = $result;
                     $whats_message           = $result;
                 }else{
                     $status                  = 'Error';
                     $status_message          = 'Erro ao enviar';
-                    $whats_message_status   = $result;
+                    //$whats_message_status   = $result;
                     $whats_message          = $result;
                 }
             }
@@ -474,7 +474,7 @@ class InvoiceNotification extends Model
             if($response->badRequest()){
                 $status                  = 'Error';
                 $status_message          = 'Erro ao enviar';
-                $whats_message_status   = $result;
+                //$whats_message_status   = $result;
                 $whats_message          = $result;
             }
 
@@ -486,7 +486,7 @@ class InvoiceNotification extends Model
                 'subject'           => $data['title'],
                 'email_id'          => '',
                 'status'            => $status,
-                'message_status'    => $whats_message_status,
+                'message_status'    => null,
                 'message'           => $whats_message,
                 'created_at'        => Carbon::now(),
                 'updated_at'        => Carbon::now()

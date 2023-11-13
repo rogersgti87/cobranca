@@ -597,7 +597,7 @@
                     .then(response => response.json())
                     .then(data => {
                         var payment_method  = `<p><b class="text-primary">Forma de pagamento: </b>${data.payment_method}</p><hr>`;
-                        var result_whatsapp = `<p class="text-primary"><b>Whatsapp:</b></p> <p><b>Mensagem:</b> ${data.whatsapp.mensagem}</p><p><b>QRCODE:</b> ${data.whatsapp.pix}</p><p><b>Boleto:</b> ${data.whatsapp.boleto}</p>`;
+                        var result_whatsapp = `<p class="text-primary"><b>Whatsapp:</b></p> <p><b>Mensagem:</b> ${data.whatsapp.mensagem}</p><p><b>PIX:</b> ${data.whatsapp.pix}</p><p><b>Boleto:</b> ${data.whatsapp.boleto}</p>`;
                         var result_email = `<p><b class="text-primary">E-mail:</b> ${data.email}</p>`;
                         loadingAlert.close();
 

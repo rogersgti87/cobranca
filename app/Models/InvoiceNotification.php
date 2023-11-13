@@ -348,7 +348,7 @@ class InvoiceNotification extends Model
         ]);
 
     }else{
-        $whats_message          = 'Erro ao enviar';
+
         return ['message' => 'Erro ao enviar', 'image' => '', 'file' => ''];
     }
 
@@ -378,22 +378,22 @@ class InvoiceNotification extends Model
 
                 if($result['status'] == 'PENDING'){
                     $status                  = 'Success';
-                    $status_message          = 'Enviado';
+                    $status_image            = 'Enviado';
                     //$whats_message_status    = $result;
-                    $whats_message           = $result;
+                    //$whats_message           = $result;
                 }else{
                     $status                  = 'Error';
-                    $status_message          = 'Erro ao enviar';
+                    $status_image            = 'Erro ao enviar';
                     //$whats_message_status   = $result;
-                    $whats_message          = $result;
+                    //$whats_message          = $result;
                 }
             }
 
             if($response->badRequest()){
                 $status                  = 'Error';
-                $status_message          = 'Erro ao enviar';
+                $status_image            = 'Erro ao enviar';
                 //$whats_message_status   = $result;
-                $whats_message          = $result;
+                //$whats_message          = $result;
             }
 
             DB::table('invoice_notifications')->insert([
@@ -405,7 +405,7 @@ class InvoiceNotification extends Model
                 'email_id'          => '',
                 'status'            => $status,
                 'message_status'    => null,
-                'message'           => $whats_message,
+                'message'           => null,
                 'created_at'        => Carbon::now(),
                 'updated_at'        => Carbon::now()
             ]);
@@ -432,8 +432,6 @@ class InvoiceNotification extends Model
                     "fileName"   => 'Fatura_'.$whats_invoice_id.'.pdf'
                 ]
             ]);
-            \Log::info(preg_replace('/[^a-zA-Z0-9\/\+=]/', '', $whats_billet_base64));
-            \Log::info($response->json());
         }
             if($whats_payment_method == 'BoletoPix'){
                 $whats_billet_digitable_line = removeEspeciais($whats_billet_digitable_line);
@@ -462,22 +460,22 @@ class InvoiceNotification extends Model
 
                 if($result['status'] == 'PENDING'){
                     $status                  = 'Success';
-                    $status_message          = 'Enviado';
+                    $status_file             = 'Enviado';
                     //$whats_message_status    = $result;
-                    $whats_message           = $result;
+                    //$whats_message           = $result;
                 }else{
-                    $status                  = 'Error';
-                    $status_message          = 'Erro ao enviar';
+                    $status                   = 'Error';
+                    $status_file           = 'Erro ao enviar';
                     //$whats_message_status   = $result;
-                    $whats_message          = $result;
+                    //$whats_message            = $result;
                 }
             }
 
             if($response->badRequest()){
                 $status                  = 'Error';
-                $status_message          = 'Erro ao enviar';
+                $status_file             = 'Erro ao enviar';
                 //$whats_message_status   = $result;
-                $whats_message          = $result;
+                //$whats_message          = $result;
             }
 
             DB::table('invoice_notifications')->insert([
@@ -489,7 +487,7 @@ class InvoiceNotification extends Model
                 'email_id'          => '',
                 'status'            => $status,
                 'message_status'    => null,
-                'message'           => $whats_message,
+                'message'           => null,
                 'created_at'        => Carbon::now(),
                 'updated_at'        => Carbon::now()
             ]);

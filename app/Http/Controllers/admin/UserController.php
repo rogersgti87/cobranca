@@ -277,24 +277,171 @@ class UserController extends Controller
 
     }
 
-    public function getSession(){
+    public function loadWhatsapp(){
 
-            $access_token = auth()->user()->api_access_token_whatsapp;
-            //Iniciar sessão
-            $response_start_session = Http::get('https://zapestrategico.com.br/api/start-session/'.$access_token);
+        $data = User::where('id',auth()->user()->id)->select('api_token_whatsapp','api_session_whatsapp','api_status_whatsapp')->first();
 
-            $result_start_session = $response_start_session->getBody();
-            $qrcode = json_decode($result_start_session);
-
-        return response()->json($qrcode);
+        return response()->json($data);
 
 
     }
 
 
-    public function defaultWhatsapp($access_token){
-        User::where('id',auth()->user()->id)->update(['api_access_token_whatsapp' => $access_token]);
-        return response()->json('Atualizado com sucesso!');
+    public function createWhatsapp(){
+
+        if(auth()->user()->api_token_whatsapp != null || auth()->user()->api_session_whatsapp != null || auth()->user()->api_status_whatsapp != null){
+            return response()->json(['icon' => 'warning', 'title' => 'Sessão já cadastrada, remova a sessão anterior para cadastrar uma nova.']);
+        }
+
+        $response = Http::withHeaders([
+            "Content-Type"  => "application/json",
+            'apikey'        => config('options.api_key_evolution')
+        ])
+        ->post(config('options.api_url_evolution').'instance/create',[
+            "instanceName"      => auth()->user()->id.'-cobsegura',
+            "token"             => auth()->user()->id.'-'.date('ymdhis').str::uuid(),
+            "qrcode"            => false,
+            "webhook"           => "https://cobrancasegura.com.br/webhook/whatsapp/".auth()->user()->id."-cobsegura",
+            "webhookByEvents"   => false,
+            "events"            =>  [
+                "MESSAGES_UPSERT",
+                "MESSAGES_UPDATE",
+                "SEND_MESSAGE"
+            ]
+
+        ]);
+
+        if ($response->successful()) {
+            $result = $response->json();
+            User::where('id',auth()->user()->id)->update(['api_session_whatsapp' => $result['instance']['instanceName'],'api_token_whatsapp' => $result['hash']['apikey']]);
+            return response()->json(['icon' => 'success', 'title' => 'Sessão criada com sucesso'], 200);
+        }else{
+            return $response->json('Erro ao criar sessão', 422);
+        }
+
+
+    }
+
+
+    public function statusWhatsapp(){
+
+
+        $response = Http::withHeaders([
+            "Content-Type"  => "application/json",
+            'apikey'        => auth()->user()->api_token_whatsapp
+        ])
+        ->get(config('options.api_url_evolution').'instance/connectionState/'.auth()->user()->api_session_whatsapp);
+
+        if ($response->successful()) {
+
+            $result = $response->json();
+
+            if(isset($result['instance']['state'])){
+                if($result['instance']['state'] == 'open'){
+                    $status = 'Conectado';
+                    $icon   = 'success';
+                }else{
+                    $status = 'Desconectado';
+                    $icon   = 'warning';
+                }
+
+                User::where('id',auth()->user()->id)->update(['api_status_whatsapp' => $result['instance']['state']]);
+            }
+
+           return response()->json(['title' => $status,'icon' => $icon,'msg' => '']);
+        }else{
+            return $response->json();
+        }
+
+
+    }
+
+
+    public function qrcodeWhatsapp(){
+
+        $response = Http::withHeaders([
+            "Content-Type"  => "application/json",
+            'apikey'        => auth()->user()->api_token_whatsapp
+        ])
+        ->get(config('options.api_url_evolution').'instance/connect/'.auth()->user()->api_session_whatsapp);
+        if ($response->successful()) {
+            $result = $response->json();
+            if(isset($result['code'])){
+                return response()->json(['title' => 'Leia o QRCODE','icon' => 'success', 'msg' => '<img src="'.$result['base64'].'" class="image-thumbnail" width="220" height="220">'], 200);
+            }else{
+                if($result['instance']['state'] == 'open'){
+                    $status = 'A Sessão "'.strtoupper(auth()->user()->api_session_whatsapp).'" já está conectada';
+                }else{
+                    $status = 'Desconectado';
+                }
+               return response()->json(['title' => $status,'icon' => 'success', 'msg' => ''], 200);
+            }
+
+        }else{
+            if($response->status() === 404){
+                return response()->json(['title' => 'Sessão não existe!','icon' => 'warning','msg' => '']);
+            }
+
+        }
+
+    }
+
+    public function logoutWhatsapp(){
+
+        $response = Http::withHeaders([
+            "Content-Type"  => "application/json",
+            'apikey'        => auth()->user()->api_token_whatsapp
+        ])
+        ->delete(config('options.api_url_evolution').'instance/logout/'.auth()->user()->api_session_whatsapp);
+
+        if ($response->successful()) {
+           return response()->json(['icon' => 'success', 'msg' => 'A Sessão "'.strtoupper(auth()->user()->api_session_whatsapp).'" foi desconectada'], 200);
+        }
+
+        if($response->status() === 404){
+            return response()->json(['icon' => 'warning','msg' => 'Sessão não existe!']);
+        }
+
+        if($response->status() === 400){
+            return response()->json(['icon' => 'warning','msg' => 'Sessão já desconectada!']);
+        }
+    }
+
+    public function deleteWhatsapp()
+    {
+
+        if(auth()->user()->api_token_whatsapp == null){
+            User::where('id',auth()->user()->id)->update(['api_status_whatsapp' => null,'api_session_whatsapp' => null, 'api_token_whatsapp' => null]);
+        }else{
+            $response = Http::withHeaders([
+                "Content-Type"  => "application/json",
+                'apikey'        => auth()->user()->api_token_whatsapp
+            ])
+            ->delete(config('options.api_url_evolution').'instance/delete/'.auth()->user()->api_session_whatsapp);
+
+            $result = $response->json();
+
+            if($result['status'] === 404){
+                User::where('id',auth()->user()->id)->update(['api_status_whatsapp' => null,'api_session_whatsapp' => null, 'api_token_whatsapp' => null]);
+                return response()->json(['icon' => 'success', 'msg' => 'A Sessão "'.strtoupper(auth()->user()->api_session_whatsapp).'" foi removida'], 200);
+            }
+
+            if($result['status'] === 400){
+                return response()->json('Atenção, desconecte a sua sessão antes de remover!',422);
+            }
+
+            if ($response->successful()) {
+                User::where('id',auth()->user()->id)->update(['api_status_whatsapp' => null,'api_session_whatsapp' => null, 'api_token_whatsapp' => null]);
+                return response()->json(['icon' => 'success', 'msg' => 'A Sessão "'.strtoupper(auth()->user()->api_session_whatsapp).'" foi removida'], 200);
+            }else{
+                if($response->status() === 404){
+                    User::where('id',auth()->user()->id)->update(['api_status_whatsapp' => null,'api_session_whatsapp' => null, 'api_token_whatsapp' => null]);
+                    return response()->json(['icon' => 'warning','msg' => 'Sessão não existe!']);
+                }
+
+            }
+        }
+
     }
 
 

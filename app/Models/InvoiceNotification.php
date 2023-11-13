@@ -53,6 +53,9 @@ class InvoiceNotification extends Model
 
         } else {
             $title = 'Fatura';
+            if($invoice['status'] == 'Pago'){
+                $title = 'Pagamento confirmado';
+            }
             $message_notification = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura mudou o status para: <b>'.$invoice['status'].'</b>';
         }
 
@@ -212,6 +215,9 @@ class InvoiceNotification extends Model
 
                     } else {
                         $title = 'Fatura';
+                        if($invoice['status'] == 'Pago'){
+                            $title = 'Pagamento confirmado';
+                        }
                         $message_notification = 'Esta é uma mensagem para notificá-lo(a) que sua Fatura mudou o status para: <b>'.$invoice['status'].'</b>';
                     }
 
@@ -250,28 +256,14 @@ class InvoiceNotification extends Model
             'billet_digitable_line'     => $invoice['billet_digitable'],
             'billet_url_slip_base64'    => $invoice['billet_base64'],
             'billet_url_slip'           => $invoice['billet_url'],
+            'status_whatsapp'           => $invoice['status_whatsapp'],
+            'api_session_whatsapp'      => $invoice['api_session_whatsapp'],
+            'api_token_whatsapp'        => $invoice['api_token_whatsapp'],
+            'api_status_whatsapp'       => $invoice['api_status_whatsapp'],
         ];
 
-        if($data['user_access_token_wp'] == null){
-            return 'Sem access token cadastrado';
-        }
-
-        $response_check = Http::withHeaders([
-            "Content-Type"  => "application/json",
-        ])->get('https://zapestrategico.com.br/api/check-session-cobranca/'.$data['user_access_token_wp']);
-
-        if ($response_check->successful()) {
-
-            $result_check = $response_check->getBody();
-            $check_session = json_decode($result_check);
-
-            if($check_session != 'Conectado'){
-                return ['message' => 'Whatsapp desconectado', 'image' => '', 'file' => ''];
-            }
-
-        }else{
-            \Log::info('Linha 188: Whatsapp desconectado');
-            return 'Erro ao conectar a API do Whatsapp';
+        if($data['api_status_whatsapp'] != 'open'){
+            return 'Whatsapp desconectado';
         }
 
         $message_customer               = $data['message_customer'];
@@ -304,28 +296,42 @@ class InvoiceNotification extends Model
         if($data['notification_whatsapp'] == 's' && $invoice['status'] != 'Erro'){
 
         $response = Http::withHeaders([
-            "Content-Type"  => "application/json"
-        ])->post('https://zapestrategico.com.br/api/send-message',[
-            "access_token"  => $data['user_access_token_wp'],
-            "whatsapp"      => '55'.$data['customer_whatsapp'],
-            "message"       => $data['text_whatsapp']
+            "Content-Type"  => "application/json",
+            'apikey'        => $data['api_token_whatsapp']
+        ])
+        ->post(config('options.api_url_evolution').'message/sendText/'.$data['api_session_whatsapp'],[
+            "number"        => '55'.$data['customer_whatsapp'],
+            "options"       =>  [
+                //"delay"     => $this->campaign->interval_send * 1000
+            ],
+            "textMessage"   => [
+                "text"      =>  $data['text_whatsapp']
+            ]
         ]);
 
         if ($response->successful()) {
 
-        $result = $response->getBody();
+            $result = $response->json();
 
-        $whats_status           = json_decode($result);
-        if($whats_status->status == 'success'){
-            $status_message          = 'Enviado';
-            $whats_message_status   = $whats_status->status;
-            $whats_message          = json_encode($whats_status);
-        }else{
-            $status_message          = 'Erro ao enviar';
-            $whats_message_status   = json_encode($whats_status);
-            $whats_message          = '';
+            if($result['status'] == 'PENDING'){
+                $status                  = 'Success';
+                $status_message          = 'Enviado';
+                $whats_message_status    = $result;
+                $whats_message           = $result;
+            }else{
+                $status                  = 'Error';
+                $status_message          = 'Erro ao enviar';
+                $whats_message_status   = $result;
+                $whats_message          = $result;
+            }
         }
 
+        if($response->badRequest()){
+            $status                  = 'Error';
+            $status_message          = 'Erro ao enviar';
+            $whats_message_status   = $result;
+            $whats_message          = $result;
+        }
 
         DB::table('invoice_notifications')->insert([
             'user_id'           => $data['user_id'],
@@ -334,7 +340,7 @@ class InvoiceNotification extends Model
             'date'              => Carbon::now(),
             'subject'           => $data['title'],
             'email_id'          => '',
-            'status'            => $whats_status == true ? 'Success' : 'Error',
+            'status'            => $status,
             'message_status'    => $whats_message_status,
             'message'           => $whats_message,
             'created_at'        => Carbon::now(),
@@ -342,8 +348,8 @@ class InvoiceNotification extends Model
         ]);
 
     }else{
-        $whats_message          = $response->getBody();
-        return ['message' => json_encode(json_decode($whats_message)->message), 'image' => '', 'file' => ''];
+        $whats_message          = $response->json();
+        return ['message' => $response->json(), 'image' => '', 'file' => ''];
     }
 
         if($data['status'] == 'Pendente') {
@@ -352,27 +358,43 @@ class InvoiceNotification extends Model
         if($whats_payment_method == 'Pix'){
 
             $response = Http::withHeaders([
-            "Content-Type"  => "application/json"
-        ])->post('https://zapestrategico.com.br/api/send-image',[
-                "access_token"  => $data['user_access_token_wp'],
-                "whatsapp"      => '55'.$data['customer_whatsapp'],
-                "message"       => 'data:image/png;base64,'.$data['pix_qrcode_base64'],
-                "caption"       =>  $whats_pix_emv
+                "Content-Type"  => "application/json",
+                'apikey'        => $data['api_token_whatsapp']
+            ])
+            ->post(config('options.api_url_evolution').'message/sendMedia/'.$data['api_session_whatsapp'],[
+                "number"         => '55'.$data['customer_whatsapp'],
+                "mediaMessage"   => [
+                    "mediatype"  =>  "image",
+                    "caption"    =>  $whats_pix_emv,
+                    "media"      =>  config('app.url').'/pix/'.$data['whats_pix_image']
+                ]
             ]);
 
             $result = $response->getBody();
 
-            $whats_status           = json_decode($result);
-        if($whats_status->status == 'success'){
-            $status_image          = 'Enviado';
-            $whats_message_status   = $whats_status->status;
-            $whats_message          = json_encode($whats_status);
-        }else{
-            $status_image          = 'Erro ao enviar';
-            $whats_message_status   = json_encode($whats_status);
-            $whats_message          = '';
-        }
+            if ($response->successful()) {
 
+                $result = $response->json();
+
+                if($result['status'] == 'PENDING'){
+                    $status                  = 'Success';
+                    $status_message          = 'Enviado';
+                    $whats_message_status    = $result;
+                    $whats_message           = $result;
+                }else{
+                    $status                  = 'Error';
+                    $status_message          = 'Erro ao enviar';
+                    $whats_message_status   = $result;
+                    $whats_message          = $result;
+                }
+            }
+
+            if($response->badRequest()){
+                $status                  = 'Error';
+                $status_message          = 'Erro ao enviar';
+                $whats_message_status   = $result;
+                $whats_message          = $result;
+            }
 
             DB::table('invoice_notifications')->insert([
                 'user_id'           => $data['user_id'],
@@ -381,7 +403,7 @@ class InvoiceNotification extends Model
                 'date'              => Carbon::now(),
                 'subject'           => $data['title'],
                 'email_id'          => '',
-                'status'            => $whats_status == true ? 'Error' : 'Success',
+                'status'            => $status,
                 'message_status'    => $whats_message_status,
                 'message'           => $whats_message,
                 'created_at'        => Carbon::now(),
@@ -396,29 +418,46 @@ class InvoiceNotification extends Model
         if($whats_payment_method == 'Boleto' || $whats_payment_method == 'BoletoPix'){
             $whats_billet_digitable_line = removeEspeciais($whats_billet_digitable_line);
 
-             $response = Http::withHeaders([
-                    "Content-Type"  => "application/json"
-                ])->post('https://zapestrategico.com.br/api/send-file',[
-                    "access_token"  => $data['user_access_token_wp'],
-                    "whatsapp"      => '55'.$data['customer_whatsapp'],
-                    "file"          => 'data:application/pdf;base64,'.$whats_billet_base64,
-                    "caption"       =>  $whats_billet_digitable_line,
-                    "filename"      =>  'Fatura_'.$whats_invoice_id.'.pdf'
-                ]);
+            $response = Http::withHeaders([
+                "Content-Type"  => "application/json",
+                'apikey'        => $data['api_token_whatsapp']
+            ])
+            ->post(config('options.api_url_evolution').'message/sendMedia/'.$data['api_session_whatsapp'],[
+                "number"         => '55'.$data['customer_whatsapp'],
+                "mediaMessage"   => [
+                    "mediatype"  =>  "document",
+                    "caption"    =>  $whats_billet_digitable_line,
+                    "media"      =>  $whats_payment_method == 'Boleto' ? config('app.url').'/boleto/'.$whats_billet_url_slip : config('app.url').'/boletopix/'.$whats_billet_url_slip,
+                    "fileName"   => 'Fatura_'.$whats_invoice_id.'.pdf'
+                ]
+            ]);
+
 
             $result = $response->getBody();
 
-            $whats_status           = json_decode($result);
-        if($whats_status->status == 'success'){
-            $status_file          = 'Enviado';
-            $whats_message_status   = $whats_status->status;
-            $whats_message          = json_encode($whats_status);
-        }else{
-            $status_file          = 'Erro ao enviar';
-            $whats_message_status   = json_encode($whats_status);
-            $whats_message          = '';
-        }
+            if ($response->successful()) {
 
+                $result = $response->json();
+
+                if($result['status'] == 'PENDING'){
+                    $status                  = 'Success';
+                    $status_message          = 'Enviado';
+                    $whats_message_status    = $result;
+                    $whats_message           = $result;
+                }else{
+                    $status                  = 'Error';
+                    $status_message          = 'Erro ao enviar';
+                    $whats_message_status   = $result;
+                    $whats_message          = $result;
+                }
+            }
+
+            if($response->badRequest()){
+                $status                  = 'Error';
+                $status_message          = 'Erro ao enviar';
+                $whats_message_status   = $result;
+                $whats_message          = $result;
+            }
 
             DB::table('invoice_notifications')->insert([
                 'user_id'           => $data['user_id'],
@@ -427,7 +466,7 @@ class InvoiceNotification extends Model
                 'date'              => Carbon::now(),
                 'subject'           => $data['title'],
                 'email_id'          => '',
-                'status'            => $whats_status == true ? 'Error' : 'Success',
+                'status'            => $status,
                 'message_status'    => $whats_message_status,
                 'message'           => $whats_message,
                 'created_at'        => Carbon::now(),
@@ -436,7 +475,6 @@ class InvoiceNotification extends Model
 
         }
 
-            }
         }
     }
     }

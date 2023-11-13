@@ -30,7 +30,7 @@ Route::prefix('webhook')->group(function () {
     Route::post('intermediumbillet', [WebHookController::class,'intermediumbillet']);
     Route::post('intermediumbilletpix', [WebHookController::class,'intermediumbilletpix']);
     Route::post('intermediumpix', [WebHookController::class,'intermediumpix']);
-    Route::post('whatsapp-messages', [WebHookController::class,'whatsappmessage']);
+    Route::post('whatsapp/{user_id}', [WebHookController::class,'whatsapp']);
     Route::get('teste', [WebHookController::class,'teste']);
 });
 
@@ -45,9 +45,13 @@ Route::group(['prefix' => 'admin','middleware' => ['auth']], function(){
     Route::post('users',[UserController::class,'store']);
     Route::post('users/{id}',[UserController::class,'update']);
     Route::delete('users',[UserController::class,'destroy']);
-    Route::get('users/getsession',[UserController::class,'getSession']);
-    Route::get('users/getqrcode',[UserController::class,'getQRCode']);
-    Route::post('user-default-whatsapp/{access_token}',[UserController::class,'defaultWhatsapp']);
+    Route::post('users-whatsapp',[UserController::class,'createWhatsapp']);
+    Route::get('users-whatsapp',[UserController::class,'loadwhatsapp']);
+    Route::get('users-whatsapp-status',[UserController::class,'statusWhatsapp']);
+    Route::get('users-whatsapp-qrcode',[UserController::class,'qrcodeWhatsapp']);
+    Route::get('users-whatsapp-logout',[UserController::class,'logoutWhatsapp']);
+    Route::get('users-whatsapp-delete',[UserController::class,'deleteWhatsapp']);
+
     Route::post('user-inter',[UserController::class,'inter']);
     Route::post('user-ph',[UserController::class,'ph']);
     Route::post('user-mp',[UserController::class,'mp']);

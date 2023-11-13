@@ -66,7 +66,7 @@
                         <fieldset>
                             <legend>Integrações</legend>
                             @if(isset($data->id))
-                                <button type="button" data-toggle="modal" data-target="#modal-whatsapp" id="{{ isset($data->id) ? $data->id : '' }}" data-original-title="NOVO QRCODE" data-tt="tooltip" class="btn btn-success btn-md"> <i class="fa fa-qrcode"></i> WHATSAPP</button>
+                                <button type="button" data-toggle="modal" data-target="#modal-whatsapp" id="{{ isset($data->id) ? $data->id : '' }}" data-original-title="WHATSAPP" data-tt="tooltip" class="btn btn-success btn-md"> <i class="fa fa-qrcode"></i> WHATSAPP</button>
                                 <button type="button" data-toggle="modal" data-target="#modal-inter" data-original-title="Configurar Banco Inter" data-tt="tooltip" class="btn btn-md" style="background:#ff8c00;color:#fff;"><i class="fas fa-university"></i> BANCO INTER</button>
                                 <button type="button" data-toggle="modal" data-target="#modal-paghiper" id="{{ isset($data->id) ? $data->id : '' }}" data-original-title="Configurar PagHiper" data-tt="tooltip" class="btn btn-md" style="background:blue;color:#fff;"><i class="fas fa-university"></i> PAG HIPER</button>
                                 <button type="button" data-toggle="modal" data-target="#modal-mp" id="{{ isset($data->id) ? $data->id : '' }}" data-original-title="Configurar Mercado Pago" data-tt="tooltip" class="btn btn-md" style="background:#48c5d6;color:#fff;"><i class="fas fa-university"></i> MERCADO PAGO</button>
@@ -233,16 +233,16 @@
         <div class="modal-body-whatsapp">
             <div class="col-md-12">
                 <div class="d-flex justify-content-center p-2">
-                <a href="#" data-original-title="Gerar Sessão" data-tt="tooltip" class="btn btn-secondary" id="btn-generate-session" data-user-email="{{ isset($data->email) ? $data->email : '' }}"><i class="fa fa-save fa-1x"></i> Gerar Sessão</a>
+                <a href="#" data-original-title="Gerar Sessão" data-tt="tooltip" class="btn btn-secondary" onclick="sessionWhatsapp()" id="btn-session-whatsapp" ><i class="fa fa-save fa-1x"></i> Gerar Sessão</a>
                 </div>
         <div class="table-responsive fixed-solution">
             <table class="table table-hover table-striped table-sm">
                 <thead class="thead-light">
                 <tr>
                     <th> Sessão</th>
-                    <th> Padrão</th>
+                    <th> API_KEY</th>
                     <th> Status</th>
-                    <th style="width: 200px;"></th>
+                    <th style="width: 320px;"></th>
                 </tr>
                 </thead>
                 <tbody class="tbodyCustom" id="load-whatsapp-sessions">
@@ -421,35 +421,27 @@ $(window).on("load", function(){
 });
 
 
-$("#btn-generate-session").on("click", function(e) {
+function sessionWhatsapp(){
 
-    if(confirm("Deseja gerar uma nova sessão?")){
-        var email = $(this).data('user-email');
-    //$(".modal-body-whatsapp").html(`<img src="${data.qrcode}" style="width:500px; height:500px;">`);
-            e.preventDefault();
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': "{{csrf_token()}}"
                 }
             });
             $.ajax({
-                url: `https://zapestrategico.com.br/api/create-session/${email}`,
+                url: '{{url("admin/users-whatsapp")}}',
                 method:'POST',
-                data:{company:$('#company').val(),password:$('#password').val(),user_id_cobseg:$('#user-id').val()},
             success:function(data){
-                    console.log(data);
-                    Swal.fire({
-                        width:350,
-                        title: "<h5 style='color:#007bff'>Leia o QRCODE abaixo</h5>",
-                        icon: 'success',
-                        showConfirmButton: true,
-                        showClass: {
-                            popup: 'animate__animated animate__backInUp'
-                        },
-                        allowOutsideClick: false,
-                        html:
-                        `<div class="text-center"><img src="${data.qrcode}" style="width:250px; height:250px;"></div>`
-                    });
+                Swal.fire({
+                    width:350,
+                    title: "<h5 style='color:#007bff'>"+data.title+"</h5>",
+                    icon: data.icon,
+                    showConfirmButton: true,
+                    showClass: {
+                        popup: 'animate__animated animate__backInUp'
+                    },
+                    allowOutsideClick: false
+                });
                     loadWhatsapp();
                 },
                 error:function (xhr) {
@@ -484,176 +476,37 @@ $("#btn-generate-session").on("click", function(e) {
         })
 
 
-    }else{
-        return false;
     }
 
-    });
-//End create session whatsapp
 
-$(document).on('click', '#btn-delete-whatsapp', function(e) {
-
-if(confirm("Deseja remover esta sessão?")){
-    var access_token = $(this).data('access-token');
-
-        e.preventDefault();
-        $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': "{{csrf_token()}}"
-                }
-            });
-        $.ajax({
-            url: `https://zapestrategico.com.br/api/delete-session/${access_token}`,
-            method:'DELETE',
-        success:function(data){
-            console.log(data);
-                Swal.fire({
-                    width:350,
-                    title: "<h5 style='color:#007bff'>Sessão Removida com sucesso!</h5>",
-                    icon: 'success',
-                    showConfirmButton: true,
-                    showClass: {
-                        popup: 'animate__animated animate__backInUp'
-                    },
-                    allowOutsideClick: false
-                });
-                loadWhatsapp();
-            },
-            error:function (xhr) {
-
-                if(xhr.status === 422){
-                    Swal.fire({
-                        text: xhr.responseJSON,
-                        width:300,
-                        icon: 'warning',
-                        color: '#007bff',
-                        confirmButtonColor: "#007bff",
-                        showClass: {
-                            popup: 'animate__animated animate__wobble'
-                        }
-                    });
-                } else{
-                    Swal.fire({
-                        text: xhr.responseJSON,
-                        width:300,
-                        icon: 'error',
-                        color: '#007bff',
-                        confirmButtonColor: "#007bff",
-                        showClass: {
-                            popup: 'animate__animated animate__wobble'
-                        }
-                    });
-                }
-
-
-            }
-
-    })
-
-
-}else{
-    return false;
-}
-
-});
-//End edit session whatsapp
-
-$(document).on('click', '#btn-default-whatsapp', function(e) {
-
-    var url = '{{url("admin/user-default-whatsapp")}}';
-
-if(confirm("Deseja definir esta sessão como padrão?")){
-    var access_token = $(this).data('access-token');
-
-        e.preventDefault();
-        $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': "{{csrf_token()}}"
-                }
-            });
-        $.ajax({
-            url: `${url+'/'+access_token}`,
-            method:'POST',
-        success:function(data){
-            console.log(data);
-                Swal.fire({
-                    width:350,
-                    title: "<h5 style='color:#007bff'>Sessão definida como padrão!</h5>",
-                    icon: 'success',
-                    showConfirmButton: true,
-                    showClass: {
-                        popup: 'animate__animated animate__backInUp'
-                    },
-                    allowOutsideClick: false
-                });
-                //loadWhatsapp();
-                location.reload();
-
-            },
-            error:function (xhr) {
-
-                if(xhr.status === 422){
-                    Swal.fire({
-                        text: xhr.responseJSON,
-                        width:300,
-                        icon: 'warning',
-                        color: '#007bff',
-                        confirmButtonColor: "#007bff",
-                        showClass: {
-                            popup: 'animate__animated animate__wobble'
-                        }
-                    });
-                } else{
-                    Swal.fire({
-                        text: xhr.responseJSON,
-                        width:300,
-                        icon: 'error',
-                        color: '#007bff',
-                        confirmButtonColor: "#007bff",
-                        showClass: {
-                            popup: 'animate__animated animate__wobble'
-                        }
-                    });
-                }
-
-
-            }
-
-    })
-
-
-}else{
-    return false;
-}
-
-});
-//End default session whatsapp
 
 function loadWhatsapp(){
 
-var user_id = $('#user-id').val();
-var access_token = $('#access-token-wp').val();
 
 $.ajax({
-            url: `https://zapestrategico.com.br/api/list-sessions/${user_id}`,
+            url: "{{url('admin/users-whatsapp')}}",
             method: 'GET',
             success:function(data){
-                console.log(data);
                 $('#load-whatsapp-sessions').html('');
                 var html = '';
-                $.each(data, function(i, item) {
                     html += '<tr>';
-                    html += `<td>${item.session}</td>`;
-                    html += `<td>${item.access_token == access_token ? 'Sim' : 'Não'}</td>`;
-                    html += `<td><label class="badge badge-${item.status == 'Conectado' ? 'success' : 'danger'}">${item.status}</label></td>`;
+                    html += `<td>${data.api_session_whatsapp}</td>`;
+                    html += `<td>${data.api_token_whatsapp}</td>`;
+                    html += `<td><label class="badge badge-${data.api_status_whatsapp == 'open' ? 'success' : 'warning'}">${data.api_status_whatsapp == 'open' ? 'Conectado' : 'Desconectado'}</label></td>`;
                     html += `<td>
-                        <a href="#" data-original-title="Definir como padrão" id="btn-default-whatsapp" data-access-token="${item.access_token}" data-tt="tooltip" class="btn btn-success btn-xs"> <i class="fa fa-list"></i> Definir como padrão</a>
-                        <a href="#" data-original-title="Deletar" id="btn-delete-whatsapp" data-access-token="${item.access_token}" data-tt="tooltip" class="btn btn-danger btn-xs"> <i class="fa fa-list"></i> Deletar</a>
+                        <button type="button" id="btn-qrcode" onclick="getQRCODE();" data-original-title="QRCODE"data-tt="tooltip" data-placement="left" class="btn btn-success btn-xs"> <i class="fa fa-qrcode"></i> QRCODE</button>
+                        <button type="button" onclick="checkStatus();" id="btn-status" data-original-title="Verificar status" data-tt="tooltip" data-placement="left" class="btn btn-info btn-xs"> <i class="fa fa-info"></i> Status</button>
+                        <button type="button" onclick="logout();" id="btn-logout" data-original-title="Desconectar"data-tt="tooltip" data-placement="left" class="btn btn-warning btn-xs"> <i class="fas fa-sign-out-alt"></i> Desconectar</button>
+                        <button type="button" onclick="deleteWhatsapp();" id="btn-logout" data-original-title="Remover"data-tt="tooltip" data-placement="left" class="btn btn-danger btn-xs"> <i class="fas fa-trash"></i> Remover</button>
                         </td>`;
                     html += '</tr>';
 
-                });
-                $('#load-whatsapp-sessions').append(html);
+                    if(data.api_session_whatsapp == null || data.api_token_whatsapp == null){
+                        $('#load-whatsapp-sessions').append('Sessão não cadastrada!');
+                    }else{
+                        $('#load-whatsapp-sessions').append(html);
+                    }
+
 
             },
             error:function (xhr) {
@@ -683,6 +536,155 @@ $.ajax({
 }
 
 
+function checkStatus() {
+        $("#btn-status").attr("disabled", true);
+        $("#btn-status").text('Aguarde...');
+        var url = '{{ url("admin/users-whatsapp-status") }}';
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          Swal.fire({
+            title: data['title'],
+            icon: data['icon'],
+        }).then((result) => {
+                if (result.isConfirmed) {
+                    $("#btn-status").attr("disabled", false);
+                    $("#btn-status").html('<i class="fa fa-info"></i> Consultar Status');
+                    //location.reload();
+                    loadWhatsapp();
+                }
+            });
+        })
+        .catch(error => {
+            $("#btn-status").attr("disabled", false);
+            $("#btn-status").html('<i class="fa fa-info"></i> Consultar Status');
+          Swal.fire({
+            title: 'Erro',
+            text: 'Ocorreu um erro ao consultar a API.',
+            icon: 'error',
+            confirmButtonText: 'OK',
+          });
+        });
+    }
+
+
+    function getQRCODE() {
+        $("#btn-qrcode").attr("disabled", true);
+        $("#btn-qrcode").text('Aguarde...');
+
+        var url = '{{ url("admin/users-whatsapp-qrcode") }}';
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          Swal.fire({
+            title: data['title'],
+            html: data['msg'],
+            icon: data['icon'],
+            confirmButtonText: 'OK'
+        }).then((result) => {
+                if (result.isConfirmed) {
+                    $("#btn-qrcode").attr("disabled", false);
+                    $("#btn-qrcode").html('<i class="fa fa-qrcode"></i> QRCODE');
+                    checkStatus();
+                }
+            });
+        })
+        .catch(error => {
+            $("#btn-qrcode").attr("disabled", false);
+            $("#btn-qrcode").html('<i class="fa fa-qrcode"></i> QRCODE');
+          Swal.fire({
+            title: 'Atenção',
+            text: 'Ocorreu um erro ao consultar a API.',
+            icon: 'error',
+            confirmButtonText: 'OK',
+          });
+        });
+
+    }
+
+
+    function logout(session_id) {
+        $("#btn-logout").attr("disabled", true);
+        $("#btn-logout").text('Aguarde...');
+
+        var url = '{{ url("admin/users-whatsapp-logout") }}';
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            $("#btn-logout").attr("disabled", false);
+            $("#btn-logout").html('<i class="fas fa-sign-out-alt"></i> Desconectar');
+          Swal.fire({
+            title: data['msg'],
+            icon: data['icon'],
+            confirmButtonText: 'OK',
+        }).then((result) => {
+            $("#btn-logout").attr("disabled", false);
+            $("#btn-logout").html('<i class="fas fa-sign-out-alt"></i> Desconectar');
+                if (result.isConfirmed) {
+                    checkStatus();
+                }
+            });
+        })
+        .catch(error => {
+            $("#btn-logout").attr("disabled", false);
+            $("#btn-logout").html('<i class="fas fa-sign-out-alt"></i> Desconectar');
+          Swal.fire({
+            title: 'Atenção',
+            text: 'Ocorreu um erro ao consultar a API.',
+            icon: 'error',
+            confirmButtonText: 'OK',
+          });
+        });
+    }
+
+
+    function deleteWhatsapp(){
+
+Swal.fire({
+    title: 'Deseja remover esta sessão?',
+    text: "Você não poderá reverter isso!",
+    icon: 'question',
+    showCancelButton: true,
+    cancelButtonText: 'Não',
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Sim, remover!'
+}).then((result) => {
+    if (result.value) {
+        $.ajax({
+            url: '{{url("admin/users-whatsapp-delete")}}',
+            method: 'GET',
+            success:function(data){
+                loadWhatsapp();
+            },
+            error:function (xhr) {
+
+                if(xhr.status === 422){
+                    Swal.fire({
+                        text: xhr.responseJSON,
+                        icon: 'warning',
+                        showClass: {
+                            popup: 'animate__animated animate__wobble'
+                        }
+                    });
+                } else{
+                    Swal.fire({
+                        text: xhr.responseJSON,
+                        icon: 'error',
+                        showClass: {
+                            popup: 'animate__animated animate__wobble'
+                        }
+                    });
+                }
+
+
+            }
+        });
+
+    }
+});
+
+}
 
 </script>
 

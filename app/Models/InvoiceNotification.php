@@ -415,7 +415,7 @@ class InvoiceNotification extends Model
 
             $data['text_whatsapp_payment'] = '';
 
-        if($whats_payment_method == 'Boleto' || $whats_payment_method == 'BoletoPix'){
+        if($whats_payment_method == 'Boleto'){
             $whats_billet_digitable_line = removeEspeciais($whats_billet_digitable_line);
 
             $response = Http::withHeaders([
@@ -427,10 +427,29 @@ class InvoiceNotification extends Model
                 "mediaMessage"   => [
                     "mediatype"  =>  "document",
                     "caption"    =>  $whats_billet_digitable_line,
-                    "media"      =>  $whats_payment_method == 'Boleto' ? config('app.url').'/boleto/'.$whats_billet_url_slip : config('app.url').'/boletopix/'.$whats_billet_url_slip,
+                    //"media"      => config('app.url').'/boleto/'.$whats_billet_url_slip,
+                    "media"      => $whats_billet_base64,
                     "fileName"   => 'Fatura_'.$whats_invoice_id.'.pdf'
                 ]
             ]);
+
+            if($whats_payment_method == 'BoletoPix'){
+                $whats_billet_digitable_line = removeEspeciais($whats_billet_digitable_line);
+
+                $response = Http::withHeaders([
+                    "Content-Type"  => "application/json",
+                    'apikey'        => $data['api_token_whatsapp']
+                ])
+                ->post(config('options.api_url_evolution').'message/sendMedia/'.$data['api_session_whatsapp'],[
+                    "number"         => '55'.$data['customer_whatsapp'],
+                    "mediaMessage"   => [
+                        "mediatype"  =>  "document",
+                        "caption"    =>  $whats_billet_digitable_line,
+                        //"media"      =>  config('app.url').'/boletopix/'.$whats_billet_url_slip,
+                        "media"      => $whats_billet_base64,
+                        "fileName"   => 'Fatura_'.$whats_invoice_id.'.pdf'
+                    ]
+                ]);
 
 
             $result = $response->getBody();

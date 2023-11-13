@@ -342,14 +342,14 @@ class InvoiceNotification extends Model
             'email_id'          => '',
             'status'            => $status,
             'message_status'    => null,
-            'message'           => $whats_message,
+            'message'           => null,
             'created_at'        => Carbon::now(),
             'updated_at'        => Carbon::now()
         ]);
 
     }else{
-        $whats_message          = $response->json();
-        return ['message' => $response->json(), 'image' => '', 'file' => ''];
+        $whats_message          = 'Erro ao enviar';
+        return ['message' => 'Erro ao enviar', 'image' => '', 'file' => ''];
     }
 
         if($data['status'] == 'Pendente') {

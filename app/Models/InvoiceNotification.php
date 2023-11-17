@@ -232,7 +232,7 @@ class InvoiceNotification extends Model
             'user_whatsapp'             => removeEspeciais($invoice['user_whatsapp']),
             'user_telephone'            => removeEspeciais($invoice['user_telephone']),
             'user_email'                => $invoice['user_email'],
-            'user_access_token_wp'      => $invoice['api_access_token_whatsapp'],
+            //'user_access_token_wp'      => $invoice['api_access_token_whatsapp'],
             'user_id'                   => $invoice['user_id'],
             'customer'                  => $invoice['name'],
             'customer_email'            => $invoice['email'],

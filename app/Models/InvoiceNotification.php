@@ -366,7 +366,8 @@ class InvoiceNotification extends Model
                 "mediaMessage"   => [
                     "mediatype"  =>  "image",
                     "caption"    =>  $whats_pix_emv,
-                    "media"      =>  config('app.url').'/pix/'.$data['whats_pix_image']
+                    //"media"      =>  config('app.url').'/pix/'.$data['whats_pix_image']
+                    "media"      => preg_replace('/[^a-zA-Z0-9\/\+=]/', '', $data['whats_pix_image'])
                 ]
             ]);
 
@@ -445,8 +446,9 @@ class InvoiceNotification extends Model
                     "mediaMessage"   => [
                         "mediatype"  =>  "document",
                         "caption"    =>  $whats_billet_digitable_line,
-                        "media"      =>  config('app.url').'/boletopix/'.$whats_billet_url_slip,
+                        //"media"      =>  config('app.url').'/boletopix/'.$whats_billet_url_slip,
                         //"media"      => $whats_billet_base64,
+                        "media"      => preg_replace('/[^a-zA-Z0-9\/\+=]/', '', $whats_billet_base64),
                         "fileName"   => 'Fatura_'.$whats_invoice_id.'.pdf'
                     ]
                 ]);

@@ -366,8 +366,8 @@ class InvoiceNotification extends Model
                 "mediaMessage"   => [
                     "mediatype"  =>  "image",
                     "caption"    =>  $whats_pix_emv,
-                    "media"      =>  config('app.url').'/pix/'.$data['whats_pix_image']
-                    //"media"      => preg_replace('/[^a-zA-Z0-9\/\+=]/', '', $data['whats_pix_image'])
+                    //"media"      =>  config('app.url').'/pix/'.$data['whats_pix_image']
+                    "media"      => preg_replace('/[^a-zA-Z0-9\/\+=]/', '', $data['pix_qrcode_base64'])
                 ]
             ]);
 

@@ -17,6 +17,7 @@ use App\Http\Controllers\API\InvoiceController;
 */
 
 Route::get('/invoices',[InvoiceController::class, 'index']);
+Route::post('/invoices/notify',[InvoiceController::class, 'notificar']);
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();

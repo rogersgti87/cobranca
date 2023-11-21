@@ -8,6 +8,7 @@ use DB;
 use App\Models\Invoice;
 use App\Models\User;
 use App\Models\Customer;
+use App\Models\InvoiceNotification;
 
 class InvoiceController extends Controller
 {
@@ -31,11 +32,12 @@ $data = "";
 
 foreach($invoices as $invoice){
 
-    $data .= "*Fatura Nº: $invoice->id*\n";
+    $data .= "*[$invoice->id] - Fatura*\n";
     $data .= "*Descrição: $invoice->description*\n";
     $data .= "*Valor: R$ ".number_format($invoice->price,2,',','.')."*\n";
     $data .= "*Data da fatura: ".date('d/m/Y',strtotime($invoice->date_invoice))."*\n";
     $data .= "*Vencimento: ".date('d/m/Y',strtotime($invoice->date_due))."*\n";
+    $data .= "-----------------------------------\n\n";
 
 }
 
@@ -48,9 +50,17 @@ foreach($invoices as $invoice){
     }
 
 
-    public function store(Request $request)
+    public function notificar(Request $request)
     {
-        //
+
+        if($request->input('tipo') == 'email'){
+            InvoiceNotification::Email($request->input('invoice_id'));
+        }
+
+
+        if($request->input('tipo') == 'whatsapp'){
+            InvoiceNotification::Whatsapp($request->input('invoice_id'));
+        }
     }
 
 

@@ -27,16 +27,20 @@ class InvoiceController extends Controller
         $customer = Customer::where('document',$request->input('document'))->where('user_id',$user->id)->first();
         $invoices = Invoice::select('id','price','date_invoice','date_due','description')->where('status','Pendente')->where('user_id',$user->id)->where('customer_id',$customer->id)->get();
 
-// $data = [];
+$data = "";
 
-//         foreach($invoices as $invoice){
-//             $data[] = [
-//                 'id' => $invoice['id']
-//             ];
-//         }
+foreach($invoices as $invoice){
+
+    $data .= "*Fatura Nº: $invoice->id*\n";
+    $data .= "*Descrição: $invoice->description*\n";
+    $data .= "*Valor: R$ ".number_format($invoice->price,2,',','.')."*\n";
+    $data .= "*Data da fatura: ".date('d/m/Y',strtotime($invoice->date_invoice))."*\n";
+    $data .= "*Vencimento: ".date('d/m/Y',strtotime($invoice->date_due))."*\n";
+
+}
 
         if($invoices != null){
-            return response()->json($invoices, 200);
+            return response()->json($data, 200);
         }else{
             return response()->json('Fatura não localizada!', 200);
         }

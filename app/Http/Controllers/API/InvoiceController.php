@@ -64,9 +64,14 @@ foreach($invoices as $invoice){
     }
 
 
-    public function show($id)
+    public function checkInvoice(Request $request)
     {
-        //
+        $invoice = Invoice::select('id')->where('status','Pendente')->where('user_id',$request->input('user_id'))->where('customer_id',$request->input('customer_id'))->where('id',$request->input('invoice_id'))->first();
+         if($invoice != null){
+            return response()->json('ok', 200);
+        }else{
+            return response()->json('Número da Fatura incorrreta!', 400);
+        }
     }
 
 

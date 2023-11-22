@@ -42,7 +42,7 @@ $data = "";
 
 foreach($invoices as $invoice){
 
-    $data .= "*• $invoice->id * (R$ ".number_format($invoice->price,2,',','.') - date('d/m/Y',strtotime($invoice->date_due)) )\n";    
+    $data .= "*• ".$invoice->id ."* (R$ ".number_format($invoice->price,2,',','.')." - ".date('d/m/Y',strtotime($invoice->date_due)) .")\n";    
 
 }
 

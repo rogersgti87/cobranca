@@ -27,7 +27,7 @@ class InvoiceController extends Controller
         $user     = User::where('typebot_id',$request->input('typebot_id'))->first();
         $customer = Customer::where('document',$request->input('document'))->where('user_id',$user->id)->first();
         
-        if($request->input('check_invoice')){
+        if($request->input('invoice_id')){
             $invoice = Invoice::select('id')->where('status','Pendente')->where('user_id',$request->input('user_id'))->where('customer_id',$request->input('customer_id'))->where('id',$request->input('invoice_id'))->first();
              if($invoice != null){
                 return response()->json('ok', 200);

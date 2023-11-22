@@ -45,7 +45,7 @@ foreach($invoices as $invoice){
         if($invoices != null){
             return response()->json($data, 200);
         }else{
-            return response()->json('Fatura não localizada!', 200);
+            return response()->json('Fatura não encontrada!', 400);
         }
 
     }

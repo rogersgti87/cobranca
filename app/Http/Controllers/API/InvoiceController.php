@@ -32,13 +32,12 @@ $data = "";
 
 foreach($invoices as $invoice){
 
-    $data .= "----------------------------------------------------------------------\n\n";
-    $data .= "-----------------------FATURA: *$invoice->id*--------------------------\n";    
+    $data .= "----------------------------------------\n\n";
+    $data .= "------------FATURA: *$invoice->id*-------------\n";    
     $data .= "*Descrição:* $invoice->description\n";
     $data .= "*Valor: *R$ ".number_format($invoice->price,2,',','.')."\n";
     $data .= "*Data da fatura:* ".date('d/m/Y',strtotime($invoice->date_invoice))."\n";
-    $data .= "*Vencimento:* ".date('d/m/Y',strtotime($invoice->date_due))."\n";
-    $data .= "----------------------------------------------------------------------\n\n";
+    $data .= "*Vencimento:* ".date('d/m/Y',strtotime($invoice->date_due))."\n";    
 
 }
 

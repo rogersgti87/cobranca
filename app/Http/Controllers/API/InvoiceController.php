@@ -25,7 +25,7 @@ class InvoiceController extends Controller
         }
 
         $user     = User::where('typebot_id',$request->input('typebot_id'))->first();
-        $customer = Customer::where('document',$request->input('document'))->where('user_id',$user->id)->first();
+        $customer = Customer::where('document',removeEspeciais($request->input('document')))->where('user_id',$user->id)->first();
         
         if($request->input('invoice_id')){
             $invoice = Invoice::select('id')->where('status','Pendente')->where('user_id',$user->id)->where('customer_id',$customer->id)->where('id',$request->input('invoice_id'))->first();
@@ -43,7 +43,7 @@ $data = "";
 foreach($invoices as $invoice){
 
     //$data .= "----------------------------------------\n\n";
-    $data .= "*$invoice->id*\n";    
+    $data .= "* [ $invoice->id ] *\n";    
     $data .= "*Descrição:* $invoice->description\n";
     $data .= "*Valor:* R$ ".number_format($invoice->price,2,',','.')."\n";
     $data .= "*Data da fatura:* ".date('d/m/Y',strtotime($invoice->date_invoice))."\n";

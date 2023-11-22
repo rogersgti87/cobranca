@@ -15,7 +15,7 @@ class InvoiceController extends Controller
 
     public function index(Request $request)
     {
-
+        
         if(!$request->input('typebot_id') || $request->input('typebot_id') == null){
             return response()->json('typebot_id é obrigatório!');
         }
@@ -26,6 +26,16 @@ class InvoiceController extends Controller
 
         $user     = User::where('typebot_id',$request->input('typebot_id'))->first();
         $customer = Customer::where('document',$request->input('document'))->where('user_id',$user->id)->first();
+        
+        if($request->input('check_invoice')){
+            $invoice = Invoice::select('id')->where('status','Pendente')->where('user_id',$request->input('user_id'))->where('customer_id',$request->input('customer_id'))->where('id',$request->input('invoice_id'))->first();
+             if($invoice != null){
+                return response()->json('ok', 200);
+            }else{
+                return response()->json('Número da Fatura incorrreta!', 400);
+            }
+        }
+        
         $invoices = Invoice::select('id','price','date_invoice','date_due','description')->where('status','Pendente')->where('user_id',$user->id)->where('customer_id',$customer->id)->get();
 
 $data = "";

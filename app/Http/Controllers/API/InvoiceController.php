@@ -58,14 +58,17 @@ foreach($invoices as $invoice){
     public function notificar(Request $request)
     {
 
-        if($request->input('tipo') == 'email'){
-            InvoiceNotification::Email($request->input('invoice_id'));
-        }
+        InvoiceNotification::Email($request->input('invoice_id'));
+        InvoiceNotification::Whatsapp($request->input('invoice_id'));
+        
+        // if($request->input('tipo') == 'email'){
+        //     InvoiceNotification::Email($request->input('invoice_id'));
+        // }
 
 
-        if($request->input('tipo') == 'whatsapp'){
-            InvoiceNotification::Whatsapp($request->input('invoice_id'));
-        }
+        // if($request->input('tipo') == 'whatsapp'){
+        //     InvoiceNotification::Whatsapp($request->input('invoice_id'));
+        // }
     }
 
 

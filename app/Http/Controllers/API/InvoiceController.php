@@ -58,7 +58,8 @@ foreach($invoices as $invoice){
     public function notificar(Request $request)
     {
 
-        InvoiceNotification::Email($request->input('invoice_id'));
+        $email = InvoiceNotification::Email($request->input('invoice_id'));
+         \Log::info($email);
         
         $whatsapp = InvoiceNotification::Whatsapp($request->input('invoice_id'));
         \Log::info($whatsapp);

@@ -100,7 +100,20 @@ if($invoice['gateway_payment'] == 'Intermedium'){
 
    if($invoice['send_generate_invoice'] == 'Sim'){
         InvoiceNotification::Email($invoice['id']);
-        InvoiceNotification::Whatsapp($invoice['id']);
+
+        if(date('l') != 'Sunday'){
+
+            $now = Carbon::now();
+            $start = Carbon::createFromTimeString('08:00');
+            $end = Carbon::createFromTimeString('21:00');
+
+            if ($now->between($start, $end)) {
+       
+                InvoiceNotification::Whatsapp($invoice['id']);
+
+            }
+
+        }
    }
 
 

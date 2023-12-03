@@ -59,7 +59,9 @@ foreach($invoices as $invoice){
     {
 
         InvoiceNotification::Email($request->input('invoice_id'));
-        InvoiceNotification::Whatsapp($request->input('invoice_id'));
+        
+        $whatsapp = InvoiceNotification::Whatsapp($request->input('invoice_id'));
+        \Log::info($whatsapp);
         
         // if($request->input('tipo') == 'email'){
         //     InvoiceNotification::Email($request->input('invoice_id'));

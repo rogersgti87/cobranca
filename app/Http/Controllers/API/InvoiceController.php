@@ -16,15 +16,15 @@ class InvoiceController extends Controller
     public function index(Request $request)
     {
         
-        if(!$request->input('typebot_id') || $request->input('typebot_id') == null){
-            return response()->json('typebot_id é obrigatório!');
-        }
+        // if(!$request->input('typebot_id') || $request->input('typebot_id') == null){
+        //     return response()->json('typebot_id é obrigatório!');
+        // }
 
         if(!$request->input('document') || $request->input('document') == null){
             return response()->json('document é obrigatório!');
         }
 
-        $user     = User::where('typebot_id',$request->input('typebot_id'))->first();
+        $user     = User::where('id',$request->input('user_cob_seg'))->first();
         $customer = Customer::where('document',removeEspeciais($request->input('document')))->where('user_id',$user->id)->first();
         
         if($request->input('invoice_id')){

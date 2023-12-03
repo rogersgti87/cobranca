@@ -107,18 +107,29 @@ class WebHookController extends Controller
             'updated_at'   =>   Carbon::now()
         ]);
         InvoiceNotification::Email($invoice->id);
+
+         if(date('l') != 'Sunday'){
+
+            $now = Carbon::now();
+            $start = Carbon::createFromTimeString('08:00');
+            $end = Carbon::createFromTimeString('19:00');
+
+            if ($now->between($start, $end)) {
         InvoiceNotification::Whatsapp($invoice->id);
+
+            }
+         }
     }
 
-    // if($result->status == 'canceled' || $result->status == 'refunded'){
-    //     Invoice::where('id',$result->order_id)->where('transaction_id',$result->transaction_id)->update([
-    //         'status'       =>   'Cancelado',
-    //         'date_payment' =>   Null,
-    //         'updated_at'   =>   Carbon::now()
-    //     ]);
+    if($result->status == 'canceled'){
+        Invoice::where('id',$result->order_id)->where('transaction_id',$result->transaction_id)->update([
+            'status'       =>   'Cancelado',
+            'date_payment' =>   Null,
+            'updated_at'   =>   Carbon::now()
+        ]);
     //     InvoiceNotification::Email($invoice->id);
     //     InvoiceNotification::Whatsapp($invoice->id);
-    // }
+     }
 
 
 
@@ -156,7 +167,18 @@ class WebHookController extends Controller
                 'updated_at'   =>   Carbon::now()
             ]);
             InvoiceNotification::Email($invoice->id);
+
+             if(date('l') != 'Sunday'){
+
+            $now = Carbon::now();
+            $start = Carbon::createFromTimeString('08:00');
+            $end = Carbon::createFromTimeString('19:00');
+
+            if ($now->between($start, $end)) {
             InvoiceNotification::Whatsapp($invoice->id);
+
+            }
+             }
         }
 
         if($payment->status == 'cancelled'){
@@ -207,7 +229,17 @@ class WebHookController extends Controller
                 'updated_at'   =>   Carbon::now()
             ]);
             InvoiceNotification::Email($seuNumero);
+
+             if(date('l') != 'Sunday'){
+
+            $now = Carbon::now();
+            $start = Carbon::createFromTimeString('08:00');
+            $end = Carbon::createFromTimeString('19:00');
+
+            if ($now->between($start, $end)) {
             InvoiceNotification::Whatsapp($seuNumero);
+            }
+             }
         }
 
         if($status == 'CANCELADO'){
@@ -258,7 +290,17 @@ class WebHookController extends Controller
                 'updated_at'   =>   Carbon::now()
             ]);
             InvoiceNotification::Email($result->id);
+
+             if(date('l') != 'Sunday'){
+
+            $now = Carbon::now();
+            $start = Carbon::createFromTimeString('08:00');
+            $end = Carbon::createFromTimeString('19:00');
+
+            if ($now->between($start, $end)) {
             InvoiceNotification::Whatsapp($result->id);
+            }
+             }
         }
 
         if($status == 'CANCELADO'){
@@ -315,7 +357,16 @@ class WebHookController extends Controller
             ]);
 
             InvoiceNotification::Email($result->id);
+         if(date('l') != 'Sunday'){
+
+            $now = Carbon::now();
+            $start = Carbon::createFromTimeString('08:00');
+            $end = Carbon::createFromTimeString('19:00');
+
+            if ($now->between($start, $end)) {
             InvoiceNotification::Whatsapp($result->id);
+            }
+         }
 
     }
 

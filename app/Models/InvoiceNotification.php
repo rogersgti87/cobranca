@@ -176,13 +176,13 @@ class InvoiceNotification extends Model
         $status_image         = 'Não enviado';
         $status_file          = 'Não enviado';
 
-        if(date('l') != 'Sunday'){
+        //if(date('l') != 'Sunday'){
 
-            $now = Carbon::now();
-            $start = Carbon::createFromTimeString('08:00');
-            $end = Carbon::createFromTimeString('21:00');
+            //$now = Carbon::now();
+            //$start = Carbon::createFromTimeString('08:00');
+            //$end = Carbon::createFromTimeString('21:00');
 
-            if ($now->between($start, $end)) {
+            //if ($now->between($start, $end)) {
                 if($invoice['notification_whatsapp'] == 's' && $invoice['status'] != 'Erro'){
                     if($invoice['status'] == 'Pendente'){
                         $title                  = 'Fatura';
@@ -497,12 +497,12 @@ class InvoiceNotification extends Model
 
         }
     }
-    }
+    //}
 
     //\Log::info('Linha 430:'. json_encode(['message' => $status_message, 'image' => $status_image, 'file' => $status_file]));
 
     return ['message' => $status_message, 'image' => $status_image, 'file' => $status_file];
-    }
+    //}
 
 }
 

@@ -27,7 +27,7 @@ class GenerateInvoiceCron extends Command
   public function handle()
   {
 
-$invoices = ViewInvoice::where('status','Gerando')->limit(3)->get();
+$invoices = ViewInvoice::where('status','Gerando')->orwhere('status','Erro')->limit(3)->get();
 
 if($invoices != null){
 
@@ -105,10 +105,10 @@ if($invoice['gateway_payment'] == 'Intermedium'){
 
             $now = Carbon::now();
             $start = Carbon::createFromTimeString('08:00');
-            $end = Carbon::createFromTimeString('21:00');
+            $end = Carbon::createFromTimeString('19:00');
 
             if ($now->between($start, $end)) {
-       
+
                 InvoiceNotification::Whatsapp($invoice['id']);
 
             }

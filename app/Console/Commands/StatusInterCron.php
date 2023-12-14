@@ -93,7 +93,6 @@ class StatusInterCron extends Command
                 }
 
                 if($invoice['payment_method'] == 'BoletoPix'){
-dd($invoice['transaction_id']);
                     $response = Http::withOptions(
                         [
                         'cert' => storage_path('/app/'.$user['inter_crt_file']),

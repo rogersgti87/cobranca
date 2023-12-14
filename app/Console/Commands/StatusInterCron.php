@@ -108,7 +108,7 @@ class StatusInterCron extends Command
 
                             if($status == 'RECEBIDO'){
                                 try{                                    
-                                //Invoice::where('transaction_id',$invoice['transaction_id'])->update(['status' => 'Pago']);                                    
+                                Invoice::where('transaction_id',$invoice['transaction_id'])->update(['status' => 'Pago']);                                    
                                  //DB::table('invoices')->where('transaction_id',$invoice['transaction_id'])->update([])   
                                 InvoiceNotification::Email($invoice['id']);
                                 InvoiceNotification::Whatsapp($invoice['id']);

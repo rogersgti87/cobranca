@@ -81,7 +81,7 @@ class StatusInterCron extends Command
                             $status = json_decode($responseBody)->situacao;
 
                             if($status == 'PAGO'){
-                                Invoice::where('transaction_id',$invoice['transaction_id'])->update(['status','Pago']);
+                                Invoice::where('transaction_id',$invoice['transaction_id'])->update(['status' => 'Pago']);
                                 InvoiceNotification::Email($invoice['id']);
                                 InvoiceNotification::Whatsapp($invoice['id']);
                             }
@@ -108,8 +108,7 @@ class StatusInterCron extends Command
 
                             if($status == 'RECEBIDO'){
                                 try{                                    
-                                Invoice::where('transaction_id',$invoice['transaction_id'])->update(['status' => 'Pago']);                                    
-                                 //DB::table('invoices')->where('transaction_id',$invoice['transaction_id'])->update([])   
+                                Invoice::where('transaction_id',$invoice['transaction_id'])->update(['status' => 'Pago']);
                                 InvoiceNotification::Email($invoice['id']);
                                 InvoiceNotification::Whatsapp($invoice['id']);
                                  } catch(\Exception $e){                                    
@@ -140,7 +139,7 @@ class StatusInterCron extends Command
                             $status = json_decode($responseBody)->status;
 
                             if($status == 'CONCLUIDA'){
-                                Invoice::where('transaction_id',$invoice['transaction_id'])->update(['status','Pago']);
+                                Invoice::where('transaction_id',$invoice['transaction_id'])->update(['status' => 'Pago']);
                                 InvoiceNotification::Email($invoice['id']);
                                 InvoiceNotification::Whatsapp($invoice['id']);
                             }

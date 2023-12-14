@@ -107,9 +107,14 @@ class StatusInterCron extends Command
                             $status = json_decode($responseBody)->cobranca->situacao;
 
                             if($status == 'RECEBIDO'){
+                                try{
                                 Invoice::where('transaction_id',$invoice['transaction_id'])->update(['status','Pago']);
                                 InvoiceNotification::Email($invoice['id']);
                                 InvoiceNotification::Whatsapp($invoice['id']);
+                                 } catch(\Exception $e){
+                                    \Log::info('Linha 115: '. $invoice['transaction_id']);
+                                    \Log::error($e->getMessage());                                    
+                                }
                             }
 
                         }else{

@@ -111,8 +111,7 @@ class StatusInterCron extends Command
                                 Invoice::where('transaction_id',$invoice['transaction_id'])->update(['status','Pago']);
                                 InvoiceNotification::Email($invoice['id']);
                                 InvoiceNotification::Whatsapp($invoice['id']);
-                                 } catch(\Exception $e){
-                                    dd($response->body());
+                                 } catch(\Exception $e){                                    
                                     \Log::info('Linha 115: '. $invoice['transaction_id']);
                                     \Log::error($e->getMessage());                                    
                                 }

@@ -102,7 +102,7 @@ class StatusInterCron extends Command
                         )->withHeaders([
                         'Authorization' => 'Bearer ' . $access_token
                     ])->get('https://cdpj.partners.bancointer.com.br/cobranca/v3/cobrancas/'.$invoice['transaction_id']);
-
+dd( $responseBody = $response->body());
                         if ($response->successful()) {
                             $responseBody = $response->body();
                             $status = json_decode($responseBody)->cobranca->situacao;

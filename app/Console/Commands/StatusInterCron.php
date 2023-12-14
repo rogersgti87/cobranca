@@ -107,9 +107,9 @@ class StatusInterCron extends Command
                             $status = json_decode($responseBody)->cobranca->situacao;
 
                             if($status == 'RECEBIDO'){
-                                try{
-                                    dd($status);
-                                Invoice::where('transaction_id',$invoice['transaction_id'])->update(['status','Pago']);                                    
+                                try{                                    
+                                //Invoice::where('transaction_id',$invoice['transaction_id'])->update(['status' => 'Pago']);                                    
+                                 //DB::table('invoices')->where('transaction_id',$invoice['transaction_id'])->update([])   
                                 InvoiceNotification::Email($invoice['id']);
                                 InvoiceNotification::Whatsapp($invoice['id']);
                                  } catch(\Exception $e){                                    

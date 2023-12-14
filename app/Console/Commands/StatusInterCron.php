@@ -112,6 +112,7 @@ class StatusInterCron extends Command
                                 InvoiceNotification::Email($invoice['id']);
                                 InvoiceNotification::Whatsapp($invoice['id']);
                                  } catch(\Exception $e){
+                                    dd($response->body());
                                     \Log::info('Linha 115: '. $invoice['transaction_id']);
                                     \Log::error($e->getMessage());                                    
                                 }

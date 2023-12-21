@@ -53,7 +53,8 @@ class AdminController extends Controller
         (select count(*) from invoices where status = 'Cancelado' and user_id = ".auth()->user()->id." ) as cancelled,
         (select count(*) from invoices where status = 'Pendente' and user_id = ".auth()->user()->id." and CURRENT_DATE > date_due) as due,
         (select count(*) from invoices where status = 'Pendente' and user_id = ".auth()->user()->id." and DATEDIFF(date_due, CURRENT_DATE) = 5 ) as five_days,
-        (select count(*) from invoices where status = 'Pendente' and user_id = ".auth()->user()->id." and DATEDIFF(date_due, CURRENT_DATE) = 0 ) as today
+        (select count(*) from invoices where status = 'Pendente' and user_id = ".auth()->user()->id." and DATEDIFF(date_due, CURRENT_DATE) = 0 ) as today,
+        (select count(*) from invoices where status = 'Erro' and user_id = ".auth()->user()->id.") as error
         "))->first();
 
         return view($this->datarequest['path'].'.dashboard',compact('total_customers','invoice'))->with($this->datarequest);

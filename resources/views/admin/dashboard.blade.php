@@ -167,6 +167,33 @@
   <!-- /.content-wrapper -->
 
 
+
+  <!-- Modal :: Form Invoice -->
+  <div class="modal fade" id="modalInvoiceError" tabindex="-1" role="dialog" aria-labelledby="modalInvoiceErrorLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form action="" class="form-horizontal" id="form-request-invoice-error">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalInvoiceErrorLabel"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="form-content-invoice-error">
+                    <!-- conteudo -->
+                    <!-- conteudo -->
+                </div><!-- modal-body -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal"><i class="fa fa-times"></i> Fechar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+ </div>
+ <!-- Modal :: Form Invoice -->
+
+
+
     @section('scripts')
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -288,6 +315,37 @@
     });
 
     </script>
+
+
+<script>
+
+
+function invoiceError(){
+
+$("#modalInvoiceError").modal('show');
+    $("#modalInvoiceErrorLabel").html('Faturas com erro');
+    var invoice = $(this).data('invoice');
+    var url = "{{url('/admin/load-invoice-error')}}";
+//console.log(url);
+$.get(url,
+    $(this)
+    .addClass('modal-scrollfix')
+    .find('#form-content-invoice-error')
+    .html('Carregando...'),
+    function(data) {
+        $("#form-content-invoice-error").html(data);
+    });
+}
+
+
+
+    document.addEventListener("DOMContentLoaded", function() {
+        @if($invoice->error > 0)
+            invoiceError();
+        @endif
+    });
+
+</script>
 
 
   @endsection

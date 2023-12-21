@@ -94,6 +94,7 @@ Route::group(['prefix' => 'admin','middleware' => ['auth']], function(){
     Route::get('load-invoice-notifications/{invoice_id}',[InvoiceController::class,'loadnotifications']);
     Route::get('invoices-check-status/{invoice_id}',[InvoiceController::class,'checkStatus']);
     Route::get('load-invoices',[InvoiceController::class,'loadinvoices']);
+    Route::get('load-invoice-error',[InvoiceController::class,'loadinvoiceerror']);
     Route::post('invoice-notificate/{invoice_id}',[InvoiceController::class,'invoiceNotificate']);
     Route::get('invoice-error/{id}',[InvoiceController::class,'error']);
 

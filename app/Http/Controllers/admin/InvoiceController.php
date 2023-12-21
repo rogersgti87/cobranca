@@ -482,6 +482,14 @@ if(isset($data['send_invoice_whatsapp'])){
     }
 
 
+    public function loadinvoiceerror(){
+
+        $data = ViewInvoice::where('user_id',auth()->user()->id)->where('status','Erro')->get();
+
+        return view('admin.invoice.error',compact('data'))->render();
+    }
+
+
     public function checkStatus($invoice_id){
 
         $checkInvoice = Invoice::select('invoices.id','invoices.transaction_id','users.token_paghiper','users.key_paghiper','invoices.payment_method','invoices.gateway_payment')

@@ -721,7 +721,7 @@ class Invoice extends Model
                     )->withHeaders([
                     'Authorization' => 'Bearer ' . $access_token
 
-                ])->get($invoice['inter_host'].'cobranca/v3/cobrancas/'.$result_generate_billet->codigoCobranca);
+                ])->get($invoice['inter_host'].'cobranca/v3/cobrancas/'.$result_generate_billet->codigoSolicitacao);
 
                 if ($response_get_billet->successful()) {
 
@@ -741,7 +741,7 @@ class Invoice extends Model
                     )->withHeaders([
                     'Authorization' => 'Bearer ' . $access_token
 
-                ])->get($invoice['inter_host'].'cobranca/v3/cobrancas/'.$result_generate_billet->codigoCobranca.'/pdf');
+                ])->get($invoice['inter_host'].'cobranca/v3/cobrancas/'.$result_generate_billet->codigoSolicitacao.'/pdf');
 
                 if ($response_pdf_billet->successful()) {
 
@@ -754,7 +754,7 @@ class Invoice extends Model
                     Invoice::where('id',$invoice_id)->update([
                         'status'            =>  'Pendente',
                         'msg_erro'          =>  null,
-                        'transaction_id'    =>  $result_generate_billet->codigoCobranca,
+                        'transaction_id'    =>  $result_generate_billet->codigoSolicitacao,
                         'billet_url'        =>  $billet_pdf,
                         'billet_base64'     =>  $pdf,
                         'billet_digitable'  =>  $result_get_billet->boleto->linhaDigitavel

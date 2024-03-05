@@ -160,9 +160,9 @@ class UserController extends Controller
         $model->state                       = $data['state'];
         //$model->api_host_whatsapp           = $data['api_host_whatsapp'];
         //$model->api_access_token_whatsapp   = $data['api_access_token_whatsapp'];
-        $model->token_paghiper              = $data['token_paghiper'];
-        $model->key_paghiper                = $data['key_paghiper'];
-        $model->access_token_mp             = $data['access_token_mp'];
+        //$model->token_paghiper              = $data['token_paghiper'];
+        //$model->key_paghiper                = $data['key_paghiper'];
+        //$model->access_token_mp             = $data['access_token_mp'];
         $model->day_generate_invoice        = $data['day_generate_invoice'];
         $model->send_generate_invoice       = $data['send_generate_invoice'];
 
@@ -231,9 +231,9 @@ class UserController extends Controller
         $model->state                       = $data['state'];
         //$model->api_host_whatsapp           = $data['api_host_whatsapp'];
         //$model->api_access_token_whatsapp   = $data['api_access_token_whatsapp'];
-        $model->token_paghiper              = $data['token_paghiper'];
-        $model->key_paghiper                = $data['key_paghiper'];
-        $model->access_token_mp             = $data['access_token_mp'];
+        //$model->token_paghiper              = $data['token_paghiper'];
+        //$model->key_paghiper                = $data['key_paghiper'];
+        //$model->access_token_mp             = $data['access_token_mp'];
         $model->day_generate_invoice        = $data['day_generate_invoice'];
         $model->send_generate_invoice       = $data['send_generate_invoice'];
 

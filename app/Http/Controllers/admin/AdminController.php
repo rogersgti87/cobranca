@@ -34,6 +34,58 @@ class AdminController extends Controller
 
     public function index(){
 
+
+
+
+    //     $user = User::where('id',3)->first();
+    //     $access_token = $user['access_token_inter'];
+
+    //     //$transaction_id = '01211758917';
+
+    //     $response = Http::withOptions(
+    //         [
+    //         'cert' => storage_path('/app/'.$user['inter_crt_file']),
+    //         'ssl_key' => storage_path('/app/'.$user['inter_key_file'])
+    //         ]
+    //         )->withHeaders([
+    //         'Authorization' => 'Bearer ' . $access_token
+    //     ])->get('https://cdpj.partners.bancointer.com.br/cobranca/v2/boletos?dataInicial=2024-02-24&dataFinal=2024-02-24&filtrarDataPor=VENCIMENTO&situacao=VENCIDO&cpfCnpj=73287021000103&itensPorPagina=100');
+
+    //         if ($response->successful()) {
+    //             $responseBody = $response->json();
+
+    //             foreach($responseBody['content'] as $r){
+
+    //                 //if($r['nossoNumero'] != '01237657986'){
+
+    //                     $response_cancel_billet = Http::withOptions([
+    //                         'cert' => storage_path('/app/'.$user->inter_crt_file),
+    //                         'ssl_key' => storage_path('/app/'.$user->inter_key_file),
+    //                     ])->withHeaders([
+    //                         'Authorization' => 'Bearer ' . $access_token
+
+    //                     ])->post($user->inter_host.'cobranca/v2/boletos/'.$r['nossoNumero'].'/cancelar',[
+    //                         "motivoCancelamento" => "ACERTOS"
+    //                     ]);
+
+    //                     if ($response_cancel_billet->successful()) {
+    //                         echo 'success';
+    //                     }else{
+    //                         \Log::info('Erro ao cancelar pagamento intermedium: '.$response_cancel_billet->json());
+    //                     }
+    //                 //}
+    //             }
+    //         }
+
+    // return 'ok';
+
+
+
+
+
+
+
+
         // $invoices = Invoice::select('id','user_id','payment_method','image_url_pix','pix_digitable')->where('status','Pendente')->where('payment_method','Pix')->get();
 
         // foreach($invoices as $invoice){

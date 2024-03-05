@@ -273,7 +273,7 @@ class WebHookController extends Controller
     ]);
 
     $seuNumero      = $data[0]['seuNumero'];
-    $codigoCobranca = $data[0]['codigoCobranca'];
+    $codigoCobranca = $data[0]['codigoSolicitacao'];
     $status         = $data[0]['situacao'];
 
     $result = Invoice::where('id',$seuNumero)->where('transaction_id',$codigoCobranca)
@@ -336,7 +336,7 @@ class WebHookController extends Controller
     if(isset($data['pix'])){
         $txid = $data['pix'][0]['txid'];
     }else{
-        $txid = $data[0]['codigoCobranca'];
+        $txid = $data[0]['codigoSolicitacao'];
         if($data[0]['situacao'] != 'RECEBIDO'){
             return 'nao recebido!';
         }

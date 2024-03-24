@@ -55,6 +55,7 @@ Route::group(['prefix' => 'admin','middleware' => ['auth']], function(){
     Route::post('user-inter',[UserController::class,'inter']);
     Route::post('user-ph',[UserController::class,'ph']);
     Route::post('user-mp',[UserController::class,'mp']);
+    Route::post('user-asaas',[UserController::class,'asaas']);
 
     Route::get('settings',[SettingController::class,'form']);
     Route::put('settings',[SettingController::class,'update']);

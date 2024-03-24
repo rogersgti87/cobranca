@@ -623,6 +623,24 @@ class UserController extends Controller
 
     }
 
+    public function asaas(){
+
+
+        $model = User::where('id',auth()->user()->id)->first();
+
+        $data = $this->request->all();
+
+        $model->environment_asaas   = $data['environment_asaas'];
+        $model->at_asaas_prod       = $data['at_asaas_prod'];
+        $model->asaas_url_prod      = $data['asaas_url_prod'];
+        $model->at_asaas_test       = $data['at_asaas_test'];
+        $model->asaas_url_test      = $data['asaas_url_test'];
+        $model->save();
+
+        return response()->json('Salvo com sucesso!',200);
+
+
+    }
 
 
 }

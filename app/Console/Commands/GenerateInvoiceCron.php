@@ -118,6 +118,7 @@ if($invoice['gateway_payment'] == 'Intermedium'){
 
 
 }
+return 'fim';
 }
 
   }

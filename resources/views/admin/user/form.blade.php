@@ -70,6 +70,7 @@
                                 <button type="button" data-toggle="modal" data-target="#modal-inter" data-original-title="Configurar Banco Inter" data-tt="tooltip" class="btn btn-md" style="background:#ff8c00;color:#fff;"><i class="fas fa-university"></i> BANCO INTER</button>
                                 <button type="button" data-toggle="modal" data-target="#modal-paghiper" id="{{ isset($data->id) ? $data->id : '' }}" data-original-title="Configurar PagHiper" data-tt="tooltip" class="btn btn-md" style="background:blue;color:#fff;"><i class="fas fa-university"></i> PAG HIPER</button>
                                 <button type="button" data-toggle="modal" data-target="#modal-mp" id="{{ isset($data->id) ? $data->id : '' }}" data-original-title="Configurar Mercado Pago" data-tt="tooltip" class="btn btn-md" style="background:#48c5d6;color:#fff;"><i class="fas fa-university"></i> MERCADO PAGO</button>
+                                <button type="button" data-toggle="modal" data-target="#modal-asaas" id="{{ isset($data->id) ? $data->id : '' }}" data-original-title="Configurar Mercado Pago" data-tt="tooltip" class="btn btn-md" style="background:#00008B;color:#fff;"><i class="fas fa-university"></i> ASAAS</button>
                             @endif
                         </fieldset>
 
@@ -176,7 +177,7 @@
                         <div class="form-row">
 
                     <div class="form-group col-md-4 col-sm-12">
-                        <label>Dia para gerar as faturas</label>
+                        <label>Dia geração das faturas</label>
                         <select class="form-control custom-select" name="day_generate_invoice" id="day_generate_invoice">
                             <option {{ isset($data->day_generate_invoice) && $data->day_generate_invoice === 15 ? 'selected' : '' }} value="15">15</option>
                             <option {{ isset($data->day_generate_invoice) && $data->day_generate_invoice === 20 ? 'selected' : '' }} value="20">20</option>
@@ -185,7 +186,7 @@
                     </div>
 
                     <div class="form-group col-md-4 col-sm-12">
-                        <label>Enviar fatura no dia que for gerada?</label>
+                        <label>Enviar fatura quando gerada?</label>
                         <select class="form-control custom-select" name="send_generate_invoice" id="send_generate_invoice">
                             <option {{ isset($data->send_generate_invoice) && $data->send_generate_invoice === 'Não' ? 'selected' : '' }} value="Não">Não</option>
                             <option {{ isset($data->send_generate_invoice) && $data->send_generate_invoice === 'Sim' ? 'selected' : '' }} value="Sim">Sim</option>
@@ -400,6 +401,63 @@
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-success" id="btn-save-mp"><i class="fa fa-check"></i> Salvar</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fa fa-times"></i> Fechar</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+
+      <!-- Modal ASAAS -->
+ <div class="modal fade" id="modal-asaas">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header" style="background:#48c5d6;color:#fff;">
+            <h5 class="modal-title">Configurar ASAAS</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        <div class="modal-body-asaas">
+            <div class="col-md-12">
+                <form id="form-asaas" enctype="multipart/form-data">
+            <div class="form-row">
+
+                <div class="form-group col-md-12 col-sm-12">
+                    <label>Selecione o ambiente</label>
+                    <select class="form-control" id="environment_asaas" name="environment_asaas">
+                        <option value="Teste" {{isset($data->environment_asaas) && $data->environment_asaas == 'Teste' ? 'selected' : ''}}>Teste</option>
+                        <option value="Produção" {{isset($data->environment_asaas) && $data->environment_asaas == 'Produção' ? 'selected' : ''}}>Produção</option>
+                    </select>
+                </div>
+
+                <div class="form-group col-md-6 col-sm-12">
+                    <label>URL Produção</label>
+                    <input type="text" class="form-control" name="asaas_url_prod" id="asaas_url_prod" autocomplete="off" required value="{{isset($data->asaas_url_prod) ? $data->asaas_url_prod : ''}}">
+                </div>
+
+                <div class="form-group col-md-6 col-sm-12">
+                    <label>Access Token Produção</label>
+                    <input type="text" class="form-control" name="at_asaas_prod" id="at_asaas_prod" autocomplete="off" required value="{{isset($data->at_asaas_prod) ? $data->at_asaas_prod : ''}}">
+                </div>
+
+                <div class="form-group col-md-6 col-sm-12">
+                    <label>URL Sandbox</label>
+                    <input type="text" class="form-control" name="asaas_url_test" id="asaas_url_test" autocomplete="off" required value="{{isset($data->asaas_url_test) ? $data->asaas_url_test : ''}}">
+                </div>
+
+                <div class="form-group col-md-6 col-sm-12">
+                    <label>Access Token Teste</label>
+                    <input type="text" class="form-control" name="at_asaas_test" id="at_asaas_test" autocomplete="off" required value="{{isset($data->at_asaas_test) ? $data->at_asaas_test : ''}}">
+                </div>
+
+                </div>
+                </form>
+
+            </div>
+
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-success" id="btn-save-asaas"><i class="fa fa-check"></i> Salvar</button>
             <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fa fa-times"></i> Fechar</button>
         </div>
       </div><!-- /.modal-content -->
@@ -969,6 +1027,73 @@ $(document).on('click', '#btn-save-mp', function(e) {
 
 
         });
+
+
+
+          //Save ASAAS
+          $(document).on('click', '#btn-save-asaas', function(e) {
+            e.preventDefault();
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': "{{csrf_token()}}"
+                }
+            });
+
+            var data = new FormData($('#form-asaas')[0]);
+
+            $.ajax({
+                url: '{{url('admin/user-asaas')}}',
+                data:data,
+                method:'POST',
+                processData: false,
+                contentType: false,
+                success:function(data){
+                    Swal.fire({
+                        width:350,
+                        title: "<h5 style='color:#007bff'>" + data + "</h5>",
+                        icon: 'success',
+                        showConfirmButton: true,
+                        showClass: {
+                            popup: 'animate__animated animate__backInUp'
+                        },
+                        allowOutsideClick: false,
+                    });
+                    $('#modal-asaas').modal('hide');
+                },
+                error:function (xhr) {
+
+                    if(xhr.status === 422){
+                        Swal.fire({
+                            text: xhr.responseJSON,
+                            width:300,
+                            icon: 'warning',
+                            color: '#007bff',
+                            confirmButtonColor: "#007bff",
+                            showClass: {
+                                popup: 'animate__animated animate__wobble'
+                            }
+                        });
+                    } else{
+                        Swal.fire({
+                            text: xhr.responseJSON,
+                            width:300,
+                            icon: 'error',
+                            color: '#007bff',
+                            confirmButtonColor: "#007bff",
+                            showClass: {
+                                popup: 'animate__animated animate__wobble'
+                            }
+                        });
+                    }
+
+
+                }
+            });
+
+
+
+        });
+
 
     </script>
 

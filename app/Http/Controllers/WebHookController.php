@@ -384,51 +384,51 @@ class WebHookController extends Controller
     ]);
 
 
-    // $invoice = Invoice::select('invoices.id as id','invoices.transaction_id','users.access_token_mp')
-    //             ->join('users','users.id','invoices.user_id')
-    //             ->where('transaction_id',$data['data']['id'])
-    //             ->where('invoices.status','Pendente')
-    //             ->first();
-    // if($invoice != null){
+    if($data['event']){
 
-    //     \MercadoPago\SDK::setAccessToken($invoice->access_token_mp);
-    //     $payment = \MercadoPago\Payment::find_by_id($invoice->transaction_id);
+    $invoice = Invoice::select('invoices.id as id','invoices.transaction_id','users.access_token_mp')
+                ->join('users','users.id','invoices.user_id')
+                ->where('transaction_id',$data['payment']['id'])
+                ->where('invoices.status','Pendente')
+                ->first();
 
-    //     if($payment->status == 'approved'){
-    //         $result_invoice = Invoice::where('id',$invoice->id)->where('transaction_id',$invoice->transaction_id)->update([
-    //             'status'       =>   'Pago',
-    //             'date_payment' =>   Carbon::parse(now())->format('Y-m-d'),
-    //             'updated_at'   =>   Carbon::now()
-    //         ]);
-    //         InvoiceNotification::Email($invoice->id);
+    if($invoice != null){
 
-    //          if(date('l') != 'Sunday'){
+        if($data['event'] == 'PAYMENT_CONFIRMED' || $data['event'] == 'PAYMENT_RECEIVED'){
+            $result_invoice = Invoice::where('id',$invoice->id)->where('transaction_id',$invoice->transaction_id)->update([
+                'status'       =>   'Pago',
+                'date_payment' =>   Carbon::parse(now())->format('Y-m-d'),
+                'updated_at'   =>   Carbon::now()
+            ]);
+            InvoiceNotification::Email($invoice->id);
 
-    //         $now = Carbon::now();
-    //         $start = Carbon::createFromTimeString('08:00');
-    //         $end = Carbon::createFromTimeString('19:00');
+             if(date('l') != 'Sunday'){
 
-    //         if ($now->between($start, $end)) {
-    //         InvoiceNotification::Whatsapp($invoice->id);
+            $now = Carbon::now();
+            $start = Carbon::createFromTimeString('08:00');
+            $end = Carbon::createFromTimeString('19:00');
 
-    //         }
-    //          }
-    //     }
+            if ($now->between($start, $end)) {
+            InvoiceNotification::Whatsapp($invoice->id);
 
-    //     if($payment->status == 'cancelled'){
-    //         Invoice::where('id',$invoice->id)->where('transaction_id',$invoice->transaction_id)->update([
-    //             'status'       =>   'Cancelado',
-    //             'date_payment' =>   Null,
-    //             'updated_at'   =>   Carbon::now()
-    //         ]);
+            }
+             }
+        }
 
-    //     }
+        if($data['event'] == 'PAYMENT_DELETED' || $data['event'] == 'PAYMENT_REFUNDED'){
+            Invoice::where('id',$invoice->id)->where('transaction_id',$invoice->transaction_id)->update([
+                'status'       =>   'Cancelado',
+                'date_payment' =>   Null,
+                'updated_at'   =>   Carbon::now()
+            ]);
 
-
-
-    // }
+        }
 
 
+
+    }
+
+}
 
   }
 

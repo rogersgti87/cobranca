@@ -374,6 +374,65 @@ class WebHookController extends Controller
   }
 
 
+  public function Asaas(Request $request){
+
+    $data = $request->all();
+
+    LogGatewayPayment::create([
+        'gateway'   => 'Asaas',
+        'log'       =>  json_encode($data)
+    ]);
+
+
+    // $invoice = Invoice::select('invoices.id as id','invoices.transaction_id','users.access_token_mp')
+    //             ->join('users','users.id','invoices.user_id')
+    //             ->where('transaction_id',$data['data']['id'])
+    //             ->where('invoices.status','Pendente')
+    //             ->first();
+    // if($invoice != null){
+
+    //     \MercadoPago\SDK::setAccessToken($invoice->access_token_mp);
+    //     $payment = \MercadoPago\Payment::find_by_id($invoice->transaction_id);
+
+    //     if($payment->status == 'approved'){
+    //         $result_invoice = Invoice::where('id',$invoice->id)->where('transaction_id',$invoice->transaction_id)->update([
+    //             'status'       =>   'Pago',
+    //             'date_payment' =>   Carbon::parse(now())->format('Y-m-d'),
+    //             'updated_at'   =>   Carbon::now()
+    //         ]);
+    //         InvoiceNotification::Email($invoice->id);
+
+    //          if(date('l') != 'Sunday'){
+
+    //         $now = Carbon::now();
+    //         $start = Carbon::createFromTimeString('08:00');
+    //         $end = Carbon::createFromTimeString('19:00');
+
+    //         if ($now->between($start, $end)) {
+    //         InvoiceNotification::Whatsapp($invoice->id);
+
+    //         }
+    //          }
+    //     }
+
+    //     if($payment->status == 'cancelled'){
+    //         Invoice::where('id',$invoice->id)->where('transaction_id',$invoice->transaction_id)->update([
+    //             'status'       =>   'Cancelado',
+    //             'date_payment' =>   Null,
+    //             'updated_at'   =>   Carbon::now()
+    //         ]);
+
+    //     }
+
+
+
+    // }
+
+
+
+  }
+
+
 
 public function teste(){
 

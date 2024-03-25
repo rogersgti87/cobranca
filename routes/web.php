@@ -30,6 +30,7 @@ Route::prefix('webhook')->group(function () {
     Route::post('intermediumbillet', [WebHookController::class,'intermediumbillet']);
     Route::post('intermediumbilletpix', [WebHookController::class,'intermediumbilletpix']);
     Route::post('intermediumpix', [WebHookController::class,'intermediumpix']);
+    Route::post('asaas', [WebHookController::class,'asaas']);
     Route::post('whatsapp/{user_id}', [WebHookController::class,'whatsapp']);
     Route::get('teste', [WebHookController::class,'teste']);
 });

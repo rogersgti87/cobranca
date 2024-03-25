@@ -1114,41 +1114,50 @@ class Invoice extends Model
                         'type'          =>  'PERCENTAGE'
                     ],
                     'interest'          =>  [
-                        'value'         =>  2
+                        'value'         =>  1
                     ]
                   ]);
+
 
                   if ($response->successful()) {
 
                     $result = $response->json();
-                    dd($result->result,$result);
 
-                    if($result->result == 'success'){
-
-                    $contents = Http::get($result->bank_slip->url_slip_pdf)->body();
+                    $contents = Http::get($result['bankSlipUrl'])->body();
                     \File::put(public_path(). '/boleto/' .  $invoice->user_id.'_'.$invoice->id.'.'.'pdf', $contents);
                     $billet_pdf   = 'https://cobrancasegura.com.br/boleto/'.$invoice->user_id.'_'.$invoice->id.'.pdf';
+                    //$billet_pdf   = 'http://cobranca.local:8090/boleto/'.$invoice->user_id.'_'.$invoice->id.'.pdf';
                     $base64_pdf = chunk_split(base64_encode(file_get_contents($billet_pdf)));
 
-                    Invoice::where('id',$invoice_id)->update([
-                        'status'            =>  'Pendente',
-                        'msg_erro'          =>  null,
-                        'transaction_id'    =>  $result->transaction_id,
-                        'billet_url'        =>  $result->bank_slip->url_slip,
-                        'billet_base64'     =>  $base64_pdf,
-                        'billet_digitable'  =>  $result->bank_slip->digitable_line
-                    ]);
-
-                    return ['status' => 'success', 'message' => 'ok'];
-
-                }
-                    if($result->result == 'reject'){
-                        return ['status' => 'reject', 'message' => $result->response_message];
-                    }
-
                 } else{
-                    return ['status' => 'reject', 'message' => 'Erro interno no servidor'];
+                    return ['status' => 'reject', 'message' => $response->json()];
                 }
+
+                  //Pegar o codigo de barras
+                  $get_digitable = Http::withHeaders([
+                    'accept' => 'application/json',
+                    'content-type' => 'application/json',
+                    'access_token' => $at_asaas,
+                  ])->get($url.'v3/payments/'.$result['id'].'/identificationField');
+
+                  if ($get_digitable->successful()) {
+                    $result_get_digitable = $get_digitable->json();
+                    $billet_digitable = $result_get_digitable['barCode'];
+
+                  } else{
+                    return ['status' => 'reject', 'message' => $get_digitable->json()];
+                }
+
+                Invoice::where('id',$invoice_id)->update([
+                    'status'            =>  'Pendente',
+                    'msg_erro'          =>  null,
+                    'transaction_id'    =>  $result['id'],
+                    'billet_url'        =>  $billet_pdf,
+                    'billet_base64'     =>  $base64_pdf,
+                    'billet_digitable'  =>  $billet_digitable
+                ]);
+
+                return ['status' => 'success', 'message' => 'ok'];
 
 
               }

@@ -787,7 +787,8 @@ $(window).on("load", function(){
                 data:data,
                 method:method,
                 success:function(data){
-
+//console.log(data);
+//return false;
                     $("#btn-save-customer-service").attr("disabled", false);
                     $("#btn-save-customer-service").html('<i class="fa fa-check"></i> Salvar');
                     //console.log(data);

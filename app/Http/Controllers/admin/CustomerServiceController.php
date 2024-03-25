@@ -332,7 +332,7 @@ class CustomerServiceController extends Controller
                     if($newInvoice['gateway_payment'] == 'Pag Hiper'){
                         $generatePixPH = Invoice::generatePixPH($newInvoice['id']);
                         if($generatePixPH['status'] == 'reject'){
-                            CustomerService::where('id',$model->id)->delete();
+                            //CustomerService::where('id',$model->id)->delete();
                             Invoice::where('id',$newInvoice['id'])->delete();
                             return response()->json($generatePixPH['message'], 422);
                         }
@@ -340,7 +340,7 @@ class CustomerServiceController extends Controller
                     }elseif($newInvoice['gateway_payment'] == 'Mercado Pago'){
                         $generatePixMP = Invoice::generatePixMP($newInvoice['id']);
                         if($generatePixMP['status'] == 'reject'){
-                            CustomerService::where('id',$model->id)->delete();
+                            //CustomerService::where('id',$model->id)->delete();
                             Invoice::where('id',$newInvoice['id'])->delete();
                             return response()->json($generatePixMP['message'], 422);
                         }
@@ -349,7 +349,7 @@ class CustomerServiceController extends Controller
                     elseif($newInvoice['gateway_payment'] == 'Intermedium'){
                         $generatePixIntermedium = Invoice::generatePixIntermedium($newInvoice['id']);
                         if($generatePixIntermedium['status'] == 'reject'){
-                            CustomerService::where('id',$model->id)->delete();
+                            //CustomerService::where('id',$model->id)->delete();
                             Invoice::where('id',$newInvoice['id'])->delete();
                             $msgInterPix = '';
                             foreach($generatePixIntermedium['message'] as $messageInterPix){
@@ -363,7 +363,7 @@ class CustomerServiceController extends Controller
                     elseif($newInvoice['gateway_payment'] == 'Asaas'){
                         $generatePixAsaas = Invoice::generatePixAsaas($newInvoice['id']);
                         if($generatePixAsaas['status'] == 'reject'){
-                            CustomerService::where('id',$model->id)->delete();
+                            //CustomerService::where('id',$model->id)->delete();
                             Invoice::where('id',$newInvoice['id'])->delete();
                             return response()->json($generatePixAsaas['message'], 422);
                         }
@@ -373,7 +373,7 @@ class CustomerServiceController extends Controller
                     if($newInvoice['gateway_payment'] == 'Pag Hiper'){
                         $generateBilletPH = Invoice::generateBilletPH($newInvoice['id']);
                         if($generateBilletPH['status'] == 'reject'){
-                            CustomerService::where('id',$model->id)->delete();
+                            //CustomerService::where('id',$model->id)->delete();
                             Invoice::where('id',$newInvoice['id'])->delete();
                             return response()->json($generateBilletPH['message'], 422);
                         }
@@ -383,7 +383,7 @@ class CustomerServiceController extends Controller
 
                         $generateBilletIntermedium = Invoice::generateBilletIntermedium($newInvoice['id']);
                         if($generateBilletIntermedium['status'] == 'reject'){
-                            CustomerService::where('id',$model->id)->delete();
+                            //CustomerService::where('id',$model->id)->delete();
                             Invoice::where('id',$newInvoice['id'])->delete();
                             $msgInterBillet = '';
                             foreach($generateBilletIntermedium['message'] as $messageInterBillet){
@@ -396,7 +396,7 @@ class CustomerServiceController extends Controller
                     elseif($newInvoice['gateway_payment'] == 'Asaas'){
                         $generateBilletAsaas = Invoice::generateBilletAsaas($newInvoice['id']);
                         if($generateBilletAsaas['status'] == 'reject'){
-                            CustomerService::where('id',$model->id)->delete();
+                            //CustomerService::where('id',$model->id)->delete();
                             Invoice::where('id',$newInvoice['id'])->delete();
                             return response()->json($generateBilletAsaas['message'], 422);
                         }
@@ -411,7 +411,7 @@ class CustomerServiceController extends Controller
 
                 $generateBilletIntermedium = Invoice::generateBilletPixIntermedium($newInvoice['id']);
                 if($generateBilletIntermedium['status'] == 'reject'){
-                    CustomerService::where('id',$model->id)->delete();
+                    //CustomerService::where('id',$model->id)->delete();
                     Invoice::where('id',$newInvoice['id'])->delete();
                     $msgInterBillet = '';
                     foreach($generateBilletIntermedium['message'] as $messageInterBillet){

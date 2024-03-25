@@ -1107,7 +1107,7 @@ class Invoice extends Model
                     'value'             =>  $invoice['price'],
                     'dueDate'           => $invoice['date_due'],
                     'description'       => $invoice['service_name'],
-                    'daysAfterDueDateToRegistrationCancellation'    => 40,
+                    //'daysAfterDueDateToRegistrationCancellation'    => 40,
                     'externalReference' =>  $invoice['id'],
                     'fine'              =>  [
                         'value'         =>  2,

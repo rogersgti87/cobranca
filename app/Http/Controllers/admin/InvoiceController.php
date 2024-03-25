@@ -153,6 +153,12 @@ class InvoiceController extends Controller
                     }
 
                 }
+                elseif($model['gateway_payment'] == 'Asaas'){
+                    $generatePixAsaas = Invoice::generatePixAsaas($model['id']);
+                    if($generatePixAsaas['status'] == 'reject'){
+                        return response()->json($generatePixAsaas['message'], 422);
+                    }
+                }
             } elseif($model['payment_method'] == 'Boleto'){
 
                 if($model['gateway_payment'] == 'Pag Hiper'){
@@ -171,6 +177,14 @@ class InvoiceController extends Controller
                         }
 
                         return response()->json($generateBilletIntermedium['title'].': '.$msgInterBillet, 422);
+                    }
+
+                }
+                elseif($model['gateway_payment'] == 'Asaas'){
+
+                    $generateBilletAsaas = Invoice::generateBilletAsaas($model['id']);
+                    if($generateBilletAsaas['status'] == 'reject'){
+                        return response()->json($generateBilletAsaas['message'], 422);
                     }
 
                 }
@@ -305,7 +319,12 @@ class InvoiceController extends Controller
                             return response()->json($generatePixIntermedium['title'].': '.$msgInterPix, 422);
                         }
 
-                    }
+                    }elseif($model['gateway_payment'] == 'Asaas'){
+                        $generatePixAsaas = Invoice::generatePixAsaas($model['id']);
+                        if($generatePixAsaas['status'] == 'reject'){
+                            return response()->json($generatePixAsaas['message'], 422);
+                        }
+                }
                 } elseif($model['payment_method'] == 'Boleto'){
 
                     if($model['gateway_payment'] == 'Pag Hiper'){
@@ -324,6 +343,13 @@ class InvoiceController extends Controller
                             }
 
                             return response()->json($generateBilletIntermedium['title'].': '.$msgInterBillet, 422);
+                        }
+
+                    }elseif($model['gateway_payment'] == 'Asaas'){
+
+                        $generateBilletAsaas = Invoice::generateBilletAsaas($model['id']);
+                        if($generateBilletAsaas['status'] == 'reject'){
+                            return response()->json($generateBilletAsaas['message'], 422);
                         }
 
                     }
@@ -407,6 +433,15 @@ if(isset($data['send_invoice_whatsapp'])){
                     }
                 }
 
+                else if($invoice->gateway_payment == 'Asaas'){
+                    $status = Invoice::cancelPixAsaas(auth()->user()->id,$invoice->transaction_id);
+                    if($status == 'success'){
+                        $status = 'success';
+                    }else{
+                        return response()->json($status['message'],422);
+                    }
+                }
+
             }
             else if($invoice->payment_method == 'Boleto' && $invoice->transaction_id != ''){
 
@@ -422,6 +457,11 @@ if(isset($data['send_invoice_whatsapp'])){
                 }
                 else if($invoice->gateway_payment == 'Intermedium'){
                     $status = Invoice::cancelBilletIntermedium(auth()->user()->id,$invoice->transaction_id);
+                    if($status == 'success'){
+                        $status = 'success';
+                    }
+                }else if($invoice->gateway_payment == 'Asaas'){
+                    $status = Invoice::cancelBilletAsaas(auth()->user()->id,$invoice->transaction_id);
                     if($status == 'success'){
                         $status = 'success';
                     }

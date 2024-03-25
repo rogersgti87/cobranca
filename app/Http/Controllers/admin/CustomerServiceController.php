@@ -149,7 +149,8 @@ class CustomerServiceController extends Controller
                             return response()->json($generatePixMP['message'], 422);
                         }
 
-                    }elseif($newInvoice['gateway_payment'] == 'Intermedium'){
+                    }
+                    elseif($newInvoice['gateway_payment'] == 'Intermedium'){
                         $generatePixIntermedium = Invoice::generatePixIntermedium($newInvoice['id']);
                         if($generatePixIntermedium['status'] == 'reject'){
                             CustomerService::where('id',$model->id)->delete();
@@ -163,6 +164,12 @@ class CustomerServiceController extends Controller
                         }
 
                     }
+                    elseif($model['gateway_payment'] == 'Asaas'){
+                        $generatePixAsaas = Invoice::generatePixAsaas($newInvoice['id']);
+                        if($generatePixAsaas['status'] == 'reject'){
+                            return response()->json($generatePixAsaas['message'], 422);
+                        }
+                    }
                 } elseif($newInvoice['payment_method'] == 'Boleto'){
 
                     if($newInvoice['gateway_payment'] == 'Pag Hiper'){
@@ -173,7 +180,8 @@ class CustomerServiceController extends Controller
                             return response()->json($generateBilletPH['message'], 422);
                         }
 
-                    }elseif($newInvoice['gateway_payment'] == 'Intermedium'){
+                    }
+                    elseif($newInvoice['gateway_payment'] == 'Intermedium'){
 
                         $generateBilletIntermedium = Invoice::generateBilletIntermedium($newInvoice['id']);
                         if($generateBilletIntermedium['status'] == 'reject'){
@@ -185,6 +193,15 @@ class CustomerServiceController extends Controller
                             }
 
                             return response()->json($generateBilletIntermedium['title'].': '.$msgInterBillet, 422);
+                        }
+
+                    }
+
+                    elseif($model['gateway_payment'] == 'Asaas'){
+
+                        $generateBilletAsaas = Invoice::generateBilletAsaas($newInvoice['id']);
+                        if($generateBilletAsaas['status'] == 'reject'){
+                            return response()->json($generateBilletAsaas['message'], 422);
                         }
 
                     }
@@ -328,7 +345,8 @@ class CustomerServiceController extends Controller
                             return response()->json($generatePixMP['message'], 422);
                         }
 
-                    }elseif($newInvoice['gateway_payment'] == 'Intermedium'){
+                    }
+                    elseif($newInvoice['gateway_payment'] == 'Intermedium'){
                         $generatePixIntermedium = Invoice::generatePixIntermedium($newInvoice['id']);
                         if($generatePixIntermedium['status'] == 'reject'){
                             CustomerService::where('id',$model->id)->delete();
@@ -342,6 +360,14 @@ class CustomerServiceController extends Controller
                         }
 
                     }
+                    elseif($newInvoice['gateway_payment'] == 'Asaas'){
+                        $generatePixAsaas = Invoice::generatePixAsaas($newInvoice['id']);
+                        if($generatePixAsaas['status'] == 'reject'){
+                            CustomerService::where('id',$model->id)->delete();
+                            Invoice::where('id',$newInvoice['id'])->delete();
+                            return response()->json($generatePixAsaas['message'], 422);
+                        }
+                    }
                 } elseif($newInvoice['payment_method'] == 'Boleto'){
 
                     if($newInvoice['gateway_payment'] == 'Pag Hiper'){
@@ -352,7 +378,8 @@ class CustomerServiceController extends Controller
                             return response()->json($generateBilletPH['message'], 422);
                         }
 
-                    }elseif($newInvoice['gateway_payment'] == 'Intermedium'){
+                    }
+                    elseif($newInvoice['gateway_payment'] == 'Intermedium'){
 
                         $generateBilletIntermedium = Invoice::generateBilletIntermedium($newInvoice['id']);
                         if($generateBilletIntermedium['status'] == 'reject'){
@@ -365,7 +392,14 @@ class CustomerServiceController extends Controller
 
                             return response()->json($generateBilletIntermedium['title'].': '.$msgInterBillet, 422);
                         }
-
+                    }
+                    elseif($newInvoice['gateway_payment'] == 'Asaas'){
+                        $generateBilletAsaas = Invoice::generateBilletAsaas($newInvoice['id']);
+                        if($generateBilletAsaas['status'] == 'reject'){
+                            CustomerService::where('id',$model->id)->delete();
+                            Invoice::where('id',$newInvoice['id'])->delete();
+                            return response()->json($generateBilletAsaas['message'], 422);
+                        }
                     }
 
 

@@ -40,7 +40,7 @@
                         <option {{ isset($data->gateway_payment) && $data->gateway_payment === 'Pag Hiper' ? 'selected' : '' }} value="Pag Hiper">Pag Hiper</option>
                         <option {{ isset($data->gateway_payment) && $data->gateway_payment === 'Mercado Pago' ? 'selected' : '' }} value="Mercado Pago">Mercado Pago</option>
                         <option {{ isset($data->gateway_payment) && $data->gateway_payment === 'Intermedium' ? 'selected' : '' }} value="Intermedium">Intermedium</option>
-                        {{-- <option {{ isset($data->gateway_payment) && $data->gateway_payment === 'Cora' ? 'selected' : '' }} value="Cora">Cora(em breve)</option> --}}
+                        <option {{ isset($data->gateway_payment) && $data->gateway_payment === 'Asaas' ? 'selected' : '' }} value="Asaas">Asaas</option>
                     </select>
                 </div>
 
@@ -161,6 +161,10 @@
             else if(escolha === 'Intermedium'){
                 $('#payment_method').append(`<option value="Boleto" ${payment_method == 'Boleto' ? 'selected' : ''}>Boleto</option>`);
                 $('#payment_method').append(`<option value="BoletoPix" ${payment_method == 'BoletoPix' ? 'selected' : ''}>BoletoPix</option>`);
+                $('#payment_method').append(`<option value="Pix" ${payment_method == 'Pix' ? 'selected' : ''}>Pix</option>`);
+            }
+            else if(escolha === 'Asaas'){
+                $('#payment_method').append(`<option value="Boleto" ${payment_method == 'Boleto' ? 'selected' : ''}>Boleto</option>`);
                 $('#payment_method').append(`<option value="Pix" ${payment_method == 'Pix' ? 'selected' : ''}>Pix</option>`);
             }
 

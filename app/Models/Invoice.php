@@ -1035,4 +1035,125 @@ class Invoice extends Model
             }
 
 
+
+
+            public static function generateBilletAsaas($invoice_id){
+
+                if(!file_exists(public_path('boleto')))
+                    \File::makeDirectory(public_path('boleto'));
+
+
+                $invoice = ViewInvoice::where('id',$invoice_id)->first();
+
+                if($invoice['days_due_date'] == 0){
+                    if(date('l') == 'Saturday' || date('l') == 'Sábado'){
+                        $invoice['days_due_date'] = 2;
+                    }
+                    if(date('l') == 'Sunday' || date('l') == 'Domingo'){
+                        $invoice['days_due_date'] = 1;
+                    }
+                }
+
+                if($invoice->environment_asaas == 'Teste'){
+                    $url = $invoice->asaas_url_test;
+                    $at_asaas = $invoice->at_asaas_test;
+                }else{
+                    $url = $invoice->asaas_url_prod;
+                    $at_asaas = $invoice->at_asaas_prod;
+                }
+
+
+                //Verifica se o cliente já está cadastrado e retona o ID
+                $get_customer = Http::withHeaders([
+                    'accept' => 'application/json',
+                    'content-type' => 'application/json',
+                    'access_token' => $at_asaas,
+                  ])->get($url.'v3/customers?cpfCnpj='.removeEspeciais($invoice['document']));
+
+                  if ($get_customer->successful()) {
+                    $result_get_customer = $get_customer->json();
+                    if($result_get_customer['totalCount'] > 0){
+                        $customer_id = $result_get_customer['data'][0]['id'];
+                    }else{
+                        $post_customer = Http::withHeaders([
+                            'accept' => 'application/json',
+                            'content-type' => 'application/json',
+                            'access_token' => $at_asaas,
+                          ])->post($url.'v3/customers',[
+                            'name'                  =>  $invoice['name'],
+                            'cpfCnpj'               =>  $invoice['document'],
+                            'notificationDisabled'  =>  true,
+                            'postalCode'            =>  $invoice['cep'],
+                            'addressNumber'         =>  $invoice['number'],
+                          ]);
+
+                          if ($post_customer->successful()) {
+                            $result_post_customer = $post_customer->json();
+                            $customer_id = $result_post_customer['id'];
+                        }
+
+                    }
+
+                }
+
+
+                $response = Http::withHeaders([
+                    'accept' => 'application/json',
+                    'content-type' => 'application/json',
+                    'access_token' => $at_asaas,
+                  ])->post($url.'v3/payments',[
+                    'customer'          =>  $customer_id,
+                    'billingType'       =>  'BOLETO',
+                    'value'             =>  $invoice['price'],
+                    'dueDate'           => $invoice['date_due'],
+                    'description'       => $invoice['service_name'],
+                    'daysAfterDueDateToRegistrationCancellation'    => 40,
+                    'externalReference' =>  $invoice['id'],
+                    'fine'              =>  [
+                        'value'         =>  2,
+                        'type'          =>  'PERCENTAGE'
+                    ],
+                    'interest'          =>  [
+                        'value'         =>  2
+                    ]
+                  ]);
+
+                  if ($response->successful()) {
+
+                    $result = $response->json();
+                    dd($result->result,$result);
+
+                    if($result->result == 'success'){
+
+                    $contents = Http::get($result->bank_slip->url_slip_pdf)->body();
+                    \File::put(public_path(). '/boleto/' .  $invoice->user_id.'_'.$invoice->id.'.'.'pdf', $contents);
+                    $billet_pdf   = 'https://cobrancasegura.com.br/boleto/'.$invoice->user_id.'_'.$invoice->id.'.pdf';
+                    $base64_pdf = chunk_split(base64_encode(file_get_contents($billet_pdf)));
+
+                    Invoice::where('id',$invoice_id)->update([
+                        'status'            =>  'Pendente',
+                        'msg_erro'          =>  null,
+                        'transaction_id'    =>  $result->transaction_id,
+                        'billet_url'        =>  $result->bank_slip->url_slip,
+                        'billet_base64'     =>  $base64_pdf,
+                        'billet_digitable'  =>  $result->bank_slip->digitable_line
+                    ]);
+
+                    return ['status' => 'success', 'message' => 'ok'];
+
+                }
+                    if($result->result == 'reject'){
+                        return ['status' => 'reject', 'message' => $result->response_message];
+                    }
+
+                } else{
+                    return ['status' => 'reject', 'message' => 'Erro interno no servidor'];
+                }
+
+
+              }
+
+
+
+
 }

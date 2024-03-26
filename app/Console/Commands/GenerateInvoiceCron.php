@@ -50,10 +50,20 @@ foreach($invoices as $invoice){
                 Invoice::where('id',$invoice['id'])->update(['status' => 'Pendente']);
             }
 
-        }elseif($invoice['gateway_payment'] == 'Intermedium'){
+        }
+        elseif($invoice['gateway_payment'] == 'Intermedium'){
             $generatePixIntermedium = Invoice::generatePixIntermedium($invoice['id']);
             if($generatePixIntermedium['status'] == 'reject'){
                 Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => json_encode($generatePixIntermedium['message'])]);
+            }else{
+                Invoice::where('id',$invoice['id'])->update(['status' => 'Pendente']);
+            }
+
+        }
+        elseif($invoice['gateway_payment'] == 'Asaas'){
+            $generatePixAsaas = Invoice::generatePixAsaas($invoice['id']);
+            if($generatePixAsaas['status'] == 'reject'){
+                Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => json_encode($generatePixAsaas['message'])]);
             }else{
                 Invoice::where('id',$invoice['id'])->update(['status' => 'Pendente']);
             }
@@ -69,11 +79,22 @@ foreach($invoices as $invoice){
                 Invoice::where('id',$invoice['id'])->update(['status' => 'Pendente']);
             }
 
-        }elseif($invoice['gateway_payment'] == 'Intermedium'){
+        }
+        elseif($invoice['gateway_payment'] == 'Intermedium'){
 
             $generateBilletIntermedium = Invoice::generateBilletIntermedium($invoice['id']);
             if($generateBilletIntermedium['status'] == 'reject'){
                 Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => json_encode($generateBilletIntermedium['message'])]);
+            }else{
+                Invoice::where('id',$invoice['id'])->update(['status' => 'Pendente']);
+            }
+
+        }
+        elseif($invoice['gateway_payment'] == 'Asaas'){
+
+            $generateBilletAsaas = Invoice::generateBilletAsaas($invoice['id']);
+            if($generateBilletAsaas['status'] == 'reject'){
+                Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => json_encode($generateBilletAsaas['message'])]);
             }else{
                 Invoice::where('id',$invoice['id'])->update(['status' => 'Pendente']);
             }

@@ -263,7 +263,8 @@ class InvoiceNotification extends Model
         ];
 
         if($data['api_status_whatsapp'] != 'open'){
-            return 'Whatsapp desconectado';
+            //return 'Whatsapp desconectado';
+            return ['message' => 'Whatsapp desconectado! Fatura não enviada para whatsapp.', 'image' => '', 'file' => ''];
         }
 
         $message_customer               = $data['message_customer'];

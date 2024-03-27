@@ -72,8 +72,8 @@ class Invoice extends Model
             'late_payment_fine' => '1',// Percentual de multa após vencimento.
             'per_day_interest'  => true, // Juros após vencimento.
             'items' => array([
-                'item_id'       => $invoice['service_id'],
-                'description'   => $invoice['service_name'],
+                'item_id'       => 1,
+                'description'   => $invoice['description'],
                 'quantity'      => 1,
                 'price_cents'   => bcmul($invoice['price'],100)
           ])
@@ -134,8 +134,8 @@ class Invoice extends Model
             'days_due_date'     =>  90,
             'notification_url'  => 'https://cobrancasegura.com.br/webhook/paghiper',
             'items' => array([
-                'item_id'       => $invoice['service_id'],
-                'description'   => $invoice['service_name'],
+                'item_id'       => 1,
+                'description'   => $invoice['description'],
                 'quantity'      => 1,
                 'price_cents'   => bcmul($invoice['price'],100)
           ])
@@ -184,7 +184,7 @@ class Invoice extends Model
         $payment = new \MercadoPago\Payment();
         $payment->transaction_amount    = $invoice['price'];
         $payment->statement_descriptor  = $invoice['company'];
-        $payment->description           = $invoice['service_name'];
+        $payment->description           = $invoice['description'];
         $payment->payment_method_id     = "pix";
         $payment->notification_url      = 'https://cobrancasegura.com.br/webhook/mercadopago?source_news=webhooks';
         $payment->external_reference    = $invoice['id'];
@@ -325,7 +325,7 @@ class Invoice extends Model
                 ],
             ],
             "chave"                         => $invoice['inter_chave_pix'],
-            "solicitacaoPagador"            => $invoice['service_name']
+            "solicitacaoPagador"            => $invoice['description']
             ];
 
         if($invoice['type'] == 'Física'){
@@ -1107,7 +1107,7 @@ class Invoice extends Model
                     'billingType'       =>  'BOLETO',
                     'value'             =>  $invoice['price'],
                     'dueDate'           => $invoice['date_due'],
-                    'description'       => $invoice['service_name'],
+                    'description'       => $invoice['description'],
                     //'daysAfterDueDateToRegistrationCancellation'    => 40,
                     'externalReference' =>  $invoice['id'],
                     'fine'              =>  [

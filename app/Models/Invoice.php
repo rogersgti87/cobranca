@@ -34,8 +34,9 @@ class Invoice extends Model
 
     public static function generateBilletPH($invoice_id){
 
-        if(!file_exists(public_path('boleto')))
-            \File::makeDirectory(public_path('boleto'));
+        if (!Storage::disk('public')->exists('boletos')) {
+            Storage::disk('public')->makeDirectory('boletos');
+        }
 
 
         $invoice = ViewInvoice::where('id',$invoice_id)->first();
@@ -88,16 +89,18 @@ class Invoice extends Model
             if($result->result == 'success'){
 
             $contents = Http::get($result->bank_slip->url_slip_pdf)->body();
-            \File::put(public_path(). '/boleto/' .  $invoice->user_id.'_'.$invoice->id.'.'.'pdf', $contents);
-            $billet_pdf   = 'https://cobrancasegura.com.br/boleto/'.$invoice->user_id.'_'.$invoice->id.'.pdf';
-            $base64_pdf = chunk_split(base64_encode(file_get_contents($billet_pdf)));
+            Storage::disk('public')->put('boletos/' .  $invoice->user_id.'_'.$invoice->id.'.'.'pdf', $contents);
+            $billet_url = env('APP_URL').Storage::url('boletos/' . $invoice->user_id . '_' . $invoice->id . '.pdf');
+            //\File::put(public_path(). '/boleto/' .  $invoice->user_id.'_'.$invoice->id.'.'.'pdf', $contents);
+            //$billet_pdf   = 'https://cobrancasegura.com.br/boleto/'.$invoice->user_id.'_'.$invoice->id.'.pdf';
+            //$base64_pdf = chunk_split(base64_encode(file_get_contents($billet_pdf)));
 
             Invoice::where('id',$invoice_id)->update([
                 'status'            =>  'Pendente',
                 'msg_erro'          =>  null,
                 'transaction_id'    =>  $result->transaction_id,
-                'billet_url'        =>  $result->bank_slip->url_slip,
-                'billet_base64'     =>  $base64_pdf,
+                'billet_url'        =>  $billet_url,
+                //'billet_base64'     =>  $base64_pdf,
                 'billet_digitable'  =>  $result->bank_slip->digitable_line
             ]);
 
@@ -117,8 +120,9 @@ class Invoice extends Model
 
       public static function generatePixPH($invoice_id){
 
-        if(!file_exists(public_path('pix')))
-            \File::makeDirectory(public_path('pix'));
+        if (!Storage::disk('public')->exists('pix')) {
+            Storage::disk('public')->makeDirectory('pix');
+        }
 
         $invoice = ViewInvoice::where('id',$invoice_id)->first();
 
@@ -150,12 +154,16 @@ class Invoice extends Model
                     'status'            =>  'Pendente',
                     'msg_erro'          =>  null,
                     'transaction_id'    => $result->transaction_id,
-                    'image_url_pix'     => 'https://cobrancasegura.com.br/pix/'.$invoice['user_id'].'_'.$invoice['id'].'.png',
+                    'image_url_pix'     => 'https://cobrancasegura.com.br/storage/pix/'.$invoice['user_id'].'_'.$invoice['id'].'.png',
                     'pix_digitable'     => $result->pix_code->emv,
                     'qrcode_pix_base64' => $result->pix_code->qrcode_base64,
                 ]);
 
-                \File::put(public_path(). '/pix/' . $invoice['user_id'].'_'.$invoice['id'].'.'.'png', base64_decode($result->pix_code->qrcode_base64));
+
+
+                //\File::put(public_path(). '/pix/' . $invoice['user_id'].'_'.$invoice['id'].'.'.'png', base64_decode($result->pix_code->qrcode_base64));
+                $contents = Http::get($result->pix_code->qrcode_image_url)->body();
+                Storage::disk('public')->put('pix/' .  $invoice['user_id'].'_'.$invoice['id'].'.'.'png', $contents);
 
                 return ['status' => 'success', 'message' => 'ok'];
             }
@@ -174,8 +182,9 @@ class Invoice extends Model
 
       public static function generatePixMP($invoice_id){
 
-        if(!file_exists(public_path('pix')))
-            \File::makeDirectory(public_path('pix'));
+        if (!Storage::disk('public')->exists('pix')) {
+            Storage::disk('public')->makeDirectory('pix');
+        }
 
         $invoice = ViewInvoice::where('id',$invoice_id)->first();
 
@@ -210,15 +219,16 @@ class Invoice extends Model
                     'status'            =>  'Pendente',
                     'msg_erro'          =>  null,
                     'transaction_id'    => $payment_id,
-                    'image_url_pix'     => 'https://cobrancasegura.com.br/pix/'.$invoice['user_id'].'_'.$invoice['id'].'.png',
+                    'image_url_pix'     => 'https://cobrancasegura.com.br/storage/pix/'.$invoice['user_id'].'_'.$invoice['id'].'.png',
                     'pix_digitable'     => $payment->point_of_interaction->transaction_data->qr_code,
                     'qrcode_pix_base64' => $payment->point_of_interaction->transaction_data->qr_code_base64,
                 ]);
 
                 //$invoice = Invoice::where('id',$invoice_id)->first();
 
-                \File::put(public_path(). '/pix/' . $invoice['user_id'].'_'.$invoice['id'].'.'.'png', base64_decode($payment->point_of_interaction->transaction_data->qr_code_base64));
+                //\File::put(public_path(). '/pix/' . $invoice['user_id'].'_'.$invoice['id'].'.'.'png', base64_decode($payment->point_of_interaction->transaction_data->qr_code_base64));
 
+                Storage::disk('public')->put('pix/' .  $invoice['user_id'].'_'.$invoice['id'].'.'.'png', base64_decode($payment->point_of_interaction->transaction_data->qr_code_base64));
                 return ['status' => 'success', 'message' => 'OK'];
 
             } catch(\Exception $e){
@@ -233,8 +243,9 @@ class Invoice extends Model
 
       public static function generatePixIntermedium($invoice_id){
 
-        if(!file_exists(public_path('pix')))
-            \File::makeDirectory(public_path('pix'));
+        if (!Storage::disk('public')->exists('pix')) {
+            Storage::disk('public')->makeDirectory('pix');
+        }
 
         $invoice = ViewInvoice::where('id',$invoice_id)->first();
 
@@ -350,9 +361,12 @@ class Invoice extends Model
             $result_generate_pix = $response_generate_pix->json();
             $result_generate_pix = json_decode($response_generate_pix);
 
-            QrCode::format('png')->size(220)->generate($result_generate_pix->pixCopiaECola, public_path(). '/pix/' . $invoice['user_id'].'_'.$invoice['id'].'.'.'png');
 
-            $image_pix   = config()->get('app.url').'/pix/'.$invoice['user_id'].'_'.$invoice['id'].'.png';
+            QrCode::format('png')->size(220)->generate($result_generate_pix->pixCopiaECola, storage_path('app/public'). '/pix/' . $invoice['user_id'].'_'.$invoice['id'].'.'.'png');
+            $image_pix = env('APP_URL').Storage::url('pix/'.$invoice['user_id'].'_'.$invoice['id'].'.png');
+
+            //QrCode::format('png')->size(220)->generate($result_generate_pix->pixCopiaECola, storage_path('public'). '/pix/' . $invoice['user_id'].'_'.$invoice['id'].'.'.'png');
+            //$image_pix   = config()->get('app.url').'/pix/'.$invoice['user_id'].'_'.$invoice['id'].'.png';
 
             Invoice::where('id',$invoice_id)->update([
                 'status'            => 'Pendente',
@@ -452,8 +466,9 @@ class Invoice extends Model
 
         public static function generateBilletIntermedium($invoice_id){
 
-            if(!file_exists(public_path('boleto')))
-                \File::makeDirectory(public_path('boleto'));
+            if (!Storage::disk('public')->exists('boletos')) {
+                Storage::disk('public')->makeDirectory('boletos');
+            }
 
             $invoice = ViewInvoice::where('id',$invoice_id)->first();
 
@@ -578,8 +593,11 @@ class Invoice extends Model
                     $responseBodyPdf = $response_pdf_billet->getBody();
                     $pdf = json_decode($responseBodyPdf)->pdf;
 
-                    \File::put(public_path(). '/boleto/' . $invoice['user_id'].'_'.$invoice['id'].'.'.'pdf', base64_decode($pdf));
-                    $billet_pdf   = 'https://cobrancasegura.com.br/boleto/'.$invoice['user_id'].'_'.$invoice['id'].'.pdf';
+                    //\File::put(public_path(). '/boleto/' . $invoice['user_id'].'_'.$invoice['id'].'.'.'pdf', base64_decode($pdf));
+                    //$billet_pdf   = 'https://cobrancasegura.com.br/boleto/'.$invoice['user_id'].'_'.$invoice['id'].'.pdf';
+
+                    Storage::disk('public')->put('boletos/' .  $invoice['user_id'].'_'.$invoice['id'].'.'.'pdf', base64_decode($pdf));
+                    $billet_pdf = env('APP_URL').Storage::url('boletos/' .$invoice['user_id'].'_'.$invoice['id'].'.pdf');
 
                     Invoice::where('id',$invoice_id)->update([
                         'status'            =>  'Pendente',
@@ -608,8 +626,9 @@ class Invoice extends Model
 
         public static function generateBilletPixIntermedium($invoice_id){
 
-            if(!file_exists(public_path('boletopix')))
-                \File::makeDirectory(public_path('boletopix'));
+            if (!Storage::disk('public')->exists('boletopix')) {
+                Storage::disk('public')->makeDirectory('boletopix');
+            }
 
             $invoice = ViewInvoice::where('id',$invoice_id)->first();
 
@@ -749,8 +768,11 @@ class Invoice extends Model
                     $responseBodyPdf = $response_pdf_billet->getBody();
                     $pdf = json_decode($responseBodyPdf)->pdf;
 
-                    \File::put(public_path(). '/boletopix/' . $invoice['user_id'].'_'.$invoice['id'].'.'.'pdf', base64_decode($pdf));
-                    $billet_pdf   = 'https://cobrancasegura.com.br/boletopix/'.$invoice['user_id'].'_'.$invoice['id'].'.pdf';
+                    //\File::put(public_path(). '/boletopix/' . $invoice['user_id'].'_'.$invoice['id'].'.'.'pdf', base64_decode($pdf));
+                    //$billet_pdf   = 'https://cobrancasegura.com.br/boletopix/'.$invoice['user_id'].'_'.$invoice['id'].'.pdf';
+
+                    Storage::disk('public')->put('boletopix/' .  $invoice['user_id'].'_'.$invoice['id'].'.'.'pdf', base64_decode($pdf));
+                    $billet_pdf = env('APP_URL').Storage::url('boletopix/' .$invoice['user_id'].'_'.$invoice['id'].'.pdf');
 
                     Invoice::where('id',$invoice_id)->update([
                         'status'            =>  'Pendente',
@@ -1126,9 +1148,10 @@ class Invoice extends Model
 
                     $contents = Http::get($result['bankSlipUrl'])->body();
                     Storage::disk('public')->put('boletos/' .  $invoice->user_id.'_'.$invoice->id.'.'.'pdf', $contents);
+                    $billet_url = env('APP_URL').Storage::url('boletos/' . $invoice->user_id . '_' . $invoice->id . '.pdf');
+
                     //$billet_pdf = Storage::disk('public')->get('boletos/' . $invoice->user_id . '_' . $invoice->id . '.pdf');
                     //$base64_pdf = base64_encode($billet_pdf);
-                    $billet_url = env('APP_URL').Storage::url('boletos/' . $invoice->user_id . '_' . $invoice->id . '.pdf');
 
                 } else{
                     $result_error = $response->json();

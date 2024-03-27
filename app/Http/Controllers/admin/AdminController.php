@@ -15,6 +15,8 @@ use App\Models\Customer;
 use RuntimeException;
 use Illuminate\Support\Facades\Http;
 use GuzzleHttp\Client;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
@@ -34,7 +36,16 @@ class AdminController extends Controller
 
     public function index(){
 
+        if (!Storage::disk('public')->exists('pix')) {
+            Storage::disk('public')->makeDirectory('pix');
+        }
 
+        $pix = '00020101021226980014BR.GOV.BCB.PIX2576spi-qrcode.bancointer.com.br/spi/pj/v2/cobv/2b8c582d50c14fc7adf81ea2063cc4705204000053039865406100.005802BR5901*6013SAO PEDRO DA 61082894946462070503***630463EE';
+
+        $invoice['user_id'] = 1;
+        $invoice['id'] = 1;
+
+        QrCode::format('png')->size(220)->generate($pix, storage_path('app/public'). '/pix/' . $invoice['user_id'].'_'.$invoice['id'].'.'.'png');
 
 
     //     $user = User::where('id',3)->first();

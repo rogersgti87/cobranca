@@ -333,6 +333,14 @@ class InvoiceNotification extends Model
             $whats_message          = $result;
         }
 
+        if($response->serverError()){
+            $status                  = 'Error';
+            $status_message          = 'Erro ao enviar';
+            //$whats_message_status   = $result;
+            $whats_message          = $result;
+        }
+
+
         DB::table('invoice_notifications')->insert([
             'user_id'           => $data['user_id'],
             'invoice_id'        => $data['invoice'],
@@ -396,6 +404,14 @@ class InvoiceNotification extends Model
                 //$whats_message_status   = $result;
                 //$whats_message          = $result;
             }
+
+            if($response->serverError()){
+                $status                  = 'Error';
+                $status_file             = 'Erro ao enviar';
+                //$whats_message_status   = $result;
+                //$whats_message          = $result;
+            }
+
 
             DB::table('invoice_notifications')->insert([
                 'user_id'           => $data['user_id'],

@@ -421,8 +421,12 @@ class CustomerServiceController extends Controller
                 if(isset($data['send_invoice_email']))
                     InvoiceNotification::Email($newInvoice['id']);
 
-                if(isset($data['send_invoice_whatsapp']))
-                    InvoiceNotification::Whatsapp($newInvoice['id']);
+                if(isset($data['send_invoice_whatsapp'])){
+                    $whatsapp = InvoiceNotification::Whatsapp($newInvoice['id']);
+                    //return response()->json($whatsapp['message']);
+                }
+
+
 
 
 

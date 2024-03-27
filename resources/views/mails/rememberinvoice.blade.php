@@ -31,7 +31,7 @@
 
 <body>
     <h2>{{$title}}</h2>
-    <p>Olá {{$customer}}, tudo bem?</p>
+    <p>Olá {{$customer}}</p>
     <p>{{$text_remember}} <b>Fatura #{{$invoice_id}}</b></p>
     <p>Não se esqueça de efetuar seu pagamento para evitar multas e juros!</p>
 

@@ -63,7 +63,7 @@ class InvoiceNotification extends Model
         $data = [
             'type_send'                 => 'New',
             'title'                     => $title,
-            'message_customer'          => 'Olá '.$invoice['name'].', tudo bem?',
+            'message_customer'          => 'Olá '.$invoice['name'],
             'message_notification'      => $message_notification,
             'logo'                      => 'https://cobrancasegura.com.br/'.$invoice['user_image'],
             'company'                   => $invoice['user_company'],
@@ -84,7 +84,7 @@ class InvoiceNotification extends Model
             'price'                     => number_format($invoice['price'], 2,',','.'),
             'gateway_payment'           => $invoice['gateway_payment'],
             'payment_method'            => $invoice['payment_method'],
-            'service'                   => $invoice['service_name'] .' - '. $invoice['description'],
+            'service'                   => $invoice['description'],
             'invoice'                   => $invoice['id'],
             'status'                    => $invoice['status'],
             'url_base'                  => url('/'),
@@ -225,7 +225,7 @@ class InvoiceNotification extends Model
         $data = [
             'type_send'                 => 'New',
             'title'                     => $title,
-            'message_customer'          => 'Olá '.$invoice['name'].', tudo bem?',
+            'message_customer'          => 'Olá '.$invoice['name'],
             'message_notification'      => $message_notification,
             'logo'                      => 'https://cobrancasegura.com.br/'.$invoice['user_image'],
             'company'                   => $invoice['user_company'],
@@ -246,7 +246,7 @@ class InvoiceNotification extends Model
             'price'                     => number_format($invoice['price'], 2,',','.'),
             'gateway_payment'           => $invoice['gateway_payment'],
             'payment_method'            => $invoice['payment_method'],
-            'service'                   => $invoice['service_name'] .' - '. $invoice['description'],
+            'service'                   => $invoice['description'],
             'invoice'                   => $invoice['id'],
             'status'                    => $invoice['status'],
             'url_base'                  => url('/'),
@@ -428,8 +428,8 @@ class InvoiceNotification extends Model
                 "mediaMessage"   => [
                     "mediatype"  =>  "document",
                     "caption"    =>  $whats_billet_digitable_line,
-                    //"media"      => config('app.url').'/boleto/'.$whats_billet_url_slip,
-                    "media"      => preg_replace('/[^a-zA-Z0-9\/\+=]/', '', $whats_billet_base64),
+                    "media"      =>  $whats_billet_url_slip,
+                    //"media"      => preg_replace('/[^a-zA-Z0-9\/\+=]/', '', $whats_billet_base64),
                     "fileName"   => 'Fatura_'.$whats_invoice_id.'.pdf'
                 ]
             ]);

@@ -167,7 +167,7 @@
                     <tr>
                         <th> #</th>
                         <th> Cliente</th>
-                        <th> Serviço</th>
+                        <th> Descrição</th>
                         <th> Data</th>
                         <th> Vencimento</th>
                         <th> Pago em</th>
@@ -791,7 +791,7 @@ $(document).on('click', '#btn-invoice-status', function(e) {
                 html += '<tr>';
                 html += `<td>${item.id}</td>`;
                 html += `<td>${item.customer_name}</td>`;
-                html += `<td>${item.service_name}</td>`;
+                html += `<td>${item.description}</td>`;
                 html += `<td>${moment(item.date_invoice).format('DD/MM/YYYY')}</td>`;
                 html += `<td>${moment(item.date_due).format('DD/MM/YYYY')}</td>`;
                 html += `<td>${item.date_payment != null ? moment(item.date_payment).format('DD/MM/YYYY') : '-'}</td>`;

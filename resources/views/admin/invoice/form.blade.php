@@ -6,17 +6,17 @@
             <div class="form-row">
                 <input type="hidden" name="invoice" id="invoice" value="{{ isset($data) ? $data->id : '' }}">
                 <input type="hidden" name="customer_id" value="{{ $customer_id }}">
-                <div class="form-group col-md-6 col-sm-12">
+                {{-- <div class="form-group col-md-6 col-sm-12">
                     <label>Serviço</label>
                     <select class="form-control custom-select" name="customer_service_id" id="customer_service_id" {{ isset($data)  ? 'disabled' : '' }}>
                         <option value="">Selecione um serviço</option>
                         @foreach($customer_services as $service)
-                            <option {{ isset($data->customer_service_id) && $data->customer_service_id == $service->id ? 'selected' : '' }} value="{{ $service->id }}" data-price={{ $service->price }} data-description={{ $service->description }}>{{ $service->name }}</option>
+                            <option {{ isset($data->customer_service_id) && $data->customer_service_id == $service->id ? 'selected' : '' }} value="{{ $service->id }}" data-price={{ $service->price }} data-description={{ $service->description }}>{{ $service->description }}</option>
                         @endforeach
                     </select>
-                </div>
+                </div> --}}
 
-                <div class="form-group col-md-6 col-sm-12">
+                <div class="form-group col-md-12 col-sm-12">
                     <label>Descrição</label>
                     <input type="text" class="form-control" name="description" id="invoice_description" autocomplete="off" required value="{{isset($data->description) ? $data->description : ''}}" {{ isset($data) ? 'disabled' : '' }}>
                 </div>

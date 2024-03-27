@@ -41,7 +41,6 @@ a.id, a.user_id, c.id customer_id, c.name customer,c.email,c.email2,c.phone, c.n
     a.gateway_payment,a.payment_method,a.period, CURRENT_DATE date_invoice,
     a.status, 'Pendente',CURRENT_TIMESTAMP created_at,CURRENT_TIMESTAMP updated_at FROM customer_services a
     INNER JOIN customers c ON a.customer_id = c.id
-    INNER JOIN services s ON a.service_id = s.id
     INNER JOIN users u ON a.user_id = u.id
     WHERE NOT EXISTS (SELECT * FROM invoices b WHERE a.id = b.customer_service_id AND b.date_invoice = CURRENT_DATE) AND a.status = 'Ativo' and a.period = 'Recorrente'
     and u.day_generate_invoice = day(CURDATE())

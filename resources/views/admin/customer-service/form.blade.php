@@ -6,29 +6,19 @@
             <div class="form-row">
                 <input type="hidden" name="customer_service_id" id="customer_service_id" value="{{ isset($data) ? $data->id : '' }}">
                 <input type="hidden" name="customer_id" value="{{ $customer_id }}">
-                <div class="form-group col-md-4 col-sm-12">
-                    <label>Serviço</label>
-                    <select class="form-control custom-select" name="service_id" id="service_id">
-                        <option value="">Selecione um serviço</option>
-                        @foreach($services as $service)
-                            <option {{ isset($data->service_id) && $data->service_id == $service->id ? 'selected' : '' }} value="{{ $service->id }}" data-price="{{ $service->price }}">{{ $service->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
 
-                <div class="form-group col-md-6 col-sm-12">
+                <div class="form-group col-md-8 col-sm-12">
                     <label>Descrição</label>
                     <input type="text" class="form-control" name="description" id="description" autocomplete="off" required value="{{isset($data->description) ? $data->description : ''}}">
                 </div>
 
-                <div class="form-group col-md-2 col-sm-12">
+                <div class="form-group col-md-4 col-sm-12">
                     <label>Status</label>
                     <select class="form-control custom-select" name="status" id="status">
                         <option {{ isset($data->status) && $data->status === 'Ativo' ? 'selected' : '' }} value="Ativo">Ativo</option>
                         <option {{ isset($data->status) && $data->status === 'Inativo' ? 'selected' : '' }} value="Inativo">Inativo</option>
                     </select>
                 </div>
-
 
                 <div class="form-group col-md-2 col-sm-12">
                     <label>Dia Vencimento</label>
@@ -116,8 +106,6 @@
                         <option {{ isset($data->period) && $data->period === 'Único' ? 'selected' : '' }} value="Único">Único</option>
                     </select>
                 </div>
-
-
 
 
 

@@ -272,7 +272,6 @@
                                     <table class="table table-hover table-striped table-sm">
                                         <thead class="thead-light">
                                         <tr>
-                                            <th> Nome</th>
                                             <th> Descrição</th>
                                             <th> Preço</th>
                                             <th> Vencimento</th>
@@ -856,7 +855,6 @@ function loadCustomerServices(){
                     var html = '';
                     $.each(data, function(i, item) {
                         html += '<tr>';
-                        html += `<td>${item.name}</td>`;
                         html += `<td>${item.description}</td>`;
                         html += `<td>R$ ${parseFloat(item.price).toLocaleString('pt-br', {minimumFractionDigits: 2})}</td>`;
                         html += `<td>${item.day_due}</td>`;
@@ -1098,7 +1096,7 @@ function loadInvoices(){
                     $.each(data, function(i, item) {
                         html += '<tr>';
                         html += `<td>${item.id}</td>`;
-                        html += `<td>${item.name +' - '+ item.description}</td>`;
+                        html += `<td>${item.description}</td>`;
                         html += `<td>R$ ${parseFloat(item.price).toLocaleString('pt-br', {minimumFractionDigits: 2})}</td>`;
                         html += `<td>${item.gateway_payment}</td>`;
                         html += `<td>${item.payment_method}</td>`;

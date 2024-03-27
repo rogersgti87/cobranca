@@ -12,7 +12,6 @@ use App\Models\User;
 use App\Models\Invoice;
 use App\Models\ViewInvoice;
 use App\Models\InvoiceNotification;
-use App\Models\Service;
 use App\Models\CustomerService;
 use App\Models\Customer;
 use RuntimeException;
@@ -54,8 +53,7 @@ class InvoiceController extends Controller
 
         $customer_id = $customer_id != null ? $customer_id : '';
 
-        $customer_services = CustomerService::join('services','services.id','customer_services.service_id')
-        ->select('customer_services.id as id','customer_services.description','customer_services.price','customer_services.day_due','customer_services.period','customer_services.status','services.name as name')
+        $customer_services = CustomerService::select('customer_services.id as id','customer_services.description','customer_services.price','customer_services.day_due','customer_services.period','customer_services.status')
         ->where('customer_services.customer_id',$customer_id)->where('customer_services.user_id',auth()->user()->id)->get();
 
         $data = Invoice::where('id',$this->request->input('id'))->where('user_id',auth()->user()->id)->first();
@@ -496,9 +494,8 @@ if(isset($data['send_invoice_whatsapp'])){
     public function Load($customer_id){
 
         $result = Invoice::join('customer_services','customer_services.id','invoices.customer_service_id')
-                ->join('services','services.id','customer_services.service_id')
                 ->select('invoices.id as id','invoices.description','invoices.payment_method','invoices.price','invoices.date_invoice',
-                'invoices.date_due','invoices.date_payment','invoices.status','services.name as name','invoices.gateway_payment','invoices.billet_url','invoices.image_url_pix')
+                'invoices.date_due','invoices.date_payment','invoices.status','invoices.gateway_payment','invoices.billet_url','invoices.image_url_pix')
                 ->where('customer_services.customer_id',$customer_id)->where('invoices.user_id',auth()->user()->id)
                 ->orderby('invoices.id','DESC')
                 ->get();
@@ -616,10 +613,9 @@ public function loadInvoices(){
 
 
     $fields = "invoices.id as id,invoices.description,invoices.payment_method,invoices.price,invoices.date_invoice,customers.id as customer_id, customers.name as customer_name,
-            invoices.date_due,invoices.date_payment,invoices.status,services.name as service_name,invoices.gateway_payment,invoices.payment_method,invoices.billet_url,invoices.image_url_pix,invoices.updated_at";
+            invoices.date_due,invoices.date_payment,invoices.status,invoices.gateway_payment,invoices.payment_method,invoices.billet_url,invoices.image_url_pix,invoices.updated_at";
 
     $query->join('customer_services','customer_services.id','invoices.customer_service_id')
-            ->join('services','services.id','customer_services.service_id')
             ->join('customers','customers.id','customer_services.customer_id')
             ->where('invoices.user_id',auth()->user()->id)
             ->orderby('invoices.date_due','ASC');

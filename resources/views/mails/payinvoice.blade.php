@@ -31,7 +31,7 @@
 
 <body>
     <h1>{{$title}}</h1>
-    <p>Olá {{$customer}}, tudo bem?</p>
+    <p>Olá {{$customer}}</p>
     <p>Este é a confirmação e recibo do pagamento da <b>Fatura #{{$invoice_id}}</b>.</p>
 
     <p><b>Serviço(s) Contratado(s):</b></p>

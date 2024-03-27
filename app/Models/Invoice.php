@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 use App\Models\ViewInvoice;
 use App\Models\InvoiceNotification;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Facades\Storage;
 
 class Invoice extends Model
 {
@@ -1039,9 +1040,9 @@ class Invoice extends Model
 
             public static function generateBilletAsaas($invoice_id){
 
-                if(!file_exists(public_path('boleto')))
-                    \File::makeDirectory(public_path('boleto'));
-
+                if (!Storage::disk('public')->exists('boletos')) {
+                    Storage::disk('public')->makeDirectory('boletos');
+                }
 
                 $invoice = ViewInvoice::where('id',$invoice_id)->first();
 
@@ -1124,13 +1125,14 @@ class Invoice extends Model
                     $result = $response->json();
 
                     $contents = Http::get($result['bankSlipUrl'])->body();
-                    \File::put(public_path(). '/boleto/' .  $invoice->user_id.'_'.$invoice->id.'.'.'pdf', $contents);
-                    $billet_pdf   = 'https://cobrancasegura.com.br/boleto/'.$invoice->user_id.'_'.$invoice->id.'.pdf';
-                    //$billet_pdf   = 'http://cobranca.local:8090/boleto/'.$invoice->user_id.'_'.$invoice->id.'.pdf';
-                    $base64_pdf = chunk_split(base64_encode(file_get_contents($billet_pdf)));
+                    Storage::disk('public')->put('boletos/' .  $invoice->user_id.'_'.$invoice->id.'.'.'pdf', $contents);
+                    //$billet_pdf = Storage::disk('public')->get('boletos/' . $invoice->user_id . '_' . $invoice->id . '.pdf');
+                    //$base64_pdf = base64_encode($billet_pdf);
+                    $billet_url = env('APP_URL').Storage::url('boletos/' . $invoice->user_id . '_' . $invoice->id . '.pdf');
 
                 } else{
-                    return ['status' => 'reject', 'message' => $response->json()];
+                    $result_error = $response->json();
+                    return ['status' => 'reject', 'message' => $result_error['errors'][0]['description']];
                 }
 
                   //Pegar o codigo de barras
@@ -1145,15 +1147,16 @@ class Invoice extends Model
                     $billet_digitable = $result_get_digitable['barCode'];
 
                   } else{
-                    return ['status' => 'reject', 'message' => $get_digitable->json()];
+                    $result_error_digitable = $get_digitable->json();
+                    return ['status' => 'reject', 'message' => $result_error_digitable['errors'][0]['description']];
                 }
 
                 Invoice::where('id',$invoice_id)->update([
                     'status'            =>  'Pendente',
                     'msg_erro'          =>  null,
                     'transaction_id'    =>  $result['id'],
-                    'billet_url'        =>  $billet_pdf,
-                    'billet_base64'     =>  $base64_pdf,
+                    'billet_url'        =>  $billet_url,
+                    //'billet_base64'     =>  $base64_pdf,
                     'billet_digitable'  =>  $billet_digitable
                 ]);
 

@@ -9,7 +9,6 @@ use Carbon\Carbon;
 use Image;
 use DB;
 use App\Models\User;
-use App\Models\Service;
 use App\Models\CustomerService;
 use App\Models\Invoice;
 use App\Models\InvoiceNotification;
@@ -56,10 +55,9 @@ class CustomerServiceController extends Controller
 
         $customer_id = $customer_id != null ? $customer_id : '';
 
-        $services = Service::where('user_id',auth()->user()->id)->get();
         $data = CustomerService::where('id',$this->request->input('id'))->where('user_id',auth()->user()->id)->first();
 
-        return view($this->datarequest['path'].'.form',compact('services','data','customer_id'))->render();
+        return view($this->datarequest['path'].'.form',compact('data','customer_id'))->render();
 
     }
 
@@ -71,7 +69,6 @@ class CustomerServiceController extends Controller
         $data = $this->request->all();
 
         $messages = [
-            'service_id.required'           => 'O Campo Serviço é obrigatório!',
             'description.unique'            => 'O campo descrição é obrigatório!',
             'price.required'                => 'O campo Valor é obrigatório!',
             'start_billing.required'        => 'O campo Data Inicio Cobrança é obrigatório',
@@ -81,7 +78,6 @@ class CustomerServiceController extends Controller
         ];
 
         $validator = Validator::make($data, [
-            'service_id'        =>  'required',
             'description'       =>  'required',
             'price'             =>  'required',
             'start_billing'     =>  'required',
@@ -102,7 +98,6 @@ class CustomerServiceController extends Controller
 
         $model->user_id             = auth()->user()->id;
         $model->customer_id         = $data['customer_id'];
-        $model->service_id          = $data['service_id'];
         $model->description         = $data['description'];
         $model->status              = $data['status'];
         $model->day_due             = $data['day_due'];
@@ -136,7 +131,7 @@ class CustomerServiceController extends Controller
                     if($newInvoice['gateway_payment'] == 'Pag Hiper'){
                         $generatePixPH = Invoice::generatePixPH($newInvoice['id']);
                         if($generatePixPH['status'] == 'reject'){
-                            CustomerService::where('id',$model->id)->delete();
+                            //CustomerService::where('id',$model->id)->delete();
                             Invoice::where('id',$newInvoice['id'])->delete();
                             return response()->json($generatePixPH['message'], 422);
                         }
@@ -144,7 +139,7 @@ class CustomerServiceController extends Controller
                     }elseif($newInvoice['gateway_payment'] == 'Mercado Pago'){
                         $generatePixMP = Invoice::generatePixMP($newInvoice['id']);
                         if($generatePixMP['status'] == 'reject'){
-                            CustomerService::where('id',$model->id)->delete();
+                            //CustomerService::where('id',$model->id)->delete();
                             Invoice::where('id',$newInvoice['id'])->delete();
                             return response()->json($generatePixMP['message'], 422);
                         }
@@ -153,7 +148,7 @@ class CustomerServiceController extends Controller
                     elseif($newInvoice['gateway_payment'] == 'Intermedium'){
                         $generatePixIntermedium = Invoice::generatePixIntermedium($newInvoice['id']);
                         if($generatePixIntermedium['status'] == 'reject'){
-                            CustomerService::where('id',$model->id)->delete();
+                            //CustomerService::where('id',$model->id)->delete();
                             Invoice::where('id',$newInvoice['id'])->delete();
                             $msgInterPix = '';
                             foreach($generatePixIntermedium['message'] as $messageInterPix){
@@ -175,7 +170,7 @@ class CustomerServiceController extends Controller
                     if($newInvoice['gateway_payment'] == 'Pag Hiper'){
                         $generateBilletPH = Invoice::generateBilletPH($newInvoice['id']);
                         if($generateBilletPH['status'] == 'reject'){
-                            CustomerService::where('id',$model->id)->delete();
+                            //CustomerService::where('id',$model->id)->delete();
                             Invoice::where('id',$newInvoice['id'])->delete();
                             return response()->json($generateBilletPH['message'], 422);
                         }
@@ -185,7 +180,7 @@ class CustomerServiceController extends Controller
 
                         $generateBilletIntermedium = Invoice::generateBilletIntermedium($newInvoice['id']);
                         if($generateBilletIntermedium['status'] == 'reject'){
-                            CustomerService::where('id',$model->id)->delete();
+                            //CustomerService::where('id',$model->id)->delete();
                             Invoice::where('id',$newInvoice['id'])->delete();
                             $msgInterBillet = '';
                             foreach($generateBilletIntermedium['message'] as $messageInterBillet){
@@ -201,6 +196,7 @@ class CustomerServiceController extends Controller
 
                         $generateBilletAsaas = Invoice::generateBilletAsaas($newInvoice['id']);
                         if($generateBilletAsaas['status'] == 'reject'){
+                            Invoice::where('id',$newInvoice['id'])->delete();
                             return response()->json($generateBilletAsaas['message'], 422);
                         }
 
@@ -266,7 +262,6 @@ class CustomerServiceController extends Controller
 
 
         $messages = [
-            'service_id.required'           => 'O Campo Serviço é obrigatório!',
             'description.unique'            => 'O campo descrição é obrigatório!',
             'price.required'                => 'O campo Valor é obrigatório!',
             'start_billing.required'        => 'O campo Data Inicio Cobrança é obrigatório',
@@ -276,7 +271,6 @@ class CustomerServiceController extends Controller
         ];
 
         $validator = Validator::make($data, [
-            'service_id'        =>  'required',
             'description'       =>  'required',
             'price'             =>  'required',
             'start_billing'     =>  'required',
@@ -297,7 +291,6 @@ class CustomerServiceController extends Controller
 
         $model->user_id             = auth()->user()->id;
         $model->customer_id         = $data['customer_id'];
-        $model->service_id          = $data['service_id'];
         $model->description         = $data['description'];
         $model->status              = $data['status'];
         $model->day_due             = $data['day_due'];
@@ -471,10 +464,9 @@ class CustomerServiceController extends Controller
 
     public function Load($customer_id){
 
-        $result = CustomerService::join('services','services.id','customer_services.service_id')
-                ->select('customer_services.id as id','customer_services.description','customer_services.price','customer_services.day_due','customer_services.period','customer_services.status','services.name as name')
+        $result = CustomerService::select('customer_services.id as id','customer_services.description','customer_services.price',
+                'customer_services.day_due','customer_services.period','customer_services.status')
                 ->where('customer_services.customer_id',$customer_id)->where('customer_services.user_id',auth()->user()->id)
-                ->orderby('services.name','ASC')
                 ->get();
         return response()->json($result);
 

@@ -162,11 +162,13 @@
                         <td>@if($notification->type_send == 'whatsapp')
                             <div class="popup" id="popup-{{$notification->id}}">
                                 <div class="overflow">
-                                    @if($notification->status == "Success" && property_exists(json_decode($notification->message)->message, 'extendedTextMessage'))
-
+                                    @if($notification->status == "Success")
+                                        @if(property_exists(json_decode($notification->message)->message, 'extendedTextMessage'))
                                                 {!! str_replace("\n","<br>",json_decode($notification->message)->message->extendedTextMessage->text) !!}
-
-                                    @endif
+                                            @endif
+                                        @else
+                                            <span>Mensagem não foi enviada!</span>
+                                        @endif
                                 <br>
                                 <br>
                                 </div>

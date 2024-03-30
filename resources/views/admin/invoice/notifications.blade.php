@@ -163,6 +163,7 @@
                             <div class="popup" id="popup-{{$notification->id}}">
                                 <div class="overflow">
                                     @if($notification->status == "Success")
+                                    @dd(property_exists(json_decode($notification->message)->message, 'extendedTextMessage'))
                                         @if(property_exists(json_decode($notification->message)->message, 'extendedTextMessage'))
                                                 {!! str_replace("\n","<br>",json_decode($notification->message)->message->extendedTextMessage->text) !!}
                                             @endif

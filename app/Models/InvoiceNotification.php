@@ -331,14 +331,16 @@ class InvoiceNotification extends Model
             $status                  = 'Error';
             $status_message          = 'Erro ao enviar';
             //$whats_message_status   = $result;
-            $whats_message          = $result;
+            //$whats_message          = $response->json();
+            \Log::info($response->json());
         }
 
         if($response->serverError()){
             $status                  = 'Error';
             $status_message          = 'Erro ao enviar';
             //$whats_message_status   = $result;
-            $whats_message          = $result;
+            //$whats_message          = $response->json();
+            \Log::info($response->json());
         }
 
 
@@ -404,6 +406,7 @@ class InvoiceNotification extends Model
                 $status_image            = 'Erro ao enviar';
                 //$whats_message_status   = $result;
                 //$whats_message          = $result;
+                \Log::info($response->json());
             }
 
             if($response->serverError()){
@@ -411,6 +414,7 @@ class InvoiceNotification extends Model
                 $status_file             = 'Erro ao enviar';
                 //$whats_message_status   = $result;
                 //$whats_message          = $result;
+                \Log::info($response->json());
             }
 
 
@@ -496,6 +500,7 @@ class InvoiceNotification extends Model
                 $status_file             = 'Erro ao enviar';
                 //$whats_message_status   = $result;
                 //$whats_message          = $result;
+                \Log::info($response->json());
             }
 
 
@@ -504,6 +509,7 @@ class InvoiceNotification extends Model
                 $status_file             = 'Erro ao enviar';
                 //$whats_message_status   = $result;
                 //$whats_message          = $result;
+                \Log::info($response->json());
             }
 
 

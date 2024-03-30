@@ -159,14 +159,14 @@
                                 <span class="badge badge-danger">Erro</span>
                             @endif
                         </td>
-                        <td>@if($notification->type_send == 'whatsapp' && $notification->status == "Success" && property_exists(json_decode($notification->message)->message, 'extendedTextMessage'))
+                        <td>@if($notification->type_send == 'whatsapp')
                             <div class="popup" id="popup-{{$notification->id}}">
                                 <div class="overflow">
-
+                                    @if($notification->status == "Success" && property_exists(json_decode($notification->message)->message, 'extendedTextMessage'))
 
                                                 {!! str_replace("\n","<br>",json_decode($notification->message)->message->extendedTextMessage->text) !!}
 
-
+                                    @endif
                                 <br>
                                 <br>
                                 </div>

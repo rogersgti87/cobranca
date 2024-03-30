@@ -353,7 +353,7 @@ class InvoiceNotification extends Model
             'email_id'          => '',
             'status'            => $status,
             'message_status'    => null,
-            'message'           => null,
+            'message'           => $response->json(),
             'created_at'        => Carbon::now(),
             'updated_at'        => Carbon::now()
         ]);
@@ -427,7 +427,7 @@ class InvoiceNotification extends Model
                 'email_id'          => '',
                 'status'            => $status,
                 'message_status'    => null,
-                'message'           => null,
+                'message'           => $response->json(),
                 'created_at'        => Carbon::now(),
                 'updated_at'        => Carbon::now()
             ]);
@@ -522,7 +522,7 @@ class InvoiceNotification extends Model
                 'email_id'          => '',
                 'status'            => $status,
                 'message_status'    => null,
-                'message'           => null,
+                'message'           => $response->json(),
                 'created_at'        => Carbon::now(),
                 'updated_at'        => Carbon::now()
             ]);

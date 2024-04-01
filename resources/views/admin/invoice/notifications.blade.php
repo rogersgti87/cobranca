@@ -159,14 +159,15 @@
                                 <span class="badge badge-danger">Erro</span>
                             @endif
                         </td>
-                        <td>@if($notification->type_send == 'whatsapp')
+                        <td>@if($notification->type_send == 'whatsapp' && $notification->message != null)
                             <div class="popup" id="popup-{{$notification->id}}">
                                 <div class="overflow">
                                     @if($notification->status == "Success")
-                                    @dd(property_exists(json_decode($notification->message)->message, 'documentMessage'))
                                         @if(property_exists(json_decode($notification->message)->message, 'extendedTextMessage'))
                                                 {!! str_replace("\n","<br>",json_decode($notification->message)->message->extendedTextMessage->text) !!}
-                                            @endif
+                                        @else
+                                            <span>Anexo não disponível para visualização!</span>
+                                        @endif
                                         @else
                                             <span>Mensagem não foi enviada!</span>
                                         @endif

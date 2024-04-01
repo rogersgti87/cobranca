@@ -70,7 +70,7 @@
                                 <button type="button" data-toggle="modal" data-target="#modal-inter" data-original-title="Configurar Banco Inter" data-tt="tooltip" class="btn btn-md" style="background:#ff8c00;color:#fff;"><i class="fas fa-university"></i> BANCO INTER</button>
                                 <button type="button" data-toggle="modal" data-target="#modal-paghiper" id="{{ isset($data->id) ? $data->id : '' }}" data-original-title="Configurar PagHiper" data-tt="tooltip" class="btn btn-md" style="background:blue;color:#fff;"><i class="fas fa-university"></i> PAG HIPER</button>
                                 <button type="button" data-toggle="modal" data-target="#modal-mp" id="{{ isset($data->id) ? $data->id : '' }}" data-original-title="Configurar Mercado Pago" data-tt="tooltip" class="btn btn-md" style="background:#48c5d6;color:#fff;"><i class="fas fa-university"></i> MERCADO PAGO</button>
-                                <button type="button" data-toggle="modal" data-target="#modal-asaas" id="{{ isset($data->id) ? $data->id : '' }}" data-original-title="Configurar Mercado Pago" data-tt="tooltip" class="btn btn-md" style="background:#00008B;color:#fff;"><i class="fas fa-university"></i> ASAAS</button>
+                                <button type="button" data-toggle="modal" data-target="#modal-asaas" id="{{ isset($data->id) ? $data->id : '' }}" data-original-title="Configurar ASAAS" data-tt="tooltip" class="btn btn-md" style="background:#00008B;color:#fff;"><i class="fas fa-university"></i> ASAAS</button>
                             @endif
                         </fieldset>
 

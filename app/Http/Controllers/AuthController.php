@@ -35,12 +35,8 @@ class AuthController extends Controller
 
         $user = Auth::guard('api')->user();
         return response()->json([
-                'status' => 'success',
-                'user' => $user,
-                'authorisation' => [
-                    'token' => $token,
-                    'type' => 'bearer',
-                ]
+                'authToken' => $token,
+                'user' => $user
             ]);
 
     }
@@ -60,13 +56,8 @@ class AuthController extends Controller
 
         $token =Auth::guard('api')->login($user);
         return response()->json([
-            'status' => 'success',
-            'message' => 'User created successfully',
-            'user' => $user,
-            'authorisation' => [
-                'token' => $token,
-                'type' => 'bearer',
-            ]
+            'authToken' => $token,
+            'user' => $user
         ]);
     }
 
@@ -82,12 +73,8 @@ class AuthController extends Controller
     public function refresh()
     {
         return response()->json([
-            'status' => 'success',
+            'authToken' => Auth::refresh(),
             'user' => Auth::guard('api')->user(),
-            'authorisation' => [
-                'token' => Auth::refresh(),
-                'type' => 'bearer',
-            ]
         ]);
     }
 

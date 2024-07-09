@@ -187,7 +187,7 @@ foreach($invoices as $invoice){
 
         if ($response->successful()) {
 
-            return $response->json();
+            //return $response->json();
         }
 
         if($response->badRequest()){

@@ -223,7 +223,7 @@ foreach($invoices as $invoice){
             $result = $response->getBody();
 
             if ($response->successful()) {
-                return $response->json();
+                //return $response->json();
             }
 
             if($response->badRequest()){
@@ -284,7 +284,7 @@ foreach($invoices as $invoice){
             $result = $response->getBody();
 
             if ($response->successful()) {
-                return $response->json();
+                //return $response->json();
             }
 
             if($response->badRequest()){
@@ -303,6 +303,7 @@ foreach($invoices as $invoice){
         }
 
 
+        return response()->json('Fatura enviada com sucesso!',200);
 
         //$email = InvoiceNotification::Email($request->input('invoice_id'));
          //\Log::info($email);

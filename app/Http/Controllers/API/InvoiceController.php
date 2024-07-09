@@ -288,12 +288,14 @@ foreach($invoices as $invoice){
             }
 
             if($response->badRequest()){
+                \Log::info('Linha 291');
                 \Log::info($response->json());
                 return $response->json();
             }
 
 
             if($response->serverError()){
+                \Log::info('Linha 298');
                 \Log::info($response->json());
                 return $response->json();
             }

@@ -139,7 +139,13 @@ class UserController extends Controller
             return response()->json($validator->errors()->first(), 422);
         }
 
-        $model->document        = removeEspeciais($data['document']);
+
+        if(!validarDocumento($data['document'])){
+            return response()->json('CPF/CNPJ inválido!', 422);
+        }
+
+        $model->document        = $data['document'];
+
         $model->company         = $data['company'];
         $model->name            = $data['name'];
         $model->email           = $data['email'];
@@ -208,6 +214,11 @@ class UserController extends Controller
         if( $validator->fails() ){
             return response()->json($validator->errors()->first(), 422);
         }
+
+        if(!validarDocumento($data['document'])){
+            return response()->json('CPF/CNPJ inválido!', 422);
+        }
+
 
         $model->document        = removeEspeciais($data['document']);
         $model->company         = $data['company'];

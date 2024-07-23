@@ -177,3 +177,54 @@ function generateUniqueId($minLength = 26, $maxLength = 30) {
 
     return $uniqueId;
 }
+
+
+function validarDocumento($document) {
+    // Remove qualquer caractere não numérico
+    $document = preg_replace('/\D/', '', $document);
+
+    if (strlen($document) == 11) {
+        return validarCPF($document);
+    } elseif (strlen($document) == 14) {
+        return validarCNPJ($document);
+    } else {
+        return false;
+    }
+}
+
+function validarCPF($cpf) {
+    // Verifica se todos os dígitos são iguais
+    if (preg_match('/(\d)\1{10}/', $cpf)) {
+        return false;
+    }
+
+    for ($t = 9; $t < 11; $t++) {
+        for ($d = 0, $c = 0; $c < $t; $c++) {
+            $d += $cpf[$c] * (($t + 1) - $c);
+        }
+        $d = ((10 * $d) % 11) % 10;
+        if ($cpf[$c] != $d) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function validarCNPJ($cnpj) {
+    // Verifica se todos os dígitos são iguais
+    if (preg_match('/(\d)\1{13}/', $cnpj)) {
+        return false;
+    }
+
+    for ($t = 12; $t < 14; $t++) {
+        for ($d = 0, $p = 5, $c = 0; $c < $t; $c++) {
+            $d += $cnpj[$c] * $p;
+            $p = ($p == 2) ? 9 : $p - 1;
+        }
+        $d = ((10 * $d) % 11) % 10;
+        if ($cnpj[$c] != $d) {
+            return false;
+        }
+    }
+    return true;
+}

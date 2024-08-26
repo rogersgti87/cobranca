@@ -69,6 +69,9 @@ foreach($invoices as $invoice){
             }
 
         }
+ elseif($invoice['gateway_payment'] == 'Estabelecimento'){
+            Invoice::where('id',$invoice['id'])->update(['status' => 'Pendente']);
+        }        
     } elseif($invoice['payment_method'] == 'Boleto'){
 
         if($invoice['gateway_payment'] == 'Pag Hiper'){
@@ -117,12 +120,7 @@ if($invoice['gateway_payment'] == 'Intermedium'){
 
 }
 }
-
-if($invoice['gateway_payment'] == 'Estabelecimento'){
-    Invoice::where('id',$invoice['id'])->update(['status' => 'Pendente']);
-}
     
-
    if($invoice['send_generate_invoice'] == 'Sim'){
         InvoiceNotification::Email($invoice['id']);
 

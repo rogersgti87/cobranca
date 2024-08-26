@@ -84,11 +84,12 @@ foreach($invoices as $invoice){
 
         }
         elseif($invoice['gateway_payment'] == 'Intermedium'){
-
+            \Log::info('Loop Boleto Inter - Invoice: '. $invoice['id']);
             $generateBilletIntermedium = Invoice::generateBilletIntermedium($invoice['id']);
             if($generateBilletIntermedium['status'] == 'reject'){
                 Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => json_encode($generateBilletIntermedium['message'])]);
             }else{
+                \Log::info('Boleto Inter - Invoice: '. $invoice['id'].' - Atualizado para Pendente.');
                 Invoice::where('id',$invoice['id'])->update(['status' => 'Pendente']);
             }
 

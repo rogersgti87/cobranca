@@ -33,7 +33,7 @@ if($invoices != null){
 
 foreach($invoices as $invoice){
 
-    \Log::info('Loop Generate Invoice: '. $invoice['id']);
+    //\Log::info('Loop Generate Invoice: '. $invoice['id']);
 
     if($invoice['payment_method'] == 'Pix'){
         if($invoice['gateway_payment'] == 'Pag Hiper'){

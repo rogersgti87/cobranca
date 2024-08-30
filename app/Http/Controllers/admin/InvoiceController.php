@@ -459,7 +459,7 @@ if(isset($data['send_invoice_whatsapp'])){
                         $status = 'success';
                     }
                 }else if($invoice->gateway_payment == 'Asaas'){
-                    $status = Invoice::cancelBilletAsaas(auth()->user()->id,$invoice->transaction_id);
+                    $status = Invoice::cancelBilletAsaas($invoice->transaction_id);
                     if($status == 'success'){
                         $status = 'success';
                     }

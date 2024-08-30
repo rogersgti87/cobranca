@@ -12,6 +12,7 @@ use App\Models\ViewInvoice;
 use App\Models\InvoiceNotification;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Storage;
+use Log;
 
 class Invoice extends Model
 {
@@ -1187,6 +1188,47 @@ class Invoice extends Model
 
 
               }
+
+
+
+
+//Cancelar Boleto Asaas
+
+
+public static function cancelBilletAsaas($transaction_id){
+
+    $invoice = ViewInvoice::where('transaction_id',$transaction_id)->first();
+
+    if($invoice->environment_asaas == 'Teste'){
+        $url        = $invoice->asaas_url_test;
+        $at_asaas   = $invoice->at_asaas_test;
+    }else{
+        $url        = $invoice->asaas_url_prod;
+        $at_asaas   = $invoice->at_asaas_prod;
+    }
+
+    $response = Http::withHeaders([
+        'accept' => 'application/json',
+        'content-type' => 'application/json',
+        'access_token' => $at_asaas,
+      ])->delete($url.'v3/payments/'.$transaction_id);
+
+
+      if ($response->successful()) {
+            return 'success';
+    } else{
+        $result_error = $response->json();
+        Log::info('Model::cancelBilletAsaas');
+        Log::info($result_error);
+        return ['status' => 'reject', 'message' => $result_error['errors'][0]['description']];
+    }
+
+
+
+
+  }
+
+
 
 
 

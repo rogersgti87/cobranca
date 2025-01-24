@@ -17,6 +17,7 @@ use App\Models\Customer;
 use RuntimeException;
 use Illuminate\Support\Facades\Http;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Facades\Storage;
 
 class InvoiceController extends Controller
 {
@@ -106,6 +107,34 @@ class InvoiceController extends Controller
         $model->date_due            = $data['date_due'];
         $model->date_payment        = $data['date_payment'] != null ? $data['date_payment'] : null;
         $model->status              = $data['status'];
+
+        if($model->gateway_payment ==  'Estabelecimento'){
+
+            if($model['payment_method'] == 'Boleto'){
+                $contents = file_get_contents($data['invoice_file']);
+                if (pathinfo($data['invoice_file'], PATHINFO_EXTENSION) !== 'pdf') {
+                    return response()->json('O arquivo deve ser um PDF.', 422);
+                }
+                Storage::disk('public')->put('boletos/' . $model->user_id . '_' . $model->id . '.pdf', $contents);
+                $model->billet_url = env('APP_URL') . Storage::url('boletos/' . $model->user_id . '_' . $model->id . '.pdf');
+                $model->billet_base64 = base64_encode($contents);
+                $model->billet_digitable = $data['billet_digitable'];
+            }
+
+            if($model['payment_method'] == 'Pix'){
+
+                $contents = file_get_contents($data['invoice_file']);
+                if (pathinfo($data['invoice_file'], PATHINFO_EXTENSION) !== 'png') {
+                    return response()->json('O arquivo deve ser uma imagem PNG.', 422);
+                }
+                $model->image_url_pix = env('APP_URL') . Storage::url('pix/' . $model->user_id . '_' . $model->id . '.png');
+                $model->qrcode_pix_base64 = base64_encode($contents);
+                Storage::disk('public')->put('pix/' . $model->user_id . '_' . $model->id . '.png', $contents);
+                $model->pix_digitable = $data['pix_digitable'];
+            }
+
+
+        }
 
 
 
@@ -233,6 +262,7 @@ class InvoiceController extends Controller
         $data = $this->request->all();
 
 
+
         $messages = [
             'customer_service_id.required'  => 'O Campo Serviço é obrigatório!',
             'description.unique'            => 'O campo Descrição é obrigatório!',
@@ -269,6 +299,34 @@ class InvoiceController extends Controller
         $model->gateway_payment     = $data['gateway_payment'];
         $model->payment_method      = $data['payment_method'];
         //$model->date_invoice        = $data['date_invoice'];
+
+        if($model->gateway_payment ==  'Estabelecimento'){
+
+            if($model['payment_method'] == 'Boleto'){
+                $contents = file_get_contents($data['billet_file']);
+                if (pathinfo($data['billet_file'], PATHINFO_EXTENSION) !== 'pdf') {
+                    return response()->json('O arquivo deve ser um PDF.', 422);
+                }
+                Storage::disk('public')->put('boletos/' . $model->user_id . '_' . $model->id . '.pdf', $contents);
+                $model->billet_url = env('APP_URL') . Storage::url('boletos/' . $model->user_id . '_' . $model->id . '.pdf');
+                $model->billet_base64 = base64_encode($contents);
+                $model->billet_digitable = $data['billet_digitable'];
+            }
+
+            if($model['payment_method'] == 'Pix'){
+
+                $contents = file_get_contents($data['pix_file']);
+                if (pathinfo($data['pix_file'], PATHINFO_EXTENSION) !== 'png') {
+                    return response()->json('O arquivo deve ser uma imagem PNG.', 422);
+                }
+                $model->image_url_pix = env('APP_URL') . Storage::url('pix/' . $model->user_id . '_' . $model->id . '.png');
+                $model->qrcode_pix_base64 = base64_encode($contents);
+                Storage::disk('public')->put('pix/' . $model->user_id . '_' . $model->id . '.png', $contents);
+                $model->pix_digitable = $data['pix_digitable'];
+            }
+
+
+        }
 
 
         if(isset($data['generate_invoice'])){

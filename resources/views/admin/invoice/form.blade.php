@@ -78,17 +78,39 @@
                     <input type="date" class="form-control" name="date_payment" id="date_payment" autocomplete="off" required value="{{isset($data->date_payment) ? $data->date_payment : ''}}">
                 </div>
 
-                {{-- <div class="form-group col-md-6 col-sm-12">
-                    <label>Status</label>
-                    <select class="form-control custom-select" name="status" id="status">
-                        <option value="">Selecione o status do Pagamento</option>
-                        <option value="Pendente">Pendente</option>
-                        <option value="Processamento">Processamento</option>
-                        <option value="Pago">Pago</option>
-                        <option value="Cancelado">Cancelado</option>
-                    </select>
+                @if($data->gateway_payment == 'Estabelecimento')
+                    <div class="form-group col-md-4 col-sm-12">
+                        <label>Boleto / <a href="{{$data->billet_url}}" target="_blank">Ver boleto</a></label>
+                        <input type="file" class="form-control" name="billet_file" id="billet_file" autocomplete="off" {{ $data->status != 'Pendente' && $data->status != 'Erro' ? 'disabled' : ''}}>
+                    </div>
 
-                </div> --}}
+                    <div class="form-group col-md-8 col-sm-12">
+                        <label>Linha digitavel Boleto</label>
+                        <input type="text" class="form-control" name="billet_digitable" id="billet_digitable" autocomplete="off" {{ $data->status != 'Pendente' && $data->status != 'Erro' ? 'disabled' : ''}}>
+                    </div>
+
+                    <div class="form-group col-md-4 col-sm-12">
+                        <label>Pix / <a href="{{$data->billet_url}}" target="_blank">Ver Pix</a></label>
+                        <input type="file" class="form-control" name="pix_file" id="pix_file" autocomplete="off" {{ $data->status != 'Pendente' && $data->status != 'Erro' ? 'disabled' : ''}}>
+                    </div>
+
+                    <div class="form-group col-md-8 col-sm-12">
+                        <label>Linha digitavel Pix</label>
+                        <input type="text" class="form-control" name="pix_digitable" id="pix_digitable" autocomplete="off" {{ $data->status != 'Pendente' && $data->status != 'Erro' ? 'disabled' : ''}}>
+                    </div>
+
+                <div class="form-group col-md-4 col-sm-12">
+                    <label>Status</label>
+                    <select class="form-control custom-select" name="status" id="status" {{ $data->status != 'Pendente' && $data->status != 'Erro' ? 'disabled' : ''}}>
+                        <option value="">Selecione o status do Pagamento</option>
+                        <option value="Pendente"  {{ isset($data->status) && $data->status === 'Pendente' ? 'selected' : '' }}>Pendente</option>
+                        {{-- <option value="Processamento">Processamento</option> --}}
+                        <option value="Pago" {{ isset($data->status) && $data->status === 'Pago' ? 'selected' : '' }}>Pago</option>
+                        {{-- <option value="Cancelado">Cancelado</option> --}}
+                    </select>
+                </div>
+
+                @endif
 
                 {{-- @if(!isset($data)) --}}
                 <div class="form-group col-md-12 col-sm-12">

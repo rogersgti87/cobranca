@@ -89,7 +89,7 @@ Route::group(['prefix' => 'admin','middleware' => ['auth']], function(){
     Route::get('invoices',[InvoiceController::class,'index']);
     Route::get('invoices/form',[InvoiceController::class,'form']);
     Route::post('invoices',[InvoiceController::class,'store']);
-    Route::put('invoices/{id}',[InvoiceController::class,'update']);
+    Route::post('invoices/{id}',[InvoiceController::class,'update']);
     Route::post('invoices/copy',[InvoiceController::class,'copy']);
     Route::delete('invoices/{id}',[InvoiceController::class,'destroy']);
     Route::get('load-invoices/{invoice_id}',[InvoiceController::class,'load']);

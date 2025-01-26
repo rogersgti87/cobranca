@@ -646,88 +646,84 @@ $(document).on('click', '#btn-invoice-status', function(e) {
 
     });
 
-     //Save Invoice
-     $(document).on('click', '#btn-save-invoice', function(e) {
-            e.preventDefault();
+    //Save Invoice
+    $(document).on('click', '#btn-save-invoice', function(e) {
+          e.preventDefault();
 
-            $("#btn-save-invoice").attr("disabled", true);
-            $("#btn-save-invoice").text('Aguarde...');
+          $("#btn-save-invoice").attr("disabled", true);
+          $("#btn-save-invoice").text('Aguarde...');
 
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': "{{csrf_token()}}"
-                }
-            });
-            var data = $('#form-request-invoice').serialize();
-            var invoice = $('#invoice').val();
-            if(invoice != ''){
-                var url = "{{ url('admin/invoices') }}"+'/'+invoice;
-                var method = 'PUT';
-            }else{
-                var url = "{{ url('admin/invoices') }}";
-                var method = 'POST';
-            }
+          $.ajaxSetup({
+             headers: {
+                'X-CSRF-TOKEN': "{{csrf_token()}}"
+             }
+          });
 
-            $.ajax({
-                url: url,
-                data:data,
-                method:method,
-                beforeSend:function(){
-                    $("#btn-save-invoice").attr("disabled", true);
-                    $("#btn-save-invoice").text('Aguarde...');
-                },
-                success:function(data){
-                    $("#btn-save-invoice").attr("disabled", false);
-                    $("#btn-save-invoice").html('<i class="fa fa-check"></i> Salvar');
-                    //console.log(data);
+          var formData = new FormData($('#form-request-invoice')[0]);
+          var invoice = $('#invoice').val();
+          if(invoice != ''){
+             var url = "{{ url('admin/invoices') }}"+'/'+invoice;
+          }else{
+             var url = "{{ url('admin/invoices') }}";
+
+          }
+
+          $.ajax({
+             url: url,
+             data: formData,
+             method: 'POST',
+             processData: false,
+             contentType: false,
+             beforeSend:function(){
+                $("#btn-save-invoice").attr("disabled", true);
+                $("#btn-save-invoice").text('Aguarde...');
+             },
+             success:function(data){
+                $("#btn-save-invoice").attr("disabled", false);
+                $("#btn-save-invoice").html('<i class="fa fa-check"></i> Salvar');
+                Swal.fire({
+                    width:350,
+                    title: "<h5 style='color:#007bff'>" + data + "</h5>",
+                    icon: 'success',
+                    showConfirmButton: true,
+                    showClass: {
+                       popup: 'animate__animated animate__backInUp'
+                    },
+                    allowOutsideClick: false,
+                }).then((result) => {
+                    $('#modalInvoice').modal('hide');
+                    loadInvoices();
+                });
+             },
+             error:function (xhr) {
+                $("#btn-save-invoice").attr("disabled", false);
+                $("#btn-save-invoice").html('<i class="fa fa-check"></i> Salvar');
+                if(xhr.status === 422){
                     Swal.fire({
-                        width:350,
-                        title: "<h5 style='color:#007bff'>" + data + "</h5>",
-                        icon: 'success',
-                        showConfirmButton: true,
-                        showClass: {
-                            popup: 'animate__animated animate__backInUp'
-                        },
-                        allowOutsideClick: false,
-                    }).then((result) => {
-                        $('#modalInvoice').modal('hide');
-                        loadInvoices();
+                       text: xhr.responseJSON,
+                       width:300,
+                       icon: 'warning',
+                       color: '#007bff',
+                       confirmButtonColor: "#007bff",
+                       showClass: {
+                          popup: 'animate__animated animate__wobble'
+                       }
                     });
-                },
-                error:function (xhr) {
-                    $("#btn-save-invoice").attr("disabled", false);
-                    $("#btn-save-invoice").html('<i class="fa fa-check"></i> Salvar');
-                    if(xhr.status === 422){
-                        Swal.fire({
-                            text: xhr.responseJSON,
-                            width:300,
-                            icon: 'warning',
-                            color: '#007bff',
-                            confirmButtonColor: "#007bff",
-                            showClass: {
-                                popup: 'animate__animated animate__wobble'
-                            }
-                        });
-                    } else{
-                        Swal.fire({
-                            text: xhr.responseJSON,
-                            width:300,
-                            icon: 'error',
-                            color: '#007bff',
-                            confirmButtonColor: "#007bff",
-                            showClass: {
-                                popup: 'animate__animated animate__wobble'
-                            }
-                        });
-                    }
-
-
+                } else{
+                    Swal.fire({
+                       text: xhr.responseJSON,
+                       width:300,
+                       icon: 'error',
+                       color: '#007bff',
+                       confirmButtonColor: "#007bff",
+                       showClass: {
+                          popup: 'animate__animated animate__wobble'
+                       }
+                    });
                 }
-            });
-
-
-
-        });
+             }
+          });
+       });
 
 
 

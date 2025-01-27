@@ -1099,9 +1099,9 @@ function loadInvoices(){
                         html += `<td>${moment(item.date_due).format('DD/MM/YYYY')}</td>`;
                         html += `<td>${item.date_payment != null ? moment(item.date_payment).format('DD/MM/YYYY') : '-' }</td>`;
                         html += `<td><label class="badge badge-${item.status == 'Pago' ? 'badge-success' :
-                                                                item.status == 'Pendente' ? 'badge-warning' :
-                                                                item.status == 'Estabelecimento' ? 'badge-info' :
-                                                                'badge-danger'}">${item.status}</label></td>`;
+    item.status == 'Pendente' ? 'warning' :
+    item.status == 'Estabelecimento' ? 'info' :
+    'danger'}">${item.status}</label></td>`;
                         html += `<td>
                             ${item.status == 'Pendente' || item.status == 'Erro' || item.status == 'Estabelecimento' ? '<a href="#" data-original-title="Editar fatura" id="btn-modal-invoice" data-type="edit-invoice" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-secondary btn-xs"> <i class="far fa-edit"></i></a>' : ''}
                             ${item.status == 'Erro' ? '<a href="#" data-original-title="Erros" id="btn-modal-error" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-danger btn-xs"> <i class="fas fa-exclamation-triangle"></i></a>' : ''}

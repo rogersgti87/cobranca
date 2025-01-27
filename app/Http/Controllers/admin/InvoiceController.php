@@ -371,9 +371,7 @@ class InvoiceController extends Controller
           $process->mustRun();
 
           // Obter a saída
-          $output = $process->getOutput();
-
-          dd($output);
+          $qrCodeText = $process->getOutput();
 
         if (!$qrCodeText) {
             return response()->json('Não foi possível extrair o texto do QR Code.', 422);

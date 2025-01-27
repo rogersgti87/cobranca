@@ -358,10 +358,6 @@ class InvoiceController extends Controller
 
         $model->status = 'Pendente';
 
-        $model->save();
-
-        return response()->json('Boleto processado com sucesso.');
-
 }
 
 

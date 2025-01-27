@@ -324,6 +324,10 @@ class InvoiceController extends Controller
         preg_match('/\d{5}\.\d{5}\s\d{5}\.\d{6}\s\d{5}\.\d{6}\s\d{1}\s\d{14}/', $text, $matches);
         $billetDigitable = $matches[0] ?? null;
 
+        if ($billetDigitable) {
+            $billetDigitable = str_replace(['.', ' '], '', $billetDigitable);
+        }
+
         if (!$billetDigitable) {
             return response()->json('Não foi possível extrair o código de barras do boleto.', 422);
         }

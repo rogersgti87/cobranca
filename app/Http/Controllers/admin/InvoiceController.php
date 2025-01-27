@@ -161,6 +161,9 @@ class InvoiceController extends Controller
                         return response()->json($generatePixAsaas['message'], 422);
                     }
                 }
+                elseif($model['gateway_payment'] == 'Estabelecimento'){
+                    Invoice::where('id',$model['id'])->update(['status' => 'Estabelecimento']);
+                }
             } elseif($model['payment_method'] == 'Boleto'){
 
                 if($model['gateway_payment'] == 'Pag Hiper'){
@@ -190,6 +193,9 @@ class InvoiceController extends Controller
                     }
 
                 }
+                elseif($model['gateway_payment'] == 'Estabelecimento'){
+                    Invoice::where('id',$model['id'])->update(['status' => 'Estabelecimento']);
+                }
         }
         elseif($model['payment_method'] == 'BoletoPix'){
 
@@ -205,6 +211,9 @@ class InvoiceController extends Controller
                     return response()->json($generateBilletIntermedium['title'].': '.$msgInterBillet, 422);
                 }
 
+            }
+            elseif($model['gateway_payment'] == 'Estabelecimento'){
+                Invoice::where('id',$model['id'])->update(['status' => 'Estabelecimento']);
             }
     }
 

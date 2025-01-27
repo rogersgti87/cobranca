@@ -793,7 +793,10 @@ $(document).on('click', '#btn-invoice-status', function(e) {
                 html += `<td>${item.date_payment != null ? moment(item.date_payment).format('DD/MM/YYYY') : '-'}</td>`;
                 html += `<td>${item.price}</td>`;
                 html += `<td>${item.gateway_payment+' ('+item.payment_method })</td>`;
-                html += `<td class="badge ${item.status == 'Pago' ? 'badge-success' : item.status == 'Pendente' ? 'badge-warning' : 'badge-danger'}">${item.status}</td>`;
+                html += `<td class="badge ${item.status == 'Pago' ? 'badge-success' :
+                                            item.status == 'Pendente' ? 'badge-warning' :
+                                            item.status == 'Estabelecimento' ? 'badge-info' :
+                                            'badge-danger'}">${item.status}</td>`;
                 html += `<td>
                             <a href="{{ url('admin/customers/form?act=edit&id=')}}${item.customer_id}" data-original-title="Editar cliente" id="btn-edit-customer" data-placement="left" data-tt="tooltip" class="btn btn-secondary btn-xs"> <i class="fas fa-user"></i></a>
                             ${item.status == 'Pendente' || item.status == 'Erro' || item.status == 'Estabelecimento' ? '<a href="#" data-original-title="Editar fatura" id="btn-modal-invoice" data-type="edit-invoice" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-secondary btn-xs"> <i class="far fa-edit"></i></a>' : ''}

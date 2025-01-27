@@ -363,7 +363,7 @@ class InvoiceController extends Controller
         }
 
 
-        $pythonPath = 'python';
+        $pythonPath = 'python3';
         $scriptPath = base_path('decode_qr.py');
         $process = new Process([$pythonPath, $scriptPath, $qrImagePath]);
 

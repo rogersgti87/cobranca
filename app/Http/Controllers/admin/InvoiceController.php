@@ -288,7 +288,7 @@ class InvoiceController extends Controller
         //$model->date_invoice        = $data['date_invoice'];
 
 
-        if($model->gateway_payment ==  'Estabelecimento'){
+        if ($model->gateway_payment == 'Estabelecimento' && $this->request()->has('billet_file')) {
 
             // Obtém o conteúdo do arquivo
         $contents = file_get_contents($data['billet_file']);
@@ -355,6 +355,9 @@ class InvoiceController extends Controller
         $model->pix_digitable       = $qrCodeText;
         $model->image_url_pix       = env('APP_URL') . Storage::url('pix/' . $fileName . '.png');
         $model->qrcode_pix_base64   = base64_encode(file_get_contents($model->image_url_pix));
+
+        $model->status = 'Pendente';
+
         $model->save();
 
         return response()->json('Boleto processado com sucesso.');

@@ -111,42 +111,6 @@ class InvoiceController extends Controller
         $model->date_payment        = $data['date_payment'] != null ? $data['date_payment'] : null;
         $model->status              = $data['status'];
 
-        if($model->gateway_payment ==  'Estabelecimento'){
-            if($model['payment_method'] == 'Boleto'){
-                $contents = file_get_contents($data['invoice_file']);
-                if (pathinfo($data['invoice_file'], PATHINFO_EXTENSION) !== 'pdf') {
-                    return response()->json('O arquivo deve ser um PDF.', 422);
-                }
-                Storage::disk('public')->put("boletos/{$model->user_id}_{$model->id}.pdf", $contents);
-                $model->billet_url = env('APP_URL') . Storage::url("boletos/{$model->user_id}_{$model->id}.pdf");
-                $model->billet_base64 = base64_encode($contents);
-
-                // Extract billet_digitable from the PDF
-                $parser = new Parser();
-                $pdf = $parser->parseFile($data['invoice_file']);
-                $text = $pdf->getText();
-                preg_match('/(\d{5}\.\d{5}\s\d{5}\.\d{6}\s\d{5}\.\d{6}\s\d{1}\s\d{14})/', $text, $matches);
-                $model->billet_digitable = $matches[1] ?? $data['billet_digitable'];
-                // Extract QR code content from the PDF using Imagick
-                $imagick = new \Imagick();
-                $imagick->readImage($data['invoice_file']);
-                $imagick->setIteratorIndex(0);
-                $imagick->setImageFormat('png');
-                $tempImagePath = tempnam(sys_get_temp_dir(), 'qrcode') . '.png';
-                $imagick->writeImage($tempImagePath);
-
-                // Extract QR code content from the image
-                $qrcode = new QrReader($tempImagePath);
-                $text = $qrcode->text();
-                if ($text) {
-                    $model->pix_digitable = $text;
-                }
-                unlink($tempImagePath);
-            }
-
-
-        }
-
 
 
         try{
@@ -314,86 +278,77 @@ class InvoiceController extends Controller
         $model->payment_method      = $data['payment_method'];
         //$model->date_invoice        = $data['date_invoice'];
 
+
         if($model->gateway_payment ==  'Estabelecimento'){
 
-            // Caminho do PDF enviado
+            // Obtém o conteúdo do arquivo
+        $contents = file_get_contents($data['billet_file']);
 
-
-
-            if ($model['payment_method'] == 'Pix') {
-
-                // Obtém o conteúdo do arquivo
-                $contents = file_get_contents($data['billet_file']);
-
-                // Valida se é um PDF
-                if ($data['billet_file']->getClientOriginalExtension() !== 'pdf') {
-                    return response()->json('O arquivo deve ser um PDF.', 422);
-                }
-
-                // Salva o arquivo no storage
-                $filePath = 'boletos/' . $model->user_id . '_' . $model->id . '.pdf';
-                $fileName = $model->user_id . '_' . $model->id;
-                Storage::disk('public')->put($filePath, $contents);
-                $model->billet_url = env('APP_URL') . Storage::url($filePath);
-                $model->billet_base64 = base64_encode($contents);
-
-                // Caminho do PDF salvo
-                $pdfPath = Storage::disk('public')->path($filePath);
-
-                // Converter PDF para JPG
-                $this->convertPdfToJpg($pdfPath, $fileName);
-
-                // Extrair o texto do PDF (billet_digitable)
-                $parser = new \Smalot\PdfParser\Parser();
-                $pdf = $parser->parseFile($pdfPath);
-                $text = $pdf->getText();
-
-                // Limpar a memória após usar o parser
-                unset($parser, $pdf);
-                gc_collect_cycles();
-
-                // Extrair o código de barras do boleto (billet_digitable)
-                preg_match('/\d{5}\.\d{5}\s\d{5}\.\d{6}\s\d{5}\.\d{6}\s\d{1}\s\d{14}/', $text, $matches);
-                $billetDigitable = $matches[0] ?? null;
-
-                if (!$billetDigitable) {
-                    return response()->json('Não foi possível extrair o código de barras do boleto.', 422);
-                }
-
-                // Extrair texto do QR Code gerado
-                $qrImagePath = storage_path('app/public/boletos/' . $fileName . '.jpg');
-                if (!file_exists($qrImagePath)) {
-                    return response()->json('A imagem do QR Code não foi gerada.', 500);
-                }
-
-                // Use o Zxing ou o QRCodeReader para extrair o texto do QR Code
-                $qrcodeReader = new \Zxing\QrReader($qrImagePath);
-                $qrCodeText = $qrcodeReader->text(); // Texto extraído do QR Code
-
-                if (!$qrCodeText) {
-                    return response()->json('Não foi possível extrair o texto do QR Code.', 422);
-                }
-
-
-                QrCode::format('png')->size(220)->generate($qrCodeText, storage_path('app/public'). '/pix/' . $fileName . '.'.'png');
-
-
-                // Salvar os resultados no modelo
-                $model->billet_digitable    = $billetDigitable;
-                $model->pix_digitable       = $qrCodeText;
-                $model->image_url_pix       = env('APP_URL') . Storage::url('pix/' . $fileName . '.png');
-                $model->qrcode_pix_base64   = base64_encode(file_get_contents($model->image_url_pix));
-                $model->save();
-
-                return response()->json('Boleto processado com sucesso.');
-
-            }
-
-
-
-
-
+        // Valida se é um PDF
+        if ($data['billet_file']->getClientOriginalExtension() !== 'pdf') {
+            return response()->json('O arquivo deve ser um PDF.', 422);
         }
+
+        // Salva o arquivo no storage
+        $filePath = 'boletos/' . $model->user_id . '_' . $model->id . '.pdf';
+        $fileName = $model->user_id . '_' . $model->id;
+        Storage::disk('public')->put($filePath, $contents);
+        $model->billet_url = env('APP_URL') . Storage::url($filePath);
+        $model->billet_base64 = base64_encode($contents);
+
+        // Caminho do PDF salvo
+        $pdfPath = Storage::disk('public')->path($filePath);
+
+        // Converter PDF para JPG
+        $this->convertPdfToJpg($pdfPath, $fileName);
+
+        // Extrair o texto do PDF (billet_digitable)
+        $parser = new \Smalot\PdfParser\Parser();
+        $pdf = $parser->parseFile($pdfPath);
+        $text = $pdf->getText();
+
+        // Limpar a memória após usar o parser
+        unset($parser, $pdf);
+        gc_collect_cycles();
+
+        // Extrair o código de barras do boleto (billet_digitable)
+        preg_match('/\d{5}\.\d{5}\s\d{5}\.\d{6}\s\d{5}\.\d{6}\s\d{1}\s\d{14}/', $text, $matches);
+        $billetDigitable = $matches[0] ?? null;
+
+        if (!$billetDigitable) {
+            return response()->json('Não foi possível extrair o código de barras do boleto.', 422);
+        }
+
+        // Extrair texto do QR Code gerado
+        $qrImagePath = storage_path('app/public/boletos/' . $fileName . '.jpg');
+        if (!file_exists($qrImagePath)) {
+            return response()->json('A imagem do QR Code não foi gerada.', 500);
+        }
+
+        // Use o Zxing ou o QRCodeReader para extrair o texto do QR Code
+        $qrcodeReader = new \Zxing\QrReader($qrImagePath);
+        $qrCodeText = $qrcodeReader->text(); // Texto extraído do QR Code
+
+        if (!$qrCodeText) {
+            return response()->json('Não foi possível extrair o texto do QR Code.', 422);
+        }
+
+
+        QrCode::format('png')->size(220)->generate($qrCodeText, storage_path('app/public'). '/pix/' . $fileName . '.'.'png');
+
+
+        // Salvar os resultados no modelo
+        $model->billet_digitable    = $billetDigitable;
+        $model->pix_digitable       = $qrCodeText;
+        $model->image_url_pix       = env('APP_URL') . Storage::url('pix/' . $fileName . '.png');
+        $model->qrcode_pix_base64   = base64_encode(file_get_contents($model->image_url_pix));
+        $model->save();
+
+        return response()->json('Boleto processado com sucesso.');
+
+}
+
+
 
 
         if(isset($data['generate_invoice'])){

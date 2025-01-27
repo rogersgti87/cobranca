@@ -79,15 +79,11 @@
                 </div>
 
                 @if($data->gateway_payment == 'Estabelecimento')
-                    <div class="form-group col-md-4 col-sm-12">
+                    <div class="form-group col-md-8 col-sm-12">
                         <label>Boleto / <a href="{{$data->billet_url}}" target="_blank">Ver boleto</a></label>
                         <input type="file" class="form-control" name="billet_file" id="billet_file" autocomplete="off" {{ $data->status != 'Pendente' && $data->status != 'Erro' ? 'disabled' : ''}}>
                     </div>
 
-                    <div class="form-group col-md-4 col-sm-12">
-                        <label>Pix / <a href="{{$data->billet_url}}" target="_blank">Ver Pix</a></label>
-                        <input type="file" class="form-control" name="pix_file" id="pix_file" autocomplete="off" {{ $data->status != 'Pendente' && $data->status != 'Erro' ? 'disabled' : ''}}>
-                    </div>
 
                 <div class="form-group col-md-4 col-sm-12">
                     <label>Status</label>

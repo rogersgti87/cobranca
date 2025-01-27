@@ -165,6 +165,9 @@ class CustomerServiceController extends Controller
                             return response()->json($generatePixAsaas['message'], 422);
                         }
                     }
+                    elseif($model['gateway_payment'] == 'Estabelecimento'){
+                        Invoice::where('id',$newInvoice['id'])->update(['status' => 'Estabelecimento']);
+                    }
                 } elseif($newInvoice['payment_method'] == 'Boleto'){
 
                     if($newInvoice['gateway_payment'] == 'Pag Hiper'){
@@ -201,6 +204,9 @@ class CustomerServiceController extends Controller
                         }
 
                     }
+                    elseif($model['gateway_payment'] == 'Estabelecimento'){
+                        Invoice::where('id',$newInvoice['id'])->update(['status' => 'Estabelecimento']);
+                    }
 
 
             }
@@ -221,6 +227,9 @@ class CustomerServiceController extends Controller
                     return response()->json($generateBilletIntermedium['title'].': '.$msgInterBillet, 422);
                 }
 
+            }
+            elseif($model['gateway_payment'] == 'Estabelecimento'){
+                Invoice::where('id',$newInvoice['id'])->update(['status' => 'Estabelecimento']);
             }
     }
 
@@ -361,6 +370,9 @@ class CustomerServiceController extends Controller
                             return response()->json($generatePixAsaas['message'], 422);
                         }
                     }
+                    elseif($model['gateway_payment'] == 'Estabelecimento'){
+                        Invoice::where('id',$newInvoice['id'])->update(['status' => 'Estabelecimento']);
+                    }
                 } elseif($newInvoice['payment_method'] == 'Boleto'){
 
                     if($newInvoice['gateway_payment'] == 'Pag Hiper'){
@@ -394,6 +406,9 @@ class CustomerServiceController extends Controller
                             return response()->json($generateBilletAsaas['message'], 422);
                         }
                     }
+                    elseif($model['gateway_payment'] == 'Estabelecimento'){
+                        Invoice::where('id',$newInvoice['id'])->update(['status' => 'Estabelecimento']);
+                    }
 
 
             }
@@ -414,6 +429,9 @@ class CustomerServiceController extends Controller
                     return response()->json($generateBilletIntermedium['title'].': '.$msgInterBillet, 422);
                 }
 
+            }
+            elseif($model['gateway_payment'] == 'Estabelecimento'){
+                Invoice::where('id',$newInvoice['id'])->update(['status' => 'Estabelecimento']);
             }
     }
 

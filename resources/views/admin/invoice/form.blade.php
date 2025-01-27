@@ -30,7 +30,7 @@
                 <div class="form-group col-md-4 col-sm-12">
                     <label>Gateway Pagamento</label>
                     @if(isset($data))
-                        <select class="form-control custom-select" name="gateway_payment" id="gateway_payment" {{ $data->status != 'Pendente' && $data->status != 'Erro' ? 'disabled' : ''}}>
+                        <select class="form-control custom-select" name="gateway_payment" id="gateway_payment" {{ $data->status != 'Pendente' && $data->status != 'Estabelecimento' && $data->status != 'Erro' ? 'disabled' : ''}}>
                     @else
                         <select class="form-control custom-select" name="gateway_payment" id="gateway_payment">
                     @endif
@@ -47,7 +47,7 @@
                 <div class="form-group col-md-4 col-sm-12">
                     <label>Forma de Pagamento</label>
                     @if(isset($data))
-                    <select class="form-control custom-select" name="payment_method" id="payment_method" {{ $data->status != 'Pendente' && $data->status != 'Erro' ? 'disabled' : ''}}>
+                    <select class="form-control custom-select" name="payment_method" id="payment_method" {{ $data->status != 'Pendente' && $data->status != 'Estabelecimento' && $data->status != 'Erro' ? 'disabled' : ''}}>
                     @else
                     <select class="form-control custom-select" name="payment_method" id="payment_method">
                     @endif
@@ -81,15 +81,16 @@
                 @if($data->gateway_payment == 'Estabelecimento')
                     <div class="form-group col-md-8 col-sm-12">
                         <label>Boleto / <a href="{{$data->billet_url}}" target="_blank">Ver boleto</a></label>
-                        <input type="file" class="form-control" name="billet_file" id="billet_file" autocomplete="off" {{ $data->status != 'Pendente' && $data->status != 'Erro' ? 'disabled' : ''}}>
+                        <input type="file" class="form-control" name="billet_file" id="billet_file" autocomplete="off" {{ $data->status != 'Pendente' && $data->status != 'Estabelecimento' && $data->status != 'Erro' ? 'disabled' : ''}}>
                     </div>
 
 
                 <div class="form-group col-md-4 col-sm-12">
                     <label>Status</label>
-                    <select class="form-control custom-select" name="status" id="status" {{ $data->status != 'Pendente' && $data->status != 'Erro' ? 'disabled' : ''}}>
+                    <select class="form-control custom-select" name="status" id="status" {{ $data->status != 'Pendente' && $data->status != 'Estabelecimento' && $data->status != 'Erro' ? 'disabled' : ''}}>
                         <option value="">Selecione o status do Pagamento</option>
                         <option value="Pendente"  {{ isset($data->status) && $data->status === 'Pendente' ? 'selected' : '' }}>Pendente</option>
+                        <option value="Estabelecimento"  {{ isset($data->status) && $data->status === 'Estabelecimento' ? 'selected' : '' }}>Estabelecimento</option>
                         {{-- <option value="Processamento">Processamento</option> --}}
                         <option value="Pago" {{ isset($data->status) && $data->status === 'Pago' ? 'selected' : '' }}>Pago</option>
                         {{-- <option value="Cancelado">Cancelado</option> --}}

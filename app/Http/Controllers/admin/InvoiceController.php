@@ -18,9 +18,12 @@ use Illuminate\Support\Facades\Http;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Storage;
 use Smalot\PdfParser\Parser;
-use Zxing\QrReader;
+//use Zxing\QrReader;
 use Spatie\PdfToImage\Pdf;
 use Intervention\Image\Facades\Image;
+use Endroid\QrCode\Reader\QrReader;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
 
 class InvoiceController extends Controller
 {
@@ -311,6 +314,27 @@ class InvoiceController extends Controller
         // Converter PDF para JPG
         $this->convertPdfToJpg($pdfPath, $fileName);
 
+        // Caminho da imagem gerada (JPG)
+        $jpgPath = storage_path('app/public/boletos/' . $fileName . '.jpg');
+
+        // Verificar se o arquivo existe
+        if (!file_exists($jpgPath)) {
+            return response()->json('Imagem não encontrada.', 404);
+        }
+
+        // Cortar a imagem
+        $x = 160; // Posição X inicial
+        $y = 800; // Posição Y inicial
+        $width = 600; // Largura da área a ser cortada
+        $height = 600; // Altura da área a ser cortada
+
+        $croppedImage = Image::make($jpgPath)->crop($width, $height, $x, $y);
+
+        // Salvar a imagem cortada
+        $croppedPath = storage_path('app/public/boletos/' . $fileName . '.jpg');
+        $croppedImage->save($croppedPath);
+
+
         // Extrair o texto do PDF (billet_digitable)
         $parser = new \Smalot\PdfParser\Parser();
         $pdf = $parser->parseFile($pdfPath);
@@ -338,9 +362,18 @@ class InvoiceController extends Controller
             return response()->json('A imagem do QR Code não foi gerada.', 500);
         }
 
-        // Use o Zxing ou o QRCodeReader para extrair o texto do QR Code
-        $qrcodeReader = new \Zxing\QrReader($qrImagePath);
-        $qrCodeText = $qrcodeReader->text(); // Texto extraído do QR Code
+
+        $pythonPath = 'python';
+        $scriptPath = base_path('decode_qr.py');
+        $process = new Process([$pythonPath, $scriptPath, $qrImagePath]);
+
+          // Executar o script
+          $process->mustRun();
+
+          // Obter a saída
+          $output = $process->getOutput();
+
+          dd($output);
 
         if (!$qrCodeText) {
             return response()->json('Não foi possível extrair o texto do QR Code.', 422);

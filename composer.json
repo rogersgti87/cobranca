@@ -8,6 +8,7 @@
         "php": "^8.0.2",
         "ext-imagick": "*",
         "chillerlan/php-qrcode": "^5.0",
+        "endroid/qr-code": "^5.0",
         "guzzlehttp/guzzle": "^7.2",
         "intervention/image": "^2.7",
         "khanamiryan/qrcode-detector-decoder": "^2.0",

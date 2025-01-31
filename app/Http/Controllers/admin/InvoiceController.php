@@ -324,14 +324,14 @@ class InvoiceController extends Controller
 
         // Cortar a imagem
         $x = 160; // Posição X inicial
-        $y = 800; // Posição Y inicial
+        $y = 765; // Posição Y inicial
         $width = 600; // Largura da área a ser cortada
         $height = 600; // Altura da área a ser cortada
 
         $croppedImage = Image::make($jpgPath)->crop($width, $height, $x, $y);
 
         // Salvar a imagem cortada
-        $croppedPath = storage_path('app/public/boletos/' . $fileName . '.jpg');
+        $croppedPath = storage_path('app/public/pix/' . $fileName . '.png');
         $croppedImage->save($croppedPath);
 
 
@@ -357,11 +357,10 @@ class InvoiceController extends Controller
         }
 
         // Extrair texto do QR Code gerado
-        $qrImagePath = storage_path('app/public/boletos/' . $fileName . '.jpg');
+        $qrImagePath = storage_path('app/public/pix/' . $fileName . '.png');
         if (!file_exists($qrImagePath)) {
             return response()->json('A imagem do QR Code não foi gerada.', 500);
         }
-
 
         $pythonPath = 'python3';
         $scriptPath = base_path('decode_qr.py');
@@ -377,8 +376,9 @@ class InvoiceController extends Controller
             return response()->json('Não foi possível extrair o texto do QR Code.', 422);
         }
 
+        //$qrCodeText = $this->request->input('pix_digitable');
 
-        QrCode::format('png')->size(220)->generate($qrCodeText, storage_path('app/public'). '/pix/' . $fileName . '.'.'png');
+        //QrCode::format('png')->size(174)->generate($qrCodeText, storage_path('app/public'). '/pix/' . $fileName . '.'.'png');
 
 
         // Salvar os resultados no modelo

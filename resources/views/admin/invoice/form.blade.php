@@ -97,6 +97,12 @@
                     </select>
                 </div>
 
+
+                <div class="form-group col-md-12 col-sm-12">
+                    <label>Pix copia e cola</label>
+                    <textarea name="pix_digitable" id="pix_digitable" class="form-control" rows="3" {{ $data->status != 'Pendente' && $data->status != 'Estabelecimento' && $data->status != 'Erro' ? 'disabled' : ''}}>{{isset($data->pix_digitable) ? $data->pix_digitable : ''}}</textarea>
+                </div>
+
                 @endif
 
                 {{-- @if(!isset($data)) --}}

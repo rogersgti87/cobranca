@@ -95,7 +95,7 @@
                                         </label>
                                     </td>
 
-                                    <td>{{$result->name}}</td>
+                                    <td>{{$result->name}} {{$result->company != null ?  ' - ( '. $result->company. ' ) ' : ''}}</td>
                                     <td><a href="{{url($linkFormEdit."&id=$result->id")}}" data-original-title="Editar" data-toggle="tooltip" class="btn btn-primary btn-xs"> <i class="fa fa-list"></i> Editar</a></td>
                                 </tr>
                             @endforeach

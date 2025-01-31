@@ -46,7 +46,7 @@ class CustomerController extends Controller
             $column = $this->request->input('column');
             $column_name = "$column $order";
         } else {
-            $column_name = "id desc";
+            $column_name = "name asc";
         }
 
         $field     = $this->request->input('field')    ? $this->request->input('field')    : 'name';
@@ -73,6 +73,7 @@ class CustomerController extends Controller
             $data = Customer::orderByRaw("$column_name")
                         ->where('user_id',auth()->user()->id)
                         ->whereraw("$field $operator $newValue")
+                        ->orderby('name','ASC')
                         ->paginate(20);
         }else{
             $data = Customer::orderByRaw("$column_name")->where('user_id',auth()->user()->id)->paginate(20);
@@ -112,7 +113,7 @@ class CustomerController extends Controller
 
         $messages = [
             'document.required' => 'O Campo Documento é obrigatório!',
-            'document.unique'   => 'Documento já cadastrado!',
+            //'document.unique'   => 'Documento já cadastrado!',
             'name.required'     => 'O campo nome é obrigatório!',
             'email.required'    => 'O campo email é obrigatório!',
             'cep.required'      => 'O CEP é obrigatório!',
@@ -191,7 +192,7 @@ class CustomerController extends Controller
 
         $messages = [
             'document.required' => 'O Campo Documento é obrigatório!',
-            'document.unique'   => 'Documento já cadastrado!',
+            //'document.unique'   => 'Documento já cadastrado!',
             'name.required'     => 'O campo nome é obrigatório!',
             'email.required'    => 'O campo email é obrigatório!',
             'cep.required'      => 'O CEP é obrigatório!',

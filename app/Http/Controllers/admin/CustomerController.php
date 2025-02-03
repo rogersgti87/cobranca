@@ -126,7 +126,7 @@ class CustomerController extends Controller
         ];
 
         $validator = Validator::make($data, [
-            'document' => "required|max:20|unique:customers,document,null,null,user_id,".auth()->user()->id,
+            //'document' => "required|max:20|unique:customers,document,null,null,user_id,".auth()->user()->id,
             'name'     => 'required',
             'email'    => 'required',
             'cep'      => 'required',
@@ -205,7 +205,7 @@ class CustomerController extends Controller
         ];
 
         $validator = Validator::make($data, [
-            'document' => "required|max:20|unique:customers,document,$id,id,user_id,".auth()->user()->id,
+            //'document' => "required|max:20|unique:customers,document,$id,id,user_id,".auth()->user()->id,
             'name'     => 'required',
             'email'    => 'required',
             'cep'      => 'required',

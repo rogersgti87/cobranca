@@ -399,22 +399,10 @@ if($model->gateway_payment == 'Estabelecimento' && $model->payment_method == 'Pi
 
     // Gerar payload do PIX
     $pixKey = $user->chave_pix;
-    $amount = number_format($model->price, 2, '.', '');
+    //$amount = number_format($model->price, 2, '.', '');
 
-    // Dados do payload PIX
-    $payload = "00020126360014BR.GOV.BCB.PIX01";
-    $payload .= strlen($pixKey) . $pixKey;
-    $payload .= "52040000";
-    $payload .= "5303986";
-    $payload .= "54" . str_pad(strlen($amount), 2, '0', STR_PAD_LEFT) . $amount;
-    $payload .= "5802BR";
-    $payload .= "5901N";
-    $payload .= "6001C";
-    $payload .= "62070503***";
 
-    // Calcula o CRC16 e adiciona ao final
-    $crc = 0;
-    $payload .= "6304" . strtoupper(dechex($crc));
+    $payload = gerarCodigoPix($pixKey, $model->price);
 
     QrCode::format('png')->size(174)->generate($payload, storage_path('app/public'). '/pix/' . $fileName . '.'.'png');
     $model->pix_digitable       = $payload;

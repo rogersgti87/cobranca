@@ -228,3 +228,59 @@ function validarCNPJ($cnpj) {
     }
     return true;
 }
+
+function crc16($string) {
+    $crc = 0xFFFF;
+    for ($i = 0; $i < strlen($string); $i++) {
+        $crc ^= ord($string[$i]) << 8;
+        for ($j = 0; $j < 8; $j++) {
+            $crc = ($crc & 0x8000) ? ($crc << 1) ^ 0x1021 : ($crc << 1);
+        }
+    }
+    return $crc & 0xFFFF;
+}
+
+function gerarPayload(array $data): string {
+    $result = '';
+    foreach ($data as $id => $value) {
+        if (is_array($value)) {
+            $subPayload = gerarPayload($value);
+            $length = str_pad(strlen($subPayload), 2, '0', STR_PAD_LEFT);
+            $result .= $id . $length . $subPayload;
+        } else {
+            $length = str_pad(strlen($value), 2, '0', STR_PAD_LEFT);
+            $result .= $id . $length . $value;
+        }
+    }
+    return $result;
+}
+
+function gerarCodigoPix($pixKey, $amount, $descricao = 'Pagamento Pix', $txid = '***') {
+    $merchantAccount = 'br.gov.bcb.pix';
+
+    // Montagem dos campos obrigatórios
+    $payload = [
+        '00' => '01',
+        '26' => [
+            '00' => $merchantAccount,
+            '01' => $pixKey,
+        ],
+        '52' => '0000',
+        '53' => '986',
+        '54' => number_format($amount, 2, '.', ''),
+        '58' => 'BR',
+        '59' => 'NAO INFORMADO',
+        '60' => 'NAOINFORMADO',
+        '62' => [
+            '05' => $txid,
+        ],
+    ];
+
+    // Gera o payload formatado
+    $payloadStr = gerarPayload($payload);
+    $payloadStr .= '6304'; // CRC placeholder
+    $payloadStr .= strtoupper(dechex(crc16($payloadStr)));
+
+    return $payloadStr;
+}
+

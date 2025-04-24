@@ -15,6 +15,7 @@ use App\Models\InvoiceNotification;
 use RuntimeException;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 
 
 class CustomerServiceController extends Controller
@@ -371,7 +372,26 @@ class CustomerServiceController extends Controller
                         }
                     }
                     elseif($model['gateway_payment'] == 'Estabelecimento'){
-                        Invoice::where('id',$newInvoice['id'])->update(['status' => 'Estabelecimento']);
+
+                        $fileName = $newInvoice->user_id . '_' . $newInvoice['id'];
+                        $pixKey = $user->chave_pix;
+                        $payload = gerarCodigoPix($pixKey, $newInvoice->price);
+
+
+                        QrCode::format('png')->size(174)->generate($payload, storage_path('app/public'). '/pix/' . $fileName . '.'.'png');
+
+                        $image_url_pix = env('APP_URL') . Storage::url('pix/' . $fileName . '.png');
+                        $qrcode_pix_base64 = base64_encode(file_get_contents($image_url_pix));
+
+                        Invoice::where('id',$newInvoice['id'])->update([
+                            'status' => 'Pendente',
+                            'pix_digitable' => $payload,
+                            'image_url_pix' => $image_url_pix,
+                            'qrcode_pix_base64' => $qrcode_pix_base64,
+                            'status' => 'Pendente'
+
+                        ]);
+
                     }
                 } elseif($newInvoice['payment_method'] == 'Boleto'){
 

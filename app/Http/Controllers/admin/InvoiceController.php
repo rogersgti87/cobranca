@@ -248,6 +248,7 @@ class InvoiceController extends Controller
         $customer_id = $this->request->input('customer_id');
 
         $model = Invoice::where('id',$id)->where('user_id',auth()->user()->id)->first();
+        $user = User::where('id',auth()->user()->id)->first();
 
         $data = $this->request->all();
 
@@ -291,7 +292,7 @@ class InvoiceController extends Controller
         //$model->date_invoice        = $data['date_invoice'];
 
 
-        if ($model->gateway_payment == 'Estabelecimento' && $this->request->has('billet_file')) {
+        if ($model->gateway_payment == 'Estabelecimento' && $model->payment_method == 'Boleto' && $this->request->has('billet_file')) {
 
             // Obtém o conteúdo do arquivo
         $contents = file_get_contents($data['billet_file']);
@@ -356,25 +357,25 @@ class InvoiceController extends Controller
             return response()->json('Não foi possível extrair o código de barras do boleto.', 422);
         }
 
-        // Extrair texto do QR Code gerado
-        $qrImagePath = storage_path('app/public/pix/' . $fileName . '.png');
-        if (!file_exists($qrImagePath)) {
-            return response()->json('A imagem do QR Code não foi gerada.', 500);
-        }
+        // // Extrair texto do QR Code gerado
+        // $qrImagePath = storage_path('app/public/pix/' . $fileName . '.png');
+        // if (!file_exists($qrImagePath)) {
+        //     return response()->json('A imagem do QR Code não foi gerada.', 500);
+        // }
 
-        $pythonPath = 'python3';
-        $scriptPath = base_path('decode_qr.py');
-        $process = new Process([$pythonPath, $scriptPath, $qrImagePath]);
+        // $pythonPath = 'python3';
+        // $scriptPath = base_path('decode_qr.py');
+        // $process = new Process([$pythonPath, $scriptPath, $qrImagePath]);
 
-          // Executar o script
-          $process->mustRun();
+        //   // Executar o script
+        //   $process->mustRun();
 
-          // Obter a saída
-          $qrCodeText = $process->getOutput();
+        //   // Obter a saída
+        //   $qrCodeText = $process->getOutput();
 
-        if (!$qrCodeText) {
-            return response()->json('Não foi possível extrair o texto do QR Code.', 422);
-        }
+        // if (!$qrCodeText) {
+        //     return response()->json('Não foi possível extrair o texto do QR Code.', 422);
+        // }
 
         //$qrCodeText = $this->request->input('pix_digitable');
 
@@ -383,11 +384,44 @@ class InvoiceController extends Controller
 
         // Salvar os resultados no modelo
         $model->billet_digitable    = $billetDigitable;
-        $model->pix_digitable       = $qrCodeText;
-        $model->image_url_pix       = env('APP_URL') . Storage::url('pix/' . $fileName . '.png');
-        $model->qrcode_pix_base64   = base64_encode(file_get_contents($model->image_url_pix));
+        //$model->pix_digitable       = $qrCodeText;
+        //$model->image_url_pix       = env('APP_URL') . Storage::url('pix/' . $fileName . '.png');
+        //$model->qrcode_pix_base64   = base64_encode(file_get_contents($model->image_url_pix));
 
         $model->status = 'Pendente';
+
+}
+
+if($model->gateway_payment == 'Estabelecimento' && $model->payment_method == 'Pix'){
+
+
+    $fileName = $model->user_id . '_' . $model->id;
+
+    // Gerar payload do PIX
+    $pixKey = $user->chave_pix;
+    $amount = number_format($model->price, 2, '.', '');
+
+    // Dados do payload PIX
+    $payload = "00020126360014BR.GOV.BCB.PIX01";
+    $payload .= strlen($pixKey) . $pixKey;
+    $payload .= "52040000";
+    $payload .= "5303986";
+    $payload .= "54" . str_pad(strlen($amount), 2, '0', STR_PAD_LEFT) . $amount;
+    $payload .= "5802BR";
+    $payload .= "5901N";
+    $payload .= "6001C";
+    $payload .= "62070503***";
+
+    // Calcula o CRC16 e adiciona ao final
+    $crc = $this->crc16($payload . "6304");
+    $payload .= "6304" . strtoupper(dechex($crc));
+
+    QrCode::format('png')->size(174)->generate($payload, storage_path('app/public'). '/pix/' . $fileName . '.'.'png');
+    $model->pix_digitable       = $payload;
+    $model->image_url_pix       = env('APP_URL') . Storage::url('pix/' . $fileName . '.png');
+    $model->qrcode_pix_base64   = base64_encode(file_get_contents($model->image_url_pix));
+
+    $model->status = 'Pendente';
 
 }
 

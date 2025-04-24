@@ -413,7 +413,7 @@ if($model->gateway_payment == 'Estabelecimento' && $model->payment_method == 'Pi
     $payload .= "62070503***";
 
     // Calcula o CRC16 e adiciona ao final
-    $crc = $this->crc16($payload . "6304");
+    $crc = 0;
     $payload .= "6304" . strtoupper(dechex($crc));
 
     QrCode::format('png')->size(174)->generate($payload, storage_path('app/public'). '/pix/' . $fileName . '.'.'png');

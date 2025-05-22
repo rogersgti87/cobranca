@@ -77,7 +77,7 @@ foreach($invoices as $invoice){
 
 
     $fileName = $invoice['user_id'] . '_' . $invoice['id'];
-    $pixKey = $user->chave_pix;
+    $pixKey = $invoice['chave_pix'];
     $payload = gerarCodigoPix($pixKey, $invoice['price']);
 
 

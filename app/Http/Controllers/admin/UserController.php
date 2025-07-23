@@ -312,12 +312,15 @@ class UserController extends Controller
             "instanceName"      => auth()->user()->id.'-cobsegura',
             "token"             => auth()->user()->id.'-'.date('ymdhis').str::uuid(),
             "qrcode"            => false,
-            "webhook"           => "https://cobrancasegura.com.br/webhook/whatsapp/".auth()->user()->id."-cobsegura",
-            "webhookByEvents"   => false,
-            "events"            =>  [
-                "MESSAGES_UPSERT",
-                "MESSAGES_UPDATE",
-                "SEND_MESSAGE"
+            "webhook"           =>[
+                "url" => "https://cobrancasegura.com.br/webhook/whatsapp/".auth()->user()->id."-cobsegura",
+                "byEvents" => false,
+                "base64" => false,
+            ],
+            "events" => [
+                    "MESSAGES_UPSERT",
+                    "MESSAGES_UPDATE",
+                    "SEND_MESSAGE"
             ]
 
         ]);

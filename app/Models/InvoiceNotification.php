@@ -302,12 +302,8 @@ class InvoiceNotification extends Model
         ])
         ->post(config('options.api_url_evolution').'message/sendText/'.$data['api_session_whatsapp'],[
             "number"        => '55'.$data['customer_whatsapp'],
-            "options"       =>  [
-                //"delay"     => $this->campaign->interval_send * 1000
-            ],
-            "textMessage"   => [
-                "text"      =>  $data['text_whatsapp']
-            ]
+             "text"      =>  $data['text_whatsapp'],
+             "linkPreview" => false,
         ]);
 
         if ($response->successful()) {
@@ -374,12 +370,14 @@ class InvoiceNotification extends Model
             ])
             ->post(config('options.api_url_evolution').'message/sendMedia/'.$data['api_session_whatsapp'],[
                 "number"         => '55'.$data['customer_whatsapp'],
-                "mediaMessage"   => [
-                    "mediatype"  =>  "image",
-                    "caption"    =>  $whats_pix_emv,
-                    "media"      =>  $whats_pix_image
-                    //"media"      => preg_replace('/[^a-zA-Z0-9\/\+=]/', '', $data['pix_qrcode_base64'])
-                ]
+                "mediatype"  =>  "image",
+                "mimetype" =>  "image/png",
+                "caption"    =>  $whats_pix_emv,
+                "media"      =>  $whats_pix_image,
+                "fileName"   => 'Fatura_'.$whats_invoice_id.'.png',
+                "linkPreview" => false,
+                //"media"      => preg_replace('/[^a-zA-Z0-9\/\+=]/', '', $data['pix_qrcode_base64'])
+
             ]);
 
             $result = $response->getBody();
@@ -446,13 +444,12 @@ class InvoiceNotification extends Model
             ])
             ->post(config('options.api_url_evolution').'message/sendMedia/'.$data['api_session_whatsapp'],[
                 "number"         => '55'.$data['customer_whatsapp'],
-                "mediaMessage"   => [
-                    "mediatype"  =>  "document",
-                    "caption"    =>  $whats_billet_digitable_line,
-                    "media"      =>  $whats_billet_url_slip,
-                    //"media"      => preg_replace('/[^a-zA-Z0-9\/\+=]/', '', $whats_billet_base64),
-                    "fileName"   => 'Fatura_'.$whats_invoice_id.'.pdf'
-                ]
+                "mediatype"  =>  "document",
+                "mimetype" =>  "application/pdf",
+                "caption"    =>  $whats_billet_digitable_line,
+                "media"      =>  $whats_billet_url_slip,
+                "fileName"   => 'Fatura_'.$whats_invoice_id.'.pdf',
+                "linkPreview" => false,
             ]);
         }
             if($whats_payment_method == 'BoletoPix'){
@@ -464,15 +461,12 @@ class InvoiceNotification extends Model
                 ])
                 ->post(config('options.api_url_evolution').'message/sendMedia/'.$data['api_session_whatsapp'],[
                     "number"         => '55'.$data['customer_whatsapp'],
-                    "mediaMessage"   => [
-                        "mediatype"  =>  "document",
-                        "caption"    =>  $whats_billet_digitable_line,
-                        //"media"      =>  config('app.url').'/boletopix/'.$whats_billet_url_slip,
-                        //"media"      => $whats_billet_base64,
-                        //"media"      => preg_replace('/[^a-zA-Z0-9\/\+=]/', '', $whats_billet_base64),
-                        "media"      =>  $whats_billet_url_slip,
-                        "fileName"   => 'Fatura_'.$whats_invoice_id.'.pdf'
-                    ]
+                    "mediatype"  =>  "document",
+                    "mimetype" =>  "application/pdf",
+                    "caption"    =>  $whats_billet_digitable_line,
+                    "media"      =>  $whats_billet_url_slip,
+                    "fileName"   => 'Fatura_'.$whats_invoice_id.'.pdf',
+                    "linkPreview" => false,
                 ]);
 
             }

@@ -1194,6 +1194,117 @@ class Invoice extends Model
               }
 
 
+        public static function generatePixAsaas($invoice_id){
+
+            if (!Storage::disk('public')->exists('pix')) {
+                Storage::disk('public')->makeDirectory('pix');
+            }
+
+            $invoice = ViewInvoice::where('id',$invoice_id)->first();
+
+            if($invoice->environment_asaas == 'Teste'){
+                $url = $invoice->asaas_url_test;
+                $at_asaas = $invoice->at_asaas_test;
+            }else{
+                $url = $invoice->asaas_url_prod;
+                $at_asaas = $invoice->at_asaas_prod;
+            }
+
+            $headers = [
+                'accept' => 'application/json',
+                'content-type' => 'application/json',
+                'access_token' => $at_asaas,
+                'User-Agent' => 'CobrancaSegura/1.0 (Laravel API)'
+            ];
+
+            $customer_id = null;
+
+            $get_customer = Http::withHeaders($headers)->get($url.'v3/customers?cpfCnpj='.removeEspeciais($invoice['document']));
+
+            if ($get_customer->successful()) {
+                $result_get_customer = $get_customer->json();
+                if($result_get_customer['totalCount'] > 0){
+                    $customer_id = $result_get_customer['data'][0]['id'];
+                }else{
+                    $post_customer = Http::withHeaders($headers)->post($url.'v3/customers',[
+                        'name'                  =>  $invoice['name'],
+                        'cpfCnpj'               =>  $invoice['document'],
+                        'notificationDisabled'  =>  true,
+                        'postalCode'            =>  $invoice['cep'],
+                        'addressNumber'         =>  $invoice['number'],
+                    ]);
+
+                    if ($post_customer->successful()) {
+                        $result_post_customer = $post_customer->json();
+                        $customer_id = $result_post_customer['id'];
+                    } else{
+                        $result_error_customer = $post_customer->json();
+                        return ['status' => 'reject', 'message' => $result_error_customer['errors'][0]['description']];
+                    }
+                }
+            } else{
+                $result_error_customer = $get_customer->json();
+                return ['status' => 'reject', 'message' => $result_error_customer['errors'][0]['description']];
+            }
+
+            $response = Http::withHeaders($headers)->post($url.'v3/payments',[
+                'customer'          =>  $customer_id,
+                'billingType'       =>  'PIX',
+                'value'             =>  $invoice['price'],
+                'dueDate'           => $invoice['date_due'],
+                'description'       => $invoice['description'],
+                'externalReference' =>  $invoice['id'],
+                'fine'              =>  [
+                    'value'         =>  2,
+                    'type'          =>  'PERCENTAGE'
+                ],
+                'interest'          =>  [
+                    'value'         =>  1
+                ]
+            ]);
+
+            if(!$response->successful()){
+                $result_error = $response->json();
+                return ['status' => 'reject', 'message' => $result_error['errors'][0]['description']];
+            }
+
+            $result = $response->json();
+
+            $pix_qrcode = Http::withHeaders($headers)->get($url.'v3/payments/'.$result['id'].'/pixQrCode');
+
+            if(!$pix_qrcode->successful()){
+                $result_error_qrcode = $pix_qrcode->json();
+                return ['status' => 'reject', 'message' => $result_error_qrcode['errors'][0]['description']];
+            }
+
+            $pix_data = $pix_qrcode->json();
+
+            if(empty($pix_data['payload']) || empty($pix_data['encodedImage'])){
+                return ['status' => 'reject', 'message' => 'Dados do PIX não retornados pelo Asaas.'];
+            }
+
+            $encodedImage = $pix_data['encodedImage'];
+            $imageParts = explode(',', $encodedImage);
+            $imageBase64 = count($imageParts) > 1 ? $imageParts[1] : $imageParts[0];
+            $fileName = $invoice['user_id'].'_'.$invoice['id'].'.png';
+
+            Storage::disk('public')->put('pix/' .  $fileName, base64_decode($imageBase64));
+            $image_pix = env('APP_URL').Storage::url('pix/' . $fileName);
+
+            Invoice::where('id',$invoice_id)->update([
+                'status'            =>  'Pendente',
+                'msg_erro'          =>  null,
+                'transaction_id'    =>  $result['id'],
+                'image_url_pix'     =>  $image_pix,
+                'pix_digitable'     =>  $pix_data['payload'],
+                'qrcode_pix_base64' =>  $imageBase64
+            ]);
+
+            return ['status' => 'success', 'message' => 'ok'];
+
+        }
+
+
 
 
 //Cancelar Boleto Asaas

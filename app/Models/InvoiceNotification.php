@@ -160,6 +160,7 @@ class InvoiceNotification extends Model
         ]);
     }else{
         $status_email = 'Erro eo enviar';
+        \Log::info($response->json());
     }
 
 

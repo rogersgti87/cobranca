@@ -1092,6 +1092,7 @@ class Invoice extends Model
                     'accept' => 'application/json',
                     'content-type' => 'application/json',
                     'access_token' => $at_asaas,
+                    'User-Agent' => 'CobrancaSegura/1.0 (Laravel API)'
                   ])->get($url.'v3/customers?cpfCnpj='.removeEspeciais($invoice['document']));
 
                   if ($get_customer->successful()) {
@@ -1103,6 +1104,7 @@ class Invoice extends Model
                             'accept' => 'application/json',
                             'content-type' => 'application/json',
                             'access_token' => $at_asaas,
+                            'User-Agent' => 'CobrancaSegura/1.0 (Laravel API)'
                           ])->post($url.'v3/customers',[
                             'name'                  =>  $invoice['name'],
                             'cpfCnpj'               =>  $invoice['document'],
@@ -1125,6 +1127,7 @@ class Invoice extends Model
                     'accept' => 'application/json',
                     'content-type' => 'application/json',
                     'access_token' => $at_asaas,
+                    'User-Agent' => 'CobrancaSegura/1.0 (Laravel API)'
                   ])->post($url.'v3/payments',[
                     'customer'          =>  $customer_id,
                     'billingType'       =>  'BOLETO',
@@ -1164,6 +1167,7 @@ class Invoice extends Model
                     'accept' => 'application/json',
                     'content-type' => 'application/json',
                     'access_token' => $at_asaas,
+                    'User-Agent' => 'CobrancaSegura/1.0 (Laravel API)'
                   ])->get($url.'v3/payments/'.$result['id'].'/identificationField');
 
                   if ($get_digitable->successful()) {
@@ -1211,6 +1215,7 @@ public static function cancelBilletAsaas($transaction_id){
         'accept' => 'application/json',
         'content-type' => 'application/json',
         'access_token' => $at_asaas,
+        'User-Agent' => 'CobrancaSegura/1.0 (Laravel API)'
       ])->delete($url.'v3/payments/'.$transaction_id);
 
 

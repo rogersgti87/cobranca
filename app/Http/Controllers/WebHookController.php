@@ -384,51 +384,109 @@ class WebHookController extends Controller
     ]);
 
 
-    if($data['event']){
+    if(isset($data['event']) && isset($data['payment'])){
 
-    $invoice = Invoice::select('invoices.id as id','invoices.transaction_id','users.access_token_mp')
-                ->join('users','users.id','invoices.user_id')
-                ->where('transaction_id',$data['payment']['id'])
-                ->where('invoices.status','Pendente')
-                ->first();
+        // Busca primeiro pelo transaction_id (payment.id)
+        $invoice = Invoice::select('invoices.id as id','invoices.transaction_id','users.access_token_mp')
+                    ->join('users','users.id','invoices.user_id')
+                    ->where('transaction_id',$data['payment']['id'])
+                    ->where(function($query) {
+                        $query->where('invoices.status','Pendente')
+                              ->orWhere('invoices.status','Processamento');
+                    })
+                    ->first();
 
-    if($invoice != null){
-
-        if($data['event'] == 'PAYMENT_CONFIRMED' || $data['event'] == 'PAYMENT_RECEIVED'){
-            $result_invoice = Invoice::where('id',$invoice->id)->where('transaction_id',$invoice->transaction_id)->update([
-                'status'       =>   'Pago',
-                'date_payment' =>   Carbon::parse(now())->format('Y-m-d'),
-                'updated_at'   =>   Carbon::now()
+        // Log se não encontrou pelo transaction_id
+        if($invoice == null){
+            \Log::info('Webhook Asaas: Não encontrado pelo transaction_id, tentando externalReference', [
+                'payment_id' => $data['payment']['id'] ?? null,
+                'external_reference' => $data['payment']['externalReference'] ?? null,
+                'event' => $data['event'] ?? null
             ]);
-            InvoiceNotification::Email($invoice->id);
+        }
 
-             if(date('l') != 'Sunday'){
+        // Se não encontrou pelo transaction_id, tenta pelo externalReference (ID da fatura)
+        // Remove restrição de status pois pode ser que a fatura já tenha sido processada
+        if($invoice == null && isset($data['payment']['externalReference'])){
+            $external_ref = is_numeric($data['payment']['externalReference'])
+                ? (int)$data['payment']['externalReference']
+                : $data['payment']['externalReference'];
 
-            $now = Carbon::now();
-            $start = Carbon::createFromTimeString('08:00');
-            $end = Carbon::createFromTimeString('19:00');
+            $invoice = Invoice::select('invoices.id as id','invoices.transaction_id','invoices.status','users.access_token_mp')
+                        ->join('users','users.id','invoices.user_id')
+                        ->where('invoices.id', $external_ref)
+                        ->first();
 
-            if ($now->between($start, $end)) {
-            InvoiceNotification::Whatsapp($invoice->id);
+            // Log para debug
+            if($invoice == null){
+                \Log::warning('Webhook Asaas: Fatura não encontrada pelo externalReference', [
+                    'external_reference' => $external_ref,
+                    'payment_id' => $data['payment']['id'] ?? null,
+                    'event' => $data['event'] ?? null
+                ]);
+            }
+        }
+
+        if($invoice != null){
+
+            // Atualiza o transaction_id se ainda não estiver salvo
+            if(empty($invoice->transaction_id) && isset($data['payment']['id'])){
+                Invoice::where('id', $invoice->id)->update([
+                    'transaction_id' => $data['payment']['id']
+                ]);
+            }
+
+            if($data['event'] == 'PAYMENT_CONFIRMED' || $data['event'] == 'PAYMENT_RECEIVED'){
+                $result_invoice = Invoice::where('id',$invoice->id)->update([
+                    'status'       =>   'Pago',
+                    'date_payment' =>   Carbon::parse(now())->format('Y-m-d'),
+                    'updated_at'   =>   Carbon::now()
+                ]);
+
+                \Log::info('Webhook Asaas: Pagamento confirmado', [
+                    'invoice_id' => $invoice->id,
+                    'payment_id' => $data['payment']['id'] ?? null,
+                    'event' => $data['event']
+                ]);
+
+                InvoiceNotification::Email($invoice->id);
+
+                 if(date('l') != 'Sunday'){
+
+                $now = Carbon::now();
+                $start = Carbon::createFromTimeString('08:00');
+                $end = Carbon::createFromTimeString('19:00');
+
+                if ($now->between($start, $end)) {
+                InvoiceNotification::Whatsapp($invoice->id);
+
+                }
+                 }
+            }
+
+            if($data['event'] == 'PAYMENT_DELETED' || $data['event'] == 'PAYMENT_REFUNDED'){
+                Invoice::where('id',$invoice->id)->update([
+                    'status'       =>   'Cancelado',
+                    'date_payment' =>   Null,
+                    'updated_at'   =>   Carbon::now()
+                ]);
 
             }
-             }
-        }
 
-        if($data['event'] == 'PAYMENT_DELETED' || $data['event'] == 'PAYMENT_REFUNDED'){
-            Invoice::where('id',$invoice->id)->where('transaction_id',$invoice->transaction_id)->update([
-                'status'       =>   'Cancelado',
-                'date_payment' =>   Null,
-                'updated_at'   =>   Carbon::now()
+            return response()->json(['status' => 'success', 'message' => 'Pagamento processado com sucesso'], 200);
+
+        } else {
+            \Log::warning('Webhook Asaas: Pagamento não encontrado', [
+                'payment_id' => $data['payment']['id'] ?? null,
+                'external_reference' => $data['payment']['externalReference'] ?? null,
+                'event' => $data['event'] ?? null
             ]);
-
+            return response()->json(['status' => 'error', 'message' => 'Pagamento não encontrado'], 404);
         }
-
-
 
     }
 
-}
+    return response()->json(['status' => 'error', 'message' => 'Dados inválidos'], 400);
 
   }
 

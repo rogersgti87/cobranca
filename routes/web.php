@@ -30,9 +30,11 @@ Route::prefix('webhook')->group(function () {
     Route::post('intermediumbillet', [WebHookController::class,'intermediumbillet']);
     Route::post('intermediumbilletpix', [WebHookController::class,'intermediumbilletpix']);
     Route::post('intermediumpix', [WebHookController::class,'intermediumpix']);
-    Route::post('asaas', [WebHookController::class,'asaas']);
-    Route::get('asaas', function() {
-        return response()->json(['message' => 'Esta rota aceita apenas requisições POST'], 200);
+    Route::any('asaas', function(\Illuminate\Http\Request $request) {
+        if ($request->isMethod('get')) {
+            return response()->json(['message' => 'Esta rota aceita apenas requisições POST'], 200);
+        }
+        return app(WebHookController::class)->Asaas($request);
     });
     Route::post('whatsapp/{user_id}', [WebHookController::class,'whatsapp']);
     Route::get('teste', [WebHookController::class,'teste']);

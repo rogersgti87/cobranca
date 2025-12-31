@@ -36,7 +36,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('generateinvoice:cron')->everyMinute();
         $schedule->command('rememberinvoice:cron')->twiceDaily(9, 14);
         $schedule->command('statusinter:cron')->everyThirtyMinutes();
-        $schedule->command('generate:recurring-payables')->daily();
+        $schedule->command('generate:recurring-payables')->hourly();
 
     }
 

@@ -126,50 +126,69 @@ class GenerateRecurringPayables extends Command
                         break;
                     }
 
-                    // Verificar se já existe uma conta para esta data
-                    $exists = Payable::where('user_id', $payable->user_id)
-                        ->where('supplier_id', $payable->supplier_id)
-                        ->where('description', $payable->description)
-                        ->where('date_due', $nextDueDate->format('Y-m-d'))
-                        ->where('type', 'Recorrente')
-                        ->exists();
-
-                    if($exists) {
-                        // Se já existe, usar essa conta como base para a próxima iteração
+                    // Verificar se já existe uma conta para esta data (com lock para evitar race condition)
+                    // Usar transação com lockForUpdate para garantir atomicidade e evitar duplicação
+                    DB::beginTransaction();
+                    try {
+                        // Usar first() com lockForUpdate para garantir que apenas uma execução por vez processe
                         $existingPayable = Payable::where('user_id', $payable->user_id)
                             ->where('supplier_id', $payable->supplier_id)
                             ->where('description', $payable->description)
                             ->where('date_due', $nextDueDate->format('Y-m-d'))
                             ->where('type', 'Recorrente')
+                            ->lockForUpdate() // Lock para evitar duplicação em execuções simultâneas
                             ->first();
-                        $currentBasePayable = $existingPayable;
-                        continue;
+
+                        if($existingPayable) {
+                            // Se já existe, usar essa conta como base para a próxima iteração
+                            $currentBasePayable = $existingPayable;
+                            DB::commit();
+                            continue;
+                        }
+
+                        // Se chegou aqui, a conta não existe e a data já venceu, então criar
+
+                        // Criar nova conta recorrente
+                        $newPayable = new Payable();
+                        $newPayable->user_id = $payable->user_id;
+                        $newPayable->supplier_id = $payable->supplier_id;
+                        $newPayable->category_id = $payable->category_id;
+                        $newPayable->description = $payable->description;
+                        $newPayable->price = $payable->price;
+                        $newPayable->type = 'Recorrente';
+                        $newPayable->payment_method = $payable->payment_method;
+                        $newPayable->date_due = $nextDueDate->format('Y-m-d');
+                        $newPayable->date_payment = null;
+                        $newPayable->status = 'Pendente';
+                        $newPayable->recurrence_period = $payable->recurrence_period;
+                        $newPayable->recurrence_day = $payable->recurrence_day;
+                        $newPayable->recurrence_end = $payable->recurrence_end;
+                        $newPayable->save();
+
+                        DB::commit();
+                        $created++;
+                        $this->info("Conta criada: {$newPayable->description} - Vencimento: {$nextDueDate->format('d/m/Y')}");
+
+                        // Atualizar basePayable para a próxima iteração
+                        $currentBasePayable = $newPayable;
+                    } catch(\Exception $e) {
+                        DB::rollBack();
+                        // Se der erro de duplicação (unique constraint), apenas continuar
+                        if(strpos($e->getMessage(), 'Duplicate') !== false || strpos($e->getMessage(), 'duplicate') !== false) {
+                            // Conta já foi criada por outra execução, continuar
+                            $existingPayable = Payable::where('user_id', $payable->user_id)
+                                ->where('supplier_id', $payable->supplier_id)
+                                ->where('description', $payable->description)
+                                ->where('date_due', $nextDueDate->format('Y-m-d'))
+                                ->where('type', 'Recorrente')
+                                ->first();
+                            if($existingPayable) {
+                                $currentBasePayable = $existingPayable;
+                            }
+                            continue;
+                        }
+                        throw $e; // Re-lançar se for outro tipo de erro
                     }
-
-                    // Se chegou aqui, a conta não existe e a data já venceu, então criar
-
-                    // Criar nova conta recorrente
-                    $newPayable = new Payable();
-                    $newPayable->user_id = $payable->user_id;
-                    $newPayable->supplier_id = $payable->supplier_id;
-                    $newPayable->category_id = $payable->category_id;
-                    $newPayable->description = $payable->description;
-                    $newPayable->price = $payable->price;
-                    $newPayable->type = 'Recorrente';
-                    $newPayable->payment_method = $payable->payment_method;
-                    $newPayable->date_due = $nextDueDate->format('Y-m-d');
-                    $newPayable->date_payment = null;
-                    $newPayable->status = 'Pendente';
-                    $newPayable->recurrence_period = $payable->recurrence_period;
-                    $newPayable->recurrence_day = $payable->recurrence_day;
-                    $newPayable->recurrence_end = $payable->recurrence_end;
-                    $newPayable->save();
-
-                    $created++;
-                    $this->info("Conta criada: {$newPayable->description} - Vencimento: {$nextDueDate->format('d/m/Y')}");
-
-                    // Atualizar basePayable para a próxima iteração
-                    $currentBasePayable = $newPayable;
                 }
 
             } catch(\Exception $e) {

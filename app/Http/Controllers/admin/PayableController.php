@@ -166,6 +166,9 @@ class PayableController extends Controller
                 $baseValue = round($totalValue / $numInstallments, 2);
                 
                 $dueDate = Carbon::parse($data['date_due']);
+                $originalDay = $dueDate->day; // Capturar o dia original
+                $originalMonth = $dueDate->month;
+                $originalYear = $dueDate->year;
 
                 for($i = 2; $i <= $numInstallments; $i++){
                     $installment = new Payable();
@@ -176,7 +179,24 @@ class PayableController extends Controller
                     $installment->price           = $baseValue; // Valor base para as demais parcelas
                     $installment->type            = 'Parcelada';
                     $installment->payment_method  = isset($data['payment_method']) ? $data['payment_method'] : null;
-                    $installment->date_due        = $dueDate->copy()->addMonths($i - 1)->format('Y-m-d');
+                    
+                    // Calcular data de vencimento: adicionar (i-1) meses à data original
+                    $nextDueDate = Carbon::create($originalYear, $originalMonth, 1)->addMonths($i - 1);
+                    
+                    // Verificar quantos dias tem o novo mês
+                    $lastDayOfMonth = $nextDueDate->copy()->endOfMonth()->day;
+                    
+                    // Tentar usar o dia original, mas se não existir no mês, usar o último dia
+                    if($originalDay <= $lastDayOfMonth){
+                        // O dia original existe no mês, usar ele
+                        $nextDueDate->day($originalDay);
+                    } else {
+                        // O dia original não existe no mês (ex: 31 em fevereiro), usar o último dia
+                        $nextDueDate->endOfMonth();
+                    }
+                    
+                    $installment->date_due        = $nextDueDate->format('Y-m-d');
+                    
                     $installment->status          = 'Pendente';
                     $installment->installments    = $numInstallments;
                     $installment->installment_number = $i;
@@ -247,14 +267,59 @@ class PayableController extends Controller
         }
 
         try{
+            $newPrice = moeda($data['price']);
             $model->save();
+
+            // Se for conta parcelada e o usuário marcou para atualizar parcelas futuras
+            if($model->type == 'Parcelada' && isset($data['update_future_installments']) && $data['update_future_installments'] == '1'){
+                // Identificar o parent_id (conta pai)
+                $parentId = $model->parent_id ?? $model->id;
+                
+                // Buscar todas as parcelas do mesmo grupo
+                $allInstallments = Payable::where(function($query) use ($parentId) {
+                    $query->where('id', $parentId)
+                          ->orWhere('parent_id', $parentId);
+                })
+                ->where('user_id', auth()->user()->id)
+                ->where('type', 'Parcelada')
+                ->orderBy('installment_number', 'ASC')
+                ->get();
+
+                // Atualizar apenas as parcelas futuras (com data de vencimento maior e status Pendente)
+                $currentDueDate = Carbon::parse($model->date_due);
+                $updatedCount = 0;
+
+                foreach($allInstallments as $installment){
+                    // Pular a parcela atual (já foi atualizada)
+                    if($installment->id == $model->id){
+                        continue;
+                    }
+
+                    // Atualizar apenas parcelas futuras (data maior) e que estejam pendentes
+                    $installmentDueDate = Carbon::parse($installment->date_due);
+                    if($installmentDueDate->gt($currentDueDate) && $installment->status == 'Pendente'){
+                        $installment->price = $newPrice;
+                        $installment->save();
+                        $updatedCount++;
+                    }
+                }
+
+                if($updatedCount > 0){
+                    \Log::info("Atualizadas {$updatedCount} parcelas futuras para o valor de R$ " . number_format($newPrice, 2, ',', '.'));
+                }
+            }
 
         } catch(\Exception $e){
             \Log::error($e->getMessage());
             return response()->json($e->getMessage(), 500);
         }
 
-        return response()->json('Registro salvo com sucesso', 200);
+        $message = 'Registro salvo com sucesso';
+        if(isset($updatedCount) && $updatedCount > 0){
+            $message .= ". {$updatedCount} parcela(s) futura(s) atualizada(s) com o novo valor.";
+        }
+
+        return response()->json($message, 200);
     }
 
     public function getReversals($id)

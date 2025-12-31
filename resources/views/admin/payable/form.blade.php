@@ -121,13 +121,32 @@
                             <div class="form-row">
                                 <div class="form-group col-md-6 col-sm-12">
                                     <label style="color: #1F2937;">Número de Parcelas</label>
-                                    <input type="number" class="form-control" name="installments" id="installments" min="2" max="60" value="{{isset($data->installments) ? $data->installments : '1'}}" placeholder="Número de parcelas" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); color: #1F2937;">
+                                    <input type="number" class="form-control" name="installments" id="installments" min="2" max="60" value="{{isset($data->installments) ? $data->installments : '1'}}" placeholder="Número de parcelas" {{ isset($data) ? 'disabled' : '' }} style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); color: #1F2937;">
                                     <small class="form-text" style="color: #6B7280;">O valor será dividido igualmente entre as parcelas</small>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Opção para atualizar parcelas futuras (apenas ao editar conta parcelada) -->
+                @if(isset($data) && $data->type == 'Parcelada')
+                <div class="form-group col-md-12 col-sm-12" id="update-future-installments-field">
+                    <div class="card" style="background-color: #E0F2FE; border: 1px solid rgba(0,0,0,0.1);">
+                        <div class="card-body">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="update_future_installments" id="update_future_installments" value="1" style="cursor: pointer;">
+                                <label class="form-check-label" for="update_future_installments" style="color: #1F2937; cursor: pointer;">
+                                    <strong>Atualizar valor de todas as parcelas futuras</strong>
+                                </label>
+                                <small class="form-text d-block" style="color: #6B7280; margin-top: 5px;">
+                                    <i class="fas fa-info-circle"></i> Se marcado, todas as parcelas futuras (não pagas) terão o valor atualizado para o mesmo valor desta parcela. Útil para reajustes anuais como consórcios.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endif
 
             </div>
         </div>

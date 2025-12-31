@@ -30,5 +30,10 @@ class DatabaseSeeder extends Seeder
             'status'        => 'Ativo',
             'image'         => 'thumb.png',
         ]);
+
+        // Inserir categorias padrão globais
+        $this->call([
+            PayableCategorySeeder::class,
+        ]);
     }
 }

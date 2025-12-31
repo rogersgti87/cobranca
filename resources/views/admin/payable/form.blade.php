@@ -18,6 +18,18 @@
                 </div>
 
                 <div class="form-group col-md-6 col-sm-12">
+                    <label style="color: #E5E7EB;">Categoria</label>
+                    <select class="form-control custom-select" name="category_id" id="category_id" style="background-color: #0F172A; border: 1px solid rgba(255,255,255,0.1); color: #E5E7EB;">
+                        <option value="">Selecione uma categoria</option>
+                        @if(isset($categories) && count($categories) > 0)
+                            @foreach($categories as $category)
+                                <option {{ isset($data->category_id) && $data->category_id == $category->id ? 'selected' : '' }} value="{{ $category->id }}">{{ $category->name }}</option>
+                            @endforeach
+                        @endif
+                    </select>
+                </div>
+
+                <div class="form-group col-md-12 col-sm-12">
                     <label style="color: #E5E7EB;">Descrição <span class="text-danger">*</span></label>
                     <input type="text" class="form-control" name="description" id="description" autocomplete="off" required value="{{isset($data->description) ? $data->description : ''}}" style="background-color: #0F172A; border: 1px solid rgba(255,255,255,0.1); color: #E5E7EB;">
                 </div>

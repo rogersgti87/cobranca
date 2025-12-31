@@ -205,6 +205,27 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="form-group col-md-12 mt-3">
+                    <fieldset style="border: 1px solid rgba(255,189,89,0.3); border-radius: 8px; padding: 15px; margin: 0; background-color: #1E293B; position: relative;">
+                        <legend style="color: #FFBD59; font-size: 14px; font-weight: 600; padding: 0 10px; margin: 0; border: none;">Categorias</legend>
+                        <div class="d-flex" style="gap: 20px; margin-top: 10px; flex-wrap: wrap; overflow-x: auto;">
+                            @if(isset($categories) && count($categories) > 0)
+                                @foreach($categories as $category)
+                                    <label style="color: #E5E7EB; font-weight: 400; font-size: 14px; cursor: pointer; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0;">
+                                        <input type="checkbox" class="category-checkbox" value="{{ $category->id }}" style="margin-right: 6px; width: 18px; height: 18px; cursor: pointer;">
+                                        <span style="display: inline-block; width: 12px; height: 12px; background-color: {{ $category->color }}; border-radius: 2px; margin-right: 6px;"></span>
+                                        {{ $category->name }}
+                                    </label>
+                                @endforeach
+                            @else
+                                <p style="color: #9CA3AF; font-size: 14px; margin: 0;">Nenhuma categoria cadastrada</p>
+                            @endif
+                        </div>
+                    </fieldset>
+                </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -229,6 +250,7 @@
                         <th style="color: #E5E7EB; font-weight: 600; padding: 12px; border: none; font-size: 14px;">#</th>
                         <th style="color: #E5E7EB; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Fornecedor</th>
                         <th style="color: #E5E7EB; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Descrição</th>
+                        <th style="color: #E5E7EB; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Categoria</th>
                         <th style="color: #E5E7EB; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Tipo</th>
                         <th style="color: #E5E7EB; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Vencimento</th>
                         <th style="color: #E5E7EB; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Pago em</th>
@@ -448,13 +470,15 @@
 
     /* Estilos para checkboxes de status e tipo */
     .status-checkbox,
-    .type-checkbox {
+    .type-checkbox,
+    .category-checkbox {
         accent-color: #FFBD59;
         cursor: pointer;
     }
 
     .status-checkbox:checked,
-    .type-checkbox:checked {
+    .type-checkbox:checked,
+    .category-checkbox:checked {
         background-color: #FFBD59;
     }
 
@@ -708,6 +732,11 @@ Swal.fire({
     document.querySelectorAll('.type-checkbox').forEach(function(cb) {
         cb.checked = true;
     });
+
+    // Inicializar com todas as categorias marcadas
+    document.querySelectorAll('.category-checkbox').forEach(function(cb) {
+        cb.checked = true;
+    });
     const paginationContainer   = document.getElementById('pagination');
 
 
@@ -724,7 +753,11 @@ Swal.fire({
         const typeCheckboxes = document.querySelectorAll('.type-checkbox:checked');
         const filterTypes = Array.from(typeCheckboxes).map(cb => cb.value);
 
-        // Construir URL com múltiplos status e tipos
+        // Coletar categorias selecionadas dos checkboxes
+        const categoryCheckboxes = document.querySelectorAll('.category-checkbox:checked');
+        const filterCategories = Array.from(categoryCheckboxes).map(cb => cb.value);
+
+        // Construir URL com múltiplos status, tipos e categorias
         let url = 'load-payables?page='+page+'&type='+filterType;
         if(filterDateIni && filterDateEnd){
             url += '&dateini='+filterDateIni+'&dateend='+filterDateEnd;
@@ -737,6 +770,11 @@ Swal.fire({
         if(filterTypes.length > 0){
             filterTypes.forEach(function(type, index) {
                 url += '&payable_type['+index+']='+type;
+            });
+        }
+        if(filterCategories.length > 0){
+            filterCategories.forEach(function(category, index) {
+                url += '&category['+index+']='+category;
             });
         }
 
@@ -787,11 +825,14 @@ Swal.fire({
                 var datePayment = item.date_payment != null ? moment(item.date_payment).format('DD/MM/YYYY') : '-';
                 var editButton = item.status == 'Pendente' ? '<a href="#" data-original-title="Editar conta" id="btn-modal-payable" data-type="edit-payable" data-payable="'+item.id+'" data-placement="left" data-tt="tooltip" style="background-color: #FFBD59; color: #0F172A !important; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-right: 5px; text-decoration: none; display: inline-block; font-weight: 600;"> <i class="far fa-edit"></i></a>' : '';
                 var deleteButton = item.status == 'Pendente' ? '<a href="#" data-original-title="Cancelar Conta" id="btn-delete-payable" data-placement="left" data-payable="'+item.id+'" data-tt="tooltip" style="background-color: #F87171; color: #FFFFFF; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; text-decoration: none; display: inline-block; font-weight: 600;"> <i class="fas fa-times"></i></a>' : '';
+                var categoryColor = item.category_color || '#FFBD59';
+                var categoryBadge = item.category_name ? '<span style="background-color: rgba('+parseInt(categoryColor.slice(1,3),16)+','+parseInt(categoryColor.slice(3,5),16)+','+parseInt(categoryColor.slice(5,7),16)+',0.2); color: '+categoryColor+'; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px;"><span style="display: inline-block; width: 8px; height: 8px; background-color: '+categoryColor+'; border-radius: 50%;"></span>'+item.category_name+'</span>' : '<span style="color: #9CA3AF; font-size: 12px;">-</span>';
 
                 html += '<tr style="border-bottom: 1px solid rgba(255,255,255,0.1); transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#1E293B\'" onmouseout="this.style.backgroundColor=\'#111827\'">';
                 html += '<td style="padding: 12px; color: #E5E7EB; font-size: 14px;">'+item.id+installmentText+'</td>';
                 html += '<td style="padding: 12px; color: #E5E7EB; font-size: 14px; font-weight: 500;">'+item.supplier_name+'</td>';
                 html += '<td style="padding: 12px; color: #E5E7EB; font-size: 14px;">'+item.description+'</td>';
+                html += '<td style="padding: 12px;">'+categoryBadge+'</td>';
                 html += '<td style="padding: 12px;"><span style="background-color: '+typeBadgeBg+'; color: '+typeBadgeColor+'; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 500;">'+item.type+'</span></td>';
                 html += '<td style="padding: 12px; color: #E5E7EB; font-size: 14px;">'+moment(item.date_due).format('DD/MM/YYYY')+'</td>';
                 html += '<td style="padding: 12px; color: #E5E7EB; font-size: 14px;">'+datePayment+'</td>';
@@ -860,6 +901,14 @@ Swal.fire({
         });
     });
 
+    // Filtro de categoria - carregar automaticamente quando mudar
+    document.querySelectorAll('.category-checkbox').forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            currentPage = 1;
+            loadPayables(currentPage);
+        });
+    });
+
     // Botão Mês Atual
     document.getElementById('btn-filter-current-month').addEventListener('click', function() {
         const now = new Date();
@@ -891,12 +940,16 @@ Swal.fire({
         filterInputDateIni.value = '';
         filterInputDateEnd.value = '';
 
-        // Marcar todos os checkboxes de status e tipo
+        // Marcar todos os checkboxes de status, tipo e categoria
         document.querySelectorAll('.status-checkbox').forEach(function(cb) {
             cb.checked = true;
         });
 
         document.querySelectorAll('.type-checkbox').forEach(function(cb) {
+            cb.checked = true;
+        });
+
+        document.querySelectorAll('.category-checkbox').forEach(function(cb) {
             cb.checked = true;
         });
 

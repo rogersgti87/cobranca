@@ -12,6 +12,7 @@ class Payable extends Model
     protected $fillable = [
         'user_id',
         'supplier_id',
+        'category_id',
         'description',
         'price',
         'type', // Fixa, Recorrente, Parcelada
@@ -30,5 +31,10 @@ class Payable extends Model
     public function supplier()
     {
         return $this->belongsTo(Supplier::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(PayableCategory::class);
     }
 }

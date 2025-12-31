@@ -11,6 +11,7 @@ use DB;
 use App\Models\User;
 use App\Models\Payable;
 use App\Models\Supplier;
+use App\Models\PayableCategory;
 use RuntimeException;
 use Illuminate\Support\Facades\Http;
 
@@ -40,7 +41,16 @@ class PayableController extends Controller
 
     public function index(){
 
-        return view('admin.payable.index')->with($this->datarequest);
+        // Buscar categorias globais (user_id NULL) e do usuário atual
+        $categories = PayableCategory::where(function($query) {
+                $query->whereNull('user_id')
+                      ->orWhere('user_id', auth()->user()->id);
+            })
+            ->orderByRaw('CASE WHEN user_id IS NULL THEN 0 ELSE 1 END') // Globais primeiro
+            ->orderBy('name','ASC')
+            ->get();
+
+        return view('admin.payable.index', compact('categories'))->with($this->datarequest);
     }
 
     public function form(){
@@ -53,9 +63,18 @@ class PayableController extends Controller
             ->orderBy('name','ASC')
             ->get();
 
+        // Buscar categorias globais (user_id NULL) e do usuário atual
+        $categories = PayableCategory::where(function($query) {
+                $query->whereNull('user_id')
+                      ->orWhere('user_id', auth()->user()->id);
+            })
+            ->orderByRaw('CASE WHEN user_id IS NULL THEN 0 ELSE 1 END') // Globais primeiro
+            ->orderBy('name','ASC')
+            ->get();
+
         $data = Payable::where('id',$this->request->input('id'))->where('user_id',auth()->user()->id)->first();
 
-        return view($this->datarequest['path'].'.form',compact('suppliers','data','supplier_id'))->render();
+        return view($this->datarequest['path'].'.form',compact('suppliers','categories','data','supplier_id'))->render();
 
     }
 
@@ -87,6 +106,7 @@ class PayableController extends Controller
 
         $model->user_id         = auth()->user()->id;
         $model->supplier_id     = $data['supplier_id'];
+        $model->category_id     = isset($data['category_id']) && $data['category_id'] != '' ? $data['category_id'] : null;
         $model->description     = $data['description'];
         $model->price           = moeda($data['price']);
         $model->type            = $data['type']; // Fixa, Recorrente, Parcelada
@@ -121,6 +141,7 @@ class PayableController extends Controller
                     $installment = new Payable();
                     $installment->user_id         = auth()->user()->id;
                     $installment->supplier_id     = $data['supplier_id'];
+                    $installment->category_id     = isset($data['category_id']) && $data['category_id'] != '' ? $data['category_id'] : null;
                     $installment->description     = $data['description'] . ' - Parcela ' . $i . '/' . $data['installments'];
                     $installment->price           = $installmentValue;
                     $installment->type            = 'Parcelada';
@@ -173,6 +194,7 @@ class PayableController extends Controller
         }
 
         $model->supplier_id     = $data['supplier_id'];
+        $model->category_id     = isset($data['category_id']) && $data['category_id'] != '' ? $data['category_id'] : null;
         $model->description     = $data['description'];
         $model->price           = moeda($data['price']);
         $model->payment_method  = isset($data['payment_method']) ? $data['payment_method'] : null;
@@ -235,9 +257,10 @@ public function loadPayables(){
 
     $query = Payable::query();
 
-    $fields = "payables.id as id,payables.description,payables.payment_method,payables.price,payables.date_due,payables.date_payment,payables.status,payables.type,payables.installment_number,payables.installments,suppliers.id as supplier_id, suppliers.name as supplier_name,payables.updated_at";
+    $fields = "payables.id as id,payables.description,payables.payment_method,payables.price,payables.date_due,payables.date_payment,payables.status,payables.type,payables.installment_number,payables.installments,suppliers.id as supplier_id, suppliers.name as supplier_name,payable_categories.id as category_id,payable_categories.name as category_name,payable_categories.color as category_color,payables.updated_at";
 
     $query->leftJoin('suppliers','suppliers.id','payables.supplier_id')
+            ->leftJoin('payable_categories','payable_categories.id','payables.category_id')
             ->where('payables.user_id',auth()->user()->id);
 
     if ($this->request->has('dateini') && $this->request->has('dateend') && $this->request->input('dateini') != '' && $this->request->input('dateend') != '') {
@@ -274,6 +297,15 @@ public function loadPayables(){
                 }
             }
 
+            // Filtro de categoria - aceita múltiplos valores
+            if($this->request->has('category') && $this->request->input('category') != ''){
+                $categories = is_array($this->request->input('category')) ? $this->request->input('category') : [$this->request->input('category')];
+                $categories = array_filter($categories); // Remove valores vazios
+                if(!empty($categories)){
+                    $query->whereIn('payables.category_id', $categories);
+                }
+            }
+
             $query->whereBetween('payables.'.$dateType,[$dateIni,$dateEnd]);
     }else{
         // Quando não há filtros, mostra todas as contas (ou um intervalo maior)
@@ -304,6 +336,15 @@ public function loadPayables(){
             $types = array_filter($types); // Remove valores vazios
             if(!empty($types)){
                 $query->whereIn('payables.type', $types);
+            }
+        }
+        
+        // Filtro de categoria quando não há filtro de data
+        if($this->request->has('category') && $this->request->input('category') != ''){
+            $categories = is_array($this->request->input('category')) ? $this->request->input('category') : [$this->request->input('category')];
+            $categories = array_filter($categories); // Remove valores vazios
+            if(!empty($categories)){
+                $query->whereIn('payables.category_id', $categories);
             }
         }
     }

@@ -8,6 +8,7 @@ use App\Http\Controllers\admin\ServiceController;
 use App\Http\Controllers\admin\CustomerServiceController;
 use App\Http\Controllers\admin\InvoiceController;
 use App\Http\Controllers\admin\PayableController;
+use App\Http\Controllers\admin\PayableCategoryController;
 use App\Http\Controllers\admin\SupplierController;
 use App\Http\Controllers\admin\LogController;
 
@@ -114,6 +115,12 @@ Route::group(['prefix' => 'admin','middleware' => ['auth']], function(){
     Route::post('payables/copy',[PayableController::class,'copy']);
     Route::delete('payables/{id}',[PayableController::class,'destroy']);
     Route::get('load-payables',[PayableController::class,'loadPayables']);
+
+    Route::get('payable-categories',[PayableCategoryController::class,'index']);
+    Route::get('payable-categories/form',[PayableCategoryController::class,'form']);
+    Route::post('payable-categories',[PayableCategoryController::class,'store']);
+    Route::put('payable-categories/{id}',[PayableCategoryController::class,'update']);
+    Route::delete('payable-categories',[PayableCategoryController::class,'destroy']);
 
     Route::get('suppliers',[SupplierController::class,'index']);
     Route::get('suppliers/form',[SupplierController::class,'form']);

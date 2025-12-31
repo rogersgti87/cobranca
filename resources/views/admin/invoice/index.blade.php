@@ -366,7 +366,9 @@
 <script>
 
     // Open Modal - Error
-    $(document).on("click", "#btn-modal-error", function() {
+    $(document).on("click", "#btn-modal-error", function(e) {
+          e.preventDefault();
+          e.stopPropagation();
           var id = $(this).data('invoice');
           var url = "{{url('admin/invoice-error')}}"+'/'+id;
           $("#modal-error").modal('show');
@@ -499,7 +501,9 @@
 
 
    // Open Modal - Create - Invoices
-   $(document).on("click", "#btn-modal-invoice", function() {
+   $(document).on("click", "#btn-modal-invoice", function(e) {
+        e.preventDefault();
+        e.stopPropagation();
         var type = $(this).data('type');
         var customer_id = "{{ isset($data) ? $data->id : ''}}";
         $("#modalInvoice").modal('show');
@@ -590,23 +594,25 @@ Swal.fire({
 
 
         // Open Modal - Notifications
-        $(document).on("click", "#btn-modal-notifications", function() {
+        $(document).on("click", "#btn-modal-notifications", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
 
-$("#modalNotifications").modal('show');
-    $("#modalNotificationsLabel").html('Notificações');
-    var invoice = $(this).data('invoice');
-    var url = "{{url('/admin/load-invoice-notifications')}}"+'/'+invoice;
-//console.log(url);
-$.get(url,
-    $(this)
-    .addClass('modal-scrollfix')
-    .find('#form-content-notifications')
-    .html('Carregando...'),
-    function(data) {
-        $("#form-content-notifications").html(data);
-        $('#btn-notificate').attr('onclick',`sendNotification(${invoice})`);
-    });
-});
+            $("#modalNotifications").modal('show');
+            $("#modalNotificationsLabel").html('Notificações');
+            var invoice = $(this).data('invoice');
+            var url = "{{url('/admin/load-invoice-notifications')}}"+'/'+invoice;
+            //console.log(url);
+            $.get(url,
+                $(this)
+                .addClass('modal-scrollfix')
+                .find('#form-content-notifications')
+                .html('Carregando...'),
+                function(data) {
+                    $("#form-content-notifications").html(data);
+                    $('#btn-notificate').attr('onclick',`sendNotification(${invoice})`);
+                });
+        });
 
 
 $(document).on('click', '#btn-invoice-status', function(e) {
@@ -860,15 +866,15 @@ $(document).on('click', '#btn-invoice-status', function(e) {
                 var datePayment = item.date_payment != null ? moment(item.date_payment).format('DD/MM/YYYY') : '-';
                 var paymentMethod = item.gateway_payment ? item.gateway_payment + ' (' + item.payment_method + ')' : item.payment_method || '-';
 
-                html += '<tr data-toggle="collapse" data-target="#collapse-invoice-' + item.id + '" class="accordion-toggle" style="cursor: pointer;">';
-                html += '<td onclick="event.stopPropagation();"><button class="btn btn-sm btn-link" style="color: #FFBD59; padding: 0; border: none; background: transparent;" onclick="event.stopPropagation(); $(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');"><i class="fas fa-chevron-down" id="icon-' + item.id + '"></i></button></td>';
-                html += '<td>' + item.id + '</td>';
-                html += '<td>' + item.customer_name + '</td>';
-                html += '<td>' + moment(item.date_invoice).format('DD/MM/YYYY') + '</td>';
-                html += '<td>' + moment(item.date_due).format('DD/MM/YYYY') + '</td>';
-                html += '<td style="color: #FFBD59; font-weight: 600;">' + item.price + '</td>';
-                html += '<td><span class="badge ' + statusBadgeClass + '">' + item.status + '</span></td>';
-                html += '<td onclick="event.stopPropagation();">';
+                html += '<tr class="accordion-toggle">';
+                html += '<td><button class="btn btn-sm btn-link" style="color: #FFBD59; padding: 0; border: none; background: transparent;" onclick="event.stopPropagation(); $(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');"><i class="fas fa-chevron-down" id="icon-' + item.id + '"></i></button></td>';
+                html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer;">' + item.id + '</td>';
+                html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer;">' + item.customer_name + '</td>';
+                html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer;">' + moment(item.date_invoice).format('DD/MM/YYYY') + '</td>';
+                html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer;">' + moment(item.date_due).format('DD/MM/YYYY') + '</td>';
+                html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer; color: #FFBD59; font-weight: 600;">' + item.price + '</td>';
+                html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer;"><span class="badge ' + statusBadgeClass + '">' + item.status + '</span></td>';
+                html += '<td>';
                 html += '<a href="{{ url('admin/customers/form?act=edit&id=')}}' + item.customer_id + '" data-original-title="Editar cliente" id="btn-edit-customer" data-placement="left" data-tt="tooltip" class="btn btn-secondary btn-xs" style="background-color: #1E293B; border-color: rgba(255,255,255,0.1); color: #E5E7EB;"> <i class="fas fa-user"></i></a> ';
                 if(item.status == 'Pendente' || item.status == 'Erro' || item.status == 'Estabelecimento'){
                     html += '<a href="#" data-original-title="Editar fatura" id="btn-modal-invoice" data-type="edit-invoice" data-invoice="' + item.id + '" data-placement="left" data-tt="tooltip" class="btn btn-secondary btn-xs" style="background-color: #1E293B; border-color: rgba(255,255,255,0.1); color: #E5E7EB;"> <i class="far fa-edit"></i></a> ';

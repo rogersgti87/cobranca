@@ -1,9 +1,9 @@
 /* ============================================
-   DARK MODE GLOBAL - Cobrança Segura
+   IVORY THEME GLOBAL - Cobrança Segura
    Cores do Tema:
-   - Fundo: #0F172A
-   - Cards: #111827
-   - Texto: #E5E7EB
+   - Fundo: #FFFFF0 (Ivory)
+   - Cards: #F5F5DC (Beige claro)
+   - Texto: #1F2937 (Cinza escuro)
    - Destaque (marca): #FFBD59
    - Sucesso: #22C55E
    - Erro: #F87171
@@ -13,37 +13,37 @@
    FUNDO GERAL
    ============================================ */
 body {
-    background-color: #0F172A !important;
-    color: #E5E7EB !important;
+    background-color: #FFFFF0 !important;
+    color: #1F2937 !important;
 }
 
 .wrapper {
-    background-color: #0F172A !important;
+    background-color: #FFFFF0 !important;
 }
 
 .content-wrapper {
-    background-color: #0F172A !important;
+    background-color: #FFFFF0 !important;
 }
 
 .content {
-    background-color: #0F172A !important;
-    color: #E5E7EB !important;
+    background-color: #FFFFF0 !important;
+    color: #1F2937 !important;
 }
 
 .content-header {
-    background-color: #0F172A !important;
+    background-color: #FFFFF0 !important;
 }
 
 /* ============================================
    NAVBAR
    ============================================ */
 .main-header {
-    background-color: #111827 !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background-color: #F5F5DC !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
 }
 
 .navbar-nav .nav-link {
-    color: #E5E7EB !important;
+    color: #1F2937 !important;
 }
 
 .navbar-nav .nav-link:hover {
@@ -54,37 +54,37 @@ body {
    SIDEBAR
    ============================================ */
 .main-sidebar {
-    background-color: #111827 !important;
+    background-color: #F5F5DC !important;
 }
 
 .brand-link {
-    background-color: #1E293B !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background-color: #FFFFFF !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
 }
 
 .sidebar {
-    background-color: #111827 !important;
+    background-color: #F5F5DC !important;
 }
 
 .user-panel {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
 }
 
 .user-panel .info {
-    color: #E5E7EB !important;
+    color: #1F2937 !important;
 }
 
 .user-panel .info span {
-    color: #E5E7EB !important;
+    color: #1F2937 !important;
 }
 
 /* Sidebar Menu */
 .nav-sidebar .nav-link {
-    color: #E5E7EB !important;
+    color: #1F2937 !important;
 }
 
 .nav-sidebar .nav-link:hover {
-    background-color: #1E293B !important;
+    background-color: #FFFFFF !important;
     color: #FFBD59 !important;
 }
 
@@ -98,22 +98,22 @@ body {
 }
 
 .nav-sidebar .nav-link i {
-    color: #E5E7EB !important;
+    color: #1F2937 !important;
 }
 
 /* ============================================
    CARDS
    ============================================ */
 .card {
-    background-color: #111827 !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    color: #E5E7EB !important;
+    background-color: #F5F5DC !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    color: #1F2937 !important;
 }
 
 .card-header {
-    background-color: #1E293B !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-    color: #E5E7EB !important;
+    background-color: #FFFFFF !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+    color: #1F2937 !important;
 }
 
 .card-title {
@@ -121,25 +121,25 @@ body {
 }
 
 .card-body {
-    background-color: #111827 !important;
-    color: #E5E7EB !important;
+    background-color: #F5F5DC !important;
+    color: #1F2937 !important;
 }
 
 .card-footer {
-    background-color: #1E293B !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background-color: #FFFFFF !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.1) !important;
 }
 
 /* Small Boxes */
 .small-box {
-    background-color: #111827 !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    color: #E5E7EB !important;
+    background-color: #F5F5DC !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    color: #1F2937 !important;
 }
 
 .small-box .inner h3,
 .small-box .inner p {
-    color: #E5E7EB !important;
+    color: #1F2937 !important;
 }
 
 .small-box .icon {
@@ -150,111 +150,133 @@ body {
    TABELAS
    ============================================ */
 .table {
-    color: #E5E7EB !important;
-    background-color: #111827 !important;
+    color: #1F2937 !important;
+    background-color: #F5F5DC !important;
 }
 
 .table thead th {
-    background-color: #1E293B !important;
-    color: #E5E7EB !important;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.1) !important;
+    background-color: #FFFFFF !important;
+    color: #1F2937 !important;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1) !important;
 }
 
 .table tbody td {
-    color: #E5E7EB !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: #1F2937 !important;
+    border-color: rgba(0, 0, 0, 0.1) !important;
 }
 
 .table-hover tbody tr:hover {
-    background-color: #1E293B !important;
+    background-color: #FFFFFF !important;
 }
 
 .table-striped tbody tr:nth-of-type(odd) {
-    background-color: #1E293B !important;
+    background-color: #FFFFFF !important;
 }
 
 .table-striped tbody tr:nth-of-type(even) {
-    background-color: #111827 !important;
+    background-color: #F5F5DC !important;
 }
 
 /* ============================================
    FORMULÁRIOS
    ============================================ */
 .form-control {
-    background-color: #0F172A !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    color: #E5E7EB !important;
+    background-color: #FFFFFF !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    color: #1F2937 !important;
 }
 
 .form-control:focus {
-    background-color: #0F172A !important;
+    background-color: #FFFFFF !important;
     border-color: #FFBD59 !important;
-    color: #E5E7EB !important;
+    color: #1F2937 !important;
     box-shadow: 0 0 0 3px rgba(255, 189, 89, 0.2) !important;
 }
 
 .form-control::placeholder {
-    color: rgba(229, 231, 235, 0.5) !important;
+    color: rgba(31, 41, 55, 0.5) !important;
 }
 
 label {
-    color: #E5E7EB !important;
+    color: #1F2937 !important;
 }
 
 .form-group label {
-    color: #E5E7EB !important;
+    color: #1F2937 !important;
 }
 
 /* Selects */
+select,
 select.form-control,
-select.custom-select {
-    background-color: #0F172A !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    color: #E5E7EB !important;
+select.custom-select,
+select.form-control option,
+select.custom-select option {
+    background-color: #FFFFFF !important;
+    background-image: none !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    color: #1F2937 !important;
 }
 
 select.form-control:focus,
-select.custom-select:focus {
-    background-color: #0F172A !important;
+select.custom-select:focus,
+select:focus {
+    background-color: #FFFFFF !important;
+    background-image: none !important;
     border-color: #FFBD59 !important;
-    color: #E5E7EB !important;
+    color: #1F2937 !important;
     box-shadow: 0 0 0 3px rgba(255, 189, 89, 0.2) !important;
 }
 
 select.form-control option,
-select.custom-select option {
-    background-color: #111827 !important;
-    color: #E5E7EB !important;
+select.custom-select option,
+select option {
+    background-color: #FFFFFF !important;
+    color: #1F2937 !important;
 }
 
 select.form-control option:checked,
-select.custom-select option:checked {
-    background-color: #1E293B !important;
-    color: #E5E7EB !important;
+select.custom-select option:checked,
+select option:checked {
+    background-color: #F5F5DC !important;
+    color: #1F2937 !important;
 }
 
-/* Força cor branca em todos os estados do select */
+/* Força cor escura e fundo branco em todos os estados do select */
 select {
-    color: #E5E7EB !important;
+    background-color: #FFFFFF !important;
+    background-image: none !important;
+    color: #1F2937 !important;
 }
 
 select:focus {
-    color: #E5E7EB !important;
+    background-color: #FFFFFF !important;
+    background-image: none !important;
+    color: #1F2937 !important;
+}
+
+select:hover {
+    background-color: #FFFFFF !important;
+    background-image: none !important;
 }
 
 select option {
-    color: #E5E7EB !important;
+    background-color: #FFFFFF !important;
+    color: #1F2937 !important;
+}
+
+select option:hover {
+    background-color: #F5F5DC !important;
 }
 
 /* Input Date */
 input[type="date"] {
-    background-color: #0F172A !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    color: #E5E7EB !important;
+    background-color: #FFFFFF !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    color: #1F2937 !important;
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
-    filter: invert(1);
+    filter: invert(0);
     cursor: pointer;
 }
 
@@ -264,15 +286,15 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 
 /* Textarea */
 textarea.form-control {
-    background-color: #0F172A !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    color: #E5E7EB !important;
+    background-color: #FFFFFF !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    color: #1F2937 !important;
 }
 
 textarea.form-control:focus {
-    background-color: #0F172A !important;
+    background-color: #FFFFFF !important;
     border-color: #FFBD59 !important;
-    color: #E5E7EB !important;
+    color: #1F2937 !important;
 }
 
 /* ============================================
@@ -281,14 +303,14 @@ textarea.form-control:focus {
 .btn-primary {
     background-color: #FFBD59 !important;
     border-color: #FFBD59 !important;
-    color: #0F172A !important;
+    color: #1F2937 !important;
     font-weight: 600 !important;
 }
 
 .btn-primary:hover {
     background-color: #FFD700 !important;
     border-color: #FFD700 !important;
-    color: #0F172A !important;
+    color: #1F2937 !important;
 }
 
 .btn-success {
@@ -318,27 +340,27 @@ textarea.form-control:focus {
 }
 
 .btn-secondary {
-    background-color: #1E293B !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
-    color: #E5E7EB !important;
+    background-color: #6B7280 !important;
+    border-color: rgba(0, 0, 0, 0.1) !important;
+    color: #FFFFFF !important;
 }
 
 .btn-secondary:hover {
-    background-color: #334155 !important;
-    border-color: rgba(255, 255, 255, 0.2) !important;
-    color: #E5E7EB !important;
+    background-color: #4B5563 !important;
+    border-color: rgba(0, 0, 0, 0.2) !important;
+    color: #FFFFFF !important;
 }
 
 .btn-warning {
     background-color: #FFBD59 !important;
     border-color: #FFBD59 !important;
-    color: #0F172A !important;
+    color: #1F2937 !important;
 }
 
 .btn-info {
     background-color: #FFBD59 !important;
     border-color: #FFBD59 !important;
-    color: #0F172A !important;
+    color: #1F2937 !important;
 }
 
 /* ============================================
@@ -347,7 +369,7 @@ textarea.form-control:focus {
 .badge-primary,
 .badge-info {
     background-color: #FFBD59 !important;
-    color: #0F172A !important;
+    color: #1F2937 !important;
 }
 
 .badge-success {
@@ -362,25 +384,25 @@ textarea.form-control:focus {
 
 .badge-warning {
     background-color: #FFBD59 !important;
-    color: #0F172A !important;
+    color: #1F2937 !important;
 }
 
 .badge-secondary {
-    background-color: #1E293B !important;
-    color: #E5E7EB !important;
+    background-color: #6B7280 !important;
+    color: #FFFFFF !important;
 }
 
 /* ============================================
    MODAIS
    ============================================ */
 .modal-content {
-    background-color: #111827 !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background-color: #F5F5DC !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
 }
 
 .modal-header {
-    background-color: #1E293B !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background-color: #FFFFFF !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
 }
 
 .modal-title {
@@ -389,26 +411,26 @@ textarea.form-control:focus {
 }
 
 .modal-body {
-    background-color: #111827 !important;
-    color: #E5E7EB !important;
+    background-color: #F5F5DC !important;
+    color: #1F2937 !important;
 }
 
 .modal-footer {
-    background-color: #1E293B !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background-color: #FFFFFF !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.1) !important;
 }
 
 .modal-backdrop {
-    background-color: rgba(0, 0, 0, 0.7) !important;
+    background-color: rgba(0, 0, 0, 0.5) !important;
 }
 
 .close {
-    color: #E5E7EB !important;
+    color: #1F2937 !important;
     opacity: 0.8;
 }
 
 .close:hover {
-    color: #E5E7EB !important;
+    color: #1F2937 !important;
     opacity: 1;
 }
 
@@ -420,13 +442,13 @@ textarea.form-control:focus {
 }
 
 .breadcrumb-item a {
-    color: #E5E7EB !important;
+    color: #1F2937 !important;
     opacity: 0.7;
     text-decoration: none;
 }
 
 .breadcrumb-item.active {
-    color: #E5E7EB !important;
+    color: #1F2937 !important;
     opacity: 0.7;
 }
 
@@ -434,9 +456,9 @@ textarea.form-control:focus {
    FOOTER
    ============================================ */
 .main-footer {
-    background-color: #111827 !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
-    color: #E5E7EB !important;
+    background-color: #F5F5DC !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.1) !important;
+    color: #1F2937 !important;
 }
 
 .main-footer a {
@@ -444,34 +466,34 @@ textarea.form-control:focus {
 }
 
 .main-footer strong {
-    color: #E5E7EB !important;
+    color: #1F2937 !important;
 }
 
 /* ============================================
    PAGINAÇÃO
    ============================================ */
 .pagination .page-link {
-    background-color: #111827 !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
-    color: #E5E7EB !important;
+    background-color: #FFFFFF !important;
+    border-color: rgba(0, 0, 0, 0.1) !important;
+    color: #1F2937 !important;
 }
 
 .pagination .page-link:hover {
-    background-color: #1E293B !important;
+    background-color: #FFBD59 !important;
     border-color: #FFBD59 !important;
-    color: #FFBD59 !important;
+    color: #1F2937 !important;
 }
 
 .pagination .page-item.active .page-link {
     background-color: #FFBD59 !important;
     border-color: #FFBD59 !important;
-    color: #0F172A !important;
+    color: #1F2937 !important;
 }
 
 .pagination .page-item.disabled .page-link {
-    background-color: #111827 !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
-    color: rgba(229, 231, 235, 0.5) !important;
+    background-color: #FFFFFF !important;
+    border-color: rgba(0, 0, 0, 0.1) !important;
+    color: rgba(31, 41, 55, 0.5) !important;
     opacity: 0.5;
 }
 
@@ -506,97 +528,97 @@ textarea.form-control:focus {
    INPUT GROUP
    ============================================ */
 .input-group-text {
-    background-color: #1E293B !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
-    color: #E5E7EB !important;
+    background-color: #FFFFFF !important;
+    border-color: rgba(0, 0, 0, 0.1) !important;
+    color: #1F2937 !important;
 }
 
 /* ============================================
    DROPDOWN
    ============================================ */
 .dropdown-menu {
-    background-color: #111827 !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background-color: #FFFFFF !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
 }
 
 .dropdown-item {
-    color: #E5E7EB !important;
+    color: #1F2937 !important;
 }
 
 .dropdown-item:hover,
 .dropdown-item:focus {
-    background-color: #1E293B !important;
+    background-color: #F5F5DC !important;
     color: #FFBD59 !important;
 }
 
 .dropdown-divider {
-    border-top-color: rgba(255, 255, 255, 0.1) !important;
+    border-top-color: rgba(0, 0, 0, 0.1) !important;
 }
 
 /* ============================================
    SELECT2 (Plugin)
    ============================================ */
 .select2-container--default .select2-selection--single {
-    background-color: #0F172A !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    color: #E5E7EB !important;
+    background-color: #FFFFFF !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    color: #1F2937 !important;
 }
 
 .select2-container--default .select2-selection--single .select2-selection__rendered {
-    color: #E5E7EB !important;
+    color: #1F2937 !important;
 }
 
 .select2-container--default .select2-selection--single .select2-selection__arrow b {
-    border-color: #E5E7EB transparent transparent transparent !important;
+    border-color: #1F2937 transparent transparent transparent !important;
 }
 
 .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
-    border-color: transparent transparent #E5E7EB transparent !important;
+    border-color: transparent transparent #1F2937 transparent !important;
 }
 
 .select2-dropdown {
-    background-color: #111827 !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background-color: #FFFFFF !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
 }
 
 .select2-container--default .select2-results__option {
-    background-color: #111827 !important;
-    color: #E5E7EB !important;
+    background-color: #FFFFFF !important;
+    color: #1F2937 !important;
 }
 
 .select2-container--default .select2-results__option--highlighted[aria-selected] {
-    background-color: #1E293B !important;
+    background-color: #F5F5DC !important;
     color: #FFBD59 !important;
 }
 
 .select2-container--default .select2-results__option[aria-selected=true] {
-    background-color: #1E293B !important;
+    background-color: #F5F5DC !important;
     color: #FFBD59 !important;
 }
 
 .select2-search--dropdown .select2-search__field {
-    background-color: #0F172A !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    color: #E5E7EB !important;
+    background-color: #FFFFFF !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    color: #1F2937 !important;
 }
 
 /* ============================================
    DATATABLES
    ============================================ */
 .dataTables_wrapper .dataTables_filter input {
-    background-color: #0F172A !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    color: #E5E7EB !important;
+    background-color: #FFFFFF !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    color: #1F2937 !important;
 }
 
 .dataTables_wrapper .dataTables_length select {
-    background-color: #0F172A !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    color: #E5E7EB !important;
+    background-color: #FFFFFF !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    color: #1F2937 !important;
 }
 
 .dataTables_wrapper .dataTables_info {
-    color: #E5E7EB !important;
+    color: #1F2937 !important;
 }
 
 /* ============================================
@@ -604,12 +626,12 @@ textarea.form-control:focus {
    ============================================ */
 /* Checkbox Customizado */
 .containerchekbox .checkmark {
-    background-color: #0F172A !important;
+    background-color: #FFFFFF !important;
     border: 1px solid #FFBD59 !important;
 }
 
 .containerchekbox:hover input ~ .checkmark {
-    background-color: #1E293B !important;
+    background-color: #F5F5DC !important;
 }
 
 .containerchekbox input:checked ~ .checkmark {
@@ -619,7 +641,7 @@ textarea.form-control:focus {
 /* Fieldset */
 fieldset {
     border: 1px dotted #FFBD59 !important;
-    background-color: #111827 !important;
+    background-color: #FFFFFF !important;
 }
 
 fieldset:hover {
@@ -628,37 +650,37 @@ fieldset:hover {
 
 legend {
     border: 1px solid #FFBD59 !important;
-    background-color: #111827 !important;
+    background-color: #F5F5DC !important;
     color: #FFBD59 !important;
 }
 
 /* Bootstrap Tags Input */
 .bootstrap-tagsinput {
-    background-color: #0F172A !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    color: #E5E7EB !important;
+    background-color: #FFFFFF !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    color: #1F2937 !important;
 }
 
 .bootstrap-tagsinput .tag {
     background-color: #FFBD59 !important;
-    color: #0F172A !important;
+    color: #1F2937 !important;
 }
 
 /* Form Sidebar Search */
 .form-control-sidebar {
-    background-color: #0F172A !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    color: #E5E7EB !important;
+    background-color: #FFFFFF !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    color: #1F2937 !important;
 }
 
 .btn-sidebar {
-    background-color: #1E293B !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
-    color: #E5E7EB !important;
+    background-color: #6B7280 !important;
+    border-color: rgba(0, 0, 0, 0.1) !important;
+    color: #FFFFFF !important;
 }
 
 .btn-sidebar:hover {
-    background-color: #334155 !important;
+    background-color: #4B5563 !important;
     color: #FFBD59 !important;
 }
 
@@ -666,7 +688,7 @@ legend {
    TÍTULOS E TEXTOS
    ============================================ */
 h1, h2, h3, h4, h5, h6 {
-    color: #E5E7EB !important;
+    color: #1F2937 !important;
 }
 
 h1 {
@@ -674,11 +696,11 @@ h1 {
 }
 
 p {
-    color: #E5E7EB !important;
+    color: #1F2937 !important;
 }
 
 .text-muted {
-    color: rgba(229, 231, 235, 0.6) !important;
+    color: rgba(31, 41, 55, 0.6) !important;
 }
 
 .text-danger {
@@ -716,35 +738,35 @@ a:hover {
    BORDAS E DIVISORES
    ============================================ */
 .border {
-    border-color: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(0, 0, 0, 0.1) !important;
 }
 
 .border-top {
-    border-top-color: rgba(255, 255, 255, 0.1) !important;
+    border-top-color: rgba(0, 0, 0, 0.1) !important;
 }
 
 .border-bottom {
-    border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+    border-bottom-color: rgba(0, 0, 0, 0.1) !important;
 }
 
 /* ============================================
    BACKGROUNDS
    ============================================ */
 .bg-white {
-    background-color: #111827 !important;
+    background-color: #FFFFFF !important;
 }
 
 .bg-light {
-    background-color: #1E293B !important;
+    background-color: #F5F5DC !important;
 }
 
 .bg-gray {
-    background-color: #1E293B !important;
+    background-color: #F5F5DC !important;
 }
 
 .bg-primary {
     background-color: #FFBD59 !important;
-    color: #0F172A !important;
+    color: #1F2937 !important;
 }
 
 .bg-success {
@@ -759,21 +781,166 @@ a:hover {
 
 .bg-warning {
     background-color: #FFBD59 !important;
-    color: #0F172A !important;
+    color: #1F2937 !important;
 }
 
 .bg-info {
     background-color: #FFBD59 !important;
-    color: #0F172A !important;
+    color: #1F2937 !important;
 }
 
 .bg-indigo {
-    background-color: #111827 !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background-color: #F5F5DC !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
 }
 
 .bg-maroon {
-    background-color: #111827 !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background-color: #F5F5DC !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ============================================
+   SELECTS - REGRAS ADICIONAIS PARA GARANTIR FUNDO BRANCO
+   ============================================ */
+select,
+select.form-control,
+select.custom-select,
+.form-control select,
+.form-group select,
+.form-row select,
+.col-md-4 select,
+.col-md-6 select,
+.col-12 select,
+select[class*="form-control"],
+select[id*="filter"],
+select[name] {
+    background-color: #FFFFFF !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%231F2937' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") !important;
+    background-position: right 0.5rem center !important;
+    background-repeat: no-repeat !important;
+    background-size: 1.5em 1.5em !important;
+    padding-right: 2.5rem !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    color: #1F2937 !important;
+}
+
+select:focus,
+select.form-control:focus,
+select.custom-select:focus,
+.form-control select:focus {
+    background-color: #FFFFFF !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%231F2937' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") !important;
+    border-color: #FFBD59 !important;
+    color: #1F2937 !important;
+    box-shadow: 0 0 0 3px rgba(255, 189, 89, 0.2) !important;
+}
+
+select:hover,
+select.form-control:hover,
+select.custom-select:hover {
+    background-color: #FFFFFF !important;
+    border-color: rgba(0, 0, 0, 0.2) !important;
+}
+
+select option,
+select.form-control option,
+select.custom-select option {
+    background-color: #FFFFFF !important;
+    color: #1F2937 !important;
+    padding: 8px 12px !important;
+}
+
+select option:hover,
+select option:focus {
+    background-color: #F5F5DC !important;
+    color: #1F2937 !important;
+}
+
+select option:checked,
+select option:selected {
+    background-color: #F5F5DC !important;
+    color: #1F2937 !important;
+}
+
+/* ============================================
+   SELECTS COM IDs ESPECÍFICOS
+   ============================================ */
+#supplier_id,
+#category_id,
+#type,
+#payment_method,
+#recurrence_period,
+#status,
+#customer_id,
+#customer_service_id,
+#invoice_id,
+select[name="supplier_id"],
+select[name="category_id"],
+select[name="type"],
+select[name="payment_method"],
+select[name="status"],
+select[name="customer_id"],
+select[name="customer_service_id"] {
+    background-color: #FFFFFF !important;
+    background-image: none !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    color: #1F2937 !important;
+}
+
+#supplier_id:focus,
+#category_id:focus,
+#type:focus,
+#payment_method:focus,
+#recurrence_period:focus,
+#status:focus,
+#customer_id:focus,
+#customer_service_id:focus,
+select[name="supplier_id"]:focus,
+select[name="category_id"]:focus,
+select[name="type"]:focus,
+select[name="payment_method"]:focus,
+select[name="status"]:focus {
+    background-color: #FFFFFF !important;
+    background-image: none !important;
+    border-color: #FFBD59 !important;
+    color: #1F2937 !important;
+    box-shadow: 0 0 0 3px rgba(255, 189, 89, 0.2) !important;
+}
+
+#supplier_id option,
+#category_id option,
+#type option,
+#payment_method option,
+#recurrence_period option,
+#status option,
+#customer_id option,
+#customer_service_id option,
+select[name="supplier_id"] option,
+select[name="category_id"] option,
+select[name="type"] option,
+select[name="payment_method"] option,
+select[name="status"] option {
+    background-color: #FFFFFF !important;
+    color: #1F2937 !important;
+}
+
+#supplier_id option:checked,
+#category_id option:checked,
+#type option:checked,
+#payment_method option:checked,
+#recurrence_period option:checked,
+#status option:checked,
+#customer_id option:checked,
+#customer_service_id option:checked,
+select[name="supplier_id"] option:checked,
+select[name="category_id"] option:checked,
+select[name="type"] option:checked,
+select[name="payment_method"] option:checked,
+select[name="status"] option:checked {
+    background-color: #F5F5DC !important;
+    color: #1F2937 !important;
 }
 

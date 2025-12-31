@@ -37,4 +37,9 @@ class Payable extends Model
     {
         return $this->belongsTo(PayableCategory::class);
     }
+
+    public function reversals()
+    {
+        return $this->hasMany(PayableReversal::class);
+    }
 }

@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Models\Payable;
 use App\Models\Supplier;
 use App\Models\PayableCategory;
+use App\Models\PayableReversal;
 use RuntimeException;
 use Illuminate\Support\Facades\Http;
 
@@ -90,6 +91,7 @@ class PayableController extends Controller
             'price.required'            => 'O campo Valor é obrigatório!',
             'type.required'            => 'O campo Tipo é obrigatório!',
             'date_due.required'        => 'O campo Data de vencimento é obrigatório!',
+            'category_id.required'     => 'O campo Categoria é obrigatório!',
         ];
 
         $validator = Validator::make($data, [
@@ -98,6 +100,7 @@ class PayableController extends Controller
             'price'         => 'required',
             'type'          => 'required',
             'date_due'      => 'required',
+            'category_id'   => 'required',
         ], $messages);
 
         if( $validator->fails() ){
@@ -127,34 +130,55 @@ class PayableController extends Controller
             $model->installments      = isset($data['installments']) ? $data['installments'] : 1;
             $model->installment_number = 1;
             $model->parent_id        = null; // ID da conta pai
-            
-            // Se for parcelada, dividir o valor total pelo número de parcelas
-            if(isset($data['installments']) && $data['installments'] > 1){
-                $model->price = $model->price / $data['installments'];
-                $model->description = $data['description'] . ' - Parcela 1/' . $data['installments'];
-            }
         }
 
         try{
+            // Se for parcelada, calcular valores das parcelas com tratamento de dízimas
+            if($data['type'] == 'Parcelada' && isset($data['installments']) && $data['installments'] > 1){
+                $totalValue = $model->price; // Valor total original
+                $numInstallments = $data['installments'];
+                
+                // Calcular valor base de cada parcela (arredondado para 2 casas decimais)
+                $baseInstallmentValue = round($totalValue / $numInstallments, 2);
+                
+                // Calcular o total das parcelas com valor arredondado
+                $totalRounded = $baseInstallmentValue * $numInstallments;
+                
+                // Calcular a diferença (resto) que será adicionada na primeira parcela
+                $difference = round($totalValue - $totalRounded, 2);
+                
+                // Primeira parcela recebe o valor base + a diferença (para compensar dízimas)
+                $firstInstallmentValue = round($baseInstallmentValue + $difference, 2);
+                
+                // Atualizar a primeira parcela com o valor calculado
+                $model->price = $firstInstallmentValue;
+                $model->description = $data['description'] . ' - Parcela 1/' . $numInstallments;
+            }
+            
             $model->save();
 
             // Se for parcelada, criar as demais parcelas
             if($data['type'] == 'Parcelada' && isset($data['installments']) && $data['installments'] > 1){
-                $installmentValue = $model->price; // Já está dividido
+                $totalValue = moeda($data['price']); // Valor original total
+                $numInstallments = $data['installments'];
+                
+                // Calcular valor base (arredondado) para as parcelas 2 em diante
+                $baseValue = round($totalValue / $numInstallments, 2);
+                
                 $dueDate = Carbon::parse($data['date_due']);
 
-                for($i = 2; $i <= $data['installments']; $i++){
+                for($i = 2; $i <= $numInstallments; $i++){
                     $installment = new Payable();
                     $installment->user_id         = auth()->user()->id;
                     $installment->supplier_id     = $data['supplier_id'];
                     $installment->category_id     = isset($data['category_id']) && $data['category_id'] != '' ? $data['category_id'] : null;
-                    $installment->description     = $data['description'] . ' - Parcela ' . $i . '/' . $data['installments'];
-                    $installment->price           = $installmentValue;
+                    $installment->description     = $data['description'] . ' - Parcela ' . $i . '/' . $numInstallments;
+                    $installment->price           = $baseValue; // Valor base para as demais parcelas
                     $installment->type            = 'Parcelada';
                     $installment->payment_method  = isset($data['payment_method']) ? $data['payment_method'] : null;
                     $installment->date_due        = $dueDate->copy()->addMonths($i - 1)->format('Y-m-d');
                     $installment->status          = 'Pendente';
-                    $installment->installments    = $data['installments'];
+                    $installment->installments    = $numInstallments;
                     $installment->installment_number = $i;
                     $installment->parent_id       = $model->id;
                     $installment->save();
@@ -186,6 +210,7 @@ class PayableController extends Controller
             'description.required'      => 'O campo Descrição é obrigatório!',
             'price.required'            => 'O campo Valor é obrigatório!',
             'date_due.required'        => 'O campo Data de vencimento é obrigatório!',
+            'category_id.required'     => 'O campo Categoria é obrigatório!',
         ];
 
         $validator = Validator::make($data, [
@@ -193,6 +218,7 @@ class PayableController extends Controller
             'description'   => 'required',
             'price'         => 'required',
             'date_due'      => 'required',
+            'category_id'   => 'required',
         ], $messages);
 
         if( $validator->fails() ){
@@ -200,7 +226,7 @@ class PayableController extends Controller
         }
 
         $model->supplier_id     = $data['supplier_id'];
-        $model->category_id     = isset($data['category_id']) && $data['category_id'] != '' ? $data['category_id'] : null;
+        $model->category_id     = $data['category_id'];
         $model->description     = $data['description'];
         $model->price           = moeda($data['price']);
         $model->payment_method  = isset($data['payment_method']) ? $data['payment_method'] : null;
@@ -231,7 +257,7 @@ class PayableController extends Controller
         return response()->json('Registro salvo com sucesso', 200);
     }
 
-    public function destroy($id)
+    public function getReversals($id)
     {
         try{
             $payable = Payable::where('id',$id)->where('user_id',auth()->user()->id)->first();
@@ -240,14 +266,140 @@ class PayableController extends Controller
                 return response()->json('Registro não encontrado', 404);
             }
 
-            // Se for uma conta parcelada, verificar se é a primeira parcela
-            if($payable->type == 'Parcelada' && $payable->parent_id == null){
-                // Cancelar todas as parcelas
-                Payable::where('parent_id',$id)->where('user_id',auth()->user()->id)->update(['status' => 'Cancelado']);
+            $reversals = PayableReversal::where('payable_id', $payable->id)
+                ->with('user:id,name')
+                ->orderBy('reversed_at', 'DESC')
+                ->get()
+                ->map(function($reversal) {
+                    return [
+                        'id' => $reversal->id,
+                        'reversed_at' => $reversal->reversed_at->format('d/m/Y H:i:s'),
+                        'reversal_reason' => $reversal->reversal_reason,
+                        'user_name' => $reversal->user->name ?? 'Usuário não encontrado'
+                    ];
+                });
+
+            return response()->json($reversals, 200);
+
+        } catch(\Exception $e){
+            \Log::error($e->getMessage());
+            return response()->json($e->getMessage(), 500);
+        }
+    }
+
+    public function getInstallments($id)
+    {
+        try{
+            $payable = Payable::where('id',$id)->where('user_id',auth()->user()->id)->first();
+
+            if(!$payable){
+                return response()->json('Registro não encontrado', 404);
             }
 
-            $payable->status = 'Cancelado';
-            $payable->save();
+            $installments = [];
+            $isOriginalRecurring = false;
+            
+            // Verificar se é a conta original de uma recorrência
+            if($payable->type == 'Recorrente') {
+                $hasEarlier = Payable::where('user_id', $payable->user_id)
+                    ->where('supplier_id', $payable->supplier_id)
+                    ->where('description', $payable->description)
+                    ->where('type', 'Recorrente')
+                    ->where('date_due', '<', $payable->date_due)
+                    ->exists();
+                $isOriginalRecurring = !$hasEarlier;
+            }
+            
+            // Se for uma conta parcelada
+            if($payable->type == 'Parcelada'){
+                // Se for a primeira parcela (parent_id == null)
+                if($payable->parent_id == null){
+                    // Buscar todas as parcelas relacionadas
+                    $allInstallments = Payable::where(function($query) use ($id) {
+                        $query->where('id', $id)
+                              ->orWhere('parent_id', $id);
+                    })
+                    ->where('user_id', auth()->user()->id)
+                    ->orderBy('installment_number', 'ASC')
+                    ->get();
+                    
+                    foreach($allInstallments as $inst){
+                        $installments[] = [
+                            'id' => $inst->id,
+                            'description' => $inst->description,
+                            'price' => number_format($inst->price, 2, ',', '.'),
+                            'date_due' => date('d/m/Y', strtotime($inst->date_due)),
+                            'status' => $inst->status,
+                            'installment_number' => $inst->installment_number
+                        ];
+                    }
+                } else {
+                    // Se for uma parcela filha, buscar todas as parcelas do mesmo grupo
+                    $parentId = $payable->parent_id;
+                    $allInstallments = Payable::where(function($query) use ($parentId) {
+                        $query->where('id', $parentId)
+                              ->orWhere('parent_id', $parentId);
+                    })
+                    ->where('user_id', auth()->user()->id)
+                    ->orderBy('installment_number', 'ASC')
+                    ->get();
+                    
+                    foreach($allInstallments as $inst){
+                        $installments[] = [
+                            'id' => $inst->id,
+                            'description' => $inst->description,
+                            'price' => number_format($inst->price, 2, ',', '.'),
+                            'date_due' => date('d/m/Y', strtotime($inst->date_due)),
+                            'status' => $inst->status,
+                            'installment_number' => $inst->installment_number
+                        ];
+                    }
+                }
+            } else {
+                // Se não for parcelada, retornar apenas a conta
+                $installments[] = [
+                    'id' => $payable->id,
+                    'description' => $payable->description,
+                    'price' => number_format($payable->price, 2, ',', '.'),
+                    'date_due' => date('d/m/Y', strtotime($payable->date_due)),
+                    'status' => $payable->status,
+                    'installment_number' => null,
+                    'is_original_recurring' => $isOriginalRecurring,
+                    'type' => $payable->type
+                ];
+            }
+
+            return response()->json($installments, 200);
+
+        } catch(\Exception $e){
+            \Log::error($e->getMessage());
+            return response()->json($e->getMessage(), 500);
+        }
+    }
+
+    public function destroy($id)
+    {
+        try{
+            // Verificar se foi enviado array de IDs no body da requisição
+            $ids = $this->request->input('ids');
+            
+            // Se não tiver array, usar apenas o ID da URL
+            if(!$ids || !is_array($ids)){
+                $ids = [$id];
+            }
+
+            $payables = Payable::whereIn('id', $ids)
+                ->where('user_id', auth()->user()->id)
+                ->get();
+
+            if($payables->isEmpty()){
+                return response()->json('Registro não encontrado', 404);
+            }
+
+            foreach($payables as $payable){
+                $payable->status = 'Cancelado';
+                $payable->save();
+            }
 
         } catch(\Exception $e){
             \Log::error($e->getMessage());
@@ -257,13 +409,104 @@ class PayableController extends Controller
         return response()->json(true, 200);
     }
 
+    public function stopRecurrence($id)
+    {
+        try{
+            $payable = Payable::where('id',$id)->where('user_id',auth()->user()->id)->first();
+
+            if(!$payable){
+                return response()->json('Registro não encontrado', 404);
+            }
+
+            // Verificar se é uma conta recorrente
+            if($payable->type != 'Recorrente'){
+                return response()->json('Esta conta não é do tipo Recorrente', 422);
+            }
+
+            // Identificar a conta original da recorrência
+            $originalPayable = $payable;
+            if($payable->parent_id){
+                // Se tem parent_id, buscar a conta original
+                $originalPayable = Payable::where('id', $payable->parent_id)
+                    ->where('user_id', auth()->user()->id)
+                    ->first();
+                if(!$originalPayable){
+                    $originalPayable = $payable;
+                }
+            }
+
+            // Buscar todas as contas desta recorrência (original + geradas)
+            // Usar a mesma lógica do comando GenerateRecurringPayables
+            $allRecurringPayables = Payable::where('user_id', $originalPayable->user_id)
+                ->where('supplier_id', $originalPayable->supplier_id)
+                ->where('description', $originalPayable->description)
+                ->where('type', 'Recorrente')
+                ->where('recurrence_period', $originalPayable->recurrence_period)
+                ->get();
+
+            // Buscar a última conta gerada (maior data de vencimento)
+            $lastPayable = $allRecurringPayables->sortByDesc('date_due')->first();
+
+            // Usar a data da última conta gerada como data de término
+            $endDate = $lastPayable ? $lastPayable->date_due : $originalPayable->date_due;
+
+            // Atualizar todas as contas desta recorrência com a data de término
+            Payable::whereIn('id', $allRecurringPayables->pluck('id'))
+                ->update(['recurrence_end' => $endDate]);
+
+            return response()->json('Recorrência interrompida com sucesso. Não serão geradas novas contas a partir de ' . date('d/m/Y', strtotime($endDate)) . '.', 200);
+
+        } catch(\Exception $e){
+            \Log::error($e->getMessage());
+            return response()->json($e->getMessage(), 500);
+        }
+    }
+
+    public function reverse($id)
+    {
+        try{
+            $payable = Payable::where('id',$id)->where('user_id',auth()->user()->id)->first();
+
+            if(!$payable){
+                return response()->json('Registro não encontrado', 404);
+            }
+
+            // Verificar se a conta está paga
+            if($payable->status != 'Pago'){
+                return response()->json('Apenas contas com status "Pago" podem ser estornadas', 422);
+            }
+
+            // Obter motivo do estorno (se fornecido)
+            $reversalReason = $this->request->input('reversal_reason', 'Estorno realizado pelo usuário');
+
+            // Estornar: mudar status para Pendente, limpar data de pagamento
+            $payable->status = 'Pendente';
+            $payable->date_payment = null;
+            $payable->save();
+
+            // Registrar o estorno no histórico (mantém todos os estornos)
+            PayableReversal::create([
+                'payable_id' => $payable->id,
+                'user_id' => auth()->user()->id,
+                'reversed_at' => Carbon::now(),
+                'reversal_reason' => $reversalReason
+            ]);
+
+            return response()->json('Conta estornada com sucesso. O status foi alterado para "Pendente" e pode ser paga novamente.', 200);
+
+        } catch(\Exception $e){
+            \Log::error($e->getMessage());
+            return response()->json($e->getMessage(), 500);
+        }
+    }
+
 
 
 public function loadPayables(){
 
     $query = Payable::query();
 
-    $fields = "payables.id as id,payables.description,payables.payment_method,payables.price,payables.date_due,payables.date_payment,payables.status,payables.type,payables.installment_number,payables.installments,suppliers.id as supplier_id, suppliers.name as supplier_name,payable_categories.id as category_id,payable_categories.name as category_name,payable_categories.color as category_color,payables.updated_at";
+    $fields = "payables.id as id,payables.description,payables.payment_method,payables.price,payables.date_due,payables.date_payment,payables.status,payables.type,payables.installment_number,payables.installments,payables.recurrence_end,payables.recurrence_period,suppliers.id as supplier_id, suppliers.name as supplier_name,payable_categories.id as category_id,payable_categories.name as category_name,payable_categories.color as category_color,payables.updated_at";
 
     $query->leftJoin('suppliers','suppliers.id','payables.supplier_id')
             ->leftJoin('payable_categories','payable_categories.id','payables.category_id')

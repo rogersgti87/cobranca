@@ -18,6 +18,7 @@ class Kernel extends ConsoleKernel
         commands\GenerateInvoiceCron::class,
         commands\RememberInvoiceCron::class,
         commands\StatusInterCron::class,
+        commands\GenerateRecurringPayables::class,
     ];
 
     /**
@@ -35,6 +36,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('generateinvoice:cron')->everyMinute();
         $schedule->command('rememberinvoice:cron')->twiceDaily(9, 14);
         $schedule->command('statusinter:cron')->everyThirtyMinutes();
+        $schedule->command('generate:recurring-payables')->daily();
 
     }
 

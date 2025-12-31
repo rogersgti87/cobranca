@@ -15,7 +15,7 @@
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="{{url('assets/admin/css/custom.css')}}">
-  
+
   <!-- Dark Mode CSS -->
   <link rel="stylesheet" href="{{url('assets/admin/css/dark-mode.css')}}">
 
@@ -98,43 +98,52 @@
                     </a>
                   </li>
 
-                  @if(auth()->user()->id == 1)
-                  <li class="nav-item">
-                    <a href="{{url('admin/users')}}" class="nav-link {{Request::segment(2) == 'users' ? 'active' : ''}}">
-                      <i class="far fa-circle nav-icon"></i>
-                      <p>Usuários</p>
+                  <!-- Menu Cadastros -->
+                  <li class="nav-item has-treeview {{ in_array(Request::segment(2), ['users', 'services', 'customers', 'suppliers', 'payable-categories']) ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link {{ in_array(Request::segment(2), ['users', 'services', 'customers', 'suppliers', 'payable-categories']) ? 'active' : '' }}">
+                      <i class="nav-icon fas fa-folder"></i>
+                      <p>
+                        Cadastros
+                        <i class="right fas fa-angle-left"></i>
+                      </p>
                     </a>
+                    <ul class="nav nav-treeview">
+                      @if(auth()->user()->id == 1)
+                      <li class="nav-item">
+                        <a href="{{url('admin/users')}}" class="nav-link {{Request::segment(2) == 'users' ? 'active' : ''}}">
+                          <i class="far fa-circle nav-icon"></i>
+                          <p>Usuários</p>
+                        </a>
+                      </li>
+                      @endif
+                      <li class="nav-item">
+                        <a href="{{url('admin/services')}}" class="nav-link {{Request::segment(2) == 'services' ? 'active' : ''}}">
+                          <i class="far fa-circle nav-icon"></i>
+                          <p>Serviços</p>
+                        </a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{{url('admin/customers')}}" class="nav-link {{Request::segment(2) == 'customers' ? 'active' : ''}}">
+                          <i class="far fa-circle nav-icon"></i>
+                          <p>Clientes</p>
+                        </a>
+                      </li>
+                      <li class="nav-item">
+                        <a href="{{url('admin/suppliers')}}" class="nav-link {{Request::segment(2) == 'suppliers' ? 'active' : ''}}">
+                          <i class="far fa-circle nav-icon"></i>
+                          <p>Fornecedores</p>
+                        </a>
+                      </li>
+                      @if(auth()->user()->id == 1)
+                      <li class="nav-item">
+                        <a href="{{url('admin/payable-categories')}}" class="nav-link {{Request::segment(2) == 'payable-categories' ? 'active' : ''}}">
+                          <i class="far fa-circle nav-icon"></i>
+                          <p>Categorias</p>
+                        </a>
+                      </li>
+                      @endif
+                    </ul>
                   </li>
-                @endif
-
-
-                <li class="nav-item">
-                    <a href="{{url('admin/users/form?act=edit&id='.auth()->user()->id)}}" class="nav-link {{Request::segment(2) == 'users' ? 'active' : ''}}">
-                      <i class="far fa-circle nav-icon"></i>
-                      <p>Configurações</p>
-                    </a>
-                  </li>
-
-                <li class="nav-item">
-                <a href="{{url('admin/services')}}" class="nav-link  {{Request::segment(2) == 'services' ? 'active' : ''}}">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Serviços</p>
-                </a>
-                </li>
-
-              <li class="nav-item">
-                <a href="{{url('admin/customers')}}" class="nav-link  {{Request::segment(2) == 'customers' ? 'active' : ''}}">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Clientes</p>
-                </a>
-              </li>
-
-              <li class="nav-item">
-                <a href="{{url('admin/suppliers')}}" class="nav-link  {{Request::segment(2) == 'suppliers' ? 'active' : ''}}">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Fornecedores</p>
-                </a>
-              </li>
 
               <li class="nav-item">
                 <a href="{{url('admin/invoices')}}" class="nav-link  {{Request::segment(2) == 'invoices' ? 'active' : ''}}">
@@ -143,7 +152,6 @@
                 </a>
               </li>
 
-
 @if(auth()->user()->id == 1)
               <li class="nav-item">
                 <a href="{{url('admin/payables')}}" class="nav-link  {{Request::segment(2) == 'payables' ? 'active' : ''}}">
@@ -151,13 +159,21 @@
                   <p>Contas a pagar</p>
                 </a>
               </li>
-              <li class="nav-item">
-                <a href="{{url('admin/payable-categories')}}" class="nav-link  {{Request::segment(2) == 'payable-categories' ? 'active' : ''}}">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Categorias</p>
-                </a>
-              </li>
               @endif
+
+              <!-- Menu Relatórios -->
+              <li class="nav-item has-treeview">
+                <a href="#" class="nav-link">
+                  <i class="nav-icon fas fa-chart-bar"></i>
+                  <p>
+                    Relatórios
+                    <i class="right fas fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview">
+                  <!-- Itens de relatórios podem ser adicionados aqui -->
+                </ul>
+              </li>
 
             @if(auth()->user()->id == 1)
               <li class="nav-item">
@@ -167,6 +183,13 @@
                 </a>
               </li>
             @endif
+
+                <li class="nav-item">
+                    <a href="{{url('admin/users/form?act=edit&id='.auth()->user()->id)}}" class="nav-link {{Request::segment(2) == 'users' ? 'active' : ''}}">
+                      <i class="far fa-circle nav-icon"></i>
+                      <p>Configurações</p>
+                    </a>
+                  </li>
 
               <li class="nav-item">
                 <a href="{{ route('logout') }}" class="nav-link" onclick="event.preventDefault();
@@ -195,7 +218,7 @@
   <footer class="main-footer">
     <!-- To the right -->
     <div class="float-right d-none d-sm-inline">
-      Desenvolvido por <a target="_blank" href="https://rogerti.com.br">ROGER.TI</a>
+      Desenvolvido por <a target="_blank" href="https://integreai.com.br">IntegreAI</a>
     </div>
     <!-- Default to the left -->
     <strong>Copyright &copy; {{date('Y')}} <a target="_blank" href="https://cobrancasegura.com.br">Cobrança Segura</a>.</strong> All rights reserved.

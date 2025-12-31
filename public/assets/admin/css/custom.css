@@ -7,7 +7,7 @@
     margin:1px;
 }
 .thcolor{
-    background: #1E293B;
+    background: #FFFFFF;
     color:#FFBD59;
 }
 .containerchekbox {
@@ -35,7 +35,7 @@
     left: 0;
     height: 20px;
     width: 20px;
-    background-color: #0F172A;
+    background-color: #FFFFFF;
     border-radius: 2px;
     border:1px solid #FFBD59;
     padding:5px;
@@ -43,7 +43,7 @@
 
   /* Adicionar uma cor de fundo cinza ao passar o mouse */
   .containerchekbox:hover input ~ .checkmark {
-    background-color: #1E293B;
+    background-color: #F5F5DC;
   }
 
   /* Quando o checkbox é clicado, adicionar um fundo rosa */
@@ -80,7 +80,7 @@
     padding: 20px 15px;
     position: relative;
     border-radius: 4px;
-    background-color: #111827;
+    background-color: #FFFFFF;
     width: 100%;
     transition: 0.3s all ease;
   }
@@ -99,7 +99,7 @@
     border: 1px solid #FFBD59;
     border-radius: 5px;
     padding: 2px 10px 2px 10px;
-    background-color: #111827;
+    background-color: #F5F5DC;
     color: #FFBD59;
     position: absolute;
     top:-15px;
@@ -107,19 +107,33 @@
 
 input:focus{
     border: 1px solid #FFBD59 !important;
-    color:#E5E7EB !important;
+    color:#1F2937 !important;
     font-weight: 600 !important;
 }
 
 .custom-select {
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: #FFFFFF !important;
+    background-image: none !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
     font-weight: 600 !important;
-    color:#E5E7EB !important;
+    color:#1F2937 !important;
   }
 
 .custom-select:focus{
-    border: 1px solid #FFBD59;
-    color:#E5E7EB;
+    background-color: #FFFFFF !important;
+    background-image: none !important;
+    border: 1px solid #FFBD59 !important;
+    color:#1F2937 !important;
+}
+
+.custom-select:hover {
+    background-color: #FFFFFF !important;
+    background-image: none !important;
+}
+
+.custom-select option {
+    background-color: #FFFFFF !important;
+    color: #1F2937 !important;
 }
 
 .tbodyCustom td{
@@ -139,5 +153,31 @@ input:focus{
   border-radius:5px;
   font-weight:600;
   background-color: #FFBD59 !important;
-  color: #0F172A !important;
+  color: #1F2937 !important;
+}
+
+/* Garantir que o main-footer tenha largura completa e se ajuste à sidebar */
+.wrapper .main-footer {
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Ajustar margem do footer para corresponder ao content-wrapper quando sidebar está aberta */
+.sidebar-mini:not(.sidebar-collapse) .wrapper .main-footer {
+  margin-left: 250px !important;
+  width: calc(100% - 250px) !important;
+}
+
+/* Ajustar margem do footer quando a sidebar estiver colapsada */
+.sidebar-mini.sidebar-collapse .wrapper .main-footer {
+  margin-left: 4.6rem !important;
+  width: calc(100% - 4.6rem) !important;
+}
+
+/* Em telas pequenas, remover margem */
+@media (max-width: 767.98px) {
+  .wrapper .main-footer {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
 }

@@ -115,6 +115,10 @@ Route::group(['prefix' => 'admin','middleware' => ['auth']], function(){
     Route::put('payables/{id}',[PayableController::class,'update']);
     Route::post('payables/copy',[PayableController::class,'copy']);
     Route::delete('payables/{id}',[PayableController::class,'destroy']);
+    Route::get('payables/{id}/installments',[PayableController::class,'getInstallments']);
+    Route::get('payables/{id}/reversals',[PayableController::class,'getReversals']);
+    Route::post('payables/{id}/stop-recurrence',[PayableController::class,'stopRecurrence']);
+    Route::post('payables/{id}/reverse',[PayableController::class,'reverse']);
     Route::get('load-payables',[PayableController::class,'loadPayables']);
 
     Route::get('payable-categories',[PayableCategoryController::class,'index']);

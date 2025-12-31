@@ -406,8 +406,17 @@ class WebHookController extends Controller
             return response()->json(['status' => 'success', 'message' => 'Evento recebido mas não processado'], 200);
         }
 
+        // Para PAYMENT_CONFIRMED, verifica se externalReference começa com REC_ ou rec_
+        // Se começar, ignora pois não pertence ao Cobrança Segura (externalReference deve conter apenas números)
+        if($data['event'] == 'PAYMENT_CONFIRMED' && isset($data['payment']['externalReference'])){
+            $externalRef = $data['payment']['externalReference'];
+            if(is_string($externalRef) && (str_starts_with($externalRef, 'REC_') || str_starts_with($externalRef, 'rec_'))){
+                return response()->json(['status' => 'success', 'message' => 'Pagamento não pertence ao Cobrança Segura'], 200);
+            }
+        }
+
         // Busca primeiro pelo transaction_id (payment.id)
-        $invoice = Invoice::select('invoices.id as id','invoices.transaction_id','users.access_token_mp')
+        $invoice = Invoice::select('invoices.id as id','invoices.transaction_id','invoices.status','users.access_token_mp')
                     ->join('users','users.id','invoices.user_id')
                     ->where('transaction_id',$data['payment']['id'])
                     ->where(function($query) {
@@ -448,6 +457,11 @@ class WebHookController extends Controller
         }
 
         if($invoice != null){
+
+            // Verifica se a fatura já está paga antes de processar
+            if($data['event'] == 'PAYMENT_CONFIRMED' && $invoice->status == 'Pago'){
+                return response()->json(['status' => 'success', 'message' => 'Pagamento já foi processado anteriormente'], 200);
+            }
 
             // Atualiza o transaction_id se ainda não estiver salvo
             if(empty($invoice->transaction_id) && isset($data['payment']['id'])){

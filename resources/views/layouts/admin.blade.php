@@ -15,6 +15,9 @@
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="{{url('assets/admin/css/custom.css')}}">
+  
+  <!-- Dark Mode CSS -->
+  <link rel="stylesheet" href="{{url('assets/admin/css/dark-mode.css')}}">
 
 <!-- datepicker styles -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker3.min.css">
@@ -123,6 +126,13 @@
                 <a href="{{url('admin/customers')}}" class="nav-link  {{Request::segment(2) == 'customers' ? 'active' : ''}}">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Clientes</p>
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a href="{{url('admin/suppliers')}}" class="nav-link  {{Request::segment(2) == 'suppliers' ? 'active' : ''}}">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Fornecedores</p>
                 </a>
               </li>
 

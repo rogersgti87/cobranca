@@ -41,6 +41,7 @@
                             <select class="form-control" name="operator" id="operator">
                                 <option {{  request()->operator == 'like' ? 'selected' : '' }} value="like">Contém</option>
                                 <option {{  request()->operator == '='    ? 'selected' : '' }} value="=">=</option>
+
                             </select>
                         </div>
                         <div class="form-group col-md-4 col-sm-12" id="addField">
@@ -57,9 +58,7 @@
 
           <div class="col-md-2">
             <ul class="button-action">
-                <li><a href="{{url($linkFormAdd)}}" data-original-title="Novo" data-toggle="tooltip" class="btn btn-secondary btn-sm"> <i class="fa fa-plus"></i> Novo</a></li>
-                {{-- <li><a href="#" data-original-title="Copiar" id="btn-copy" data-toggle="tooltip" class="btn btn-info btn-sm"> <i class="fa fa-copy"></i> Copiar</a></li> --}}
-                {{-- <li><a href="#" data-original-title="Deletar" id="btn-delete" data-toggle="tooltip" class="btn btn-danger btn-sm"> <i class="fa fa-trash"></i> Excluir</a></li> --}}
+                <li><a href="#" data-original-title="Novo" id="btn-modal-supplier" data-type="add-supplier" data-toggle="tooltip" class="btn btn-secondary btn-sm"> <i class="fa fa-plus"></i> Novo</a></li>
              </ul>
           </div>
 
@@ -79,6 +78,9 @@
                             </label>
                             </th>
                             <th><a href="{{ request()->fullUrlWithQuery(['column' => 'name',   'order'  => "$order"]) }}"><i class="fas fa-sort"></i></a> Nome</th>
+                            <th>Email</th>
+                            <th>Telefone</th>
+                            <th>Status</th>
                             <th style="width: 100px;"></th>
                         </tr>
                         </thead>
@@ -96,7 +98,10 @@
                                     </td>
 
                                     <td>{{$result->name}} {{$result->company != null ?  ' - ( '. $result->company. ' ) ' : ''}}</td>
-                                    <td><a href="{{url($linkFormEdit."&id=$result->id")}}" data-original-title="Editar" data-toggle="tooltip" class="btn btn-primary btn-xs"> <i class="fa fa-list"></i> Editar</a></td>
+                                    <td>{{$result->email}}</td>
+                                    <td>{{$result->phone}}</td>
+                                    <td><span class="badge badge-{{$result->status == 'Ativo' ? 'success' : 'danger'}}">{{$result->status}}</span></td>
+                                    <td><a href="#" data-original-title="Editar" id="btn-modal-supplier" data-type="edit-supplier" data-supplier="{{$result->id}}" data-toggle="tooltip" class="btn btn-primary btn-xs"> <i class="fa fa-list"></i> Editar</a></td>
                                 </tr>
                             @endforeach
                         </form>
@@ -120,6 +125,31 @@
   </div>
   <!-- /.content-wrapper -->
 
+<!-- Modal :: Form Supplier -->
+<div class="modal fade" id="modalSupplier" tabindex="-1" role="dialog" aria-labelledby="modalSupplierLabel" aria-hidden="true">
+   <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="background-color: #111827; border: 1px solid rgba(255,255,255,0.1);">
+            <form action="" class="form-horizontal" id="form-request-supplier">
+                <div class="modal-header" style="background-color: #1E293B; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <h5 class="modal-title" id="modalSupplierLabel" style="color: #FFBD59; font-weight: 600;"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #E5E7EB;">
+                        <span aria-hidden="true" style="color: #E5E7EB;">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="form-content-supplier" style="background-color: #111827;">
+                    <!-- conteudo -->
+                    <!-- conteudo -->
+                </div><!-- modal-body -->
+                <div class="modal-footer" style="background-color: #1E293B; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <button type="button" class="btn" id="btn-save-supplier" style="background-color: #22C55E; color: #FFFFFF; border: none; font-weight: 600;"><i class="fa fa-check"></i> Salvar</button>
+                    <button type="button" class="btn" data-dismiss="modal" style="background-color: #F87171; color: #FFFFFF; border: none; font-weight: 600;"><i class="fa fa-times"></i> Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+ </div>
+ <!-- Modal :: Form Supplier -->
+
 @section('scripts')
 
 <script>
@@ -134,9 +164,6 @@ $(document).ready(function () {
             language: 'pt-BR',
             orientation: 'bottom'
         });
-
-
-
     });
 
 function changeInput() {
@@ -175,43 +202,111 @@ $("#filter-field").change(function (e) {
     }
 });
 
+// Open Modal - Create/Edit Supplier
+$(document).on("click", "#btn-modal-supplier", function() {
+    var type = $(this).data('type');
+    var supplier_id = $(this).data('supplier');
 
+    $("#modalSupplier").modal('show');
 
-$('#btn-copy').click(function (e) {
+    if(type == 'add-supplier'){
+        $("#modalSupplierLabel").html('Adicionar Fornecedor');
+        var url = "{{url('admin/suppliers/form')}}?act=add";
+    }else{
+        $("#modalSupplierLabel").html('Editar Fornecedor');
+        var url = "{{url('admin/suppliers/form')}}?act=edit&id=" + supplier_id;
+    }
 
-var data = $('.form').serialize();
-
-$.ajax({
-    url: "{{url($linkCopy)}}",
-    method: 'POST',
-    data: data,
-    success:function(data){
-        location.href = "{{url($link)}}";
-    },
-    error:function (xhr) {
-
-        if(xhr.status === 422){
+    $.ajax({
+        url: url,
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        success: function(data) {
+            $("#form-content-supplier").html(data);
+            $("#modalSupplier").modal('show')
+                .addClass('modal-scrollfix');
+        },
+        error: function(xhr) {
             Swal.fire({
-                text: xhr.responseJSON,
-                icon: 'warning',
-                showClass: {
-                    popup: 'animate__animated animate__wobble'
-                }
-            });
-        } else{
-            Swal.fire({
-                text: xhr.responseJSON,
-                icon: 'error',
-                showClass: {
-                    popup: 'animate__animated animate__wobble'
-                }
+                text: 'Erro ao carregar formulário',
+                icon: 'error'
             });
         }
-
-
-    }
+    });
 });
 
+// Save Supplier
+$(document).on("click", "#btn-save-supplier", function() {
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': "{{csrf_token()}}"
+        }
+    });
+
+    var supplier_id = $("#supplier_id").val();
+    var url, method;
+
+    if(supplier_id && supplier_id != ''){
+        url = "{{url('admin/suppliers')}}/" + supplier_id;
+        method = 'PUT';
+    }else{
+        url = "{{url('admin/suppliers')}}";
+        method = 'POST';
+    }
+
+    var formData = $("#form-request-supplier").serialize();
+
+    $.ajax({
+        url: url,
+        data: formData,
+        method: method,
+        success: function(data) {
+            var message = method == 'POST' ? data.data : data;
+            Swal.fire({
+                width: 350,
+                title: "<h5 style='color:#FFBD59'>" + message + "</h5>",
+                icon: 'success',
+                confirmButtonColor: '#FFBD59',
+                cancelButtonColor: '#1E293B',
+                showConfirmButton: true,
+                showClass: {
+                    popup: 'animate__animated animate__backInUp'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#modalSupplier').modal('hide');
+                    location.reload();
+                }
+            });
+        },
+        error: function(xhr) {
+            if(xhr.status === 422){
+                Swal.fire({
+                    text: xhr.responseJSON,
+                    width: 300,
+                    icon: 'warning',
+                    confirmButtonColor: '#FFBD59',
+                    cancelButtonColor: '#1E293B',
+                    showClass: {
+                        popup: 'animate__animated animate__wobble'
+                    }
+                });
+            } else{
+                Swal.fire({
+                    text: xhr.responseJSON || 'Erro ao salvar fornecedor',
+                    width: 300,
+                    icon: 'error',
+                    confirmButtonColor: '#FFBD59',
+                    cancelButtonColor: '#1E293B',
+                    showClass: {
+                        popup: 'animate__animated animate__wobble'
+                    }
+                });
+            }
+        }
+    });
 });
 
 $('#btn-delete').click(function (e) {
@@ -222,8 +317,8 @@ Swal.fire({
     icon: 'question',
     showCancelButton: true,
     cancelButtonText: 'Cancelar',
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
+    confirmButtonColor: '#FFBD59',
+    cancelButtonColor: '#1E293B',
     confirmButtonText: 'Sim, deletar!'
 }).then((result) => {
     if (result.value) {
@@ -240,6 +335,8 @@ Swal.fire({
                     Swal.fire({
                         text: xhr.responseJSON,
                         icon: 'warning',
+                        confirmButtonColor: '#FFBD59',
+                        cancelButtonColor: '#1E293B',
                         showClass: {
                             popup: 'animate__animated animate__wobble'
                         }
@@ -248,6 +345,8 @@ Swal.fire({
                     Swal.fire({
                         text: xhr.responseJSON,
                         icon: 'error',
+                        confirmButtonColor: '#FFBD59',
+                        cancelButtonColor: '#1E293B',
                         showClass: {
                             popup: 'animate__animated animate__wobble'
                         }
@@ -270,3 +369,4 @@ Swal.fire({
 
 
 @endsection
+

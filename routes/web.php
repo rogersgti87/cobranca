@@ -8,6 +8,7 @@ use App\Http\Controllers\admin\ServiceController;
 use App\Http\Controllers\admin\CustomerServiceController;
 use App\Http\Controllers\admin\InvoiceController;
 use App\Http\Controllers\admin\PayableController;
+use App\Http\Controllers\admin\SupplierController;
 use App\Http\Controllers\admin\LogController;
 
 
@@ -112,7 +113,15 @@ Route::group(['prefix' => 'admin','middleware' => ['auth']], function(){
     Route::put('payables/{id}',[PayableController::class,'update']);
     Route::post('payables/copy',[PayableController::class,'copy']);
     Route::delete('payables/{id}',[PayableController::class,'destroy']);
-    Route::get('load-payables',[PayableController::class,'loadpayables']);
+    Route::get('load-payables',[PayableController::class,'loadPayables']);
+
+    Route::get('suppliers',[SupplierController::class,'index']);
+    Route::get('suppliers/form',[SupplierController::class,'form']);
+    Route::post('suppliers',[SupplierController::class,'store']);
+    Route::put('suppliers/{id}',[SupplierController::class,'update']);
+    Route::post('suppliers/copy',[SupplierController::class,'copy']);
+    Route::delete('suppliers',[SupplierController::class,'destroy']);
+    Route::get('load-suppliers',[SupplierController::class,'loadSuppliers']);
 
 
     Route::get('logs',[LogController::class,'index']);

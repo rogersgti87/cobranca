@@ -1,0 +1,779 @@
+/* ============================================
+   DARK MODE GLOBAL - Cobrança Segura
+   Cores do Tema:
+   - Fundo: #0F172A
+   - Cards: #111827
+   - Texto: #E5E7EB
+   - Destaque (marca): #FFBD59
+   - Sucesso: #22C55E
+   - Erro: #F87171
+   ============================================ */
+
+/* ============================================
+   FUNDO GERAL
+   ============================================ */
+body {
+    background-color: #0F172A !important;
+    color: #E5E7EB !important;
+}
+
+.wrapper {
+    background-color: #0F172A !important;
+}
+
+.content-wrapper {
+    background-color: #0F172A !important;
+}
+
+.content {
+    background-color: #0F172A !important;
+    color: #E5E7EB !important;
+}
+
+.content-header {
+    background-color: #0F172A !important;
+}
+
+/* ============================================
+   NAVBAR
+   ============================================ */
+.main-header {
+    background-color: #111827 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.navbar-nav .nav-link {
+    color: #E5E7EB !important;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #FFBD59 !important;
+}
+
+/* ============================================
+   SIDEBAR
+   ============================================ */
+.main-sidebar {
+    background-color: #111827 !important;
+}
+
+.brand-link {
+    background-color: #1E293B !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.sidebar {
+    background-color: #111827 !important;
+}
+
+.user-panel {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.user-panel .info {
+    color: #E5E7EB !important;
+}
+
+.user-panel .info span {
+    color: #E5E7EB !important;
+}
+
+/* Sidebar Menu */
+.nav-sidebar .nav-link {
+    color: #E5E7EB !important;
+}
+
+.nav-sidebar .nav-link:hover {
+    background-color: #1E293B !important;
+    color: #FFBD59 !important;
+}
+
+.nav-sidebar .nav-link.active {
+    background-color: rgba(255, 189, 89, 0.2) !important;
+    color: #FFBD59 !important;
+}
+
+.nav-sidebar .nav-link.active i {
+    color: #FFBD59 !important;
+}
+
+.nav-sidebar .nav-link i {
+    color: #E5E7EB !important;
+}
+
+/* ============================================
+   CARDS
+   ============================================ */
+.card {
+    background-color: #111827 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #E5E7EB !important;
+}
+
+.card-header {
+    background-color: #1E293B !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #E5E7EB !important;
+}
+
+.card-title {
+    color: #FFBD59 !important;
+}
+
+.card-body {
+    background-color: #111827 !important;
+    color: #E5E7EB !important;
+}
+
+.card-footer {
+    background-color: #1E293B !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Small Boxes */
+.small-box {
+    background-color: #111827 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #E5E7EB !important;
+}
+
+.small-box .inner h3,
+.small-box .inner p {
+    color: #E5E7EB !important;
+}
+
+.small-box .icon {
+    color: rgba(255, 189, 89, 0.3) !important;
+}
+
+/* ============================================
+   TABELAS
+   ============================================ */
+.table {
+    color: #E5E7EB !important;
+    background-color: #111827 !important;
+}
+
+.table thead th {
+    background-color: #1E293B !important;
+    color: #E5E7EB !important;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.table tbody td {
+    color: #E5E7EB !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #1E293B !important;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #1E293B !important;
+}
+
+.table-striped tbody tr:nth-of-type(even) {
+    background-color: #111827 !important;
+}
+
+/* ============================================
+   FORMULÁRIOS
+   ============================================ */
+.form-control {
+    background-color: #0F172A !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #E5E7EB !important;
+}
+
+.form-control:focus {
+    background-color: #0F172A !important;
+    border-color: #FFBD59 !important;
+    color: #E5E7EB !important;
+    box-shadow: 0 0 0 3px rgba(255, 189, 89, 0.2) !important;
+}
+
+.form-control::placeholder {
+    color: rgba(229, 231, 235, 0.5) !important;
+}
+
+label {
+    color: #E5E7EB !important;
+}
+
+.form-group label {
+    color: #E5E7EB !important;
+}
+
+/* Selects */
+select.form-control,
+select.custom-select {
+    background-color: #0F172A !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #E5E7EB !important;
+}
+
+select.form-control:focus,
+select.custom-select:focus {
+    background-color: #0F172A !important;
+    border-color: #FFBD59 !important;
+    color: #E5E7EB !important;
+    box-shadow: 0 0 0 3px rgba(255, 189, 89, 0.2) !important;
+}
+
+select.form-control option,
+select.custom-select option {
+    background-color: #111827 !important;
+    color: #E5E7EB !important;
+}
+
+select.form-control option:checked,
+select.custom-select option:checked {
+    background-color: #1E293B !important;
+    color: #E5E7EB !important;
+}
+
+/* Força cor branca em todos os estados do select */
+select {
+    color: #E5E7EB !important;
+}
+
+select:focus {
+    color: #E5E7EB !important;
+}
+
+select option {
+    color: #E5E7EB !important;
+}
+
+/* Input Date */
+input[type="date"] {
+    background-color: #0F172A !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #E5E7EB !important;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 0.7;
+}
+
+/* Textarea */
+textarea.form-control {
+    background-color: #0F172A !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #E5E7EB !important;
+}
+
+textarea.form-control:focus {
+    background-color: #0F172A !important;
+    border-color: #FFBD59 !important;
+    color: #E5E7EB !important;
+}
+
+/* ============================================
+   BOTÕES
+   ============================================ */
+.btn-primary {
+    background-color: #FFBD59 !important;
+    border-color: #FFBD59 !important;
+    color: #0F172A !important;
+    font-weight: 600 !important;
+}
+
+.btn-primary:hover {
+    background-color: #FFD700 !important;
+    border-color: #FFD700 !important;
+    color: #0F172A !important;
+}
+
+.btn-success {
+    background-color: #22C55E !important;
+    border-color: #22C55E !important;
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
+}
+
+.btn-success:hover {
+    background-color: #16A34A !important;
+    border-color: #16A34A !important;
+    color: #FFFFFF !important;
+}
+
+.btn-danger {
+    background-color: #F87171 !important;
+    border-color: #F87171 !important;
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
+}
+
+.btn-danger:hover {
+    background-color: #EF4444 !important;
+    border-color: #EF4444 !important;
+    color: #FFFFFF !important;
+}
+
+.btn-secondary {
+    background-color: #1E293B !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: #E5E7EB !important;
+}
+
+.btn-secondary:hover {
+    background-color: #334155 !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: #E5E7EB !important;
+}
+
+.btn-warning {
+    background-color: #FFBD59 !important;
+    border-color: #FFBD59 !important;
+    color: #0F172A !important;
+}
+
+.btn-info {
+    background-color: #FFBD59 !important;
+    border-color: #FFBD59 !important;
+    color: #0F172A !important;
+}
+
+/* ============================================
+   BADGES
+   ============================================ */
+.badge-primary,
+.badge-info {
+    background-color: #FFBD59 !important;
+    color: #0F172A !important;
+}
+
+.badge-success {
+    background-color: #22C55E !important;
+    color: #FFFFFF !important;
+}
+
+.badge-danger {
+    background-color: #F87171 !important;
+    color: #FFFFFF !important;
+}
+
+.badge-warning {
+    background-color: #FFBD59 !important;
+    color: #0F172A !important;
+}
+
+.badge-secondary {
+    background-color: #1E293B !important;
+    color: #E5E7EB !important;
+}
+
+/* ============================================
+   MODAIS
+   ============================================ */
+.modal-content {
+    background-color: #111827 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.modal-header {
+    background-color: #1E293B !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.modal-title {
+    color: #FFBD59 !important;
+    font-weight: 600 !important;
+}
+
+.modal-body {
+    background-color: #111827 !important;
+    color: #E5E7EB !important;
+}
+
+.modal-footer {
+    background-color: #1E293B !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.7) !important;
+}
+
+.close {
+    color: #E5E7EB !important;
+    opacity: 0.8;
+}
+
+.close:hover {
+    color: #E5E7EB !important;
+    opacity: 1;
+}
+
+/* ============================================
+   BREADCRUMBS
+   ============================================ */
+.breadcrumb {
+    background-color: transparent !important;
+}
+
+.breadcrumb-item a {
+    color: #E5E7EB !important;
+    opacity: 0.7;
+    text-decoration: none;
+}
+
+.breadcrumb-item.active {
+    color: #E5E7EB !important;
+    opacity: 0.7;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+.main-footer {
+    background-color: #111827 !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #E5E7EB !important;
+}
+
+.main-footer a {
+    color: #FFBD59 !important;
+}
+
+.main-footer strong {
+    color: #E5E7EB !important;
+}
+
+/* ============================================
+   PAGINAÇÃO
+   ============================================ */
+.pagination .page-link {
+    background-color: #111827 !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: #E5E7EB !important;
+}
+
+.pagination .page-link:hover {
+    background-color: #1E293B !important;
+    border-color: #FFBD59 !important;
+    color: #FFBD59 !important;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #FFBD59 !important;
+    border-color: #FFBD59 !important;
+    color: #0F172A !important;
+}
+
+.pagination .page-item.disabled .page-link {
+    background-color: #111827 !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: rgba(229, 231, 235, 0.5) !important;
+    opacity: 0.5;
+}
+
+/* ============================================
+   ALERTAS
+   ============================================ */
+.alert-success {
+    background-color: rgba(34, 197, 94, 0.2) !important;
+    border-color: #22C55E !important;
+    color: #22C55E !important;
+}
+
+.alert-danger {
+    background-color: rgba(248, 113, 113, 0.2) !important;
+    border-color: #F87171 !important;
+    color: #F87171 !important;
+}
+
+.alert-warning {
+    background-color: rgba(255, 189, 89, 0.2) !important;
+    border-color: #FFBD59 !important;
+    color: #FFBD59 !important;
+}
+
+.alert-info {
+    background-color: rgba(255, 189, 89, 0.2) !important;
+    border-color: #FFBD59 !important;
+    color: #FFBD59 !important;
+}
+
+/* ============================================
+   INPUT GROUP
+   ============================================ */
+.input-group-text {
+    background-color: #1E293B !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: #E5E7EB !important;
+}
+
+/* ============================================
+   DROPDOWN
+   ============================================ */
+.dropdown-menu {
+    background-color: #111827 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.dropdown-item {
+    color: #E5E7EB !important;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background-color: #1E293B !important;
+    color: #FFBD59 !important;
+}
+
+.dropdown-divider {
+    border-top-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* ============================================
+   SELECT2 (Plugin)
+   ============================================ */
+.select2-container--default .select2-selection--single {
+    background-color: #0F172A !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #E5E7EB !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: #E5E7EB !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow b {
+    border-color: #E5E7EB transparent transparent transparent !important;
+}
+
+.select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+    border-color: transparent transparent #E5E7EB transparent !important;
+}
+
+.select2-dropdown {
+    background-color: #111827 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.select2-container--default .select2-results__option {
+    background-color: #111827 !important;
+    color: #E5E7EB !important;
+}
+
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background-color: #1E293B !important;
+    color: #FFBD59 !important;
+}
+
+.select2-container--default .select2-results__option[aria-selected=true] {
+    background-color: #1E293B !important;
+    color: #FFBD59 !important;
+}
+
+.select2-search--dropdown .select2-search__field {
+    background-color: #0F172A !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #E5E7EB !important;
+}
+
+/* ============================================
+   DATATABLES
+   ============================================ */
+.dataTables_wrapper .dataTables_filter input {
+    background-color: #0F172A !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #E5E7EB !important;
+}
+
+.dataTables_wrapper .dataTables_length select {
+    background-color: #0F172A !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #E5E7EB !important;
+}
+
+.dataTables_wrapper .dataTables_info {
+    color: #E5E7EB !important;
+}
+
+/* ============================================
+   CUSTOMIZAÇÕES ESPECÍFICAS
+   ============================================ */
+/* Checkbox Customizado */
+.containerchekbox .checkmark {
+    background-color: #0F172A !important;
+    border: 1px solid #FFBD59 !important;
+}
+
+.containerchekbox:hover input ~ .checkmark {
+    background-color: #1E293B !important;
+}
+
+.containerchekbox input:checked ~ .checkmark {
+    background-color: #FFBD59 !important;
+}
+
+/* Fieldset */
+fieldset {
+    border: 1px dotted #FFBD59 !important;
+    background-color: #111827 !important;
+}
+
+fieldset:hover {
+    border-color: #FFBD59 !important;
+}
+
+legend {
+    border: 1px solid #FFBD59 !important;
+    background-color: #111827 !important;
+    color: #FFBD59 !important;
+}
+
+/* Bootstrap Tags Input */
+.bootstrap-tagsinput {
+    background-color: #0F172A !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #E5E7EB !important;
+}
+
+.bootstrap-tagsinput .tag {
+    background-color: #FFBD59 !important;
+    color: #0F172A !important;
+}
+
+/* Form Sidebar Search */
+.form-control-sidebar {
+    background-color: #0F172A !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #E5E7EB !important;
+}
+
+.btn-sidebar {
+    background-color: #1E293B !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: #E5E7EB !important;
+}
+
+.btn-sidebar:hover {
+    background-color: #334155 !important;
+    color: #FFBD59 !important;
+}
+
+/* ============================================
+   TÍTULOS E TEXTOS
+   ============================================ */
+h1, h2, h3, h4, h5, h6 {
+    color: #E5E7EB !important;
+}
+
+h1 {
+    font-weight: 600 !important;
+}
+
+p {
+    color: #E5E7EB !important;
+}
+
+.text-muted {
+    color: rgba(229, 231, 235, 0.6) !important;
+}
+
+.text-danger {
+    color: #F87171 !important;
+}
+
+.text-success {
+    color: #22C55E !important;
+}
+
+.text-warning {
+    color: #FFBD59 !important;
+}
+
+.text-info {
+    color: #FFBD59 !important;
+}
+
+.text-primary {
+    color: #FFBD59 !important;
+}
+
+/* ============================================
+   LINKS
+   ============================================ */
+a {
+    color: #FFBD59 !important;
+}
+
+a:hover {
+    color: #FFD700 !important;
+}
+
+/* ============================================
+   BORDAS E DIVISORES
+   ============================================ */
+.border {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.border-top {
+    border-top-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.border-bottom {
+    border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* ============================================
+   BACKGROUNDS
+   ============================================ */
+.bg-white {
+    background-color: #111827 !important;
+}
+
+.bg-light {
+    background-color: #1E293B !important;
+}
+
+.bg-gray {
+    background-color: #1E293B !important;
+}
+
+.bg-primary {
+    background-color: #FFBD59 !important;
+    color: #0F172A !important;
+}
+
+.bg-success {
+    background-color: #22C55E !important;
+    color: #FFFFFF !important;
+}
+
+.bg-danger {
+    background-color: #F87171 !important;
+    color: #FFFFFF !important;
+}
+
+.bg-warning {
+    background-color: #FFBD59 !important;
+    color: #0F172A !important;
+}
+
+.bg-info {
+    background-color: #FFBD59 !important;
+    color: #0F172A !important;
+}
+
+.bg-indigo {
+    background-color: #111827 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.bg-maroon {
+    background-color: #111827 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+

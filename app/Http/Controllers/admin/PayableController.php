@@ -10,6 +10,7 @@ use Image;
 use DB;
 use App\Models\User;
 use App\Models\Payable;
+use App\Models\Supplier;
 use RuntimeException;
 use Illuminate\Support\Facades\Http;
 
@@ -44,70 +45,94 @@ class PayableController extends Controller
 
     public function form(){
 
-        $customer_id = $this->request->input('customer_id');
+        $supplier_id = $this->request->input('supplier_id');
+        $supplier_id = $supplier_id != null ? $supplier_id : '';
 
-        $customer_id = $customer_id != null ? $customer_id : '';
+        $suppliers = Supplier::where('user_id',auth()->user()->id)
+            ->where('status','Ativo')
+            ->orderBy('name','ASC')
+            ->get();
 
-        $customer_services = CustomerService::join('services','services.id','customer_services.service_id')
-        ->select('customer_services.id as id','customer_services.description','customer_services.price','customer_services.day_due','customer_services.period','customer_services.status','services.name as name')
-        ->where('customer_services.customer_id',$customer_id)->where('customer_services.user_id',auth()->user()->id)->get();
+        $data = Payable::where('id',$this->request->input('id'))->where('user_id',auth()->user()->id)->first();
 
-        $data = Invoice::where('id',$this->request->input('id'))->where('user_id',auth()->user()->id)->first();
-
-        return view($this->datarequest['path'].'.form',compact('customer_services','data','customer_id'))->render();
+        return view($this->datarequest['path'].'.form',compact('suppliers','data','supplier_id'))->render();
 
     }
 
 
     public function store()
     {
-
-
-        $customer_id = $this->request->input('customer_id');
-
-        $model = new Invoice();
+        $model = new Payable();
         $data = $this->request->all();
 
         $messages = [
-            'customer_service_id.required'  => 'O Campo Serviço é obrigatório!',
-            'description.unique'            => 'O campo Descrição é obrigatório!',
-            'price.required'                => 'O campo Preço é obrigatório!',
-            'payment_method.required'       => 'O campo Forma de pagamento é obrigatório!',
-            'date_invoice.required'         => 'O campo Data data fatura é obrigatório!',
-            'date_due.required'             => 'O campo Data de vencimento é obrigatório!',
-            'status.required'               => 'O campo Status é obrigatório!',
+            'supplier_id.required'      => 'O Campo Fornecedor é obrigatório!',
+            'description.required'      => 'O campo Descrição é obrigatório!',
+            'price.required'            => 'O campo Valor é obrigatório!',
+            'type.required'            => 'O campo Tipo é obrigatório!',
+            'date_due.required'        => 'O campo Data de vencimento é obrigatório!',
         ];
 
         $validator = Validator::make($data, [
-            'customer_service_id'   => 'required',
-            'description'           => 'required',
-            'price'                 => 'required',
-            'payment_method'        => 'required',
-            'date_invoice'          => 'required',
-            'date_due'              => 'required',
-            'status'                => 'required',
+            'supplier_id'   => 'required',
+            'description'   => 'required',
+            'price'         => 'required',
+            'type'          => 'required',
+            'date_due'      => 'required',
         ], $messages);
 
         if( $validator->fails() ){
             return response()->json($validator->errors()->first(), 422);
         }
 
-        $model->user_id             = auth()->user()->id;
-        $model->customer_service_id = $data['customer_service_id'];
-        $model->description         = $data['description'];
-        $model->price               = moeda($data['price']);
-        $model->gateway_payment     = $data['gateway_payment'];
-        $model->payment_method      = $data['payment_method'];
-        $model->date_invoice        = $data['date_invoice'];
-        $model->date_due            = $data['date_due'];
-        $model->date_payment        = $data['date_payment'] != null ? $data['date_payment'] : null;
-        $model->status              = $data['status'];
+        $model->user_id         = auth()->user()->id;
+        $model->supplier_id     = $data['supplier_id'];
+        $model->description     = $data['description'];
+        $model->price           = moeda($data['price']);
+        $model->type            = $data['type']; // Fixa, Recorrente, Parcelada
+        $model->payment_method  = isset($data['payment_method']) ? $data['payment_method'] : null;
+        $model->date_due        = $data['date_due'];
+        $model->date_payment    = isset($data['date_payment']) && $data['date_payment'] != '' ? $data['date_payment'] : null;
+        $model->status          = isset($data['date_payment']) && $data['date_payment'] != '' ? 'Pago' : 'Pendente';
 
+        // Campos para conta recorrente
+        if($data['type'] == 'Recorrente'){
+            $model->recurrence_period = isset($data['recurrence_period']) ? $data['recurrence_period'] : null; // Mensal, Semanal, etc
+            $model->recurrence_day    = isset($data['recurrence_day']) ? $data['recurrence_day'] : null;
+            $model->recurrence_end    = isset($data['recurrence_end']) ? $data['recurrence_end'] : null;
+        }
 
+        // Campos para conta parcelada
+        if($data['type'] == 'Parcelada'){
+            $model->installments      = isset($data['installments']) ? $data['installments'] : 1;
+            $model->installment_number = 1;
+            $model->parent_id        = null; // ID da conta pai
+        }
 
         try{
-
             $model->save();
+
+            // Se for parcelada, criar as demais parcelas
+            if($data['type'] == 'Parcelada' && isset($data['installments']) && $data['installments'] > 1){
+                $installmentValue = $model->price / $data['installments'];
+                $dueDate = Carbon::parse($data['date_due']);
+
+                for($i = 2; $i <= $data['installments']; $i++){
+                    $installment = new Payable();
+                    $installment->user_id         = auth()->user()->id;
+                    $installment->supplier_id     = $data['supplier_id'];
+                    $installment->description     = $data['description'] . ' - Parcela ' . $i . '/' . $data['installments'];
+                    $installment->price           = $installmentValue;
+                    $installment->type            = 'Parcelada';
+                    $installment->payment_method  = isset($data['payment_method']) ? $data['payment_method'] : null;
+                    $installment->date_due        = $dueDate->copy()->addMonths($i - 1)->format('Y-m-d');
+                    $installment->status          = 'Pendente';
+                    $installment->installments    = $data['installments'];
+                    $installment->installment_number = $i;
+                    $installment->parent_id       = $model->id;
+                    $installment->save();
+                }
+            }
 
         } catch(\Exception $e){
             \Log::error($e->getMessage());
@@ -115,56 +140,56 @@ class PayableController extends Controller
         }
 
         return response()->json('Registro salvo com sucesso', 200);
-
-
     }
 
 
 
     public function update($id)
     {
+        $model = Payable::where('id',$id)->where('user_id',auth()->user()->id)->first();
 
-        $customer_id = $this->request->input('customer_id');
-
-        $model = Invoice::where('id',$id)->where('user_id',auth()->user()->id)->first();
+        if(!$model){
+            return response()->json('Registro não encontrado', 404);
+        }
 
         $data = $this->request->all();
 
-
         $messages = [
-            'customer_service_id.required'  => 'O Campo Serviço é obrigatório!',
-            'description.unique'            => 'O campo Descrição é obrigatório!',
-            'price.required'                => 'O campo Preço é obrigatório!',
-            'payment_method.required'       => 'O campo Forma de pagamento é obrigatório!',
-            'date_invoice.required'         => 'O campo Data é obrigatório!',
-            'date_due.required'             => 'O campo Data de vencimento é obrigatório!',
-            'status.required'               => 'O campo Status é obrigatório!',
+            'supplier_id.required'      => 'O Campo Fornecedor é obrigatório!',
+            'description.required'      => 'O campo Descrição é obrigatório!',
+            'price.required'            => 'O campo Valor é obrigatório!',
+            'date_due.required'        => 'O campo Data de vencimento é obrigatório!',
         ];
 
         $validator = Validator::make($data, [
-            //'customer_service_id'   => 'required',
-            //'description'           => 'required',
-            //'price'                 => 'required',
-            'payment_method'        => 'required',
-            //'date_invoice'          => 'required',
-            //'date_due'              => 'required',
-            //'status'                => 'required',
+            'supplier_id'   => 'required',
+            'description'   => 'required',
+            'price'         => 'required',
+            'date_due'      => 'required',
         ], $messages);
 
         if( $validator->fails() ){
             return response()->json($validator->errors()->first(), 422);
         }
 
-        $model->user_id             = auth()->user()->id;
-        $model->gateway_payment     = $data['gateway_payment'];
-        $model->payment_method      = $data['payment_method'];
+        $model->supplier_id     = $data['supplier_id'];
+        $model->description     = $data['description'];
+        $model->price           = moeda($data['price']);
+        $model->payment_method  = isset($data['payment_method']) ? $data['payment_method'] : null;
+        $model->date_due        = $data['date_due'];
+        $model->date_payment    = isset($data['date_payment']) && $data['date_payment'] != '' ? $data['date_payment'] : null;
 
+        if(isset($data['date_payment']) && $data['date_payment'] != ''){
+            $model->status = 'Pago';
+        } else {
+            $model->status = 'Pendente';
+        }
 
-
-        $model->date_payment        = $data['date_payment'] != null ? $data['date_payment'] : null;
-
-        if($data['date_payment'] != null){
-            $model->status   = 'Pago';
+        // Atualizar campos de recorrência se necessário
+        if($model->type == 'Recorrente'){
+            $model->recurrence_period = isset($data['recurrence_period']) ? $data['recurrence_period'] : $model->recurrence_period;
+            $model->recurrence_day    = isset($data['recurrence_day']) ? $data['recurrence_day'] : $model->recurrence_day;
+            $model->recurrence_end    = isset($data['recurrence_end']) ? $data['recurrence_end'] : $model->recurrence_end;
         }
 
         try{
@@ -175,81 +200,26 @@ class PayableController extends Controller
             return response()->json($e->getMessage(), 500);
         }
 
-
         return response()->json('Registro salvo com sucesso', 200);
-
     }
 
     public function destroy($id)
     {
-        $model = new Invoice();
-
         try{
+            $payable = Payable::where('id',$id)->where('user_id',auth()->user()->id)->first();
 
-            $invoice = $model->where('id',$id)->where('user_id',auth()->user()->id)->first();
-
-            $status = 'error';
-
-            if($invoice->payment_method == 'Pix' && $invoice->transaction_id != ''){
-
-                if($invoice->gateway_payment == 'Pag Hiper'){
-                    $status = Invoice::cancelPixPH(auth()->user()->id,$invoice->transaction_id);
-                    if($status->result == 'success'){
-                        $status = 'success';
-                    }
-
-                }
-                else if($invoice->gateway_payment == 'Mercado Pago'){
-                    $status = Invoice::cancelPixMP(auth()->user()->access_token_mp,$invoice->transaction_id);
-                    if($status == 'cancelled'){
-                        $status = 'success';
-                    }
-                }
-
-                else if($invoice->gateway_payment == 'Intermedium'){
-                    $status = Invoice::cancelPixIntermedium(auth()->user()->id,$invoice->transaction_id);
-                    if($status == 'success'){
-                        $status = 'success';
-                    }else{
-                        return response()->json($status['message'],422);
-                    }
-                }
-
-            }
-            else if($invoice->payment_method == 'Boleto' && $invoice->transaction_id != ''){
-
-                if($invoice->gateway_payment == 'Pag Hiper'){
-                    $status = Invoice::cancelBilletPH(auth()->user()->id,$invoice->transaction_id);
-                    if($status->result == 'success'){
-                        $status = 'success';
-                    }
-
-                }
-                else if($invoice->gateway_payment == 'Mercado Pago'){
-                    //$cancelPixMP = Invoice::cancelBilletMP(auth()->user()->id,$invoice->transaction_id);
-                }
-                else if($invoice->gateway_payment == 'Intermedium'){
-                    $status = Invoice::cancelBilletIntermedium(auth()->user()->id,$invoice->transaction_id);
-                    if($status == 'success'){
-                        $status = 'success';
-                    }
-                }
-            }
-            else if($invoice->payment_method == 'BoletoPix' && $invoice->transaction_id != ''){
-                if($invoice->gateway_payment == 'Intermedium'){
-                    $status = Invoice::cancelBilletPixIntermedium(auth()->user()->id,$invoice->transaction_id);
-                    if($status == 'success'){
-                        $status = 'success';
-                    }
-                }
+            if(!$payable){
+                return response()->json('Registro não encontrado', 404);
             }
 
-            if($status == 'success' || $invoice->payment_method == 'Dinheiro' || $invoice->payment_method == 'Cartão' || $invoice->payment_method == 'Depósito' || $invoice->transaction_id == ''){
-                $model->where('id',$id)->where('user_id',auth()->user()->id)->update([
-                    'status' => 'Cancelado'
-                ]);
+            // Se for uma conta parcelada, verificar se é a primeira parcela
+            if($payable->type == 'Parcelada' && $payable->parent_id == null){
+                // Cancelar todas as parcelas
+                Payable::where('parent_id',$id)->where('user_id',auth()->user()->id)->update(['status' => 'Cancelado']);
             }
 
+            $payable->status = 'Cancelado';
+            $payable->save();
 
         } catch(\Exception $e){
             \Log::error($e->getMessage());
@@ -257,59 +227,90 @@ class PayableController extends Controller
         }
 
         return response()->json(true, 200);
-
-
     }
 
 
 
-public function loadInvoices(){
+public function loadPayables(){
 
+    $query = Payable::query();
 
-    $query = Invoice::query();
+    $fields = "payables.id as id,payables.description,payables.payment_method,payables.price,payables.date_due,payables.date_payment,payables.status,payables.type,payables.installment_number,payables.installments,suppliers.id as supplier_id, suppliers.name as supplier_name,payables.updated_at";
 
+    $query->leftJoin('suppliers','suppliers.id','payables.supplier_id')
+            ->where('payables.user_id',auth()->user()->id);
 
-    $fields = "invoices.id as id,invoices.description,invoices.payment_method,invoices.price,invoices.date_invoice,customers.id as customer_id, customers.name as customer_name,
-            invoices.date_due,invoices.date_payment,invoices.status,services.name as service_name,invoices.gateway_payment,invoices.payment_method,invoices.billet_url,invoices.image_url_pix,invoices.updated_at";
+    if ($this->request->has('dateini') && $this->request->has('dateend') && $this->request->input('dateini') != '' && $this->request->input('dateend') != '') {
+            $dateType = $this->request->input('type', 'date_due');
+            $dateIni = $this->request->input('dateini');
+            $dateEnd = $this->request->input('dateend');
 
-    $query->join('customer_services','customer_services.id','invoices.customer_service_id')
-            ->join('services','services.id','customer_services.service_id')
-            ->join('customers','customers.id','customer_services.customer_id')
-            ->where('invoices.user_id',auth()->user()->id)
-            ->orderby('invoices.date_due','ASC');
-
-
-    if ($this->request->has('dateini') && $this->request->has('dateend')) {
             $query->select(DB::raw("$fields,
-            (select count(*) from invoices where ".$this->request->input('type')." between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as qtd_invoices ,
-            (select COALESCE(sum(price),0) from invoices where ".$this->request->input('type')." between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as total_currency ,
-            (select count(*) from invoices where status = 'Pendente' and ".$this->request->input('type')." between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as qtd_pendente,
-            (select COALESCE(sum(price),0) from invoices where status = 'Pendente' and ".$this->request->input('type')." between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as pendente_currency,
-            (select count(*) from invoices where status = 'Pago'  and ".$this->request->input('type')." between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as qtd_pago,
-            (select COALESCE(sum(price),0) from invoices where status = 'Pago'  and ".$this->request->input('type')." between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as pago_currency,
-            (select count(*) from invoices where status = 'Processamento'  and ".$this->request->input('type')." between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as qtd_processamento,
-            (select COALESCE(sum(price),0) from invoices where status = 'Processamento'  and ".$this->request->input('type')." between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as processamento_currency,
-            (select count(*) from invoices where status = 'Cancelado'  and ".$this->request->input('type')." between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as qtd_cancelado,
-            (select COALESCE(sum(price),0) from invoices where status = 'Cancelado'  and ".$this->request->input('type')." between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as cancelado_currency
+            (select count(*) from payables where ".$dateType." between '".$dateIni."' and '".$dateEnd."' and user_id = ".auth()->user()->id." ) as qtd_payables ,
+            (select COALESCE(sum(price),0) from payables where ".$dateType." between '".$dateIni."' and '".$dateEnd."' and user_id = ".auth()->user()->id." ) as total_currency ,
+            (select count(*) from payables where status = 'Pendente' and ".$dateType." between '".$dateIni."' and '".$dateEnd."' and user_id = ".auth()->user()->id." ) as qtd_pendente,
+            (select COALESCE(sum(price),0) from payables where status = 'Pendente' and ".$dateType." between '".$dateIni."' and '".$dateEnd."' and user_id = ".auth()->user()->id." ) as pendente_currency,
+            (select count(*) from payables where status = 'Pago'  and ".$dateType." between '".$dateIni."' and '".$dateEnd."' and user_id = ".auth()->user()->id." ) as qtd_pago,
+            (select COALESCE(sum(price),0) from payables where status = 'Pago'  and ".$dateType." between '".$dateIni."' and '".$dateEnd."' and user_id = ".auth()->user()->id." ) as pago_currency,
+            (select count(*) from payables where status = 'Cancelado'  and ".$dateType." between '".$dateIni."' and '".$dateEnd."' and user_id = ".auth()->user()->id." ) as qtd_cancelado,
+            (select COALESCE(sum(price),0) from payables where status = 'Cancelado'  and ".$dateType." between '".$dateIni."' and '".$dateEnd."' and user_id = ".auth()->user()->id." ) as cancelado_currency
             "));
 
+            // Filtro de status - aceita múltiplos valores
             if($this->request->has('status') && $this->request->input('status') != ''){
-                $query->where('invoices.status',$this->request->input('status'));
+                $statuses = is_array($this->request->input('status')) ? $this->request->input('status') : [$this->request->input('status')];
+                $statuses = array_filter($statuses); // Remove valores vazios
+                if(!empty($statuses)){
+                    $query->whereIn('payables.status', $statuses);
+                }
             }
 
+            // Filtro de tipo - aceita múltiplos valores
+            if($this->request->has('payable_type') && $this->request->input('payable_type') != ''){
+                $types = is_array($this->request->input('payable_type')) ? $this->request->input('payable_type') : [$this->request->input('payable_type')];
+                $types = array_filter($types); // Remove valores vazios
+                if(!empty($types)){
+                    $query->whereIn('payables.type', $types);
+                }
+            }
 
-            $query->whereBetween('invoices.'.$this->request->input('type'),[$this->request->input('dateini'),$this->request->input('dateend')]);
+            $query->whereBetween('payables.'.$dateType,[$dateIni,$dateEnd]);
     }else{
-
+        // Quando não há filtros, mostra todas as contas (ou um intervalo maior)
         $query->select(DB::raw("$fields,
-        (select count(*) from invoices where date_due between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as qtd_invoices ,
-            (select count(*) from invoices where status = 'Pendente' and date_due between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as qtd_pendente,
-            (select count(*) from invoices where status = 'Pago'  and date_due between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as qtd_pago,
-            (select count(*) from invoices where status = 'Processamento'  and date_due between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as qtd_processamento,
-            (select count(*) from invoices where status = 'Cancelado'  and date_due between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as qtd_cancelado
+        (select count(*) from payables where user_id = ".auth()->user()->id." ) as qtd_payables ,
+            (select COALESCE(sum(price),0) from payables where user_id = ".auth()->user()->id." ) as total_currency ,
+            (select count(*) from payables where status = 'Pendente' and user_id = ".auth()->user()->id." ) as qtd_pendente,
+            (select COALESCE(sum(price),0) from payables where status = 'Pendente' and user_id = ".auth()->user()->id." ) as pendente_currency,
+            (select count(*) from payables where status = 'Pago'  and user_id = ".auth()->user()->id." ) as qtd_pago,
+            (select COALESCE(sum(price),0) from payables where status = 'Pago'  and user_id = ".auth()->user()->id." ) as pago_currency,
+            (select count(*) from payables where status = 'Cancelado'  and user_id = ".auth()->user()->id." ) as qtd_cancelado,
+            (select COALESCE(sum(price),0) from payables where status = 'Cancelado'  and user_id = ".auth()->user()->id." ) as cancelado_currency
         "));
-        $query->whereBetween('invoices.date_due',[Carbon::now()->startOfMonth(),Carbon::now()->lastOfMonth()]);
+        // Não aplica filtro de data quando não há filtros - mostra todas as contas
+        
+        // Filtro de status quando não há filtro de data
+        if($this->request->has('status') && $this->request->input('status') != ''){
+            $statuses = is_array($this->request->input('status')) ? $this->request->input('status') : [$this->request->input('status')];
+            $statuses = array_filter($statuses); // Remove valores vazios
+            if(!empty($statuses)){
+                $query->whereIn('payables.status', $statuses);
+            }
+        }
+        
+        // Filtro de tipo quando não há filtro de data
+        if($this->request->has('payable_type') && $this->request->input('payable_type') != ''){
+            $types = is_array($this->request->input('payable_type')) ? $this->request->input('payable_type') : [$this->request->input('payable_type')];
+            $types = array_filter($types); // Remove valores vazios
+            if(!empty($types)){
+                $query->whereIn('payables.type', $types);
+            }
+        }
     }
+
+    // Ordenação: Pendentes primeiro (ordem crescente de data), depois os demais
+    $query->orderByRaw("CASE WHEN payables.status = 'Pendente' THEN 0 ELSE 1 END")
+          ->orderBy('payables.date_due', 'ASC');
 
     $data = $query->paginate(20);
 
@@ -317,8 +318,6 @@ public function loadInvoices(){
     $data->next_page_url = $data->nextPageUrl();
 
     return response()->json(['result' => $data]);
-
-
 }
 
 

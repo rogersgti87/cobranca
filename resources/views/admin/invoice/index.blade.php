@@ -165,16 +165,14 @@
                 <table class="table table-hover table-striped table-sm">
                     <thead class="thead-light">
                     <tr>
+                        <th style="width: 50px;"></th>
                         <th> #</th>
                         <th> Cliente</th>
-                        <th> Descrição</th>
                         <th> Data</th>
                         <th> Vencimento</th>
-                        <th> Pago em</th>
                         <th> Valor</th>
-                        <th> Forma de Pagamento</th>
                         <th> Status</th>
-                        <th></th>
+                        <th style="width: 150px;">Ações</th>
                     </tr>
                     </thead>
 
@@ -292,6 +290,76 @@
  </div>
  <!-- Modal :: Log -->
 
+
+@section('styles')
+<style>
+    /* Estilos para tabela responsiva e collapse */
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    @media (max-width: 768px) {
+        .table {
+            font-size: 12px;
+        }
+
+        .table td, .table th {
+            padding: 8px 4px;
+        }
+
+        .btn-xs {
+            padding: 2px 5px;
+            font-size: 10px;
+        }
+
+        .badge {
+            font-size: 10px;
+            padding: 3px 6px;
+        }
+    }
+
+    .accordion-toggle {
+        transition: background-color 0.2s;
+    }
+
+    .accordion-toggle:hover {
+        background-color: #1E293B !important;
+    }
+
+    .hiddenRow {
+        padding: 0 !important;
+    }
+
+    .collapse {
+        transition: all 0.3s ease;
+    }
+
+    .card-body {
+        padding: 15px;
+    }
+
+    /* Garantir que o collapse funcione corretamente */
+    .accordion-toggle[data-toggle="collapse"] {
+        cursor: pointer;
+    }
+
+    .accordion-toggle i {
+        transition: transform 0.3s ease;
+    }
+
+    /* Evitar que botões acionem o collapse */
+    .table td:last-child {
+        position: relative;
+        z-index: 10;
+    }
+
+    .table td:last-child a,
+    .table td:last-child button {
+        position: relative;
+        z-index: 11;
+    }
+</style>
+@endsection
 
 @section('scripts')
 
@@ -784,27 +852,65 @@ $(document).on('click', '#btn-invoice-status', function(e) {
         var html = '';
             if(data.result.data.length > 0){
                 $.each(data.result.data, function(i, item) {
+                var statusBadgeClass = item.status == 'Pago' ? 'badge-success' :
+                                       item.status == 'Pendente' ? 'badge-warning' :
+                                       item.status == 'Estabelecimento' ? 'badge-info' :
+                                       'badge-danger';
+
+                var datePayment = item.date_payment != null ? moment(item.date_payment).format('DD/MM/YYYY') : '-';
+                var paymentMethod = item.gateway_payment ? item.gateway_payment + ' (' + item.payment_method + ')' : item.payment_method || '-';
+
+                html += '<tr data-toggle="collapse" data-target="#collapse-invoice-' + item.id + '" class="accordion-toggle" style="cursor: pointer;">';
+                html += '<td onclick="event.stopPropagation();"><button class="btn btn-sm btn-link" style="color: #FFBD59; padding: 0; border: none; background: transparent;" onclick="event.stopPropagation(); $(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');"><i class="fas fa-chevron-down" id="icon-' + item.id + '"></i></button></td>';
+                html += '<td>' + item.id + '</td>';
+                html += '<td>' + item.customer_name + '</td>';
+                html += '<td>' + moment(item.date_invoice).format('DD/MM/YYYY') + '</td>';
+                html += '<td>' + moment(item.date_due).format('DD/MM/YYYY') + '</td>';
+                html += '<td style="color: #FFBD59; font-weight: 600;">' + item.price + '</td>';
+                html += '<td><span class="badge ' + statusBadgeClass + '">' + item.status + '</span></td>';
+                html += '<td onclick="event.stopPropagation();">';
+                html += '<a href="{{ url('admin/customers/form?act=edit&id=')}}' + item.customer_id + '" data-original-title="Editar cliente" id="btn-edit-customer" data-placement="left" data-tt="tooltip" class="btn btn-secondary btn-xs" style="background-color: #1E293B; border-color: rgba(255,255,255,0.1); color: #E5E7EB;"> <i class="fas fa-user"></i></a> ';
+                if(item.status == 'Pendente' || item.status == 'Erro' || item.status == 'Estabelecimento'){
+                    html += '<a href="#" data-original-title="Editar fatura" id="btn-modal-invoice" data-type="edit-invoice" data-invoice="' + item.id + '" data-placement="left" data-tt="tooltip" class="btn btn-secondary btn-xs" style="background-color: #1E293B; border-color: rgba(255,255,255,0.1); color: #E5E7EB;"> <i class="far fa-edit"></i></a> ';
+                }
+                if(item.status == 'Erro'){
+                    html += '<a href="#" data-original-title="Erros" id="btn-modal-error" data-invoice="' + item.id + '" data-placement="left" data-tt="tooltip" class="btn btn-danger btn-xs"> <i class="fas fa-exclamation-triangle"></i></a> ';
+                }
+                if(item.status != 'Erro'){
+                    html += '<a href="#" data-original-title="Notificações" id="btn-modal-notifications" data-invoice="' + item.id + '" data-placement="left" data-tt="tooltip" class="btn btn-warning btn-xs" style="background-color: #FFBD59; border-color: #FFBD59; color: #0F172A;"> <i style="padding:0 5px;" class="fa fa-info"></i></a> ';
+                }
+                if(item.status == 'Pendente' || item.status == 'Erro' || item.status == 'Estabelecimento'){
+                    html += '<a href="#" data-original-title="Cancelar Fatura" id="btn-delete-invoice" data-placement="left" data-invoice="' + item.id + '" data-tt="tooltip" class="btn btn-danger btn-xs"> <i class="fas fa-undo-alt"></i></a> ';
+                }
+                if(item.status == 'Pendente'){
+                    var downloadUrl = item.payment_method == "Pix" ? item.image_url_pix : item.billet_url;
+                    html += '<a href="' + downloadUrl + '" target="_blank" data-original-title="Baixar Fatura" id="btn-download-invoice" data-placement="left" data-tt="tooltip" class="btn btn-primary btn-xs" style="background-color: #FFBD59; border-color: #FFBD59; color: #0F172A;"> <i class="fas fa-download"></i></a>';
+                }
+                html += '</td>';
+                html += '</tr>';
+
+                // Linha de collapse com informações adicionais
                 html += '<tr>';
-                html += `<td>${item.id}</td>`;
-                html += `<td>${item.customer_name}</td>`;
-                html += `<td>${item.description}</td>`;
-                html += `<td>${moment(item.date_invoice).format('DD/MM/YYYY')}</td>`;
-                html += `<td>${moment(item.date_due).format('DD/MM/YYYY')}</td>`;
-                html += `<td>${item.date_payment != null ? moment(item.date_payment).format('DD/MM/YYYY') : '-'}</td>`;
-                html += `<td>${item.price}</td>`;
-                html += `<td>${item.gateway_payment+' ('+item.payment_method })</td>`;
-                html += `<td class="badge ${item.status == 'Pago' ? 'badge-success' :
-                                            item.status == 'Pendente' ? 'badge-warning' :
-                                            item.status == 'Estabelecimento' ? 'badge-info' :
-                                            'badge-danger'}">${item.status}</td>`;
-                html += `<td>
-                            <a href="{{ url('admin/customers/form?act=edit&id=')}}${item.customer_id}" data-original-title="Editar cliente" id="btn-edit-customer" data-placement="left" data-tt="tooltip" class="btn btn-secondary btn-xs"> <i class="fas fa-user"></i></a>
-                            ${item.status == 'Pendente' || item.status == 'Erro' || item.status == 'Estabelecimento' ? '<a href="#" data-original-title="Editar fatura" id="btn-modal-invoice" data-type="edit-invoice" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-secondary btn-xs"> <i class="far fa-edit"></i></a>' : ''}
-                            ${item.status == 'Erro' ? '<a href="#" data-original-title="Erros" id="btn-modal-error" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-danger btn-xs"> <i class="fas fa-exclamation-triangle"></i></a>' : ''}
-                            ${item.status != 'Erro' ? '<a href="#" data-original-title="Notificações" id="btn-modal-notifications" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-warning btn-xs"> <i style="padding:0 5px;" class="fa fa-info"></i></a>' : ''}
-                            ${item.status == 'Pendente' || item.status == 'Erro' || item.status == 'Estabelecimento' ? '<a href="#" data-original-title="Cancelar Fatura" id="btn-delete-invoice" data-placement="left" data-invoice="'+item.id+'" data-tt="tooltip" class="btn btn-danger btn-xs"> <i class="fas fa-undo-alt"></i></a>' : ''}
-                            ${item.status == 'Pendente' ? '<a href="'+`${item.payment_method == "Pix" ? item.image_url_pix : item.billet_url}`+'" target="_blank" data-original-title="Baixar Fatura" id="btn-download-invoice" data-placement="left" data-tt="tooltip" class="btn btn-primary btn-xs"> <i class="fas fa-download"></i></a>' : ''}
-                            </td>`;
+                html += '<td colspan="8" class="hiddenRow">';
+                html += '<div class="collapse" id="collapse-invoice-' + item.id + '">';
+                html += '<div class="card card-body" style="background-color: #1E293B; border: 1px solid rgba(255,255,255,0.1); margin: 10px 0;">';
+                html += '<div class="row">';
+                html += '<div class="col-md-6 col-sm-12 mb-3">';
+                html += '<strong style="color: #FFBD59;">Descrição:</strong><br>';
+                html += '<span style="color: #E5E7EB;">' + (item.description || '-') + '</span>';
+                html += '</div>';
+                html += '<div class="col-md-3 col-sm-6 mb-3">';
+                html += '<strong style="color: #FFBD59;">Pago em:</strong><br>';
+                html += '<span style="color: #E5E7EB;">' + datePayment + '</span>';
+                html += '</div>';
+                html += '<div class="col-md-3 col-sm-6 mb-3">';
+                html += '<strong style="color: #FFBD59;">Forma de Pagamento:</strong><br>';
+                html += '<span style="color: #E5E7EB;">' + paymentMethod + '</span>';
+                html += '</div>';
+                html += '</div>';
+                html += '</div>';
+                html += '</div>';
+                html += '</td>';
                 html += '</tr>';
             });
             }else{
@@ -813,6 +919,15 @@ $(document).on('click', '#btn-invoice-status', function(e) {
 
             $('#list-invoices').append(html);
             $('[data-tt="tooltip"]').tooltip();
+
+            // Rotacionar ícone do collapse quando expandir/colapsar
+            $(document).off('show.bs.collapse hide.bs.collapse', '.collapse').on('show.bs.collapse', '.collapse', function() {
+                var invoiceId = $(this).attr('id').replace('collapse-invoice-', '');
+                $('#icon-' + invoiceId).removeClass('fa-chevron-down').addClass('fa-chevron-up');
+            }).on('hide.bs.collapse', '.collapse', function() {
+                var invoiceId = $(this).attr('id').replace('collapse-invoice-', '');
+                $('#icon-' + invoiceId).removeClass('fa-chevron-up').addClass('fa-chevron-down');
+            });
 
                 currentPage = data.result.current_page;
                 prevPage = data.result.prev_page_url ? currentPage - 1 : currentPage;

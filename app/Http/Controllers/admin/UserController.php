@@ -564,7 +564,7 @@ class UserController extends Controller
             'ssl_key' => storage_path('/app/'.$user['inter_key_file']),
             ])->withHeaders([
             'Authorization' => 'Bearer ' . $access_token
-          ])->put($user['inter_host'].'cobranca/v2/boletos/webhook',[
+          ])->put($user['inter_host'].'cobranca/v3/cobrancas/webhook/',[
             "webhookUrl"=> "https://cobrancasegura.com.br/webhook/intermediumbillet"
         ]);
 

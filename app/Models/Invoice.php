@@ -509,7 +509,7 @@ class Invoice extends Model
                 ]
                 )->withHeaders([
                 'Authorization' => 'Bearer ' . $access_token
-            ])->get('https://cdpj.partners.bancointer.com.br/cobranca/v2/boletos/sumario?dataInicial=2023-01-01&dataFinal=2023-01-01');
+            ])->get('https://cdpj.partners.bancointer.com.br/cobranca/v3/cobrancas?dataInicial=2023-01-01&dataFinal=2023-01-01');
 
             if ($check_access_token->unauthorized()) {
                 $response = Http::withOptions([
@@ -546,7 +546,7 @@ class Invoice extends Model
                 'ssl_key' => storage_path('/app/'.$invoice['inter_key_file']),
                 ])->withHeaders([
                 'Authorization' => 'Bearer ' . $access_token
-              ])->post($invoice['inter_host'].'cobranca/v2/boletos',[
+              ])->post($invoice['inter_host'].'cobranca/v3/cobrancas',[
                 "seuNumero"=> $invoice['id'],
                 "valorNominal"=> $invoice['price'],
                 "dataVencimento"=> $invoice['date_due'],
@@ -567,10 +567,8 @@ class Invoice extends Model
                   "tipoPessoa"=> $invoice['type'] == 'Física' ? 'FISICA' : 'JURIDICA'
                 ],
                 "multa"=> [
-                "codigoMulta"=> "PERCENTUAL",
-                "data"=> $date_multa,
-                "taxa"=> 1,
-                "valor"=> 0
+                "codigo"=> "PERCENTUAL",
+                "taxa"=> 1
               ]
               ]);
 
@@ -579,7 +577,8 @@ class Invoice extends Model
                 $result_generate_billet = $response_generate_billet->json();
                 $result_generate_billet = json_decode($response_generate_billet);
 
-                $response_pdf_billet = Http::withOptions(
+                // V3 API: Need to get the cobranca details to retrieve boleto information
+                $response_get_billet = Http::retry(3, 100)->withOptions(
                     [
                     'cert' => storage_path('/app/'.$user['inter_crt_file']),
                     'ssl_key' => storage_path('/app/'.$user['inter_key_file'])
@@ -587,7 +586,24 @@ class Invoice extends Model
                     )->withHeaders([
                     'Authorization' => 'Bearer ' . $access_token
 
-                ])->get($invoice['inter_host'].'cobranca/v2/boletos/'.$result_generate_billet->nossoNumero.'/pdf');
+                ])->get($invoice['inter_host'].'cobranca/v3/cobrancas/'.$result_generate_billet->codigoSolicitacao);
+
+                if ($response_get_billet->successful()) {
+                    $result_get_billet = $response_get_billet->json();
+                    $result_get_billet = json_decode($response_get_billet);
+                } else {
+                    return ['status' => 'reject', 'title' => 'Erro ao gerar Boleto', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Erro ao obter codigo boleto intermedium!']]];
+                }
+
+                $response_pdf_billet = Http::retry(3, 100)->withOptions(
+                    [
+                    'cert' => storage_path('/app/'.$user['inter_crt_file']),
+                    'ssl_key' => storage_path('/app/'.$user['inter_key_file'])
+                    ]
+                    )->withHeaders([
+                    'Authorization' => 'Bearer ' . $access_token
+
+                ])->get($invoice['inter_host'].'cobranca/v3/cobrancas/'.$result_generate_billet->codigoSolicitacao.'/pdf');
 
                 if ($response_pdf_billet->successful()) {
 
@@ -603,10 +619,10 @@ class Invoice extends Model
                     Invoice::where('id',$invoice_id)->update([
                         'status'            =>  'Pendente',
                         'msg_erro'          =>  null,
-                        'transaction_id'    =>  $result_generate_billet->nossoNumero,
+                        'transaction_id'    =>  $result_generate_billet->codigoSolicitacao,
                         'billet_url'        =>  $billet_pdf,
                         'billet_base64'     =>  $pdf,
-                        'billet_digitable'  =>  $result_generate_billet->linhaDigitavel
+                        'billet_digitable'  =>  $result_get_billet->boleto->linhaDigitavel
                     ]);
                     return ['status' => 'success', 'title' => 'OK', 'message' => [['razao' => 'OK', 'propriedade' => 'OK']]];
 
@@ -882,7 +898,7 @@ class Invoice extends Model
             ])->withHeaders([
                 'Authorization' => 'Bearer ' . $access_token
 
-            ])->post($user->inter_host.'cobranca/v2/boletos/'.$transaction_id.'/cancelar',[
+            ])->post($user->inter_host.'cobranca/v3/cobrancas/'.$transaction_id.'/cancelar',[
                 "motivoCancelamento" => "ACERTOS"
             ]);
 

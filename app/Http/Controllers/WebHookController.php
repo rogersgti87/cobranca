@@ -211,18 +211,33 @@ class WebHookController extends Controller
         'log'       =>  json_encode($data)
     ]);
 
-    $seuNumero      = $data[0]['seuNumero'];
-    $nossoNumero    = $data[0]['nossoNumero'];
-    $status         = $data[0]['situacao'];
+    // Suporte para V3 (API Nova) e V2 (compatibilidade)
+    if(isset($data[0]['codigoSolicitacao'])){
+        // Estrutura V3
+        $seuNumero      = $data[0]['seuNumero'];
+        $codigoCobranca = $data[0]['codigoSolicitacao'];
+        $status         = $data[0]['situacao'];
 
-    $result = Invoice::where('id',$seuNumero)->where('transaction_id',$nossoNumero)
-    ->where('invoices.status','Pendente')
-    ->orwhere('invoices.status','Processamento')
-    ->first();
+        $result = Invoice::where('id',$seuNumero)->where('transaction_id',$codigoCobranca)
+        ->where('invoices.status','Pendente')
+        ->orwhere('invoices.status','Processamento')
+        ->first();
+    } else {
+        // Estrutura V2 (compatibilidade)
+        $seuNumero      = $data[0]['seuNumero'];
+        $nossoNumero    = $data[0]['nossoNumero'];
+        $status         = $data[0]['situacao'];
+
+        $result = Invoice::where('id',$seuNumero)->where('transaction_id',$nossoNumero)
+        ->where('invoices.status','Pendente')
+        ->orwhere('invoices.status','Processamento')
+        ->first();
+    }
 
     if($result != null){
 
-        if($status == 'PAGO'){
+        // V3 usa 'RECEBIDO', V2 usa 'PAGO'
+        if($status == 'RECEBIDO' || $status == 'PAGO'){
             Invoice::where('id',$seuNumero)->update([
                 'status'       =>   'Pago',
                 'date_payment' =>   Carbon::now(),
@@ -385,6 +400,11 @@ class WebHookController extends Controller
 
 
     if(isset($data['event']) && isset($data['payment'])){
+
+        // Retorna 200 imediatamente para eventos que não serão utilizados
+        if($data['event'] == 'PAYMENT_RECEIVED' || $data['event'] == 'PAYMENT_DELETED'){
+            return response()->json(['status' => 'success', 'message' => 'Evento recebido mas não processado'], 200);
+        }
 
         // Busca primeiro pelo transaction_id (payment.id)
         $invoice = Invoice::select('invoices.id as id','invoices.transaction_id','users.access_token_mp')

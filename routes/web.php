@@ -47,6 +47,7 @@ Route::group(['prefix' => 'admin','middleware' => ['auth']], function(){
 
     Route::get('/',[AdminController::class,'index']);
     Route::get('chart-invoices',[AdminController::class,'chartinvoices']);
+    Route::get('chart-payables',[AdminController::class,'chartPayables']);
 
     Route::get('users',[UserController::class,'index']);
     Route::get('users/form',[UserController::class,'form']);

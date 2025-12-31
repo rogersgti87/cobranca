@@ -127,6 +127,12 @@ class PayableController extends Controller
             $model->installments      = isset($data['installments']) ? $data['installments'] : 1;
             $model->installment_number = 1;
             $model->parent_id        = null; // ID da conta pai
+            
+            // Se for parcelada, dividir o valor total pelo número de parcelas
+            if(isset($data['installments']) && $data['installments'] > 1){
+                $model->price = $model->price / $data['installments'];
+                $model->description = $data['description'] . ' - Parcela 1/' . $data['installments'];
+            }
         }
 
         try{
@@ -134,7 +140,7 @@ class PayableController extends Controller
 
             // Se for parcelada, criar as demais parcelas
             if($data['type'] == 'Parcelada' && isset($data['installments']) && $data['installments'] > 1){
-                $installmentValue = $model->price / $data['installments'];
+                $installmentValue = $model->price; // Já está dividido
                 $dueDate = Carbon::parse($data['date_due']);
 
                 for($i = 2; $i <= $data['installments']; $i++){

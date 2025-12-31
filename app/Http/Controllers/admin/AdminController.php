@@ -12,6 +12,8 @@ use DB;
 use App\Models\User;
 use App\Models\Invoice;
 use App\Models\Customer;
+use App\Models\Payable;
+use App\Models\PayableCategory;
 use RuntimeException;
 use Illuminate\Support\Facades\Http;
 use GuzzleHttp\Client;
@@ -109,15 +111,46 @@ class AdminController extends Controller
         (select count(*) from invoices where status = 'Erro' and user_id = ".auth()->user()->id.") as error
         "))->first();
 
-        return view($this->datarequest['path'].'.dashboard',compact('total_customers','invoice'))->with($this->datarequest);
+        $userId = auth()->user()->id;
+        
+        $payable = (object) [
+            'total' => Payable::where('user_id', $userId)->count(),
+            'pendent' => Payable::where('user_id', $userId)->where('status', 'Pendente')->count(),
+            'pay' => Payable::where('user_id', $userId)->where('status', 'Pago')->count(),
+            'cancelled' => Payable::where('user_id', $userId)->where('status', 'Cancelado')->count(),
+            'due' => Payable::where('user_id', $userId)
+                ->where('status', 'Pendente')
+                ->whereRaw('CURRENT_DATE > date_due')
+                ->count(),
+            'five_days' => Payable::where('user_id', $userId)
+                ->where('status', 'Pendente')
+                ->whereRaw('DATEDIFF(date_due, CURRENT_DATE) = 5')
+                ->count(),
+            'today' => Payable::where('user_id', $userId)
+                ->where('status', 'Pendente')
+                ->whereRaw('DATEDIFF(date_due, CURRENT_DATE) = 0')
+                ->count(),
+            'total_pendente' => (float) Payable::where('user_id', $userId)
+                ->where('status', 'Pendente')
+                ->sum('price'),
+            'total_pago' => (float) Payable::where('user_id', $userId)
+                ->where('status', 'Pago')
+                ->sum('price')
+        ];
+
+        return view($this->datarequest['path'].'.dashboard',compact('total_customers','invoice','payable'))->with($this->datarequest);
 
     }
 
     public function chartInvoices(){
+        $yearParam = $this->request->input('year', Carbon::now()->year);
+        $monthParam = $this->request->input('month', Carbon::now()->month);
+        $yearParam = (int) $yearParam;
+        $monthParam = (int) $monthParam;
 
         $year = Invoice::select('status', DB::raw('count(*) as count'))
             ->where('user_id',auth()->user()->id)
-            ->whereYear('date_due', Carbon::now()->year)
+            ->whereYear('date_due', $yearParam)
             ->groupBy('status')
             ->pluck('count', 'status')
             ->toArray();
@@ -126,18 +159,78 @@ class AdminController extends Controller
 
         $month = Invoice::select('status', DB::raw('count(*) as count'))
         ->where('user_id',auth()->user()->id)
-        ->whereMonth('date_due', Carbon::now()->month)
+        ->whereMonth('date_due', $monthParam)
+        ->whereYear('date_due', $yearParam)
         ->groupBy('status')
         ->pluck('count', 'status')
         ->toArray();
         $total_month = array_sum($month);
         $month['Total'] = $total_month;
 
+        return response()->json([
+            'year' => $year,
+            'month' => $month,
+            'selected_year' => $yearParam,
+            'selected_month' => $monthParam
+        ]);
 
+    }
 
+    public function chartPayables(){
+        $yearParam = $this->request->input('year', Carbon::now()->year);
+        $monthParam = $this->request->input('month', Carbon::now()->month);
+        $yearParam = (int) $yearParam;
+        $monthParam = (int) $monthParam;
+        
+        // Gráfico por categoria - ano selecionado
+        $year = Payable::select(
+                DB::raw('COALESCE(payable_categories.name, "Sem Categoria") as category'), 
+                DB::raw('COALESCE(payable_categories.color, "#6c757d") as category_color'), 
+                DB::raw('count(*) as count'), 
+                DB::raw('COALESCE(sum(payables.price),0) as total')
+            )
+            ->leftJoin('payable_categories', 'payable_categories.id', '=', 'payables.category_id')
+            ->where('payables.user_id', auth()->user()->id)
+            ->whereYear('payables.date_due', $yearParam)
+            ->groupBy(DB::raw('COALESCE(payable_categories.name, "Sem Categoria")'), DB::raw('COALESCE(payable_categories.color, "#6c757d")'))
+            ->get()
+            ->mapWithKeys(function($item) {
+                return [$item->category => [
+                    'count' => (int) $item->count,
+                    'total' => (float) $item->total,
+                    'color' => $item->category_color
+                ]];
+            })
+            ->toArray();
 
-        return response()->json(['year' => $year,'month' => $month ]);
+        // Gráfico por categoria - mês selecionado
+        $month = Payable::select(
+                DB::raw('COALESCE(payable_categories.name, "Sem Categoria") as category'), 
+                DB::raw('COALESCE(payable_categories.color, "#6c757d") as category_color'), 
+                DB::raw('count(*) as count'), 
+                DB::raw('COALESCE(sum(payables.price),0) as total')
+            )
+            ->leftJoin('payable_categories', 'payable_categories.id', '=', 'payables.category_id')
+            ->where('payables.user_id', auth()->user()->id)
+            ->whereMonth('payables.date_due', $monthParam)
+            ->whereYear('payables.date_due', $yearParam)
+            ->groupBy(DB::raw('COALESCE(payable_categories.name, "Sem Categoria")'), DB::raw('COALESCE(payable_categories.color, "#6c757d")'))
+            ->get()
+            ->mapWithKeys(function($item) {
+                return [$item->category => [
+                    'count' => (int) $item->count,
+                    'total' => (float) $item->total,
+                    'color' => $item->category_color
+                ]];
+            })
+            ->toArray();
 
+        return response()->json([
+            'year' => $year,
+            'month' => $month,
+            'selected_year' => $yearParam,
+            'selected_month' => $monthParam
+        ]);
     }
 
 

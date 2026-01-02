@@ -124,26 +124,28 @@
         </div>
 
         <div class="col-md-12">
-            <div class="d-flex justify-content-end align-items-center mb-4">
-                <a href="#" data-original-title="Nova Conta a Pagar" id="btn-modal-payable" data-type="add-payable" data-toggle="tooltip" class="btn" style="background-color: #FFBD59; color: #1F2937 !important; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; transition: all 0.3s;"> <i class="fa fa-plus"></i> Nova Conta a Pagar</a>
-            </div>
-
-            <div class="form-row mb-4" style="background-color: #F5F5DC; padding: 20px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1);">
-
-                <div class="form-group col-md-12 mb-3">
-                    <label style="color: #1F2937; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Filtros Rápidos</label>
-                    <div class="d-flex flex-wrap gap-2">
-                        <button class="btn btn-sm" type="button" id="btn-filter-current-month" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); padding: 6px 12px; border-radius: 6px; font-weight: 500;">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+                <div class="d-flex align-items-center flex-wrap" style="gap: 10px;">
+                    <button class="btn" type="button" data-toggle="collapse" data-target="#filtersCollapse" aria-expanded="false" aria-controls="filtersCollapse" style="background-color: #FFBD59; color: #1F2937 !important; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; transition: all 0.3s;">
+                        <i class="fa fa-filter"></i> Filtros
+                    </button>
+                    <div class="d-flex flex-wrap" style="gap: 8px;">
+                        <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-current-month" data-filter="current-month" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); padding: 8px 16px; border-radius: 6px; font-weight: 500;">
                             <i class="fa fa-calendar"></i> Mês Atual
                         </button>
-                        <button class="btn btn-sm" type="button" id="btn-filter-next-month" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); padding: 6px 12px; border-radius: 6px; font-weight: 500;">
+                        <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-next-month" data-filter="next-month" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); padding: 8px 16px; border-radius: 6px; font-weight: 500;">
                             <i class="fa fa-calendar-alt"></i> Próximo Mês
                         </button>
-                        <button class="btn btn-sm" type="button" id="btn-filter-all" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); padding: 6px 12px; border-radius: 6px; font-weight: 500;">
+                        <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-all" data-filter="all" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); padding: 8px 16px; border-radius: 6px; font-weight: 500;">
                             <i class="fa fa-list"></i> Todos
                         </button>
                     </div>
                 </div>
+                <a href="#" data-original-title="Nova Conta a Pagar" id="btn-modal-payable" data-type="add-payable" data-toggle="tooltip" class="btn" style="background-color: #FFBD59; color: #1F2937 !important; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; transition: all 0.3s;"> <i class="fa fa-plus"></i> Nova Conta a Pagar</a>
+            </div>
+
+            <div class="collapse mb-4" id="filtersCollapse">
+                <div class="form-row" style="background-color: #F5F5DC; padding: 20px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1);">
 
                 <div class="form-group col-md-4 col-6">
                     <label style="color: #1F2937; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Tipo de Data</label>
@@ -230,12 +232,20 @@
                         </div>
                     </fieldset>
                 </div>
-                    </div>
-                </div>
+            </div>
             </div>
         </div>
 
-
+      <div class="col-md-12 mb-4">
+        <div style="background-color: #F5F5DC; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <h5 style="color: #1F2937; font-weight: 600; margin-bottom: 20px;">
+                <i class="fas fa-chart-pie"></i> Total por Categorias
+            </h5>
+            <div style="position: relative; height: 300px;">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+      </div>
 
       <div class="col-md-12">
         <div style="background-color: #F5F5DC; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
@@ -524,8 +534,9 @@
 @endsection
 
 @section('scripts')
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+let categoryChart = null;
 
     // Open Modal - Create/Edit Payable
     $(document).on("click", "#btn-modal-payable", function() {
@@ -730,6 +741,13 @@ Swal.fire({
     const filterInputDateIni    = document.getElementById('filter-date-ini');
     const filterInputDateEnd    = document.getElementById('filter-date-end');
 
+    // Definir datas do mês atual por padrão
+    const now = new Date();
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    filterInputDateIni.value = firstDay.toISOString().split('T')[0];
+    filterInputDateEnd.value = lastDay.toISOString().split('T')[0];
+
     // Inicializar com todos os status marcados, exceto Cancelado
     document.querySelectorAll('.status-checkbox').forEach(function(cb) {
         if(cb.value !== 'Cancelado') {
@@ -808,6 +826,12 @@ Swal.fire({
             var currencyOptions = {};
             currencyOptions.style = 'currency';
             currencyOptions.currency = 'BRL';
+
+            // Atualizar gráfico de categorias
+            if(data.categories) {
+                updateCategoryChart(data.categories);
+            }
+
             if(data.result.data.length == 0){
                 $('#total_payables').text('0 contas');
                 $('#total_payables_curerency').text(parseFloat(0).toLocaleString('pt-BR', currencyOptions));
@@ -828,6 +852,10 @@ Swal.fire({
                 $('#pendent_payables_curerency').text(parseFloat(data.result.data[0].pendente_currency).toLocaleString('pt-BR', currencyOptions));
                 $('#total_pay').text(data.result.data[0].qtd_pago + ' contas');
                 $('#pay_payables_curerency').text(parseFloat(data.result.data[0].pago_currency).toLocaleString('pt-BR', currencyOptions));
+                $('#total_fixed').text(data.result.data[0].qtd_fixed + ' contas');
+                $('#fixed_payables_curerency').text(parseFloat(data.result.data[0].fixed_currency || 0).toLocaleString('pt-BR', currencyOptions));
+                $('#total_recurring').text(data.result.data[0].qtd_recurring + ' contas');
+                $('#recurring_payables_curerency').text(parseFloat(data.result.data[0].recurring_currency || 0).toLocaleString('pt-BR', currencyOptions));
                 $('#total_cancelled').text(data.result.data[0].qtd_cancelado + ' contas');
                 $('#cancelled_payables_curerency').text(parseFloat(data.result.data[0].cancelado_currency).toLocaleString('pt-BR', currencyOptions));
             }
@@ -956,6 +984,39 @@ Swal.fire({
         });
     });
 
+    // Função para atualizar o destaque dos filtros rápidos
+    function updateQuickFilterHighlight() {
+        // Remover destaque de todos os botões
+        document.querySelectorAll('.filter-quick-btn').forEach(function(btn) {
+            btn.style.border = '1px solid rgba(0,0,0,0.1)';
+            btn.style.borderWidth = '1px';
+        });
+
+        const dateIni = filterInputDateIni.value;
+        const dateEnd = filterInputDateEnd.value;
+
+        if (!dateIni || !dateEnd) {
+            // Se não há datas, destacar "Todos"
+            document.getElementById('btn-filter-all').style.border = '2px solid #FFBD59';
+            document.getElementById('btn-filter-all').style.borderWidth = '2px';
+            return;
+        }
+
+        const now = new Date();
+        const currentMonthFirst = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+        const currentMonthLast = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+        const nextMonthFirst = new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString().split('T')[0];
+        const nextMonthLast = new Date(now.getFullYear(), now.getMonth() + 2, 0).toISOString().split('T')[0];
+
+        if (dateIni === currentMonthFirst && dateEnd === currentMonthLast) {
+            document.getElementById('btn-filter-current-month').style.border = '2px solid #FFBD59';
+            document.getElementById('btn-filter-current-month').style.borderWidth = '2px';
+        } else if (dateIni === nextMonthFirst && dateEnd === nextMonthLast) {
+            document.getElementById('btn-filter-next-month').style.border = '2px solid #FFBD59';
+            document.getElementById('btn-filter-next-month').style.borderWidth = '2px';
+        }
+    }
+
     // Botão Mês Atual
     document.getElementById('btn-filter-current-month').addEventListener('click', function() {
         const now = new Date();
@@ -965,6 +1026,7 @@ Swal.fire({
         filterInputDateIni.value = firstDay.toISOString().split('T')[0];
         filterInputDateEnd.value = lastDay.toISOString().split('T')[0];
 
+        updateQuickFilterHighlight();
         currentPage = 1;
         loadPayables(currentPage);
     });
@@ -978,6 +1040,7 @@ Swal.fire({
         filterInputDateIni.value = firstDay.toISOString().split('T')[0];
         filterInputDateEnd.value = lastDay.toISOString().split('T')[0];
 
+        updateQuickFilterHighlight();
         currentPage = 1;
         loadPayables(currentPage);
     });
@@ -1000,9 +1063,22 @@ Swal.fire({
             cb.checked = true;
         });
 
+        updateQuickFilterHighlight();
         currentPage = 1;
         loadPayables(currentPage);
     });
+
+    // Atualizar destaque quando as datas mudarem manualmente
+    filterInputDateIni.addEventListener('change', function() {
+        updateQuickFilterHighlight();
+    });
+
+    filterInputDateEnd.addEventListener('change', function() {
+        updateQuickFilterHighlight();
+    });
+
+    // Atualizar destaque ao carregar a página (já que definimos mês atual por padrão)
+    updateQuickFilterHighlight();
 
     loadPayables();
 
@@ -1469,6 +1545,95 @@ Swal.fire({
             }
         });
     });
+
+function updateCategoryChart(categoriesData) {
+    const ctx = document.getElementById('categoryChart');
+
+    if (!ctx) return;
+
+    // Destruir gráfico anterior se existir
+    if (categoryChart) {
+        categoryChart.destroy();
+    }
+
+    if (!categoriesData || categoriesData.length === 0) {
+        const canvas = ctx.getContext('2d');
+        canvas.clearRect(0, 0, ctx.width, ctx.height);
+        return;
+    }
+
+    // Preparar dados
+    const labels = categoriesData.map(cat => cat.category_name);
+    const data = categoriesData.map(cat => parseFloat(cat.total));
+    const colors = categoriesData.map(cat => cat.category_color || '#CCCCCC');
+    const borderColors = colors.map(color => color);
+
+    // Criar gráfico
+    categoryChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Total por Categoria',
+                data: data,
+                backgroundColor: colors,
+                borderColor: borderColors,
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        padding: 15,
+                        font: {
+                            size: 12,
+                            family: 'Source Sans Pro'
+                        },
+                        generateLabels: function(chart) {
+                            const data = chart.data;
+                            if (data.labels.length && data.datasets.length) {
+                                return data.labels.map((label, i) => {
+                                    const value = data.datasets[0].data[i];
+                                    const color = data.datasets[0].backgroundColor[i];
+                                    const formattedValue = parseFloat(value).toLocaleString('pt-BR', {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    });
+                                    return {
+                                        text: label + ' - R$ ' + formattedValue,
+                                        fillStyle: color,
+                                        hidden: false,
+                                        index: i
+                                    };
+                                });
+                            }
+                            return [];
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(2);
+                            const formattedValue = parseFloat(value).toLocaleString('pt-BR', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            });
+                            return label + ': R$ ' + formattedValue + ' (' + percentage + '%)';
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
 </script>
 
 @endsection

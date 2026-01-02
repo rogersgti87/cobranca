@@ -162,8 +162,8 @@
               @endif
 
               <!-- Menu Relatórios -->
-              <li class="nav-item has-treeview">
-                <a href="#" class="nav-link">
+              <li class="nav-item has-treeview {{ Request::segment(2) == 'reports' ? 'menu-open' : '' }}">
+                <a href="#" class="nav-link {{ Request::segment(2) == 'reports' ? 'active' : '' }}">
                   <i class="nav-icon fas fa-chart-bar"></i>
                   <p>
                     Relatórios
@@ -171,7 +171,20 @@
                   </p>
                 </a>
                 <ul class="nav nav-treeview">
-                  <!-- Itens de relatórios podem ser adicionados aqui -->
+                  <li class="nav-item">
+                    <a href="{{url('admin/reports/invoices')}}" class="nav-link {{Request::segment(3) == 'invoices' ? 'active' : ''}}">
+                      <i class="far fa-circle nav-icon"></i>
+                      <p>Contas a receber</p>
+                    </a>
+                  </li>
+                  @if(auth()->user()->id == 1)
+                  <li class="nav-item">
+                    <a href="{{url('admin/reports/payables')}}" class="nav-link {{Request::segment(3) == 'payables' ? 'active' : ''}}">
+                      <i class="far fa-circle nav-icon"></i>
+                      <p>Contas a pagar</p>
+                    </a>
+                  </li>
+                  @endif
                 </ul>
               </li>
 

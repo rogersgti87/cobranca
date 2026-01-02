@@ -121,6 +121,13 @@ Route::group(['prefix' => 'admin','middleware' => ['auth']], function(){
     Route::post('payables/{id}/reverse',[PayableController::class,'reverse']);
     Route::get('load-payables',[PayableController::class,'loadPayables']);
 
+    // Relatórios
+    Route::get('reports/invoices',[InvoiceController::class,'report']);
+    Route::get('reports/invoices/data',[InvoiceController::class,'loadReportData']);
+    Route::get('reports/invoices/pdf',[InvoiceController::class,'exportPdf']);
+    Route::get('reports/payables',[PayableController::class,'report']);
+    Route::get('reports/payables/data',[PayableController::class,'loadReportData']);
+
     Route::get('payable-categories',[PayableCategoryController::class,'index']);
     Route::get('payable-categories/form',[PayableCategoryController::class,'form']);
     Route::post('payable-categories',[PayableCategoryController::class,'store']);

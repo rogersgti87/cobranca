@@ -27,77 +27,64 @@
       <div class="container-fluid">
         <div class="row">
 
-        <div class="col-md-12">
-         <div class="row d-flex justify-content-center">
-              <div class="col-md-2 col-6">
-                <div class="small-box bg-info">
-                    <div class="inner">
-                        <h5 id="total_invoices_curerency">R$0,00</h5>
-                        <p id="total_invoices">Total: 0</p>
-                    </div>
-                    <div class="icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-2 col-6">
-                <div class="small-box bg-primary">
-                    <div class="inner">
-                        <h5 id="pendent_invoices_curerency">R$0,00</h5>
-                        <p id="total_pendent">Pendentes: 0</p>
-                    </div>
-                    <div class="icon">
-                        <i class="far fa-hourglass"></i>
+        <div class="col-md-12 mb-4">
+         <div class="row">
+              <div class="col-md-3 col-6 mb-3">
+                <div style="background-color: #F5F5DC; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <p style="color: #1F2937; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Total</p>
+                            <h5 id="total_invoices_curerency" style="color: #1F2937; font-size: 20px; font-weight: 600; margin: 5px 0 0 0;">R$0,00</h5>
+                            <p id="total_invoices" style="color: #1F2937; font-size: 12px; margin: 5px 0 0 0; opacity: 0.6;">0 faturas</p>
+                        </div>
+                        <div style="width: 48px; height: 48px; background-color: rgba(59,130,246,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-receipt" style="color: #3B82F6; font-size: 20px;"></i>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-2 col-6">
-                <div class="small-box bg-success">
-                    <div class="inner">
-                        <h5 id="pay_invoices_curerency">R$0,00</h5>
-                        <p id="total_pay">Pagas: 0</p>
-                    </div>
-                    <div class="icon">
-                        <i class="fas fa-paper-plane"></i>
-                    </div>
-                </div>
-            </div>
-
-
-            <div class="col-md-2 col-6">
-                <div class="small-box bg-secondary">
-                    <div class="inner">
-                        <h5 id="proccessing_invoices_curerency">R$0,00</h5>
-                        <p id="total_proccessing">Processamentos: 0</p>
-                    </div>
-                    <div class="icon">
-                        <i class="fas fa-exclamation-triangle"></i>
+            <div class="col-md-3 col-6 mb-3">
+                <div style="background-color: #F5F5DC; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <p style="color: #1F2937; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Pendentes</p>
+                            <h5 id="pendent_invoices_curerency" style="color: #FFBD59; font-size: 20px; font-weight: 600; margin: 5px 0 0 0;">R$0,00</h5>
+                            <p id="total_pendent" style="color: #1F2937; font-size: 12px; margin: 5px 0 0 0; opacity: 0.6;">0 faturas</p>
+                        </div>
+                        <div style="width: 48px; height: 48px; background-color: rgba(255,189,89,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                            <i class="far fa-hourglass" style="color: #FFBD59; font-size: 20px;"></i>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-2 col-6">
-                <div class="small-box bg-navy">
-                    <div class="inner">
-                        <h5 id="expired_invoices_curerency">R$0,00</h5>
-                        <p id="total_expired">Expiradas: 0</p>
-                    </div>
-                    <div class="icon">
-                        <i class="fas fa-exclamation-triangle"></i>
+            <div class="col-md-3 col-6 mb-3">
+                <div style="background-color: #F5F5DC; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <p style="color: #1F2937; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Pagas</p>
+                            <h5 id="pay_invoices_curerency" style="color: #22C55E; font-size: 20px; font-weight: 600; margin: 5px 0 0 0;">R$0,00</h5>
+                            <p id="total_pay" style="color: #1F2937; font-size: 12px; margin: 5px 0 0 0; opacity: 0.6;">0 faturas</p>
+                        </div>
+                        <div style="width: 48px; height: 48px; background-color: rgba(34,197,94,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-check-circle" style="color: #22C55E; font-size: 20px;"></i>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-2 col-6">
-                <div class="small-box bg-danger">
-                    <div class="inner">
-                        <h5 id="cancelled_invoices_curerency">R$0,00</h5>
-                        <p id="total_cancelled">Canceladas: 0</p>
-                    </div>
-                    <div class="icon">
-                        <i class="fas fa-exclamation-triangle"></i>
+            <div class="col-md-3 col-6 mb-3">
+                <div style="background-color: #F5F5DC; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <p style="color: #1F2937; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Canceladas</p>
+                            <h5 id="cancelled_invoices_curerency" style="color: #F87171; font-size: 20px; font-weight: 600; margin: 5px 0 0 0;">R$0,00</h5>
+                            <p id="total_cancelled" style="color: #1F2937; font-size: 12px; margin: 5px 0 0 0; opacity: 0.6;">0 faturas</p>
+                        </div>
+                        <div style="width: 48px; height: 48px; background-color: rgba(248,113,113,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-times-circle" style="color: #F87171; font-size: 20px;"></i>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -107,45 +94,70 @@
         </div>
 
         <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+                <div class="d-flex align-items-center flex-wrap" style="gap: 10px;">
+                    <button class="btn" type="button" data-toggle="collapse" data-target="#filtersCollapse" aria-expanded="false" aria-controls="filtersCollapse" style="background-color: #FFBD59; color: #1F2937 !important; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; transition: all 0.3s;">
+                        <i class="fa fa-filter"></i> Filtros
+                    </button>
+                    <div class="d-flex flex-wrap" style="gap: 8px;">
+                        <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-current-month" data-filter="current-month" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); padding: 8px 16px; border-radius: 6px; font-weight: 500;">
+                            <i class="fa fa-calendar"></i> Mês Atual
+                        </button>
+                        <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-next-month" data-filter="next-month" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); padding: 8px 16px; border-radius: 6px; font-weight: 500;">
+                            <i class="fa fa-calendar-alt"></i> Próximo Mês
+                        </button>
+                        <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-all" data-filter="all" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); padding: 8px 16px; border-radius: 6px; font-weight: 500;">
+                            <i class="fa fa-list"></i> Todos
+                        </button>
+                    </div>
+                </div>
+            </div>
 
-            <div class="form-row">
+            <div class="collapse mb-4" id="filtersCollapse">
+                <div class="form-row" style="background-color: #F5F5DC; padding: 20px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1);">
 
                 <div class="form-group col-md-3 col-6">
-                    <label>Tipo</label>
-                    <select class="form-control"  id="filter-type">
+                    <label style="color: #1F2937; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Tipo de Data</label>
+                    <select class="form-control" id="filter-type" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #1F2937;">
                         <option value="date_due">Data do Vencimento</option>
                         <option value="date_invoice">Data da Fatura</option>
                     </select>
                 </div>
 
                 <div class="form-group col-md-3 col-6">
-                    <label>Status</label>
-                    <select class="form-control"  id="filter-status">
+                    <label style="color: #1F2937; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Status</label>
+                    <select class="form-control" id="filter-status" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #1F2937;">
                         <option value="">Todos</option>
                         <option value="Pendente">Pendente</option>
-                        <option value="Processamento">Processamento</option>
-                        <option value="Expirado">Expirado</option>
+                        <option value="Estabelecimento">Estabelecimento</option>
                         <option value="Pago">Pago</option>
                         <option value="Cancelado">Cancelado</option>
                     </select>
                 </div>
 
-                <div class="form-group col-md-2 col-6" id="">
-                    <label>Data inicial</label>
-                    <input type="date" autocomplete="off" class="form-control" placeholder="Data incial" id="filter-date-ini" value="{{date('Y-m-d',strtotime('first day of this month'))}}">
+                <div class="form-group col-md-3 col-6">
+                    <label style="color: #1F2937; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Data inicial</label>
+                    <input type="date" autocomplete="off" class="form-control" placeholder="Data inicial" id="filter-date-ini" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #1F2937;" value="{{date('Y-m-d',strtotime('first day of this month'))}}">
                 </div>
 
-                <div class="form-group col-md-2 col-6" id="">
-                    <label>Data final</label>
-                    <input type="date" autocomplete="off" class="form-control" placeholder="Data Final" id="filter-date-end" value="{{date('Y-m-d',strtotime('last day of this month'))}}">
+                <div class="form-group col-md-3 col-6">
+                    <label style="color: #1F2937; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Data final</label>
+                    <input type="date" autocomplete="off" class="form-control" placeholder="Data Final" id="filter-date-end" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #1F2937;" value="{{date('Y-m-d',strtotime('last day of this month'))}}">
                 </div>
 
-                <div class="form-group col-md-2 col-12 d-flex justify-content-start align-items-end">
-                    <button class="btn btn-secondary mb-2" type="button" id="filter-button"><i class="fa fa-search"></i> Filtrar</button>
-                </div>
             </div>
+            </div>
+        </div>
 
-
+      <div class="col-md-12 mb-4">
+        <div style="background-color: #F5F5DC; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <h5 style="color: #1F2937; font-weight: 600; margin-bottom: 20px;">
+                <i class="fas fa-chart-pie"></i> Faturas por Status
+            </h5>
+            <div style="position: relative; height: 300px;">
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
       </div>
 
 
@@ -153,10 +165,8 @@
         <div class="card-box">
             <div class="row d-flex justify-content-center align-items-center">
                 <div class="col-12">
-                    <div id="pagination" class="d-flex justify-content-start align-items-center mb-1">
-                        <button class="btn btn-sm btn-secondary" onclick="loadInvoices(prevPage)">Anterior</button>
-                        &nbsp;<span id="page-num"></span>&nbsp;
-                        <button class="btn btn-sm btn-secondary" onclick="loadInvoices(nextPage)">Próxima</button>
+                    <div id="pagination" class="d-flex justify-content-center align-items-center mb-3 flex-wrap" style="gap: 5px;">
+                        <!-- Paginação será gerada dinamicamente aqui -->
                     </div>
                 </div>
             </div>
@@ -362,8 +372,9 @@
 @endsection
 
 @section('scripts')
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+let statusChart = null;
 
     // Open Modal - Error
     $(document).on("click", "#btn-modal-error", function(e) {
@@ -810,11 +821,94 @@ $(document).on('click', '#btn-invoice-status', function(e) {
     const filterInputDateIni    = document.getElementById('filter-date-ini');
     const filterInputDateEnd    = document.getElementById('filter-date-end');
     const filterInputStatus     = document.getElementById('filter-status');
-    const filterButton          = document.getElementById('filter-button');
     const paginationContainer   = document.getElementById('pagination');
 
+    let loadInvoicesTimeout;
+    let currentPage = 1;
+
+    // Função para gerar paginação numérica com grupos de 10 páginas
+    function updatePagination(currentPage, totalPages) {
+        const paginationContainer = document.getElementById('pagination');
+        paginationContainer.innerHTML = '';
+
+        if (totalPages <= 1) {
+            return;
+        }
+
+        // Calcular o grupo de páginas atual (grupos de 10)
+        const currentGroup = Math.floor((currentPage - 1) / 10);
+        const startPage = currentGroup * 10 + 1;
+        const endPage = Math.min(startPage + 9, totalPages);
+
+        // Botão Anterior (para o grupo anterior)
+        if (currentPage > 1) {
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'btn btn-sm btn-secondary';
+            prevBtn.textContent = '« Anterior';
+            prevBtn.onclick = () => loadInvoices(currentPage - 1);
+            paginationContainer.appendChild(prevBtn);
+        }
+
+        // Botão para ir ao primeiro grupo (se não estiver no primeiro grupo)
+        if (currentGroup > 0) {
+            const firstBtn = document.createElement('button');
+            firstBtn.className = 'btn btn-sm btn-secondary';
+            firstBtn.textContent = '1';
+            firstBtn.onclick = () => loadInvoices(1);
+            paginationContainer.appendChild(firstBtn);
+
+            if (startPage > 2) {
+                const ellipsis = document.createElement('span');
+                ellipsis.className = 'px-2';
+                ellipsis.textContent = '...';
+                paginationContainer.appendChild(ellipsis);
+            }
+        }
+
+        // Botões numéricos do grupo atual
+        for (let i = startPage; i <= endPage; i++) {
+            const pageBtn = document.createElement('button');
+            pageBtn.className = 'btn btn-sm ' + (i === currentPage ? 'btn-primary' : 'btn-secondary');
+            pageBtn.textContent = i;
+            pageBtn.onclick = () => loadInvoices(i);
+            paginationContainer.appendChild(pageBtn);
+        }
+
+        // Botão para ir ao último grupo (se não estiver no último grupo)
+        if (currentGroup < Math.floor((totalPages - 1) / 10)) {
+            if (endPage < totalPages - 1) {
+                const ellipsis = document.createElement('span');
+                ellipsis.className = 'px-2';
+                ellipsis.textContent = '...';
+                paginationContainer.appendChild(ellipsis);
+            }
+
+            const lastBtn = document.createElement('button');
+            lastBtn.className = 'btn btn-sm btn-secondary';
+            lastBtn.textContent = totalPages;
+            lastBtn.onclick = () => loadInvoices(totalPages);
+            paginationContainer.appendChild(lastBtn);
+        }
+
+        // Botão Próxima (para a próxima página)
+        if (currentPage < totalPages) {
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'btn btn-sm btn-secondary';
+            nextBtn.textContent = 'Próxima »';
+            nextBtn.onclick = () => loadInvoices(currentPage + 1);
+            paginationContainer.appendChild(nextBtn);
+        }
+
+        // Informação de páginas
+        const info = document.createElement('span');
+        info.className = 'ml-3';
+        info.style.color = '#1F2937';
+        info.textContent = `Página ${currentPage} de ${totalPages}`;
+        paginationContainer.appendChild(info);
+    }
 
     function loadInvoices(page = 1) {
+        currentPage = page;
         const filterType        = filterInputType.value;
         const filterDateIni     = filterInputDateIni.value;
         const filterDateEnd     = filterInputDateEnd.value;
@@ -829,28 +923,29 @@ $(document).on('click', '#btn-invoice-status', function(e) {
 
         },
         success:function(data){
+            // Atualizar gráfico de status
+            if(data.status) {
+                updateStatusChart(data.status);
+            }
+
             if(data.result.data.length == 0){
-                $('#total_invoices').text('Total: '+0);
+                $('#total_invoices').text('0 faturas');
                 $('#total_invoices_curerency').text(parseFloat(0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
-                $('#total_pendent').text('Pendentes: '+0);
+                $('#total_pendent').text('0 faturas');
                 $('#pendent_invoices_curerency').text(parseFloat(0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
-                $('#total_pay').text('Pagas: '+0);
+                $('#total_pay').text('0 faturas');
                 $('#pay_invoices_curerency').text(parseFloat(0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
-                $('#total_proccessing').text('Processamentos: '+0);
-                $('#proccessing_invoices_curerency').text(parseFloat(0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
-                $('#total_cancelled').text('Canceladas: '+0);
+                $('#total_cancelled').text('0 faturas');
                 $('#cancelled_invoices_curerency').text(parseFloat(0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
             }else{
-                $('#total_invoices').text('Total: '+data.result.data[0].qtd_invoices);
-                $('#total_invoices_curerency').text(parseFloat(data.result.data[0].total_currency).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
-                $('#total_pendent').text('Pendentes: '+data.result.data[0].qtd_pendente);
-                $('#pendent_invoices_curerency').text(parseFloat(data.result.data[0].pendente_currency).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
-                $('#total_pay').text('Pagas: '+data.result.data[0].qtd_pago);
-                $('#pay_invoices_curerency').text(parseFloat(data.result.data[0].pago_currency).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
-                $('#total_proccessing').text('Processamentos: '+data.result.data[0].qtd_processamento);
-                $('#proccessing_invoices_curerency').text(data.result.data[0].processamento_currency != null ? parseFloat(data.result.data[0].processamento_currency).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'R$0,00');
-                $('#total_cancelled').text('Canceladas: '+data.result.data[0].qtd_cancelado);
-                $('#cancelled_invoices_curerency').text(parseFloat(data.result.data[0].cancelado_currency).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
+                $('#total_invoices').text(data.result.data[0].qtd_invoices + ' faturas');
+                $('#total_invoices_curerency').text(parseFloat(data.result.data[0].total_currency || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
+                $('#total_pendent').text(data.result.data[0].qtd_pendente + ' faturas');
+                $('#pendent_invoices_curerency').text(parseFloat(data.result.data[0].pendente_currency || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
+                $('#total_pay').text(data.result.data[0].qtd_pago + ' faturas');
+                $('#pay_invoices_curerency').text(parseFloat(data.result.data[0].pago_currency || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
+                $('#total_cancelled').text(data.result.data[0].qtd_cancelado + ' faturas');
+                $('#cancelled_invoices_curerency').text(parseFloat(data.result.data[0].cancelado_currency || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }));
             }
         $('#list-invoices').html('');
 
@@ -875,9 +970,9 @@ $(document).on('click', '#btn-invoice-status', function(e) {
                 html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer; color: #FFBD59; font-weight: 600;">' + item.price + '</td>';
                 html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer;"><span class="badge ' + statusBadgeClass + '">' + item.status + '</span></td>';
                 html += '<td>';
-                html += '<a href="{{ url('admin/customers/form?act=edit&id=')}}' + item.customer_id + '" data-original-title="Editar cliente" id="btn-edit-customer" data-placement="left" data-tt="tooltip" class="btn btn-secondary btn-xs" style="background-color: #1E293B; border-color: rgba(255,255,255,0.1); color: #E5E7EB;"> <i class="fas fa-user"></i></a> ';
+                html += '<a href="{{ url('admin/customers/form?act=edit&id=')}}' + item.customer_id + '" data-original-title="Editar cliente" id="btn-edit-customer" data-placement="left" data-tt="tooltip" class="btn btn-secondary btn-xs" style="background-color: #1E293B; border-color: rgba(255,255,255,0.1); color: #000000;"> <i class="fas fa-user"></i></a> ';
                 if(item.status == 'Pendente' || item.status == 'Erro' || item.status == 'Estabelecimento'){
-                    html += '<a href="#" data-original-title="Editar fatura" id="btn-modal-invoice" data-type="edit-invoice" data-invoice="' + item.id + '" data-placement="left" data-tt="tooltip" class="btn btn-secondary btn-xs" style="background-color: #1E293B; border-color: rgba(255,255,255,0.1); color: #E5E7EB;"> <i class="far fa-edit"></i></a> ';
+                    html += '<a href="#" data-original-title="Editar fatura" id="btn-modal-invoice" data-type="edit-invoice" data-invoice="' + item.id + '" data-placement="left" data-tt="tooltip" class="btn btn-secondary btn-xs" style="background-color: #1E293B; border-color: rgba(255,255,255,0.1); color: #000000;"> <i class="far fa-edit"></i></a> ';
                 }
                 if(item.status == 'Erro'){
                     html += '<a href="#" data-original-title="Erros" id="btn-modal-error" data-invoice="' + item.id + '" data-placement="left" data-tt="tooltip" class="btn btn-danger btn-xs"> <i class="fas fa-exclamation-triangle"></i></a> ';
@@ -903,15 +998,15 @@ $(document).on('click', '#btn-invoice-status', function(e) {
                 html += '<div class="row">';
                 html += '<div class="col-md-6 col-sm-12 mb-3">';
                 html += '<strong style="color: #FFBD59;">Descrição:</strong><br>';
-                html += '<span style="color: #E5E7EB;">' + (item.description || '-') + '</span>';
+                html += '<span style="color: #000000;">' + (item.description || '-') + '</span>';
                 html += '</div>';
                 html += '<div class="col-md-3 col-sm-6 mb-3">';
                 html += '<strong style="color: #FFBD59;">Pago em:</strong><br>';
-                html += '<span style="color: #E5E7EB;">' + datePayment + '</span>';
+                html += '<span style="color: #000000;">' + datePayment + '</span>';
                 html += '</div>';
                 html += '<div class="col-md-3 col-sm-6 mb-3">';
                 html += '<strong style="color: #FFBD59;">Forma de Pagamento:</strong><br>';
-                html += '<span style="color: #E5E7EB;">' + paymentMethod + '</span>';
+                html += '<span style="color: #000000;">' + paymentMethod + '</span>';
                 html += '</div>';
                 html += '</div>';
                 html += '</div>';
@@ -936,13 +1031,10 @@ $(document).on('click', '#btn-invoice-status', function(e) {
             });
 
                 currentPage = data.result.current_page;
-                prevPage = data.result.prev_page_url ? currentPage - 1 : currentPage;
-                nextPage = data.result.next_page_url ? currentPage + 1 : currentPage;
+                const totalPages = data.result.last_page;
 
-                document.getElementById('page-num').textContent = `Página ${currentPage}`;
-
-                document.getElementById('pagination').querySelector('button:first-child').disabled = !data.result.prev_page_url;
-                document.getElementById('pagination').querySelector('button:last-child').disabled = !data.result.next_page_url;
+                // Gerar paginação numérica
+                updatePagination(currentPage, totalPages);
 
 
             },
@@ -953,35 +1045,208 @@ $(document).on('click', '#btn-invoice-status', function(e) {
 
     }
 
-    filterButton.addEventListener('click', () => {
+    // Função para atualizar o destaque dos filtros rápidos
+    function updateQuickFilterHighlight() {
+        // Remover destaque de todos os botões
+        document.querySelectorAll('.filter-quick-btn').forEach(function(btn) {
+            btn.style.border = '1px solid rgba(0,0,0,0.1)';
+            btn.style.borderWidth = '1px';
+        });
+
+        const dateIni = filterInputDateIni.value;
+        const dateEnd = filterInputDateEnd.value;
+
+        if (!dateIni || !dateEnd) {
+            // Se não há datas, destacar "Todos"
+            document.getElementById('btn-filter-all').style.border = '2px solid #FFBD59';
+            document.getElementById('btn-filter-all').style.borderWidth = '2px';
+            return;
+        }
+
+        const now = new Date();
+        const currentMonthFirst = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+        const currentMonthLast = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+        const nextMonthFirst = new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString().split('T')[0];
+        const nextMonthLast = new Date(now.getFullYear(), now.getMonth() + 2, 0).toISOString().split('T')[0];
+
+        if (dateIni === currentMonthFirst && dateEnd === currentMonthLast) {
+            document.getElementById('btn-filter-current-month').style.border = '2px solid #FFBD59';
+            document.getElementById('btn-filter-current-month').style.borderWidth = '2px';
+        } else if (dateIni === nextMonthFirst && dateEnd === nextMonthLast) {
+            document.getElementById('btn-filter-next-month').style.border = '2px solid #FFBD59';
+            document.getElementById('btn-filter-next-month').style.borderWidth = '2px';
+        }
+    }
+
+    // Botão Mês Atual
+    document.getElementById('btn-filter-current-month').addEventListener('click', function() {
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+        filterInputDateIni.value = firstDay.toISOString().split('T')[0];
+        filterInputDateEnd.value = lastDay.toISOString().split('T')[0];
+
+        updateQuickFilterHighlight();
         currentPage = 1;
         loadInvoices(currentPage);
     });
 
-    // filterOperatorInput.addEventListener('change', () => {
-    //     currentPage = 1;
-    //     loadInvoices(currentPage);
-    // });
+    // Botão Próximo Mês
+    document.getElementById('btn-filter-next-month').addEventListener('click', function() {
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+        const lastDay = new Date(now.getFullYear(), now.getMonth() + 2, 0);
 
-    // filterValueInput.addEventListener('input', () => {
-    //     currentPage = 1;
-    //     loadInvoices(currentPage);
-    // });
+        filterInputDateIni.value = firstDay.toISOString().split('T')[0];
+        filterInputDateEnd.value = lastDay.toISOString().split('T')[0];
 
-    // sortSelect.addEventListener('change', () => {
-    //     currentPage = 1;
-    //     loadInvoices(currentPage);
-    // });
+        updateQuickFilterHighlight();
+        currentPage = 1;
+        loadInvoices(currentPage);
+    });
 
-    // directionSelect.addEventListener('change', () => {
-    //     currentPage = 1;
-    //     loadInvoices(currentPage);
-    // });
+    // Botão Todos
+    document.getElementById('btn-filter-all').addEventListener('click', function() {
+        filterInputDateIni.value = '';
+        filterInputDateEnd.value = '';
+        filterInputStatus.value = '';
 
+        updateQuickFilterHighlight();
+        currentPage = 1;
+        loadInvoices(currentPage);
+    });
+
+    // Atualizar destaque ao carregar a página (já que definimos mês atual por padrão)
+    updateQuickFilterHighlight();
+
+    // Função para carregar automaticamente com debounce
+    function autoLoadInvoices() {
+        clearTimeout(loadInvoicesTimeout);
+        loadInvoicesTimeout = setTimeout(function() {
+            currentPage = 1;
+            loadInvoices(currentPage);
+        }, 500);
+    }
+
+    // Eventos de mudança automática nos filtros
+    filterInputType.addEventListener('change', function() {
+        autoLoadInvoices();
+    });
+
+    filterInputStatus.addEventListener('change', function() {
+        autoLoadInvoices();
+    });
+
+    filterInputDateIni.addEventListener('change', function() {
+        updateQuickFilterHighlight();
+        autoLoadInvoices();
+    });
+
+    filterInputDateEnd.addEventListener('change', function() {
+        updateQuickFilterHighlight();
+        autoLoadInvoices();
+    });
 
     loadInvoices();
 
+function updateStatusChart(statusData) {
+    const ctx = document.getElementById('statusChart');
 
+    if (!ctx) return;
+
+    // Destruir gráfico anterior se existir
+    if (statusChart) {
+        statusChart.destroy();
+    }
+
+    if (!statusData || statusData.length === 0) {
+        const canvas = ctx.getContext('2d');
+        canvas.clearRect(0, 0, ctx.width, ctx.height);
+        return;
+    }
+
+    // Mapear cores para cada status
+    const statusColors = {
+        'Pendente': '#FFBD59',
+        'Pago': '#22C55E',
+        'Cancelado': '#F87171',
+        'Estabelecimento': '#6366F1',
+        'Processamento': '#6B7280'
+    };
+
+    // Preparar dados
+    const labels = statusData.map(item => item.status);
+    const data = statusData.map(item => parseFloat(item.total));
+    const colors = statusData.map(item => statusColors[item.status] || '#CCCCCC');
+    const borderColors = colors.map(color => color);
+
+    // Criar gráfico
+    statusChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Total por Status',
+                data: data,
+                backgroundColor: colors,
+                borderColor: borderColors,
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        padding: 15,
+                        font: {
+                            size: 12,
+                            family: 'Source Sans Pro'
+                        },
+                        generateLabels: function(chart) {
+                            const data = chart.data;
+                            if (data.labels.length && data.datasets.length) {
+                                return data.labels.map((label, i) => {
+                                    const value = data.datasets[0].data[i];
+                                    const color = data.datasets[0].backgroundColor[i];
+                                    const formattedValue = parseFloat(value).toLocaleString('pt-BR', {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    });
+                                    return {
+                                        text: label + ' - R$ ' + formattedValue,
+                                        fillStyle: color,
+                                        hidden: false,
+                                        index: i
+                                    };
+                                });
+                            }
+                            return [];
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(2);
+                            const formattedValue = parseFloat(value).toLocaleString('pt-BR', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            });
+                            return label + ': R$ ' + formattedValue + ' (' + percentage + '%)';
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
 </script>
 
 

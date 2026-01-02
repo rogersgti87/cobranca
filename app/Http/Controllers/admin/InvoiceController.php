@@ -13,6 +13,7 @@ use App\Models\ViewInvoice;
 use App\Models\InvoiceNotification;
 use App\Models\CustomerService;
 use App\Models\Customer;
+use App\Models\Service;
 use RuntimeException;
 use Illuminate\Support\Facades\Http;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -763,7 +764,7 @@ public function loadInvoices(){
     $query->join('customer_services','customer_services.id','invoices.customer_service_id')
             ->join('customers','customers.id','customer_services.customer_id')
             ->where('invoices.user_id',auth()->user()->id)
-            ->orderby('invoices.date_due','ASC');
+            ->orderby('invoices.id','DESC');
 
 
     if ($this->request->has('dateini') && $this->request->has('dateend')) {
@@ -774,8 +775,8 @@ public function loadInvoices(){
             (select COALESCE(sum(price),0) from invoices where status = 'Pendente' and ".$this->request->input('type')." between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as pendente_currency,
             (select count(*) from invoices where status = 'Pago'  and ".$this->request->input('type')." between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as qtd_pago,
             (select COALESCE(sum(price),0) from invoices where status = 'Pago'  and ".$this->request->input('type')." between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as pago_currency,
-            (select count(*) from invoices where status = 'Processamento'  and ".$this->request->input('type')." between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as qtd_processamento,
-            (select COALESCE(sum(price),0) from invoices where status = 'Processamento'  and ".$this->request->input('type')." between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as processamento_currency,
+            (select count(*) from invoices where status = 'Expirado'  and ".$this->request->input('type')." between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as qtd_expirado,
+            (select COALESCE(sum(price),0) from invoices where status = 'Expirado'  and ".$this->request->input('type')." between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as expirado_currency,
             (select count(*) from invoices where status = 'Cancelado'  and ".$this->request->input('type')." between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as qtd_cancelado,
             (select COALESCE(sum(price),0) from invoices where status = 'Cancelado'  and ".$this->request->input('type')." between '".$this->request->input('dateini')."' and '".$this->request->input('dateend')."' and user_id = ".auth()->user()->id." ) as cancelado_currency
             "));
@@ -790,20 +791,42 @@ public function loadInvoices(){
 
         $query->select(DB::raw("$fields,
         (select count(*) from invoices where date_due between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as qtd_invoices ,
+        (select COALESCE(sum(price),0) from invoices where date_due between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as total_currency ,
             (select count(*) from invoices where status = 'Pendente' and date_due between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as qtd_pendente,
+            (select COALESCE(sum(price),0) from invoices where status = 'Pendente' and date_due between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as pendente_currency,
             (select count(*) from invoices where status = 'Pago'  and date_due between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as qtd_pago,
-            (select count(*) from invoices where status = 'Processamento'  and date_due between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as qtd_processamento,
-            (select count(*) from invoices where status = 'Cancelado'  and date_due between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as qtd_cancelado
+            (select COALESCE(sum(price),0) from invoices where status = 'Pago'  and date_due between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as pago_currency,
+            (select count(*) from invoices where status = 'Expirado'  and date_due between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as qtd_expirado,
+            (select COALESCE(sum(price),0) from invoices where status = 'Expirado'  and date_due between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as expirado_currency,
+            (select count(*) from invoices where status = 'Cancelado'  and date_due between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as qtd_cancelado,
+            (select COALESCE(sum(price),0) from invoices where status = 'Cancelado'  and date_due between '".Carbon::now()->startOfMonth()."' and '".Carbon::now()->lastOfMonth()."' and user_id = ".auth()->user()->id." ) as cancelado_currency
         "));
         $query->whereBetween('invoices.date_due',[Carbon::now()->startOfMonth(),Carbon::now()->lastOfMonth()]);
     }
 
-    $data = $query->paginate(20);
+    // Criar uma cópia da query para buscar todos os dados (sem paginação) para o gráfico
+    $queryForChart = clone $query;
+    $allData = $queryForChart->get();
+    
+    // Calcular totais por status para o gráfico
+    $statusData = $allData->groupBy('status')->map(function ($items, $status) {
+        return [
+            'status' => $status,
+            'total' => $items->sum('price'),
+            'count' => $items->count()
+        ];
+    })->values();
+
+    // Agora fazer a paginação na query original
+    $data = $query->paginate(15);
 
     $data->prev_page_url = $data->previousPageUrl();
     $data->next_page_url = $data->nextPageUrl();
 
-    return response()->json(['result' => $data]);
+    return response()->json([
+        'result' => $data,
+        'status' => $statusData
+    ]);
 
 
 }
@@ -900,6 +923,211 @@ protected function convertPdfToJpg($pdfPath, $fileName)
     }
 }
 
+    public function report(){
+        
+        // Buscar clientes
+        $customers = Customer::where('user_id', auth()->user()->id)
+            ->orderBy('name', 'ASC')
+            ->get();
 
+        $datarequest = [
+            'title'             => 'Relatório de Contas a Receber',
+            'link'              => 'admin/reports/invoices',
+            'path'              => 'admin.report.invoice.'
+        ];
+
+        return view('admin.report.invoice.index', compact('customers'))->with($datarequest);
+    }
+
+    public function loadReportData(){
+        
+        $query = Invoice::query();
+
+        $query->leftJoin('customer_services','customer_services.id','invoices.customer_service_id')
+                ->leftJoin('customers','customers.id','customer_services.customer_id')
+                ->leftJoin('services','services.id','customer_services.service_id')
+                ->where('invoices.user_id',auth()->user()->id);
+
+        // Filtros
+        if($this->request->has('status') && $this->request->input('status') != ''){
+            $statuses = is_array($this->request->input('status')) ? $this->request->input('status') : [$this->request->input('status')];
+            $statuses = array_filter($statuses);
+            if(!empty($statuses)){
+                $query->whereIn('invoices.status', $statuses);
+            }
+        }
+
+        if($this->request->has('payment_method') && $this->request->input('payment_method') != ''){
+            $methods = is_array($this->request->input('payment_method')) ? $this->request->input('payment_method') : [$this->request->input('payment_method')];
+            $methods = array_filter($methods);
+            if(!empty($methods)){
+                $query->whereIn('invoices.payment_method', $methods);
+            }
+        }
+
+        if($this->request->has('customer') && $this->request->input('customer') != ''){
+            $customers = is_array($this->request->input('customer')) ? $this->request->input('customer') : [$this->request->input('customer')];
+            $customers = array_filter($customers);
+            if(!empty($customers)){
+                $query->whereIn('customer_services.customer_id', $customers);
+            }
+        }
+
+        if ($this->request->has('dateini') && $this->request->has('dateend') && $this->request->input('dateini') != '' && $this->request->input('dateend') != '') {
+            $dateType = $this->request->input('type', 'date_due');
+            $dateIni = $this->request->input('dateini');
+            $dateEnd = $this->request->input('dateend');
+            $query->whereBetween('invoices.'.$dateType,[$dateIni,$dateEnd]);
+        }
+
+        // Selecionar campos
+        $query->select(
+            'invoices.id',
+            'invoices.description',
+            'invoices.payment_method',
+            'invoices.price',
+            'invoices.date_invoice',
+            'invoices.date_due',
+            'invoices.date_payment',
+            'invoices.status',
+            'customers.id as customer_id',
+            'customers.name as customer_name',
+            'services.id as service_id',
+            'services.name as service_name',
+            'invoices.created_at',
+            'invoices.updated_at'
+        );
+
+        // Ordenação
+        $query->orderBy('invoices.date_due', 'ASC');
+
+        // Buscar todos os registros (sem paginação para relatório)
+        $data = $query->get();
+
+        // Calcular totais
+        $totals = [
+            'total' => $data->sum('price'),
+            'pendente' => $data->where('status', 'Pendente')->sum('price'),
+            'pago' => $data->where('status', 'Pago')->sum('price'),
+            'cancelado' => $data->where('status', 'Cancelado')->sum('price'),
+            'expirado' => $data->where('status', 'Expirado')->sum('price'),
+            'qtd_total' => $data->count(),
+            'qtd_pendente' => $data->where('status', 'Pendente')->count(),
+            'qtd_pago' => $data->where('status', 'Pago')->count(),
+            'qtd_cancelado' => $data->where('status', 'Cancelado')->count(),
+            'qtd_expirado' => $data->where('status', 'Expirado')->count(),
+        ];
+
+        // Calcular totais por status
+        $statusData = $data->groupBy('status')->map(function ($items, $status) {
+            return [
+                'status' => $status,
+                'total' => $items->sum('price'),
+                'count' => $items->count()
+            ];
+        })->values();
+
+        return response()->json([
+            'result' => $data,
+            'totals' => $totals,
+            'status' => $statusData
+        ]);
+    }
+
+    public function exportPdf(){
+        
+        $query = Invoice::query();
+
+        $query->leftJoin('customer_services','customer_services.id','invoices.customer_service_id')
+                ->leftJoin('customers','customers.id','customer_services.customer_id')
+                ->leftJoin('services','services.id','customer_services.service_id')
+                ->where('invoices.user_id',auth()->user()->id);
+
+        // Aplicar os mesmos filtros do loadReportData
+        if($this->request->has('status') && $this->request->input('status') != ''){
+            $statuses = is_array($this->request->input('status')) ? $this->request->input('status') : [$this->request->input('status')];
+            $statuses = array_filter($statuses);
+            if(!empty($statuses)){
+                $query->whereIn('invoices.status', $statuses);
+            }
+        }
+
+        if($this->request->has('payment_method') && $this->request->input('payment_method') != ''){
+            $methods = is_array($this->request->input('payment_method')) ? $this->request->input('payment_method') : [$this->request->input('payment_method')];
+            $methods = array_filter($methods);
+            if(!empty($methods)){
+                $query->whereIn('invoices.payment_method', $methods);
+            }
+        }
+
+        if($this->request->has('customer') && $this->request->input('customer') != ''){
+            $customers = is_array($this->request->input('customer')) ? $this->request->input('customer') : [$this->request->input('customer')];
+            $customers = array_filter($customers);
+            if(!empty($customers)){
+                $query->whereIn('customer_services.customer_id', $customers);
+            }
+        }
+
+        if ($this->request->has('dateini') && $this->request->has('dateend') && $this->request->input('dateini') != '' && $this->request->input('dateend') != '') {
+            $dateType = $this->request->input('type', 'date_due');
+            $dateIni = $this->request->input('dateini');
+            $dateEnd = $this->request->input('dateend');
+            $query->whereBetween('invoices.'.$dateType,[$dateIni,$dateEnd]);
+        }
+
+        // Selecionar campos
+        $query->select(
+            'invoices.id',
+            'invoices.description',
+            'invoices.payment_method',
+            'invoices.price',
+            'invoices.date_invoice',
+            'invoices.date_due',
+            'invoices.date_payment',
+            'invoices.status',
+            'customers.id as customer_id',
+            'customers.name as customer_name',
+            'services.id as service_id',
+            'services.name as service_name',
+            'invoices.created_at',
+            'invoices.updated_at'
+        );
+
+        // Ordenação
+        $query->orderBy('invoices.date_due', 'ASC');
+
+        // Buscar todos os registros
+        $data = $query->get();
+
+        // Calcular totais
+        $totals = [
+            'total' => $data->sum('price'),
+            'pendente' => $data->where('status', 'Pendente')->sum('price'),
+            'pago' => $data->where('status', 'Pago')->sum('price'),
+            'cancelado' => $data->where('status', 'Cancelado')->sum('price'),
+            'expirado' => $data->where('status', 'Expirado')->sum('price'),
+            'qtd_total' => $data->count(),
+            'qtd_pendente' => $data->where('status', 'Pendente')->count(),
+            'qtd_pago' => $data->where('status', 'Pago')->count(),
+            'qtd_cancelado' => $data->where('status', 'Cancelado')->count(),
+            'qtd_expirado' => $data->where('status', 'Expirado')->count(),
+        ];
+
+        // Informações do filtro para exibir no PDF
+        $filters = [
+            'date_type' => $this->request->input('type', 'date_due'),
+            'date_ini' => $this->request->input('dateini', ''),
+            'date_end' => $this->request->input('dateend', ''),
+            'status' => $this->request->input('status', []),
+            'payment_method' => $this->request->input('payment_method', []),
+        ];
+
+        $user = User::where('id', auth()->user()->id)->first();
+
+        // Retornar view HTML otimizada para impressão/PDF
+        // O navegador pode gerar PDF diretamente usando Ctrl+P > Salvar como PDF
+        // ou podemos usar biblioteca JavaScript no frontend
+        return view('admin.report.invoice.pdf', compact('data', 'totals', 'filters', 'user'));
+    }
 
 }

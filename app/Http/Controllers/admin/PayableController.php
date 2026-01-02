@@ -577,89 +577,123 @@ public function loadPayables(){
             ->leftJoin('payable_categories','payable_categories.id','payables.category_id')
             ->where('payables.user_id',auth()->user()->id);
 
+    // Coletar filtros para usar nas subqueries
+    $statuses = [];
+    if($this->request->has('status') && $this->request->input('status') != ''){
+        $statuses = is_array($this->request->input('status')) ? $this->request->input('status') : [$this->request->input('status')];
+        $statuses = array_filter($statuses);
+    }
+
+    $types = [];
+    if($this->request->has('payable_type') && $this->request->input('payable_type') != ''){
+        $types = is_array($this->request->input('payable_type')) ? $this->request->input('payable_type') : [$this->request->input('payable_type')];
+        $types = array_filter($types);
+    }
+
+    $categories = [];
+    if($this->request->has('category') && $this->request->input('category') != ''){
+        $categories = is_array($this->request->input('category')) ? $this->request->input('category') : [$this->request->input('category')];
+        $categories = array_filter($categories);
+    }
+
+    // Construir condições de filtro para as subqueries
+    $filterConditions = "user_id = " . auth()->user()->id;
+    
+    if(!empty($types)){
+        $typesList = "'" . implode("','", array_map(function($t) { return addslashes($t); }, $types)) . "'";
+        $filterConditions .= " AND type IN ($typesList)";
+    }
+    
+    if(!empty($categories)){
+        $categoriesList = implode(',', array_map('intval', $categories));
+        $filterConditions .= " AND category_id IN ($categoriesList)";
+    }
+
     if ($this->request->has('dateini') && $this->request->has('dateend') && $this->request->input('dateini') != '' && $this->request->input('dateend') != '') {
             $dateType = $this->request->input('type', 'date_due');
             $dateIni = $this->request->input('dateini');
             $dateEnd = $this->request->input('dateend');
 
+            // Adicionar filtro de data às condições
+            $dateFilter = $dateType . " BETWEEN '" . addslashes($dateIni) . "' AND '" . addslashes($dateEnd) . "'";
+            $fullFilterConditions = $filterConditions . " AND " . $dateFilter;
+
+            // Construir subqueries com todos os filtros aplicados
+            $subqueryBase = "from payables where " . $fullFilterConditions;
+            
+            // Para totais gerais, aplicar filtros de status se houver
+            $subqueryTotal = $subqueryBase;
+            if(!empty($statuses)){
+                $statusesList = "'" . implode("','", array_map(function($s) { return addslashes($s); }, $statuses)) . "'";
+                $subqueryTotal .= " AND status IN ($statusesList)";
+            }
+
             $query->select(DB::raw("$fields,
-            (select count(*) from payables where ".$dateType." between '".$dateIni."' and '".$dateEnd."' and user_id = ".auth()->user()->id." ) as qtd_payables ,
-            (select COALESCE(sum(price),0) from payables where ".$dateType." between '".$dateIni."' and '".$dateEnd."' and user_id = ".auth()->user()->id." ) as total_currency ,
-            (select count(*) from payables where status = 'Pendente' and ".$dateType." between '".$dateIni."' and '".$dateEnd."' and user_id = ".auth()->user()->id." ) as qtd_pendente,
-            (select COALESCE(sum(price),0) from payables where status = 'Pendente' and ".$dateType." between '".$dateIni."' and '".$dateEnd."' and user_id = ".auth()->user()->id." ) as pendente_currency,
-            (select count(*) from payables where status = 'Pago'  and ".$dateType." between '".$dateIni."' and '".$dateEnd."' and user_id = ".auth()->user()->id." ) as qtd_pago,
-            (select COALESCE(sum(price),0) from payables where status = 'Pago'  and ".$dateType." between '".$dateIni."' and '".$dateEnd."' and user_id = ".auth()->user()->id." ) as pago_currency,
-            (select count(*) from payables where status = 'Cancelado'  and ".$dateType." between '".$dateIni."' and '".$dateEnd."' and user_id = ".auth()->user()->id." ) as qtd_cancelado,
-            (select COALESCE(sum(price),0) from payables where status = 'Cancelado'  and ".$dateType." between '".$dateIni."' and '".$dateEnd."' and user_id = ".auth()->user()->id." ) as cancelado_currency
+            (select count(*) $subqueryTotal) as qtd_payables,
+            (select COALESCE(sum(price),0) $subqueryTotal) as total_currency,
+            (select count(*) $subqueryBase AND status = 'Pendente') as qtd_pendente,
+            (select COALESCE(sum(price),0) $subqueryBase AND status = 'Pendente') as pendente_currency,
+            (select count(*) $subqueryBase AND status = 'Pago') as qtd_pago,
+            (select COALESCE(sum(price),0) $subqueryBase AND status = 'Pago') as pago_currency,
+            (select count(*) $subqueryBase AND status = 'Cancelado') as qtd_cancelado,
+            (select COALESCE(sum(price),0) $subqueryBase AND status = 'Cancelado') as cancelado_currency,
+            (select count(*) $subqueryBase AND type = 'Fixa') as qtd_fixed,
+            (select COALESCE(sum(price),0) $subqueryBase AND type = 'Fixa') as fixed_currency,
+            (select count(*) $subqueryBase AND type = 'Recorrente') as qtd_recurring,
+            (select COALESCE(sum(price),0) $subqueryBase AND type = 'Recorrente') as recurring_currency
             "));
 
-            // Filtro de status - aceita múltiplos valores
-            if($this->request->has('status') && $this->request->input('status') != ''){
-                $statuses = is_array($this->request->input('status')) ? $this->request->input('status') : [$this->request->input('status')];
-                $statuses = array_filter($statuses); // Remove valores vazios
-                if(!empty($statuses)){
-                    $query->whereIn('payables.status', $statuses);
-                }
+            // Aplicar filtros na query principal
+            if(!empty($statuses)){
+                $query->whereIn('payables.status', $statuses);
             }
 
-            // Filtro de tipo - aceita múltiplos valores
-            if($this->request->has('payable_type') && $this->request->input('payable_type') != ''){
-                $types = is_array($this->request->input('payable_type')) ? $this->request->input('payable_type') : [$this->request->input('payable_type')];
-                $types = array_filter($types); // Remove valores vazios
-                if(!empty($types)){
-                    $query->whereIn('payables.type', $types);
-                }
+            if(!empty($types)){
+                $query->whereIn('payables.type', $types);
             }
 
-            // Filtro de categoria - aceita múltiplos valores
-            if($this->request->has('category') && $this->request->input('category') != ''){
-                $categories = is_array($this->request->input('category')) ? $this->request->input('category') : [$this->request->input('category')];
-                $categories = array_filter($categories); // Remove valores vazios
-                if(!empty($categories)){
-                    $query->whereIn('payables.category_id', $categories);
-                }
+            if(!empty($categories)){
+                $query->whereIn('payables.category_id', $categories);
             }
 
             $query->whereBetween('payables.'.$dateType,[$dateIni,$dateEnd]);
     }else{
-        // Quando não há filtros, mostra todas as contas (ou um intervalo maior)
+        // Quando não há filtro de data
+        $subqueryBase = "from payables where " . $filterConditions;
+        
+        // Para totais gerais, aplicar filtros de status se houver
+        $subqueryTotal = $subqueryBase;
+        if(!empty($statuses)){
+            $statusesList = "'" . implode("','", array_map(function($s) { return addslashes($s); }, $statuses)) . "'";
+            $subqueryTotal .= " AND status IN ($statusesList)";
+        }
+
         $query->select(DB::raw("$fields,
-        (select count(*) from payables where user_id = ".auth()->user()->id." ) as qtd_payables ,
-            (select COALESCE(sum(price),0) from payables where user_id = ".auth()->user()->id." ) as total_currency ,
-            (select count(*) from payables where status = 'Pendente' and user_id = ".auth()->user()->id." ) as qtd_pendente,
-            (select COALESCE(sum(price),0) from payables where status = 'Pendente' and user_id = ".auth()->user()->id." ) as pendente_currency,
-            (select count(*) from payables where status = 'Pago'  and user_id = ".auth()->user()->id." ) as qtd_pago,
-            (select COALESCE(sum(price),0) from payables where status = 'Pago'  and user_id = ".auth()->user()->id." ) as pago_currency,
-            (select count(*) from payables where status = 'Cancelado'  and user_id = ".auth()->user()->id." ) as qtd_cancelado,
-            (select COALESCE(sum(price),0) from payables where status = 'Cancelado'  and user_id = ".auth()->user()->id." ) as cancelado_currency
+        (select count(*) $subqueryTotal) as qtd_payables,
+        (select COALESCE(sum(price),0) $subqueryTotal) as total_currency,
+        (select count(*) $subqueryBase AND status = 'Pendente') as qtd_pendente,
+        (select COALESCE(sum(price),0) $subqueryBase AND status = 'Pendente') as pendente_currency,
+        (select count(*) $subqueryBase AND status = 'Pago') as qtd_pago,
+        (select COALESCE(sum(price),0) $subqueryBase AND status = 'Pago') as pago_currency,
+        (select count(*) $subqueryBase AND status = 'Cancelado') as qtd_cancelado,
+        (select COALESCE(sum(price),0) $subqueryBase AND status = 'Cancelado') as cancelado_currency,
+        (select count(*) $subqueryBase AND type = 'Fixa') as qtd_fixed,
+        (select COALESCE(sum(price),0) $subqueryBase AND type = 'Fixa') as fixed_currency,
+        (select count(*) $subqueryBase AND type = 'Recorrente') as qtd_recurring,
+        (select COALESCE(sum(price),0) $subqueryBase AND type = 'Recorrente') as recurring_currency
         "));
-        // Não aplica filtro de data quando não há filtros - mostra todas as contas
         
-        // Filtro de status quando não há filtro de data
-        if($this->request->has('status') && $this->request->input('status') != ''){
-            $statuses = is_array($this->request->input('status')) ? $this->request->input('status') : [$this->request->input('status')];
-            $statuses = array_filter($statuses); // Remove valores vazios
-            if(!empty($statuses)){
-                $query->whereIn('payables.status', $statuses);
-            }
+        // Aplicar filtros na query principal
+        if(!empty($statuses)){
+            $query->whereIn('payables.status', $statuses);
         }
         
-        // Filtro de tipo quando não há filtro de data
-        if($this->request->has('payable_type') && $this->request->input('payable_type') != ''){
-            $types = is_array($this->request->input('payable_type')) ? $this->request->input('payable_type') : [$this->request->input('payable_type')];
-            $types = array_filter($types); // Remove valores vazios
-            if(!empty($types)){
-                $query->whereIn('payables.type', $types);
-            }
+        if(!empty($types)){
+            $query->whereIn('payables.type', $types);
         }
         
-        // Filtro de categoria quando não há filtro de data
-        if($this->request->has('category') && $this->request->input('category') != ''){
-            $categories = is_array($this->request->input('category')) ? $this->request->input('category') : [$this->request->input('category')];
-            $categories = array_filter($categories); // Remove valores vazios
-            if(!empty($categories)){
-                $query->whereIn('payables.category_id', $categories);
-            }
+        if(!empty($categories)){
+            $query->whereIn('payables.category_id', $categories);
         }
     }
 
@@ -667,13 +701,164 @@ public function loadPayables(){
     $query->orderByRaw("CASE WHEN payables.status = 'Pendente' THEN 0 ELSE 1 END")
           ->orderBy('payables.date_due', 'ASC');
 
+    // Criar uma cópia da query para buscar todos os dados (sem paginação) para o gráfico
+    $queryForChart = clone $query;
+    $allData = $queryForChart->get();
+    
+    // Calcular totais por categoria para o gráfico
+    $categoriesData = $allData->groupBy('category_id')->map(function ($items, $categoryId) {
+        $firstItem = $items->first();
+        return [
+            'category_id' => $categoryId,
+            'category_name' => $firstItem->category_name ?? 'Sem Categoria',
+            'category_color' => $firstItem->category_color ?? '#CCCCCC',
+            'total' => $items->sum('price'),
+            'count' => $items->count()
+        ];
+    })->values();
+
+    // Agora fazer a paginação na query original
     $data = $query->paginate(20);
 
     $data->prev_page_url = $data->previousPageUrl();
     $data->next_page_url = $data->nextPageUrl();
 
-    return response()->json(['result' => $data]);
+    return response()->json([
+        'result' => $data,
+        'categories' => $categoriesData
+    ]);
 }
+
+    public function report(){
+        
+        // Buscar categorias globais (user_id NULL) e do usuário atual
+        $categories = PayableCategory::where(function($query) {
+                $query->whereNull('user_id')
+                      ->orWhere('user_id', auth()->user()->id);
+            })
+            ->orderByRaw('CASE WHEN user_id IS NULL THEN 0 ELSE 1 END') // Globais primeiro
+            ->orderBy('name','ASC')
+            ->get();
+
+        // Buscar fornecedores
+        $suppliers = Supplier::where('user_id', auth()->user()->id)
+            ->orderBy('name', 'ASC')
+            ->get();
+
+        $datarequest = [
+            'title'             => 'Relatório de Contas a Pagar',
+            'link'              => 'admin/reports/payables',
+            'path'              => 'admin.report.payable.'
+        ];
+
+        return view('admin.report.payable.index', compact('categories', 'suppliers'))->with($datarequest);
+    }
+
+    public function loadReportData(){
+        
+        $query = Payable::query();
+
+        $query->leftJoin('suppliers','suppliers.id','payables.supplier_id')
+                ->leftJoin('payable_categories','payable_categories.id','payables.category_id')
+                ->where('payables.user_id',auth()->user()->id);
+
+        // Filtros
+        if($this->request->has('status') && $this->request->input('status') != ''){
+            $statuses = is_array($this->request->input('status')) ? $this->request->input('status') : [$this->request->input('status')];
+            $statuses = array_filter($statuses);
+            if(!empty($statuses)){
+                $query->whereIn('payables.status', $statuses);
+            }
+        }
+
+        if($this->request->has('payable_type') && $this->request->input('payable_type') != ''){
+            $types = is_array($this->request->input('payable_type')) ? $this->request->input('payable_type') : [$this->request->input('payable_type')];
+            $types = array_filter($types);
+            if(!empty($types)){
+                $query->whereIn('payables.type', $types);
+            }
+        }
+
+        if($this->request->has('category') && $this->request->input('category') != ''){
+            $categories = is_array($this->request->input('category')) ? $this->request->input('category') : [$this->request->input('category')];
+            $categories = array_filter($categories);
+            if(!empty($categories)){
+                $query->whereIn('payables.category_id', $categories);
+            }
+        }
+
+        if($this->request->has('supplier') && $this->request->input('supplier') != ''){
+            $suppliers = is_array($this->request->input('supplier')) ? $this->request->input('supplier') : [$this->request->input('supplier')];
+            $suppliers = array_filter($suppliers);
+            if(!empty($suppliers)){
+                $query->whereIn('payables.supplier_id', $suppliers);
+            }
+        }
+
+        if ($this->request->has('dateini') && $this->request->has('dateend') && $this->request->input('dateini') != '' && $this->request->input('dateend') != '') {
+            $dateType = $this->request->input('type', 'date_due');
+            $dateIni = $this->request->input('dateini');
+            $dateEnd = $this->request->input('dateend');
+            $query->whereBetween('payables.'.$dateType,[$dateIni,$dateEnd]);
+        }
+
+        // Selecionar campos
+        $query->select(
+            'payables.id',
+            'payables.description',
+            'payables.payment_method',
+            'payables.price',
+            'payables.date_due',
+            'payables.date_payment',
+            'payables.status',
+            'payables.type',
+            'payables.installment_number',
+            'payables.installments',
+            'suppliers.id as supplier_id',
+            'suppliers.name as supplier_name',
+            'payable_categories.id as category_id',
+            'payable_categories.name as category_name',
+            'payable_categories.color as category_color',
+            'payables.created_at',
+            'payables.updated_at'
+        );
+
+        // Ordenação
+        $query->orderBy('payables.date_due', 'ASC');
+
+        // Buscar todos os registros (sem paginação para relatório)
+        $data = $query->get();
+
+        // Calcular totais
+        $totals = [
+            'total' => $data->sum('price'),
+            'pendente' => $data->where('status', 'Pendente')->sum('price'),
+            'pago' => $data->where('status', 'Pago')->sum('price'),
+            'cancelado' => $data->where('status', 'Cancelado')->sum('price'),
+            'qtd_total' => $data->count(),
+            'qtd_pendente' => $data->where('status', 'Pendente')->count(),
+            'qtd_pago' => $data->where('status', 'Pago')->count(),
+            'qtd_cancelado' => $data->where('status', 'Cancelado')->count(),
+        ];
+
+        // Calcular totais por categoria
+        $categoriesData = $data->groupBy('category_id')->map(function ($items, $categoryId) {
+            $firstItem = $items->first();
+            return [
+                'category_id' => $categoryId,
+                'category_name' => $firstItem->category_name ?? 'Sem Categoria',
+                'category_color' => $firstItem->category_color ?? '#CCCCCC',
+                'total' => $items->sum('price'),
+                'count' => $items->count()
+            ];
+        })->values();
+
+        return response()->json([
+            'result' => $data,
+            'totals' => $totals,
+            'categories' => $categoriesData
+        ]);
+    }
 
 
 

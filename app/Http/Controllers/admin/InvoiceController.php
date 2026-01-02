@@ -807,7 +807,7 @@ public function loadInvoices(){
     // Criar uma cópia da query para buscar todos os dados (sem paginação) para o gráfico
     $queryForChart = clone $query;
     $allData = $queryForChart->get();
-    
+
     // Calcular totais por status para o gráfico
     $statusData = $allData->groupBy('status')->map(function ($items, $status) {
         return [
@@ -924,7 +924,7 @@ protected function convertPdfToJpg($pdfPath, $fileName)
 }
 
     public function report(){
-        
+
         // Buscar clientes
         $customers = Customer::where('user_id', auth()->user()->id)
             ->orderBy('name', 'ASC')
@@ -940,7 +940,7 @@ protected function convertPdfToJpg($pdfPath, $fileName)
     }
 
     public function loadReportData(){
-        
+
         $query = Invoice::query();
 
         $query->leftJoin('customer_services','customer_services.id','invoices.customer_service_id')
@@ -1035,7 +1035,7 @@ protected function convertPdfToJpg($pdfPath, $fileName)
     }
 
     public function exportPdf(){
-        
+
         $query = Invoice::query();
 
         $query->leftJoin('customer_services','customer_services.id','invoices.customer_service_id')
@@ -1124,7 +1124,6 @@ protected function convertPdfToJpg($pdfPath, $fileName)
 
         $user = User::where('id', auth()->user()->id)->first();
 
-        // Retornar view HTML otimizada para impressão/PDF
         // O navegador pode gerar PDF diretamente usando Ctrl+P > Salvar como PDF
         // ou podemos usar biblioteca JavaScript no frontend
         return view('admin.report.invoice.pdf', compact('data', 'totals', 'filters', 'user'));

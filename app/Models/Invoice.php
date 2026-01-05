@@ -597,6 +597,9 @@ class Invoice extends Model
 
                 if ($response_get_billet->successful()) {
                     $result_get_billet = json_decode($response_get_billet->body());
+                    
+                    // Log da estrutura para debug
+                    \Log::info('Estrutura resposta get_billet: '.json_encode($result_get_billet));
                 } else {
                     \Log::error('Erro ao obter detalhes do boleto: '.$response_get_billet->body());
                     return ['status' => 'reject', 'title' => 'Erro ao gerar Boleto', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Erro ao obter codigo boleto intermedium!']]];
@@ -623,13 +626,29 @@ class Invoice extends Model
                     Storage::disk('public')->put('boletos/' .  $invoice['user_id'].'_'.$invoice['id'].'.'.'pdf', base64_decode($pdf));
                     $billet_pdf = env('APP_URL').Storage::url('boletos/' .$invoice['user_id'].'_'.$invoice['id'].'.pdf');
 
+                    // Tenta obter linhaDigitavel de diferentes estruturas possíveis
+                    $linhaDigitavel = null;
+                    if(isset($result_get_billet->cobranca->boleto->linhaDigitavel)){
+                        $linhaDigitavel = $result_get_billet->cobranca->boleto->linhaDigitavel;
+                    } elseif(isset($result_get_billet->boleto->linhaDigitavel)){
+                        $linhaDigitavel = $result_get_billet->boleto->linhaDigitavel;
+                    } elseif(isset($result_get_billet->cobranca->linhaDigitavel)){
+                        $linhaDigitavel = $result_get_billet->cobranca->linhaDigitavel;
+                    } elseif(isset($result_get_billet->linhaDigitavel)){
+                        $linhaDigitavel = $result_get_billet->linhaDigitavel;
+                    } else {
+                        \Log::warning('linhaDigitavel não encontrada na resposta para invoice ID: '.$invoice_id);
+                        // Pode ser que a linha digitável não esteja disponível ainda, mas o boleto foi criado
+                        $linhaDigitavel = '';
+                    }
+
                     Invoice::where('id',$invoice_id)->update([
                         'status'            =>  'Pendente',
                         'msg_erro'          =>  null,
                         'transaction_id'    =>  $codigoSolicitacao,
                         'billet_url'        =>  $billet_pdf,
                         'billet_base64'     =>  $pdf,
-                        'billet_digitable'  =>  $result_get_billet->boleto->linhaDigitavel
+                        'billet_digitable'  =>  $linhaDigitavel
                     ]);
                     return ['status' => 'success', 'title' => 'OK', 'message' => [['razao' => 'OK', 'propriedade' => 'OK']]];
 
@@ -776,6 +795,9 @@ class Invoice extends Model
 
                 if ($response_get_billet->successful()) {
                     $result_get_billet = json_decode($response_get_billet->body());
+                    
+                    // Log da estrutura para debug
+                    \Log::info('Estrutura resposta get_billet (BoletoPix): '.json_encode($result_get_billet));
                 }else{
                     \Log::error('Erro ao obter detalhes do boletopix: '.$response_get_billet->body());
                     return ['status' => 'reject', 'title' => 'Erro ao gerar BoletoPix', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Erro ao obter codigo boletopix intermedium!']]];
@@ -802,13 +824,29 @@ class Invoice extends Model
                     Storage::disk('public')->put('boletopix/' .  $invoice['user_id'].'_'.$invoice['id'].'.'.'pdf', base64_decode($pdf));
                     $billet_pdf = env('APP_URL').Storage::url('boletopix/' .$invoice['user_id'].'_'.$invoice['id'].'.pdf');
 
+                    // Tenta obter linhaDigitavel de diferentes estruturas possíveis
+                    $linhaDigitavel = null;
+                    if(isset($result_get_billet->cobranca->boleto->linhaDigitavel)){
+                        $linhaDigitavel = $result_get_billet->cobranca->boleto->linhaDigitavel;
+                    } elseif(isset($result_get_billet->boleto->linhaDigitavel)){
+                        $linhaDigitavel = $result_get_billet->boleto->linhaDigitavel;
+                    } elseif(isset($result_get_billet->cobranca->linhaDigitavel)){
+                        $linhaDigitavel = $result_get_billet->cobranca->linhaDigitavel;
+                    } elseif(isset($result_get_billet->linhaDigitavel)){
+                        $linhaDigitavel = $result_get_billet->linhaDigitavel;
+                    } else {
+                        \Log::warning('linhaDigitavel não encontrada na resposta (BoletoPix) para invoice ID: '.$invoice_id);
+                        // Pode ser que a linha digitável não esteja disponível ainda, mas o boleto foi criado
+                        $linhaDigitavel = '';
+                    }
+
                     Invoice::where('id',$invoice_id)->update([
                         'status'            =>  'Pendente',
                         'msg_erro'          =>  null,
                         'transaction_id'    =>  $codigoSolicitacao,
                         'billet_url'        =>  $billet_pdf,
                         'billet_base64'     =>  $pdf,
-                        'billet_digitable'  =>  $result_get_billet->boleto->linhaDigitavel
+                        'billet_digitable'  =>  $linhaDigitavel
                     ]);
                     return ['status' => 'success', 'title' => 'OK', 'message' => [['razao' => 'OK', 'propriedade' => 'OK']]];
 

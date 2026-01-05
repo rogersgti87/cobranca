@@ -574,8 +574,15 @@ class Invoice extends Model
 
             if ($response_generate_billet->successful()) {
 
-                $result_generate_billet = $response_generate_billet->json();
-                $result_generate_billet = json_decode($response_generate_billet);
+                $result_generate_billet = json_decode($response_generate_billet->body());
+                
+                // Valida se codigoSolicitacao foi retornado
+                if(empty($result_generate_billet->codigoSolicitacao)){
+                    \Log::error('Erro ao gerar boleto: codigoSolicitacao não retornado para invoice ID: '.$invoice_id);
+                    return ['status' => 'reject', 'title' => 'Erro ao gerar Boleto', 'message' => [['razao' => 'codigoSolicitacao não retornado pela API', 'propriedade' => 'Erro ao gerar boleto intermedium!']]];
+                }
+
+                $codigoSolicitacao = trim((string) $result_generate_billet->codigoSolicitacao);
 
                 // V3 API: Need to get the cobranca details to retrieve boleto information
                 $response_get_billet = Http::retry(3, 100)->withOptions(
@@ -586,12 +593,12 @@ class Invoice extends Model
                     )->withHeaders([
                     'Authorization' => 'Bearer ' . $access_token
 
-                ])->get($invoice['inter_host'].'cobranca/v3/cobrancas/'.$result_generate_billet->codigoSolicitacao);
+                ])->get($invoice['inter_host'].'cobranca/v3/cobrancas/'.$codigoSolicitacao);
 
                 if ($response_get_billet->successful()) {
-                    $result_get_billet = $response_get_billet->json();
-                    $result_get_billet = json_decode($response_get_billet);
+                    $result_get_billet = json_decode($response_get_billet->body());
                 } else {
+                    \Log::error('Erro ao obter detalhes do boleto: '.$response_get_billet->body());
                     return ['status' => 'reject', 'title' => 'Erro ao gerar Boleto', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Erro ao obter codigo boleto intermedium!']]];
                 }
 
@@ -603,7 +610,7 @@ class Invoice extends Model
                     )->withHeaders([
                     'Authorization' => 'Bearer ' . $access_token
 
-                ])->get($invoice['inter_host'].'cobranca/v3/cobrancas/'.$result_generate_billet->codigoSolicitacao.'/pdf');
+                ])->get($invoice['inter_host'].'cobranca/v3/cobrancas/'.$codigoSolicitacao.'/pdf');
 
                 if ($response_pdf_billet->successful()) {
 
@@ -619,7 +626,7 @@ class Invoice extends Model
                     Invoice::where('id',$invoice_id)->update([
                         'status'            =>  'Pendente',
                         'msg_erro'          =>  null,
-                        'transaction_id'    =>  $result_generate_billet->codigoSolicitacao,
+                        'transaction_id'    =>  $codigoSolicitacao,
                         'billet_url'        =>  $billet_pdf,
                         'billet_base64'     =>  $pdf,
                         'billet_digitable'  =>  $result_get_billet->boleto->linhaDigitavel
@@ -627,7 +634,9 @@ class Invoice extends Model
                     return ['status' => 'success', 'title' => 'OK', 'message' => [['razao' => 'OK', 'propriedade' => 'OK']]];
 
                 }else{
-                    return ['status' => 'reject', 'title' => $result_generate_billet['title'], 'message' => $result_generate_billet['Erro ao gerar pdf pagamento intermedium']];
+                    $error_response = json_decode($response_pdf_billet->body());
+                    \Log::error('Erro ao gerar PDF do boleto: '.$response_pdf_billet->body());
+                    return ['status' => 'reject', 'title' => isset($error_response->title) ? $error_response->title : 'Erro ao gerar PDF', 'message' => isset($error_response->violacoes) ? $error_response->violacoes : [['razao' => 'Erro ao gerar pdf pagamento intermedium', 'propriedade' => 'PDF']]];
                 }
 
 
@@ -745,10 +754,15 @@ class Invoice extends Model
 
             if ($response_generate_billet->successful()) {
 
-                $result_generate_billet = $response_generate_billet->json();
-                $result_generate_billet = json_decode($response_generate_billet);
+                $result_generate_billet = json_decode($response_generate_billet->body());
+                
+                // Valida se codigoSolicitacao foi retornado
+                if(empty($result_generate_billet->codigoSolicitacao)){
+                    \Log::error('Erro ao gerar boletopix: codigoSolicitacao não retornado para invoice ID: '.$invoice_id);
+                    return ['status' => 'reject', 'title' => 'Erro ao gerar BoletoPix', 'message' => [['razao' => 'codigoSolicitacao não retornado pela API', 'propriedade' => 'Erro ao gerar boletopix intermedium!']]];
+                }
 
-
+                $codigoSolicitacao = trim((string) $result_generate_billet->codigoSolicitacao);
 
                 $response_get_billet = Http::retry(3, 100)->withOptions(
                     [
@@ -758,17 +772,14 @@ class Invoice extends Model
                     )->withHeaders([
                     'Authorization' => 'Bearer ' . $access_token
 
-                ])->get($invoice['inter_host'].'cobranca/v3/cobrancas/'.$result_generate_billet->codigoSolicitacao);
+                ])->get($invoice['inter_host'].'cobranca/v3/cobrancas/'.$codigoSolicitacao);
 
                 if ($response_get_billet->successful()) {
-
-                    $result_get_billet = $response_get_billet->json();
-                    $result_get_billet = json_decode($response_get_billet);
-
+                    $result_get_billet = json_decode($response_get_billet->body());
                 }else{
+                    \Log::error('Erro ao obter detalhes do boletopix: '.$response_get_billet->body());
                     return ['status' => 'reject', 'title' => 'Erro ao gerar BoletoPix', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Erro ao obter codigo boletopix intermedium!']]];
                 }
-
 
                 $response_pdf_billet = Http::retry(3, 100)->withOptions(
                     [
@@ -778,7 +789,7 @@ class Invoice extends Model
                     )->withHeaders([
                     'Authorization' => 'Bearer ' . $access_token
 
-                ])->get($invoice['inter_host'].'cobranca/v3/cobrancas/'.$result_generate_billet->codigoSolicitacao.'/pdf');
+                ])->get($invoice['inter_host'].'cobranca/v3/cobrancas/'.$codigoSolicitacao.'/pdf');
 
                 if ($response_pdf_billet->successful()) {
 
@@ -794,7 +805,7 @@ class Invoice extends Model
                     Invoice::where('id',$invoice_id)->update([
                         'status'            =>  'Pendente',
                         'msg_erro'          =>  null,
-                        'transaction_id'    =>  $result_generate_billet->codigoSolicitacao,
+                        'transaction_id'    =>  $codigoSolicitacao,
                         'billet_url'        =>  $billet_pdf,
                         'billet_base64'     =>  $pdf,
                         'billet_digitable'  =>  $result_get_billet->boleto->linhaDigitavel
@@ -802,7 +813,9 @@ class Invoice extends Model
                     return ['status' => 'success', 'title' => 'OK', 'message' => [['razao' => 'OK', 'propriedade' => 'OK']]];
 
                 }else{
-                    return ['status' => 'reject', 'title' => 'Erro ao gerar BoletoPix', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Erro ao gerar pdf pagamento intermedium!']]];
+                    $error_response = json_decode($response_pdf_billet->body());
+                    \Log::error('Erro ao gerar PDF do boletopix: '.$response_pdf_billet->body());
+                    return ['status' => 'reject', 'title' => isset($error_response->title) ? $error_response->title : 'Erro ao gerar PDF', 'message' => isset($error_response->violacoes) ? $error_response->violacoes : [['razao' => 'Erro ao gerar pdf pagamento intermedium', 'propriedade' => 'PDF']]];
                 }
 
 

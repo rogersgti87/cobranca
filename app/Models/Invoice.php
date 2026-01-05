@@ -541,6 +541,29 @@ class Invoice extends Model
                 $date_multa = Carbon::parse($invoice['date_due'])->addDays(2);
             }
 
+            // Validar e corrigir data de vencimento
+            $dataVencimento = Carbon::parse($invoice['date_due']);
+            $dataAtual = Carbon::now();
+            
+            // Se a data de vencimento for menor que a data atual, ajustar para hoje
+            if($dataVencimento->lt($dataAtual)){
+                $dataVencimento = $dataAtual->copy();
+                
+                // Se for sábado, ajustar para segunda-feira
+                if($dataVencimento->isSaturday()){
+                    $dataVencimento->addDays(2);
+                }
+                // Se for domingo, ajustar para segunda-feira
+                elseif($dataVencimento->isSunday()){
+                    $dataVencimento->addDay();
+                }
+                
+                \Log::warning("Data de vencimento ajustada para invoice ID: {$invoice_id}. Data original: {$invoice['date_due']}, Nova data: {$dataVencimento->format('Y-m-d')}");
+            }
+            
+            // Garantir formato Y-m-d
+            $dataVencimentoFormatada = $dataVencimento->format('Y-m-d');
+
             $response_generate_billet = Http::withOptions([
                 'cert' => storage_path('/app/'.$invoice['inter_crt_file']),
                 'ssl_key' => storage_path('/app/'.$invoice['inter_key_file']),
@@ -549,7 +572,7 @@ class Invoice extends Model
               ])->post($invoice['inter_host'].'cobranca/v3/cobrancas',[
                 "seuNumero"=> $invoice['id'],
                 "valorNominal"=> $invoice['price'],
-                "dataVencimento"=> $invoice['date_due'],
+                "dataVencimento"=> $dataVencimentoFormatada,
                 "numDiasAgenda"=> 60,
                 "pagador"=> [
                   "cpfCnpj"=> $invoice['document'],
@@ -739,6 +762,28 @@ class Invoice extends Model
                 }
             }
 
+            // Validar e corrigir data de vencimento
+            $dataVencimento = Carbon::parse($invoice['date_due']);
+            $dataAtual = Carbon::now();
+            
+            // Se a data de vencimento for menor que a data atual, ajustar para hoje
+            if($dataVencimento->lt($dataAtual)){
+                $dataVencimento = $dataAtual->copy();
+                
+                // Se for sábado, ajustar para segunda-feira
+                if($dataVencimento->isSaturday()){
+                    $dataVencimento->addDays(2);
+                }
+                // Se for domingo, ajustar para segunda-feira
+                elseif($dataVencimento->isSunday()){
+                    $dataVencimento->addDay();
+                }
+                
+                \Log::warning("Data de vencimento ajustada para invoice ID: {$invoice_id} (BoletoPix). Data original: {$invoice['date_due']}, Nova data: {$dataVencimento->format('Y-m-d')}");
+            }
+            
+            // Garantir formato Y-m-d
+            $dataVencimentoFormatada = $dataVencimento->format('Y-m-d');
 
             $response_generate_billet = Http::withOptions([
                 'cert' => storage_path('/app/'.$invoice['inter_crt_file']),
@@ -748,7 +793,7 @@ class Invoice extends Model
               ])->post($invoice['inter_host'].'cobranca/v3/cobrancas',[
                 "seuNumero"=> $invoice['id'],
                 "valorNominal"=> $invoice['price'],
-                "dataVencimento"=> $invoice['date_due'],
+                "dataVencimento"=> $dataVencimentoFormatada,
                 "numDiasAgenda"=> 60,
                 "pagador"=> [
                   "cpfCnpj"=> $invoice['document'],

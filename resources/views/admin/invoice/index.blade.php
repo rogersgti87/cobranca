@@ -93,108 +93,115 @@
 
         </div>
 
+        <!-- Layout com Sidebar e Conteúdo Principal -->
         <div class="col-md-12">
-            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
-                <div class="d-flex align-items-center flex-wrap" style="gap: 10px;">
-                    <button class="btn" type="button" data-toggle="collapse" data-target="#filtersCollapse" aria-expanded="false" aria-controls="filtersCollapse" style="background-color: #FFBD59; color: #1F2937 !important; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; transition: all 0.3s;">
-                        <i class="fa fa-filter"></i> Filtros
-                    </button>
-                    <div class="d-flex flex-wrap" style="gap: 8px;">
-                        <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-current-month" data-filter="current-month" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); padding: 8px 16px; border-radius: 6px; font-weight: 500;">
-                            <i class="fa fa-calendar"></i> Mês Atual
-                        </button>
-                        <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-next-month" data-filter="next-month" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); padding: 8px 16px; border-radius: 6px; font-weight: 500;">
-                            <i class="fa fa-calendar-alt"></i> Próximo Mês
-                        </button>
-                        <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-all" data-filter="all" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); padding: 8px 16px; border-radius: 6px; font-weight: 500;">
-                            <i class="fa fa-list"></i> Todos
-                        </button>
+            <div class="row">
+                <!-- Sidebar de Filtros -->
+                <div class="col-lg-3 col-md-4 mb-4">
+                    <div style="background-color: #F5F5DC; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: sticky; top: 20px;">
+                        <h5 style="color: #1F2937; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa fa-filter"></i> Filtros
+                        </h5>
+
+                        <!-- Filtros Rápidos -->
+                        <div class="mb-4">
+                            <label style="color: #1F2937; font-weight: 500; font-size: 14px; margin-bottom: 10px; display: block;">Filtros Rápidos</label>
+                            <div class="d-flex flex-column" style="gap: 8px;">
+                                <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-current-month" data-filter="current-month" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); padding: 10px 16px; border-radius: 6px; font-weight: 500; width: 100%; text-align: left;">
+                                    <i class="fa fa-calendar"></i> Mês Atual
+                                </button>
+                                <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-next-month" data-filter="next-month" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); padding: 10px 16px; border-radius: 6px; font-weight: 500; width: 100%; text-align: left;">
+                                    <i class="fa fa-calendar-alt"></i> Próximo Mês
+                                </button>
+                                <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-all" data-filter="all" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); padding: 10px 16px; border-radius: 6px; font-weight: 500; width: 100%; text-align: left;">
+                                    <i class="fa fa-list"></i> Todos
+                                </button>
+                            </div>
+                        </div>
+
+                        <hr style="border-color: rgba(0,0,0,0.1); margin: 20px 0;">
+
+                        <!-- Filtros Detalhados -->
+                        <div class="form-group">
+                            <label style="color: #1F2937; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Tipo de Data</label>
+                            <select class="form-control" id="filter-type" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #1F2937;">
+                                <option value="date_due">Data do Vencimento</option>
+                                <option value="date_invoice">Data da Fatura</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label style="color: #1F2937; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Status</label>
+                            <select class="form-control" id="filter-status" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #1F2937;">
+                                <option value="">Todos</option>
+                                <option value="Pendente">Pendente</option>
+                                <option value="Estabelecimento">Estabelecimento</option>
+                                <option value="Pago">Pago</option>
+                                <option value="Cancelado">Cancelado</option>
+                                <option value="Erro">Erro</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label style="color: #1F2937; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Data inicial</label>
+                            <input type="date" autocomplete="off" class="form-control" placeholder="Data inicial" id="filter-date-ini" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #1F2937;" value="{{date('Y-m-d',strtotime('first day of this month'))}}">
+                        </div>
+
+                        <div class="form-group">
+                            <label style="color: #1F2937; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Data final</label>
+                            <input type="date" autocomplete="off" class="form-control" placeholder="Data Final" id="filter-date-end" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #1F2937;" value="{{date('Y-m-d',strtotime('last day of this month'))}}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Conteúdo Principal -->
+                <div class="col-lg-9 col-md-8">
+                    <!-- Gráfico -->
+                    <div class="mb-4">
+                        <div style="background-color: #F5F5DC; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                            <h5 style="color: #1F2937; font-weight: 600; margin-bottom: 15px; font-size: 16px;">
+                                <i class="fas fa-chart-pie"></i> Faturas por Status
+                            </h5>
+                            <div style="position: relative; height: 200px;">
+                                <canvas id="statusChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabela de Faturas -->
+                    <div class="card-box">
+                        <div class="row d-flex justify-content-center align-items-center">
+                            <div class="col-12">
+                                <div id="pagination" class="d-flex justify-content-center align-items-center mb-3 flex-wrap" style="gap: 5px;">
+                                    <!-- Paginação será gerada dinamicamente aqui -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive fixed-solution">
+                            <table class="table table-hover table-striped table-sm">
+                                <thead class="thead-light">
+                                <tr>
+                                    <th style="width: 50px;"></th>
+                                    <th> #</th>
+                                    <th> Cliente</th>
+                                    <th> Data</th>
+                                    <th> Vencimento</th>
+                                    <th> Valor</th>
+                                    <th> Status</th>
+                                    <th style="width: 150px;">Ações</th>
+                                </tr>
+                                </thead>
+
+                                <tbody class="tbodyCustom" id="list-invoices">
+
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <div class="collapse mb-4" id="filtersCollapse">
-                <div class="form-row" style="background-color: #F5F5DC; padding: 20px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1);">
-
-                <div class="form-group col-md-3 col-6">
-                    <label style="color: #1F2937; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Tipo de Data</label>
-                    <select class="form-control" id="filter-type" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #1F2937;">
-                        <option value="date_due">Data do Vencimento</option>
-                        <option value="date_invoice">Data da Fatura</option>
-                    </select>
-                </div>
-
-                <div class="form-group col-md-3 col-6">
-                    <label style="color: #1F2937; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Status</label>
-                    <select class="form-control" id="filter-status" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #1F2937;">
-                        <option value="">Todos</option>
-                        <option value="Pendente">Pendente</option>
-                        <option value="Estabelecimento">Estabelecimento</option>
-                        <option value="Pago">Pago</option>
-                        <option value="Cancelado">Cancelado</option>
-                    </select>
-                </div>
-
-                <div class="form-group col-md-3 col-6">
-                    <label style="color: #1F2937; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Data inicial</label>
-                    <input type="date" autocomplete="off" class="form-control" placeholder="Data inicial" id="filter-date-ini" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #1F2937;" value="{{date('Y-m-d',strtotime('first day of this month'))}}">
-                </div>
-
-                <div class="form-group col-md-3 col-6">
-                    <label style="color: #1F2937; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Data final</label>
-                    <input type="date" autocomplete="off" class="form-control" placeholder="Data Final" id="filter-date-end" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #1F2937;" value="{{date('Y-m-d',strtotime('last day of this month'))}}">
-                </div>
-
-            </div>
-            </div>
         </div>
-
-      <div class="col-md-12 mb-4">
-        <div style="background-color: #F5F5DC; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-            <h5 style="color: #1F2937; font-weight: 600; margin-bottom: 20px;">
-                <i class="fas fa-chart-pie"></i> Faturas por Status
-            </h5>
-            <div style="position: relative; height: 300px;">
-                <canvas id="statusChart"></canvas>
-            </div>
-        </div>
-      </div>
-
-
-      <div class="col-md-12">
-        <div class="card-box">
-            <div class="row d-flex justify-content-center align-items-center">
-                <div class="col-12">
-                    <div id="pagination" class="d-flex justify-content-center align-items-center mb-3 flex-wrap" style="gap: 5px;">
-                        <!-- Paginação será gerada dinamicamente aqui -->
-                    </div>
-                </div>
-            </div>
-
-            <div class="table-responsive fixed-solution">
-                <table class="table table-hover table-striped table-sm">
-                    <thead class="thead-light">
-                    <tr>
-                        <th style="width: 50px;"></th>
-                        <th> #</th>
-                        <th> Cliente</th>
-                        <th> Data</th>
-                        <th> Vencimento</th>
-                        <th> Valor</th>
-                        <th> Status</th>
-                        <th style="width: 150px;">Ações</th>
-                    </tr>
-                    </thead>
-
-                    <tbody class="tbodyCustom" id="list-invoices">
-
-                    </tbody>
-                </table>
-            </div>
-
-        </div>
-
-    </div>
     <!-- FIM TABLE -->
 
 
@@ -308,6 +315,23 @@
         overflow-x: auto;
     }
 
+    /* Estilos para o sidebar */
+    @media (min-width: 992px) {
+        .sidebar-filters {
+            position: sticky;
+            top: 20px;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+    }
+
+    @media (max-width: 991px) {
+        .sidebar-filters {
+            position: relative;
+            top: 0;
+        }
+    }
+
     @media (max-width: 768px) {
         .table {
             font-size: 12px;
@@ -325,6 +349,11 @@
         .badge {
             font-size: 10px;
             padding: 3px 6px;
+        }
+
+        /* Sidebar em mobile ocupa toda a largura */
+        .col-md-4 {
+            margin-bottom: 20px;
         }
     }
 
@@ -367,6 +396,13 @@
     .table td:last-child button {
         position: relative;
         z-index: 11;
+    }
+
+    /* Estilo para os botões de filtro rápido no sidebar */
+    .filter-quick-btn:hover {
+        background-color: #FFBD59 !important;
+        color: #1F2937 !important;
+        border-color: #FFBD59 !important;
     }
 </style>
 @endsection
@@ -956,7 +992,9 @@ $(document).on('click', '#btn-invoice-status', function(e) {
                 var statusBadgeClass = item.status == 'Pago' ? 'badge-success' :
                                        item.status == 'Pendente' ? 'badge-warning' :
                                        item.status == 'Estabelecimento' ? 'badge-info' :
-                                       'badge-danger';
+                                       item.status == 'Erro' ? 'badge-danger' :
+                                       item.status == 'Cancelado' ? 'badge-danger' :
+                                       'badge-secondary';
 
                 var datePayment = item.date_payment != null ? moment(item.date_payment).format('DD/MM/YYYY') : '-';
                 var paymentMethod = item.gateway_payment ? item.gateway_payment + ' (' + item.payment_method + ')' : item.payment_method || '-';
@@ -1171,6 +1209,7 @@ function updateStatusChart(statusData) {
         'Pendente': '#FFBD59',
         'Pago': '#22C55E',
         'Cancelado': '#F87171',
+        'Erro': '#DC2626',
         'Estabelecimento': '#6366F1',
         'Processamento': '#6B7280'
     };

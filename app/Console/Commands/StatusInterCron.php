@@ -67,6 +67,13 @@ class StatusInterCron extends Command
 
                 if($invoice['payment_method'] == 'Boleto'){
 
+                    // Valida e limpa o transaction_id
+                    $transaction_id = trim((string) $invoice['transaction_id']);
+                    if(empty($transaction_id)){
+                        \Log::warning('Status Boleto: transaction_id vazio para invoice ID: '.$invoice['id']);
+                        continue;
+                    }
+
                     $response = Http::withOptions(
                         [
                         'cert' => storage_path('/app/'.$user['inter_crt_file']),
@@ -74,7 +81,7 @@ class StatusInterCron extends Command
                         ]
                         )->withHeaders([
                         'Authorization' => 'Bearer ' . $access_token
-                    ])->get('https://cdpj.partners.bancointer.com.br/cobranca/v3/cobrancas/'.$invoice['transaction_id']);
+                    ])->get($user['inter_host'].'cobranca/v3/cobrancas/'.$transaction_id);
 
                         if ($response->successful()) {
                             $responseBody = $response->body();
@@ -82,11 +89,11 @@ class StatusInterCron extends Command
 
                             if($status == 'RECEBIDO'){
                                 try{
-                                Invoice::where('transaction_id',$invoice['transaction_id'])->update(['status' => 'Pago']);
+                                Invoice::where('transaction_id',$transaction_id)->update(['status' => 'Pago']);
                                 InvoiceNotification::Email($invoice['id']);
                                 InvoiceNotification::Whatsapp($invoice['id']);
                                  } catch(\Exception $e){
-                                    \Log::info('Linha 115: '. $invoice['transaction_id']);
+                                    \Log::info('Linha 115: '. $transaction_id);
                                     \Log::error($e->getMessage());
                                 }
                             }
@@ -98,6 +105,13 @@ class StatusInterCron extends Command
                 }
 
                 if($invoice['payment_method'] == 'BoletoPix'){
+                    // Valida e limpa o transaction_id
+                    $transaction_id = trim((string) $invoice['transaction_id']);
+                    if(empty($transaction_id)){
+                        \Log::warning('Status BoletoPix: transaction_id vazio para invoice ID: '.$invoice['id']);
+                        continue;
+                    }
+
                     $response = Http::withOptions(
                         [
                         'cert' => storage_path('/app/'.$user['inter_crt_file']),
@@ -105,7 +119,7 @@ class StatusInterCron extends Command
                         ]
                         )->withHeaders([
                         'Authorization' => 'Bearer ' . $access_token
-                    ])->get('https://cdpj.partners.bancointer.com.br/cobranca/v3/cobrancas/'.$invoice['transaction_id']);
+                    ])->get($user['inter_host'].'cobranca/v3/cobrancas/'.$transaction_id);
 
                         if ($response->successful()) {
                             $responseBody = $response->body();
@@ -113,11 +127,11 @@ class StatusInterCron extends Command
 
                             if($status == 'RECEBIDO'){
                                 try{
-                                Invoice::where('transaction_id',$invoice['transaction_id'])->update(['status' => 'Pago']);
+                                Invoice::where('transaction_id',$transaction_id)->update(['status' => 'Pago']);
                                 InvoiceNotification::Email($invoice['id']);
                                 InvoiceNotification::Whatsapp($invoice['id']);
                                  } catch(\Exception $e){
-                                    \Log::info('Linha 115: '. $invoice['transaction_id']);
+                                    \Log::info('Linha 115: '. $transaction_id);
                                     \Log::error($e->getMessage());
                                 }
                             }
@@ -130,6 +144,13 @@ class StatusInterCron extends Command
 
                 if($invoice['payment_method'] == 'Pix'){
 
+                    // Valida e limpa o transaction_id
+                    $transaction_id = trim((string) $invoice['transaction_id']);
+                    if(empty($transaction_id)){
+                        \Log::warning('Status Pix: transaction_id vazio para invoice ID: '.$invoice['id']);
+                        continue;
+                    }
+
                     $response = Http::withOptions(
                         [
                         'cert' => storage_path('/app/'.$user['inter_crt_file']),
@@ -137,14 +158,14 @@ class StatusInterCron extends Command
                         ]
                         )->withHeaders([
                         'Authorization' => 'Bearer ' . $access_token
-                    ])->get('https://cdpj.partners.bancointer.com.br/pix/v2/cobv/'.$invoice['transaction_id']);
+                    ])->get($user['inter_host'].'pix/v2/cobv/'.$transaction_id);
 
                         if ($response->successful()) {
                             $responseBody = $response->body();
                             $status = json_decode($responseBody)->status;
 
                             if($status == 'CONCLUIDA'){
-                                Invoice::where('transaction_id',$invoice['transaction_id'])->update(['status' => 'Pago']);
+                                Invoice::where('transaction_id',$transaction_id)->update(['status' => 'Pago']);
                                 InvoiceNotification::Email($invoice['id']);
                                 InvoiceNotification::Whatsapp($invoice['id']);
                             }

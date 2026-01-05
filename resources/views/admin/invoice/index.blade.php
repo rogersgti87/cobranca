@@ -189,7 +189,7 @@
                                     <th> Vencimento</th>
                                     <th> Valor</th>
                                     <th> Status</th>
-                                    <th style="width: 150px;">Ações</th>
+                                    <th style="width: 60px; text-align: center;">Ações</th>
                                 </tr>
                                 </thead>
 
@@ -403,6 +403,23 @@
         background-color: #FFBD59 !important;
         color: #1F2937 !important;
         border-color: #FFBD59 !important;
+    }
+
+    /* Estilos para dropdown de ações */
+    .dropdown-menu {
+        z-index: 1050;
+    }
+
+    .dropdown-item {
+        border: none !important;
+    }
+
+    .dropdown-item:hover {
+        background-color: #F5F5DC !important;
+    }
+
+    .dropdown-toggle::after {
+        display: none;
     }
 </style>
 @endsection
@@ -1007,23 +1024,51 @@ $(document).on('click', '#btn-invoice-status', function(e) {
                 html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer;">' + moment(item.date_due).format('DD/MM/YYYY') + '</td>';
                 html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer; color: #FFBD59; font-weight: 600;">' + item.price + '</td>';
                 html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer;"><span class="badge ' + statusBadgeClass + '">' + item.status + '</span></td>';
-                html += '<td>';
-                html += '<a href="{{ url('admin/customers/form?act=edit&id=')}}' + item.customer_id + '" data-original-title="Editar cliente" id="btn-edit-customer" data-placement="left" data-tt="tooltip" class="btn btn-secondary btn-xs" style="background-color: #1E293B; border-color: rgba(255,255,255,0.1); color: #000000;"> <i class="fas fa-user"></i></a> ';
+
+                // Criar itens do dropdown de ações
+                var actionsMenuItems = [];
+
+                // Editar Cliente (sempre disponível)
+                actionsMenuItems.push('<a href="{{ url('admin/customers/form?act=edit&id=')}}' + item.customer_id + '" class="dropdown-item" data-original-title="Editar cliente" id="btn-edit-customer" data-placement="left" data-tt="tooltip" style="color: #1F2937; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#F5F5DC\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-user" style="margin-right: 8px; color: #1E293B;"></i> Editar Cliente</a>');
+
+                // Editar Fatura (apenas para Pendente, Erro ou Estabelecimento)
                 if(item.status == 'Pendente' || item.status == 'Erro' || item.status == 'Estabelecimento'){
-                    html += '<a href="#" data-original-title="Editar fatura" id="btn-modal-invoice" data-type="edit-invoice" data-invoice="' + item.id + '" data-placement="left" data-tt="tooltip" class="btn btn-secondary btn-xs" style="background-color: #1E293B; border-color: rgba(255,255,255,0.1); color: #000000;"> <i class="far fa-edit"></i></a> ';
+                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Editar fatura" id="btn-modal-invoice" data-type="edit-invoice" data-invoice="' + item.id + '" data-placement="left" data-tt="tooltip" style="color: #1F2937; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#F5F5DC\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="far fa-edit" style="margin-right: 8px; color: #1E293B;"></i> Editar Fatura</a>');
                 }
+
+                // Ver Erros (apenas para Erro)
                 if(item.status == 'Erro'){
-                    html += '<a href="#" data-original-title="Erros" id="btn-modal-error" data-invoice="' + item.id + '" data-placement="left" data-tt="tooltip" class="btn btn-danger btn-xs"> <i class="fas fa-exclamation-triangle"></i></a> ';
+                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Erros" id="btn-modal-error" data-invoice="' + item.id + '" data-placement="left" data-tt="tooltip" style="color: #1F2937; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#F5F5DC\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-exclamation-triangle" style="margin-right: 8px; color: #DC2626;"></i> Ver Erros</a>');
                 }
+
+                // Notificações (para todos exceto Erro)
                 if(item.status != 'Erro'){
-                    html += '<a href="#" data-original-title="Notificações" id="btn-modal-notifications" data-invoice="' + item.id + '" data-placement="left" data-tt="tooltip" class="btn btn-warning btn-xs" style="background-color: #FFBD59; border-color: #FFBD59; color: #0F172A;"> <i style="padding:0 5px;" class="fa fa-info"></i></a> ';
+                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Notificações" id="btn-modal-notifications" data-invoice="' + item.id + '" data-placement="left" data-tt="tooltip" style="color: #1F2937; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#F5F5DC\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fa fa-info" style="margin-right: 8px; color: #FFBD59;"></i> Notificações</a>');
                 }
+
+                // Cancelar Fatura (apenas para Pendente, Erro ou Estabelecimento)
                 if(item.status == 'Pendente' || item.status == 'Erro' || item.status == 'Estabelecimento'){
-                    html += '<a href="#" data-original-title="Cancelar Fatura" id="btn-delete-invoice" data-placement="left" data-invoice="' + item.id + '" data-tt="tooltip" class="btn btn-danger btn-xs"> <i class="fas fa-undo-alt"></i></a> ';
+                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Cancelar Fatura" id="btn-delete-invoice" data-placement="left" data-invoice="' + item.id + '" data-tt="tooltip" style="color: #1F2937; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#F5F5DC\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-undo-alt" style="margin-right: 8px; color: #F87171;"></i> Cancelar Fatura</a>');
                 }
+
+                // Baixar Fatura (apenas para Pendente)
                 if(item.status == 'Pendente'){
                     var downloadUrl = item.payment_method == "Pix" ? item.image_url_pix : item.billet_url;
-                    html += '<a href="' + downloadUrl + '" target="_blank" data-original-title="Baixar Fatura" id="btn-download-invoice" data-placement="left" data-tt="tooltip" class="btn btn-primary btn-xs" style="background-color: #FFBD59; border-color: #FFBD59; color: #0F172A;"> <i class="fas fa-download"></i></a>';
+                    actionsMenuItems.push('<a href="' + downloadUrl + '" target="_blank" class="dropdown-item" data-original-title="Baixar Fatura" id="btn-download-invoice" data-placement="left" data-tt="tooltip" style="color: #1F2937; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#F5F5DC\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-download" style="margin-right: 8px; color: #FFBD59;"></i> Baixar Fatura</a>');
+                }
+
+                // Criar dropdown de ações
+                var actionsMenuId = 'actions-menu-'+item.id;
+                html += '<td style="text-align: center;">';
+                if(actionsMenuItems.length > 0) {
+                    html += '<div class="dropdown" style="position: relative; display: inline-block;">';
+                    html += '<button class="btn btn-sm" type="button" id="'+actionsMenuId+'" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background-color: transparent; border: none; color: #1F2937; padding: 4px 8px; cursor: pointer; font-size: 14px;">';
+                    html += '<i class="fa fa-ellipsis-v"></i>';
+                    html += '</button>';
+                    html += '<div class="dropdown-menu dropdown-menu-right" aria-labelledby="'+actionsMenuId+'" style="min-width: 180px; padding: 5px 0; background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">';
+                    html += actionsMenuItems.join('');
+                    html += '</div>';
+                    html += '</div>';
                 }
                 html += '</td>';
                 html += '</tr>';

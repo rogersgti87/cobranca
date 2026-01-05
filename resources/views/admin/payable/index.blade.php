@@ -123,170 +123,206 @@
 
         </div>
 
-        <div class="col-md-12">
-            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
-                <div class="d-flex align-items-center flex-wrap" style="gap: 10px;">
-                    <button class="btn" type="button" data-toggle="collapse" data-target="#filtersCollapse" aria-expanded="false" aria-controls="filtersCollapse" style="background-color: #FFBD59; color: #1F2937 !important; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; transition: all 0.3s;">
-                        <i class="fa fa-filter"></i> Filtros
-                    </button>
-                    <div class="d-flex flex-wrap" style="gap: 8px;">
-                        <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-current-month" data-filter="current-month" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); padding: 8px 16px; border-radius: 6px; font-weight: 500;">
+        <!-- Gráfico -->
+        <div class="col-md-12 mb-4">
+            <div style="background-color: #F5F5DC; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <h5 style="color: #1F2937; font-weight: 600; margin-bottom: 10px; font-size: 14px; padding: 0 10px;">
+                    <i class="fas fa-chart-pie"></i> Total por Categorias
+                </h5>
+                <div style="position: relative; height: 200px;">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+
+        <div class="col-lg-3 col-md-12">
+            <div style="background-color: #F5F5DC; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <h5 style="color: #1F2937; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; font-size: 14px;">
+                    <i class="fa fa-filter"></i> Filtros
+                </h5>
+
+                <!-- Filtros Rápidos -->
+                <div class="mb-3">
+                    <label style="color: #1F2937; font-weight: 500; font-size: 12px; margin-bottom: 6px; display: block;">Filtros Rápidos</label>
+                    <div class="d-flex flex-column" style="gap: 5px;">
+                        <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-current-month" data-filter="current-month" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); padding: 6px 12px; border-radius: 6px; font-weight: 500; width: 100%; text-align: left; font-size: 12px;">
                             <i class="fa fa-calendar"></i> Mês Atual
                         </button>
-                        <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-next-month" data-filter="next-month" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); padding: 8px 16px; border-radius: 6px; font-weight: 500;">
+                        <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-next-month" data-filter="next-month" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); padding: 6px 12px; border-radius: 6px; font-weight: 500; width: 100%; text-align: left; font-size: 12px;">
                             <i class="fa fa-calendar-alt"></i> Próximo Mês
                         </button>
-                        <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-all" data-filter="all" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); padding: 8px 16px; border-radius: 6px; font-weight: 500;">
+                        <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-all" data-filter="all" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); padding: 6px 12px; border-radius: 6px; font-weight: 500; width: 100%; text-align: left; font-size: 12px;">
                             <i class="fa fa-list"></i> Todos
                         </button>
                     </div>
                 </div>
-                <a href="#" data-original-title="Nova Conta a Pagar" id="btn-modal-payable" data-type="add-payable" data-toggle="tooltip" class="btn" style="background-color: #FFBD59; color: #1F2937 !important; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; transition: all 0.3s;"> <i class="fa fa-plus"></i> Nova Conta a Pagar</a>
+
+                <hr style="border-color: rgba(0,0,0,0.1); margin: 12px 0;">
+
+                    <!-- Tipo de Data -->
+                    <div class="form-group" style="margin-bottom: 10px;">
+                        <label style="color: #1F2937; font-weight: 500; font-size: 12px; margin-bottom: 4px; display: block;">Tipo de Data</label>
+                        <select class="form-control" id="filter-type" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 5px 10px; color: #1F2937; font-size: 12px;">
+                            <option value="date_due">Data do Vencimento</option>
+                            <option value="date_payment">Data do Pagamento</option>
+                        </select>
+                    </div>
+
+                    <!-- Data inicial -->
+                    <div class="form-group" style="margin-bottom: 10px;">
+                        <label style="color: #1F2937; font-weight: 500; font-size: 12px; margin-bottom: 4px; display: block;">Data inicial</label>
+                        <input type="date" autocomplete="off" class="form-control" placeholder="Data inicial" id="filter-date-ini" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 5px 10px; color: #1F2937; font-size: 12px;">
+                    </div>
+
+                    <!-- Data final -->
+                    <div class="form-group" style="margin-bottom: 10px;">
+                        <label style="color: #1F2937; font-weight: 500; font-size: 12px; margin-bottom: 4px; display: block;">Data final</label>
+                        <input type="date" autocomplete="off" class="form-control" placeholder="Data Final" id="filter-date-end" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 5px 10px; color: #1F2937; font-size: 12px;">
+                    </div>
+
+                    <hr style="border-color: rgba(0,0,0,0.1); margin: 12px 0;">
+
+                    <!-- Tipo de Conta -->
+                    <div class="form-group" style="margin-bottom: 10px;">
+                        <fieldset style="border: 1px solid rgba(255,189,89,0.5); border-radius: 6px; padding: 10px; margin: 0; background-color: #FFFFFF; position: relative;">
+                            <legend style="color: #FFBD59; font-size: 12px; font-weight: 600; padding: 0 8px; margin: 0; border: none;">Tipo de Conta</legend>
+                            <div class="d-flex flex-column" style="gap: 6px; margin-top: 6px;">
+                                <label style="color: #1F2937; font-weight: 400; font-size: 12px; cursor: pointer; display: flex; align-items: center;">
+                                    <input type="checkbox" class="type-checkbox" value="Fixa" style="margin-right: 5px; width: 16px; height: 16px; cursor: pointer;">
+                                    Fixa
+                                </label>
+                                <label style="color: #1F2937; font-weight: 400; font-size: 12px; cursor: pointer; display: flex; align-items: center;">
+                                    <input type="checkbox" class="type-checkbox" value="Recorrente" style="margin-right: 5px; width: 16px; height: 16px; cursor: pointer;">
+                                    Recorrente
+                                </label>
+                                <label style="color: #1F2937; font-weight: 400; font-size: 12px; cursor: pointer; display: flex; align-items: center;">
+                                    <input type="checkbox" class="type-checkbox" value="Parcelada" style="margin-right: 5px; width: 16px; height: 16px; cursor: pointer;">
+                                    Parcelada
+                                </label>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="form-group" style="margin-bottom: 10px;">
+                        <fieldset style="border: 1px solid rgba(255,189,89,0.5); border-radius: 6px; padding: 10px; margin: 0; background-color: #FFFFFF; position: relative;">
+                            <legend style="color: #FFBD59; font-size: 12px; font-weight: 600; padding: 0 8px; margin: 0; border: none;">Status</legend>
+                            <div class="d-flex flex-column" style="gap: 6px; margin-top: 6px;">
+                                <label style="color: #1F2937; font-weight: 400; font-size: 12px; cursor: pointer; display: flex; align-items: center;">
+                                    <input type="checkbox" class="status-checkbox" value="Pendente" style="margin-right: 5px; width: 16px; height: 16px; cursor: pointer;">
+                                    Pendente
+                                </label>
+                                <label style="color: #1F2937; font-weight: 400; font-size: 12px; cursor: pointer; display: flex; align-items: center;">
+                                    <input type="checkbox" class="status-checkbox" value="Pago" style="margin-right: 5px; width: 16px; height: 16px; cursor: pointer;">
+                                    Pago
+                                </label>
+                                <label style="color: #1F2937; font-weight: 400; font-size: 12px; cursor: pointer; display: flex; align-items: center;">
+                                    <input type="checkbox" class="status-checkbox" value="Cancelado" style="margin-right: 5px; width: 16px; height: 16px; cursor: pointer;">
+                                    Cancelado
+                                </label>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <!-- Categorias -->
+                    <div class="form-group" style="margin-bottom: 10px;">
+                        <fieldset style="border: 1px solid rgba(255,189,89,0.5); border-radius: 6px; padding: 10px; margin: 0; background-color: #FFFFFF; position: relative;">
+                            <legend style="color: #FFBD59; font-size: 12px; font-weight: 600; padding: 0 8px; margin: 0; border: none;">Categorias</legend>
+                            <div class="mb-2" style="margin-bottom: 8px !important;">
+                                <label style="color: #1F2937; font-weight: 600; font-size: 12px; cursor: pointer; display: flex; align-items: center;">
+                                    <input type="checkbox" class="category-checkbox" id="selectAllCategories" style="margin-right: 5px; width: 16px; height: 16px; cursor: pointer;">
+                                    Selecionar Todas
+                                </label>
+                            </div>
+                            <div class="d-flex flex-column categories-list" style="gap: 6px; margin-top: 6px; max-height: 150px; overflow-y: auto;">
+                                @if(isset($categories) && count($categories) > 0)
+                                    @foreach($categories as $category)
+                                        <label style="color: #1F2937; font-weight: 400; font-size: 12px; cursor: pointer; display: flex; align-items: center;">
+                                            <input type="checkbox" class="category-checkbox" value="{{ $category->id }}" style="margin-right: 5px; width: 16px; height: 16px; cursor: pointer;">
+                                            <span style="display: inline-block; width: 10px; height: 10px; background-color: {{ $category->color }}; border-radius: 2px; margin-right: 5px;"></span>
+                                            {{ $category->name }}
+                                        </label>
+                                    @endforeach
+                                @else
+                                    <p style="color: #6B7280; font-size: 12px; margin: 0;">Nenhuma categoria cadastrada</p>
+                                @endif
+                            </div>
+                            <style>
+                                .categories-list::-webkit-scrollbar {
+                                    width: 8px;
+                                }
+                                .categories-list::-webkit-scrollbar-track {
+                                    background: #FFFFFF;
+                                    border-radius: 4px;
+                                }
+                                .categories-list::-webkit-scrollbar-thumb {
+                                    background: #D1D5DB;
+                                    border-radius: 4px;
+                                }
+                                .categories-list::-webkit-scrollbar-thumb:hover {
+                                    background: #9CA3AF;
+                                }
+                            </style>
+                        </fieldset>
+                    </div>
+                </div>
+        </div>
+
+        <div class="col-lg-9 col-md-12">
+            <!-- Botão Nova Conta a Pagar -->
+            <div class="mb-3">
+                <a href="#" data-original-title="Nova Conta a Pagar" id="btn-modal-payable" data-type="add-payable" data-toggle="tooltip" class="btn" style="background-color: #FFBD59; color: #1F2937 !important; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; transition: all 0.3s; font-size: 13px;">
+                    <i class="fa fa-plus"></i> Nova Conta a Pagar
+                </a>
             </div>
 
-            <div class="collapse mb-4" id="filtersCollapse">
-                <div class="form-row" style="background-color: #F5F5DC; padding: 20px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1);">
-
-                <div class="form-group col-md-4 col-6">
-                    <label style="color: #1F2937; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Tipo de Data</label>
-                    <select class="form-control" id="filter-type" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #1F2937;">
-                        <option value="date_due">Data do Vencimento</option>
-                        <option value="date_payment">Data do Pagamento</option>
-                    </select>
-                </div>
-
-                <div class="form-group col-md-4 col-6">
-                    <label style="color: #1F2937; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Data inicial</label>
-                    <input type="date" autocomplete="off" class="form-control" placeholder="Data inicial" id="filter-date-ini" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #1F2937;">
-                </div>
-
-                <div class="form-group col-md-4 col-6">
-                    <label style="color: #1F2937; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Data final</label>
-                    <input type="date" autocomplete="off" class="form-control" placeholder="Data Final" id="filter-date-end" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #1F2937;">
-                </div>
-
-                <div class="form-group col-md-12 mt-3">
-                    <div class="row">
-                        <div class="col-md-6 col-12">
-                            <fieldset style="border: 1px solid rgba(255,189,89,0.5); border-radius: 8px; padding: 15px; margin: 0; background-color: #FFFFFF; position: relative;">
-                                <legend style="color: #FFBD59; font-size: 14px; font-weight: 600; padding: 0 10px; margin: 0; border: none;">Tipo de Conta</legend>
-                                <div class="d-flex" style="gap: 20px; margin-top: 10px; flex-wrap: nowrap; overflow-x: auto;">
-                                    <label style="color: #1F2937; font-weight: 400; font-size: 14px; cursor: pointer; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0;">
-                                        <input type="checkbox" class="type-checkbox" value="Fixa" style="margin-right: 6px; width: 18px; height: 18px; cursor: pointer;">
-                                        Fixa
-                                    </label>
-                                    <label style="color: #1F2937; font-weight: 400; font-size: 14px; cursor: pointer; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0;">
-                                        <input type="checkbox" class="type-checkbox" value="Recorrente" style="margin-right: 6px; width: 18px; height: 18px; cursor: pointer;">
-                                        Recorrente
-                                    </label>
-                                    <label style="color: #1F2937; font-weight: 400; font-size: 14px; cursor: pointer; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0;">
-                                        <input type="checkbox" class="type-checkbox" value="Parcelada" style="margin-right: 6px; width: 18px; height: 18px; cursor: pointer;">
-                                        Parcelada
-                                    </label>
-                                </div>
-                            </fieldset>
-                        </div>
-                        <div class="col-md-6 col-12">
-                            <fieldset style="border: 1px solid rgba(255,189,89,0.5); border-radius: 8px; padding: 15px; margin: 0; background-color: #FFFFFF; position: relative;">
-                                <legend style="color: #FFBD59; font-size: 14px; font-weight: 600; padding: 0 10px; margin: 0; border: none;">Status</legend>
-                                <div class="d-flex" style="gap: 20px; margin-top: 10px; flex-wrap: nowrap; overflow-x: auto;">
-                                    <label style="color: #1F2937; font-weight: 400; font-size: 14px; cursor: pointer; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0;">
-                                        <input type="checkbox" class="status-checkbox" value="Pendente" style="margin-right: 6px; width: 18px; height: 18px; cursor: pointer;">
-                                        Pendente
-                                    </label>
-                                    <label style="color: #1F2937; font-weight: 400; font-size: 14px; cursor: pointer; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0;">
-                                        <input type="checkbox" class="status-checkbox" value="Pago" style="margin-right: 6px; width: 18px; height: 18px; cursor: pointer;">
-                                        Pago
-                                    </label>
-                                    <label style="color: #1F2937; font-weight: 400; font-size: 14px; cursor: pointer; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0;">
-                                        <input type="checkbox" class="status-checkbox" value="Cancelado" style="margin-right: 6px; width: 18px; height: 18px; cursor: pointer;">
-                                        Cancelado
-                                    </label>
-                                </div>
-                            </fieldset>
+            <div style="background-color: #F5F5DC; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div class="row d-flex justify-content-center align-items-center mb-2">
+                    <div class="col-12">
+                        <div id="pagination" class="d-flex justify-content-start align-items-center">
+                            <button class="btn btn-sm" onclick="loadPayables(prevPage)" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 4px 10px; margin-right: 8px; font-weight: 500; font-size: 12px;">Anterior</button>
+                            <span id="page-num" style="color: #1F2937; font-weight: 500; margin: 0 8px; font-size: 12px;"></span>
+                            <button class="btn btn-sm" onclick="loadPayables(nextPage)" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 4px 10px; font-weight: 500; font-size: 12px;">Próxima</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="form-group col-md-12 mt-3">
-                    <fieldset style="border: 1px solid rgba(255,189,89,0.5); border-radius: 8px; padding: 15px; margin: 0; background-color: #FFFFFF; position: relative;">
-                        <legend style="color: #FFBD59; font-size: 14px; font-weight: 600; padding: 0 10px; margin: 0; border: none;">Categorias</legend>
-                        <div class="mb-3" style="margin-bottom: 15px !important;">
-                            <label style="color: #1F2937; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center;">
-                                <input type="checkbox" class="category-checkbox" id="selectAllCategories" style="margin-right: 6px; width: 18px; height: 18px; cursor: pointer;">
-                                Selecionar Todas
-                            </label>
-                        </div>
-                        <div class="d-flex" style="gap: 20px; margin-top: 10px; flex-wrap: wrap; overflow-x: auto;">
-                            @if(isset($categories) && count($categories) > 0)
-                                @foreach($categories as $category)
-                                    <label style="color: #1F2937; font-weight: 400; font-size: 14px; cursor: pointer; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0;">
-                                        <input type="checkbox" class="category-checkbox" value="{{ $category->id }}" style="margin-right: 6px; width: 18px; height: 18px; cursor: pointer;">
-                                        <span style="display: inline-block; width: 12px; height: 12px; background-color: {{ $category->color }}; border-radius: 2px; margin-right: 6px;"></span>
-                                        {{ $category->name }}
-                                    </label>
-                                @endforeach
-                            @else
-                                <p style="color: #6B7280; font-size: 14px; margin: 0;">Nenhuma categoria cadastrada</p>
-                            @endif
-                        </div>
-                    </fieldset>
+                <div class="table-responsive">
+                    <table class="table table-responsive-custom" style="margin-bottom: 0; width: 100%;">
+                        <thead>
+                        <tr style="border-bottom: 2px solid rgba(0,0,0,0.1);">
+                            <th class="col-expand" style="color: #1F2937; font-weight: 600; padding: 8px 6px; border: none; font-size: 12px; width: 40px;"></th>
+                            <th class="col-id" style="color: #1F2937; font-weight: 600; padding: 8px 6px; border: none; font-size: 12px;">#</th>
+                            <th class="col-supplier" style="color: #1F2937; font-weight: 600; padding: 8px 6px; border: none; font-size: 12px;">Fornecedor</th>
+                            <th class="col-category" style="color: #1F2937; font-weight: 600; padding: 8px 6px; border: none; font-size: 12px;">Categoria</th>
+                            <th class="col-type" style="color: #1F2937; font-weight: 600; padding: 8px 6px; border: none; font-size: 12px;">Tipo</th>
+                            <th class="col-due" style="color: #1F2937; font-weight: 600; padding: 8px 6px; border: none; font-size: 12px;">Vencimento</th>
+                            <th class="col-value" style="color: #1F2937; font-weight: 600; padding: 8px 6px; border: none; font-size: 12px;">Valor</th>
+                            <th class="col-payment-method" style="color: #1F2937; font-weight: 600; padding: 8px 6px; border: none; font-size: 12px;">Forma de Pagamento</th>
+                            <th class="col-status" style="color: #1F2937; font-weight: 600; padding: 8px 6px; border: none; font-size: 12px;">Status</th>
+                            <th class="col-actions" style="color: #1F2937; font-weight: 600; padding: 8px 6px; border: none; font-size: 12px;"></th>
+                        </tr>
+                        </thead>
+
+                        <tbody id="list-payables" style="background-color: #F5F5DC;">
+
+                        </tbody>
+                    </table>
                 </div>
-            </div>
-            </div>
-        </div>
 
-      <div class="col-md-12 mb-4">
-        <div style="background-color: #F5F5DC; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-            <h5 style="color: #1F2937; font-weight: 600; margin-bottom: 20px;">
-                <i class="fas fa-chart-pie"></i> Total por Categorias
-            </h5>
-            <div style="position: relative; height: 300px;">
-                <canvas id="categoryChart"></canvas>
-            </div>
-        </div>
-      </div>
-
-      <div class="col-md-12">
-        <div style="background-color: #F5F5DC; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-            <div class="row d-flex justify-content-center align-items-center mb-3">
-                <div class="col-12">
-                    <div id="pagination" class="d-flex justify-content-start align-items-center">
-                        <button class="btn btn-sm" onclick="loadPayables(prevPage)" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 6px 12px; margin-right: 10px; font-weight: 500;">Anterior</button>
-                        <span id="page-num" style="color: #1F2937; font-weight: 500; margin: 0 10px;"></span>
-                        <button class="btn btn-sm" onclick="loadPayables(nextPage)" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 6px 12px; font-weight: 500;">Próxima</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="table-responsive">
-                <table class="table" style="margin-bottom: 0;">
-                    <thead>
-                    <tr style="border-bottom: 2px solid rgba(0,0,0,0.1);">
-                        <th style="color: #1F2937; font-weight: 600; padding: 12px; border: none; font-size: 14px;">#</th>
-                        <th style="color: #1F2937; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Fornecedor</th>
-                        <th style="color: #1F2937; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Descrição</th>
-                        <th style="color: #1F2937; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Categoria</th>
-                        <th style="color: #1F2937; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Tipo</th>
-                        <th style="color: #1F2937; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Vencimento</th>
-                        <th style="color: #1F2937; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Pago em</th>
-                        <th style="color: #1F2937; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Valor</th>
-                        <th style="color: #1F2937; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Forma de Pagamento</th>
-                        <th style="color: #1F2937; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Status</th>
-                        <th style="color: #1F2937; font-weight: 600; padding: 12px; border: none; font-size: 14px;"></th>
-                    </tr>
-                    </thead>
-
-                    <tbody id="list-payables" style="background-color: #F5F5DC;">
-
-                    </tbody>
-                </table>
             </div>
 
         </div>
+        <!-- FIM TABLE -->
 
-    </div>
-    <!-- FIM TABLE -->
+
+        </div>
+
+
+
+
 
 
         </div>
@@ -420,6 +456,100 @@
         background-color: #FFD700 !important;
         transform: translateY(-1px);
         box-shadow: 0 4px 6px rgba(255, 189, 89, 0.3);
+    }
+
+    /* Estilo para ícone do collapse */
+    .fa-chevron-down {
+        transition: transform 0.3s ease;
+    }
+
+    /* Estilos para dropdown de ações */
+    .dropdown-menu {
+        z-index: 1050;
+    }
+
+    .dropdown-item {
+        border: none !important;
+    }
+
+    .dropdown-item:hover {
+        background-color: #F5F5DC !important;
+    }
+
+    .dropdown-toggle::after {
+        display: none;
+    }
+
+    /* Estilos responsivos para tabela */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    @media (min-width: 1201px) {
+        .table-responsive {
+            overflow-x: visible;
+        }
+    }
+
+    @media (max-width: 1200px) {
+        .col-payment-method {
+            display: none !important;
+        }
+        .table th,
+        .table td {
+            padding: 10px 8px !important;
+        }
+    }
+
+    @media (max-width: 992px) {
+        .col-category {
+            display: none !important;
+        }
+        .table th,
+        .table td {
+            padding: 8px 6px !important;
+            font-size: 13px !important;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .col-type {
+            display: none !important;
+        }
+        .table th,
+        .table td {
+            padding: 8px 4px !important;
+            font-size: 12px !important;
+        }
+        .col-value {
+            font-size: 13px !important;
+        }
+        .col-supplier {
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .col-supplier {
+            max-width: 100px;
+        }
+        .table th,
+        .table td {
+            padding: 6px 3px !important;
+            font-size: 11px !important;
+        }
+        .col-value {
+            font-size: 12px !important;
+        }
+        .col-actions .btn,
+        .col-actions a {
+            padding: 2px 4px !important;
+            font-size: 10px !important;
+        }
     }
 
 
@@ -870,48 +1000,89 @@ Swal.fire({
                 var statusBadgeColor = item.status == 'Pago' ? '#22C55E' : item.status == 'Pendente' ? '#FFBD59' : '#F87171';
                 var statusBadgeBg = item.status == 'Pago' ? 'rgba(34,197,94,0.2)' : item.status == 'Pendente' ? 'rgba(255,189,89,0.2)' : 'rgba(248,113,113,0.2)';
                 var datePayment = item.date_payment != null ? moment(item.date_payment).format('DD/MM/YYYY') : '-';
-                var editButton = item.status == 'Pendente' ? '<a href="#" data-original-title="Editar conta" id="btn-modal-payable" data-type="edit-payable" data-payable="'+item.id+'" data-placement="left" data-tt="tooltip" style="background-color: #FFBD59; color: #1F2937 !important; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-right: 5px; text-decoration: none; display: inline-block; font-weight: 600;"> <i class="far fa-edit"></i></a>' : '';
-                var deleteButton = item.status == 'Pendente' ? '<a href="#" data-original-title="Cancelar Conta" id="btn-delete-payable" data-placement="left" data-payable="'+item.id+'" data-tt="tooltip" style="background-color: #F87171; color: #FFFFFF; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-right: 5px; text-decoration: none; display: inline-block; font-weight: 600;"> <i class="fas fa-times"></i></a>' : '';
+                // Criar itens do dropdown de ações
+                var actionsMenuItems = [];
 
-                // Botão para estornar (apenas para contas pagas)
-                var reverseButton = '';
-                var viewReversalsButton = '';
-                if(item.status == 'Pago') {
-                    reverseButton = '<a href="#" data-original-title="Estornar Pagamento" id="btn-reverse-payable" data-payable="'+item.id+'" data-placement="left" data-tt="tooltip" style="background-color: #F59E0B; color: #FFFFFF; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-right: 5px; text-decoration: none; display: inline-block; font-weight: 600;"> <i class="fas fa-undo"></i></a>';
-                    viewReversalsButton = '<a href="#" data-original-title="Ver Histórico de Estornos" id="btn-view-reversals" data-payable="'+item.id+'" data-placement="left" data-tt="tooltip" style="background-color: #6366F1; color: #FFFFFF; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-right: 5px; text-decoration: none; display: inline-block; font-weight: 600;"> <i class="fas fa-history"></i></a>';
+                if(item.status == 'Pendente') {
+                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Editar conta" id="btn-modal-payable" data-type="edit-payable" data-payable="'+item.id+'" data-placement="left" data-tt="tooltip" style="color: #1F2937; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#F5F5DC\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="far fa-edit" style="margin-right: 8px; color: #FFBD59;"></i> Editar</a>');
+                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Cancelar Conta" id="btn-delete-payable" data-placement="left" data-payable="'+item.id+'" data-tt="tooltip" style="color: #1F2937; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#F5F5DC\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-times" style="margin-right: 8px; color: #F87171;"></i> Cancelar</a>');
                 }
 
-                // Botão para parar recorrência (apenas para contas recorrentes que ainda não têm data de término definida)
-                var stopRecurrenceButton = '';
+                if(item.status == 'Pago') {
+                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Estornar Pagamento" id="btn-reverse-payable" data-payable="'+item.id+'" data-placement="left" data-tt="tooltip" style="color: #1F2937; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#F5F5DC\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-undo" style="margin-right: 8px; color: #F59E0B;"></i> Estornar</a>');
+                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Ver Histórico de Estornos" id="btn-view-reversals" data-payable="'+item.id+'" data-placement="left" data-tt="tooltip" style="color: #1F2937; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#F5F5DC\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-history" style="margin-right: 8px; color: #6366F1;"></i> Histórico de Estornos</a>');
+                }
+
                 if(item.type == 'Recorrente' && (!item.recurrence_end || item.recurrence_end == null || item.recurrence_end == '') && item.status == 'Pendente') {
-                    stopRecurrenceButton = '<a href="#" data-original-title="Parar Recorrência" id="btn-stop-recurrence" data-payable="'+item.id+'" data-placement="left" data-tt="tooltip" style="background-color: #F59E0B; color: #FFFFFF; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; margin-right: 5px; text-decoration: none; display: inline-block; font-weight: 600;"> <i class="fas fa-stop-circle"></i></a>';
+                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Parar Recorrência" id="btn-stop-recurrence" data-payable="'+item.id+'" data-placement="left" data-tt="tooltip" style="color: #1F2937; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#F5F5DC\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-stop-circle" style="margin-right: 8px; color: #F59E0B;"></i> Parar Recorrência</a>');
                 }
                 var categoryColor = item.category_color || '#FFBD59';
-                var categoryBadge = item.category_name ? '<span style="background-color: rgba('+parseInt(categoryColor.slice(1,3),16)+','+parseInt(categoryColor.slice(3,5),16)+','+parseInt(categoryColor.slice(5,7),16)+',0.2); color: '+categoryColor+'; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px;"><span style="display: inline-block; width: 8px; height: 8px; background-color: '+categoryColor+'; border-radius: 50%;"></span>'+item.category_name+'</span>' : '<span style="color: #6B7280; font-size: 12px;">-</span>';
+                var categoryBadge = item.category_name ? '<span style="background-color: rgba('+parseInt(categoryColor.slice(1,3),16)+','+parseInt(categoryColor.slice(3,5),16)+','+parseInt(categoryColor.slice(5,7),16)+',0.2); color: '+categoryColor+'; padding: 3px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; display: inline-flex; align-items: center; gap: 4px;"><span style="display: inline-block; width: 6px; height: 6px; background-color: '+categoryColor+'; border-radius: 50%;"></span>'+item.category_name+'</span>' : '<span style="color: #6B7280; font-size: 11px;">-</span>';
 
+                var collapseId = 'collapse-'+item.id;
                 html += '<tr style="border-bottom: 1px solid rgba(0,0,0,0.1); transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#FFFFFF\'" onmouseout="this.style.backgroundColor=\'#F5F5DC\'">';
-                html += '<td style="padding: 12px; color: #1F2937; font-size: 14px;">'+item.id+installmentText+'</td>';
-                html += '<td style="padding: 12px; color: #1F2937; font-size: 14px; font-weight: 500;">'+item.supplier_name+'</td>';
-                html += '<td style="padding: 12px; color: #1F2937; font-size: 14px;">'+item.description+'</td>';
-                html += '<td style="padding: 12px;">'+categoryBadge+'</td>';
-                html += '<td style="padding: 12px;"><span style="background-color: '+typeBadgeBg+'; color: '+typeBadgeColor+'; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 500;">'+item.type+'</span></td>';
-                html += '<td style="padding: 12px; color: #1F2937; font-size: 14px;">'+moment(item.date_due).format('DD/MM/YYYY')+'</td>';
-                html += '<td style="padding: 12px; color: #1F2937; font-size: 14px;">'+datePayment+'</td>';
+                html += '<td class="col-expand" style="padding: 8px 6px; text-align: center;">';
+                html += '<button class="btn btn-sm" type="button" data-toggle="collapse" data-target="#'+collapseId+'" aria-expanded="false" aria-controls="'+collapseId+'" style="background-color: transparent; border: none; color: #1F2937; padding: 2px 4px; cursor: pointer; font-size: 11px;">';
+                html += '<i class="fa fa-chevron-down" id="icon-'+collapseId+'"></i>';
+                html += '</button>';
+                html += '</td>';
+                html += '<td class="col-id" style="padding: 8px 6px; color: #1F2937; font-size: 12px;">'+item.id+installmentText+'</td>';
+                html += '<td class="col-supplier" style="padding: 8px 6px; color: #1F2937; font-size: 12px; font-weight: 500;">'+item.supplier_name+'</td>';
+                html += '<td class="col-category" style="padding: 8px 6px;">'+categoryBadge+'</td>';
+                html += '<td class="col-type" style="padding: 8px 6px;"><span style="background-color: '+typeBadgeBg+'; color: '+typeBadgeColor+'; padding: 3px 8px; border-radius: 10px; font-size: 11px; font-weight: 500;">'+item.type+'</span></td>';
+                html += '<td class="col-due" style="padding: 8px 6px; color: #1F2937; font-size: 12px;">'+moment(item.date_due).format('DD/MM/YYYY')+'</td>';
                 var priceOptions = {};
                 priceOptions.minimumFractionDigits = 2;
                 var priceFormatted = parseFloat(item.price).toLocaleString('pt-br', priceOptions);
-                html += '<td style="padding: 12px; color: #FFBD59; font-size: 14px; font-weight: 600;">R$ '+priceFormatted+'</td>';
-                html += '<td style="padding: 12px; color: #1F2937; font-size: 14px;">'+(item.payment_method || '-')+'</td>';
-                html += '<td style="padding: 12px;"><span style="background-color: '+statusBadgeBg+'; color: '+statusBadgeColor+'; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 500;">'+item.status+'</span></td>';
-                html += '<td style="padding: 12px;">'+editButton+reverseButton+viewReversalsButton+stopRecurrenceButton+deleteButton+'</td>';
+                html += '<td class="col-value" style="padding: 8px 6px; color: #FFBD59; font-size: 12px; font-weight: 600;">R$ '+priceFormatted+'</td>';
+                html += '<td class="col-payment-method" style="padding: 8px 6px; color: #1F2937; font-size: 12px;">'+(item.payment_method || '-')+'</td>';
+                html += '<td class="col-status" style="padding: 8px 6px;"><span style="background-color: '+statusBadgeBg+'; color: '+statusBadgeColor+'; padding: 3px 8px; border-radius: 10px; font-size: 11px; font-weight: 500;">'+item.status+'</span></td>';
+
+                // Criar dropdown de ações
+                var actionsMenuId = 'actions-menu-'+item.id;
+                html += '<td class="col-actions" style="padding: 8px 6px; text-align: center;">';
+                if(actionsMenuItems.length > 0) {
+                    html += '<div class="dropdown" style="position: relative; display: inline-block;">';
+                    html += '<button class="btn btn-sm" type="button" id="'+actionsMenuId+'" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background-color: transparent; border: none; color: #1F2937; padding: 4px 8px; cursor: pointer; font-size: 14px;">';
+                    html += '<i class="fa fa-ellipsis-v"></i>';
+                    html += '</button>';
+                    html += '<div class="dropdown-menu dropdown-menu-right" aria-labelledby="'+actionsMenuId+'" style="min-width: 180px; padding: 5px 0; background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">';
+                    html += actionsMenuItems.join('');
+                    html += '</div>';
+                    html += '</div>';
+                }
+                html += '</td>';
+                html += '</tr>';
+                html += '<tr class="collapse" id="'+collapseId+'" style="background-color: #FFFFFF;">';
+                html += '<td colspan="10" style="padding: 12px; border-bottom: 1px solid rgba(0,0,0,0.1);">';
+                html += '<div style="background-color: #F5F5DC; border-radius: 8px; padding: 12px;">';
+                html += '<h6 style="color: #1F2937; font-weight: 600; margin-bottom: 8px; font-size: 13px;">Descrição:</h6>';
+                html += '<p style="color: #1F2937; font-size: 12px; margin-bottom: 12px;">'+(item.description || '-')+'</p>';
+                html += '<div class="row" style="margin-top: 8px;">';
+                html += '<div class="col-md-6" style="margin-bottom: 8px;"><strong style="color: #1F2937; font-size: 12px;">Fornecedor:</strong> <span style="color: #1F2937; font-size: 12px;">'+item.supplier_name+'</span></div>';
+                html += '<div class="col-md-6" style="margin-bottom: 8px;"><strong style="color: #1F2937; font-size: 12px;">Forma de Pagamento:</strong> <span style="color: #1F2937; font-size: 12px;">'+(item.payment_method || '-')+'</span></div>';
+                html += '<div class="col-md-6" style="margin-bottom: 8px;"><strong style="color: #1F2937; font-size: 12px;">Pago em:</strong> <span style="color: #1F2937; font-size: 12px;">'+datePayment+'</span></div>';
+                html += '</div>';
+                html += '</div>';
+                html += '</td>';
                 html += '</tr>';
             });
             }else{
-                html += '<tr><td style="text-align:center; padding: 40px; color: #1F2937; font-size: 14px;" colspan="99">Nenhuma conta encontrada</td></tr>';
+                html += '<tr><td style="text-align:center; padding: 40px; color: #1F2937; font-size: 14px;" colspan="10">Nenhuma conta encontrada</td></tr>';
             }
 
             $('#list-payables').append(html);
             $('[data-tt="tooltip"]').tooltip();
+
+            // Rotacionar ícone do collapse
+            $('.collapse').on('show.bs.collapse', function () {
+                var iconId = '#icon-' + $(this).attr('id');
+                $(iconId).css('transform', 'rotate(180deg)');
+            });
+            $('.collapse').on('hide.bs.collapse', function () {
+                var iconId = '#icon-' + $(this).attr('id');
+                $(iconId).css('transform', 'rotate(0deg)');
+            });
 
                 currentPage = data.result.current_page;
                 prevPage = data.result.prev_page_url ? currentPage - 1 : currentPage;
@@ -923,7 +1094,7 @@ Swal.fire({
                 document.getElementById('pagination').querySelector('button:last-child').disabled = !data.result.next_page_url;
             },
             error:function (xhr) {
-                $('#list-payables').append('<tr><td style="text-align:center; padding: 40px; color: #F87171; font-size: 14px;" colspan="99">Erro ao carregar contas</td></tr>');
+                $('#list-payables').append('<tr><td style="text-align:center; padding: 40px; color: #F87171; font-size: 14px;" colspan="10">Erro ao carregar contas</td></tr>');
             }
             });
     }
@@ -1637,6 +1808,6 @@ function updateCategoryChart(categoriesData) {
 </script>
 
 @endsection
-
-
 @endsection
+
+

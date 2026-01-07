@@ -401,14 +401,11 @@ class WebHookController extends Controller
 
     if(isset($data['event']) && isset($data['payment'])){
 
-        // Retorna 200 imediatamente para eventos que não serão utilizados
-        if($data['event'] == 'PAYMENT_RECEIVED' || $data['event'] == 'PAYMENT_DELETED'){
-            return response()->json(['status' => 'success', 'message' => 'Evento recebido mas não processado'], 200);
-        }
+        // PAYMENT_RECEIVED e PAYMENT_DELETED agora são processados abaixo
 
-        // Para PAYMENT_CONFIRMED, verifica se externalReference começa com REC_ ou rec_
+        // Para PAYMENT_CONFIRMED e PAYMENT_RECEIVED, verifica se externalReference começa com REC_ ou rec_
         // Se começar, ignora pois não pertence ao Cobrança Segura (externalReference deve conter apenas números)
-        if($data['event'] == 'PAYMENT_CONFIRMED' && isset($data['payment']['externalReference'])){
+        if(($data['event'] == 'PAYMENT_CONFIRMED' || $data['event'] == 'PAYMENT_RECEIVED') && isset($data['payment']['externalReference'])){
             $externalRef = $data['payment']['externalReference'];
             if(is_string($externalRef) && (str_starts_with($externalRef, 'REC_') || str_starts_with($externalRef, 'rec_'))){
                 return response()->json(['status' => 'success', 'message' => 'Pagamento não pertence ao Cobrança Segura'], 200);
@@ -459,7 +456,7 @@ class WebHookController extends Controller
         if($invoice != null){
 
             // Verifica se a fatura já está paga antes de processar
-            if($data['event'] == 'PAYMENT_CONFIRMED' && $invoice->status == 'Pago'){
+            if(($data['event'] == 'PAYMENT_CONFIRMED' || $data['event'] == 'PAYMENT_RECEIVED') && $invoice->status == 'Pago'){
                 return response()->json(['status' => 'success', 'message' => 'Pagamento já foi processado anteriormente'], 200);
             }
 

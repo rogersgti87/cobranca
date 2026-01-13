@@ -50,10 +50,14 @@
      <nav class="main-header navbar navbar-expand navbar-white navbar-light">
         <!-- Left navbar links -->
         <ul class="navbar-nav">
-          <li class="nav-item">
+          <li class="nav-item d-none d-md-block">
             <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
           </li>
         </ul>
+        <!-- Logo para mobile -->
+        <a href="{{url('/admin')}}" class="navbar-brand d-md-none" style="position: absolute; left: 50%; transform: translateX(-50%); padding: 8px 0;">
+          <img src="{{url('img/logo.png')}}" alt="{{auth()->user()->company}}" style="height: 40px; max-width: 150px; width: auto; object-fit: contain;">
+        </a>
      </nav>
 
       <!-- Main Sidebar Container -->
@@ -161,8 +165,8 @@
 
 
               <!-- Menu Relatórios -->
-              <li class="nav-item has-treeview {{ Request::segment(2) == 'reports' ? 'menu-open' : '' }}">
-                <a href="#" class="nav-link {{ Request::segment(2) == 'reports' ? 'active' : '' }}">
+              <li class="nav-item has-treeview {{ in_array(Request::segment(2), ['reports', 'receita-despesa']) ? 'menu-open' : '' }}">
+                <a href="#" class="nav-link {{ in_array(Request::segment(2), ['reports', 'receita-despesa']) ? 'active' : '' }}">
                   <i class="nav-icon fas fa-chart-bar"></i>
                   <p>
                     Relatórios
@@ -181,6 +185,13 @@
                     <a href="{{url('admin/reports/payables')}}" class="nav-link {{Request::segment(3) == 'payables' ? 'active' : ''}}">
                       <i class="far fa-circle nav-icon"></i>
                       <p>Contas a pagar</p>
+                    </a>
+                  </li>
+
+                  <li class="nav-item">
+                    <a href="{{url('admin/receita-despesa')}}" class="nav-link {{Request::segment(2) == 'receita-despesa' ? 'active' : ''}}">
+                      <i class="far fa-circle nav-icon"></i>
+                      <p>Receita x Despesa</p>
                     </a>
                   </li>
                 </ul>
@@ -236,6 +247,759 @@
   </footer>
 </div>
 <!-- ./wrapper -->
+
+<!-- Bottom Navigation Bar (Mobile) -->
+<nav class="bottom-nav d-md-none">
+  <div class="bottom-nav-container">
+    <a href="{{ url('/admin') }}" class="bottom-nav-item {{ Request::segment(2) == null || Request::segment(2) == '' ? 'active' : '' }}" id="bottomNavHome">
+      <i class="fas fa-home"></i>
+      <span>Principal</span>
+    </a>
+    <a href="{{url('admin/invoices')}}" class="bottom-nav-item {{Request::segment(2) == 'invoices' ? 'active' : '' }}" id="bottomNavInvoices">
+      <i class="fas fa-file-invoice"></i>
+      <span>Contas a Receber</span>
+    </a>
+    <a href="#" class="bottom-nav-item bottom-nav-add" id="bottomNavAdd">
+      <i class="fas fa-plus"></i>
+    </a>
+    <a href="{{url('admin/payables')}}" class="bottom-nav-item {{Request::segment(2) == 'payables' ? 'active' : '' }}" id="bottomNavPayables">
+      <i class="fas fa-file-invoice-dollar"></i>
+      <span>Contas a Pagar</span>
+    </a>
+    <a href="{{url('admin/users/form?act=edit&id='.auth()->user()->id)}}" class="bottom-nav-item {{Request::segment(2) == 'users' && Request::get('act') == 'edit' ? 'active' : '' }}" id="bottomNavSettings">
+      <i class="fas fa-cog"></i>
+      <span>Configurações</span>
+    </a>
+  </div>
+</nav>
+
+<!-- Overlay para fechar menus -->
+<div class="bottom-nav-overlay"></div>
+
+<style>
+/* Cores Globais do Projeto */
+:root {
+  --primary-blue: #06b8f7;
+  --primary-green: #6ccb48;
+  --primary-yellow: #fec911;
+  --bg-white: #FFFFFF;
+}
+
+/* Fundos Brancos */
+body {
+  background-color: #FFFFFF !important;
+}
+
+.main-sidebar,
+.sidebar,
+.content-wrapper,
+.content,
+.content-header {
+  background-color: #FFFFFF !important;
+}
+
+.brand-link {
+  background-color: #FFFFFF !important;
+}
+
+.brand-link.bg-gray {
+  background-color: #FFFFFF !important;
+}
+
+.main-header {
+  background-color: #FFFFFF !important;
+}
+
+.navbar-white {
+  background-color: #FFFFFF !important;
+}
+
+.main-footer {
+  background-color: #FFFFFF !important;
+}
+
+.modal-content,
+.modal-header,
+.modal-body,
+.modal-footer {
+  background-color: #FFFFFF !important;
+}
+
+/* Garantir fundo branco em todas as tabelas - Sobrescrever dark-mode.css */
+.table,
+.table tbody,
+.table tbody tr,
+.table tbody td,
+.table tbody tr td,
+.tbodyCustom,
+.tbodyCustom tr,
+.tbodyCustom tr td {
+  background-color: #FFFFFF !important;
+}
+
+.table-striped,
+.table-striped tbody,
+.table-striped tbody tr,
+.table-striped tbody tr:nth-of-type(odd),
+.table-striped tbody tr:nth-of-type(even),
+.table-striped tbody tr:nth-of-type(odd) td,
+.table-striped tbody tr:nth-of-type(even) td {
+  background-color: #FFFFFF !important;
+}
+
+.table-hover tbody tr:hover,
+.table-hover tbody tr:hover td {
+  background-color: rgba(6, 184, 247, 0.05) !important;
+}
+
+.card,
+.card-body,
+.card-box,
+.collapse .card-body,
+.collapse .card,
+div[class*="collapse"] .card-body {
+  background-color: #FFFFFF !important;
+}
+
+/* Sobrescrever especificamente o dark-mode.css com maior especificidade */
+body .table,
+body .table tbody,
+body .table tbody tr,
+body .table tbody td,
+body .table tbody tr td,
+body .table-striped,
+body .table-striped tbody,
+body .table-striped tbody tr,
+body .table-striped tbody tr:nth-of-type(even),
+body .table-striped tbody tr:nth-of-type(odd),
+body .table-striped tbody tr:nth-of-type(even) td,
+body .table-striped tbody tr:nth-of-type(odd) td {
+  background-color: #FFFFFF !important;
+}
+
+/* Sobrescrever card do dark-mode.css */
+body .card,
+body .card-body,
+body .card-box {
+  background-color: #FFFFFF !important;
+}
+
+/* Sobrescrever collapse cards */
+body .collapse .card,
+body .collapse .card-body,
+body div[class*="collapse"] .card,
+body div[class*="collapse"] .card-body,
+body div[id*="collapse"] .card,
+body div[id*="collapse"] .card-body {
+  background-color: #FFFFFF !important;
+}
+
+/* Sobrescrever dark-mode.css com máxima especificidade */
+.content-wrapper .table,
+.content-wrapper .table tbody,
+.content-wrapper .table tbody tr,
+.content-wrapper .table tbody td,
+.content-wrapper .table-striped tbody tr:nth-of-type(even),
+.content-wrapper .table-striped tbody tr:nth-of-type(odd),
+.content-wrapper .card,
+.content-wrapper .card-body,
+.content-wrapper .card-box {
+  background-color: #FFFFFF !important;
+}
+
+/* Sobrescrever cores amarelas do Bootstrap */
+.btn-warning {
+  background-color: #06b8f7 !important;
+  border-color: #06b8f7 !important;
+  color: #FFFFFF !important;
+}
+
+.btn-warning:hover,
+.btn-warning:focus,
+.btn-warning:active {
+  background-color: #06b8f7 !important;
+  border-color: #06b8f7 !important;
+  color: #FFFFFF !important;
+  opacity: 0.9;
+}
+
+.badge-warning {
+  background-color: #06b8f7 !important;
+  color: #FFFFFF !important;
+}
+
+.text-warning {
+  color: #06b8f7 !important;
+}
+
+/* Garantir que botões Novo e Editar sejam azuis */
+.btn-secondary,
+.btn-secondary:hover,
+.btn-secondary:focus,
+.btn-secondary:active {
+  background-color: #06b8f7 !important;
+  border-color: #06b8f7 !important;
+  color: #FFFFFF !important;
+}
+
+.btn-primary,
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+  background-color: #06b8f7 !important;
+  border-color: #06b8f7 !important;
+  color: #FFFFFF !important;
+}
+
+.btn-primary.btn-xs,
+.btn-secondary.btn-sm {
+  background-color: #06b8f7 !important;
+  border-color: #06b8f7 !important;
+  color: #FFFFFF !important;
+}
+
+/* Garantir que fieldsets e legendas sejam azuis - Sobrescrever custom.css e dark-mode.css */
+fieldset {
+  border-color: rgba(6,184,247,0.5) !important;
+}
+
+legend {
+  color: #06b8f7 !important;
+  background-color: transparent !important;
+  border: 1px solid #06b8f7 !important;
+  padding: 0 10px !important;
+  position: relative !important;
+  top: -12px !important;
+  margin-bottom: -12px !important;
+}
+
+/* Checkboxes azuis */
+input[type="checkbox"],
+input[type="checkbox"]:checked,
+input[type="checkbox"]:focus {
+  accent-color: #06b8f7 !important;
+  cursor: pointer;
+}
+
+/* Checkbox customizado (containerchekbox) - Sobrescrever custom.css e dark-mode.css */
+.containerchekbox .checkmark {
+  border-color: #06b8f7 !important;
+  background-color: #FFFFFF !important;
+}
+
+.containerchekbox:hover input ~ .checkmark {
+  background-color: rgba(6,184,247,0.1) !important;
+  border-color: #06b8f7 !important;
+}
+
+.containerchekbox input[type="checkbox"]:checked ~ .checkmark {
+  background-color: #06b8f7 !important;
+  border-color: #06b8f7 !important;
+}
+
+.containerchekbox input[type="checkbox"]:checked ~ .checkmark:after {
+  border-color: #FFFFFF !important;
+}
+
+/* Sobrescrever dark-mode.css com maior especificidade */
+body .containerchekbox .checkmark {
+  border-color: #06b8f7 !important;
+  background-color: #FFFFFF !important;
+}
+
+body .containerchekbox:hover input ~ .checkmark {
+  background-color: rgba(6,184,247,0.1) !important;
+  border-color: #06b8f7 !important;
+}
+
+body .containerchekbox input:checked ~ .checkmark {
+  background-color: #06b8f7 !important;
+  border-color: #06b8f7 !important;
+}
+
+body fieldset {
+  border-color: rgba(6,184,247,0.5) !important;
+}
+
+body legend {
+  color: #06b8f7 !important;
+  background-color: transparent !important;
+  border: 1px solid #06b8f7 !important;
+  padding: 0 10px !important;
+  position: relative !important;
+  top: -12px !important;
+  margin-bottom: -12px !important;
+}
+
+/* Nav-tabs com texto preto - Sobrescrever dark-mode.css */
+.nav-tabs .nav-link,
+.nav-tabs .nav-link:hover,
+.nav-tabs .nav-link:focus,
+.nav-tabs .nav-link.active,
+.nav-tabs .nav-item.show .nav-link {
+  color: #000000 !important;
+}
+
+body .nav-tabs .nav-link,
+body .nav-tabs .nav-link:hover,
+body .nav-tabs .nav-link:focus,
+body .nav-tabs .nav-link.active,
+body .nav-tabs .nav-item.show .nav-link {
+  color: #000000 !important;
+}
+
+.sidebar-light-primary .nav-sidebar > .nav-item > .nav-link.active {
+  background-color: var(--primary-blue) !important;
+  color: #FFFFFF !important;
+}
+
+.sidebar-light-primary .nav-sidebar > .nav-item > .nav-link:hover {
+  background-color: rgba(6, 184, 247, 0.1) !important;
+  color: var(--primary-blue) !important;
+}
+
+.sidebar-light-primary .nav-sidebar > .nav-item > .nav-link {
+  color: #333333 !important;
+}
+
+.sidebar-light-primary .nav-sidebar > .nav-item > .nav-link i {
+  color: var(--primary-blue) !important;
+}
+
+.sidebar-light-primary .nav-sidebar > .nav-item > .nav-link.active i {
+  color: #FFFFFF !important;
+}
+
+/* Bottom Navigation Bar Styles */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #FFFFFF;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  z-index: 1030;
+  padding: 0;
+  height: 65px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.bottom-nav-container {
+  display: flex;
+  width: 100%;
+  max-width: 100%;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 10px;
+  height: 100%;
+}
+
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: #000000 !important;
+  font-size: 10px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  min-width: 60px;
+  position: relative;
+  flex: 1;
+  max-width: 80px;
+}
+
+.bottom-nav-item i {
+  font-size: 20px;
+  margin-bottom: 4px;
+  transition: all 0.3s ease;
+  color: #000000 !important;
+}
+
+.bottom-nav-item span {
+  font-size: 9px;
+  line-height: 1.2;
+  text-align: center;
+  white-space: normal;
+  word-break: break-word;
+  max-width: 100%;
+  padding: 0 2px;
+  color: #000000 !important;
+}
+
+.bottom-nav-item:hover {
+  color: #000000 !important;
+  background-color: rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+}
+
+.bottom-nav-item:hover span {
+  color: #000000 !important;
+}
+
+.bottom-nav-item:hover i {
+  color: #000000 !important;
+}
+
+.bottom-nav-item.active {
+  color: #000000 !important;
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+.bottom-nav-item.active span {
+  color: #000000 !important;
+}
+
+.bottom-nav-item.active i {
+  color: #000000 !important;
+}
+
+/* Botão central especial (Add) */
+.bottom-nav-add {
+  background: #06b8f7;
+  color: #FFFFFF !important;
+  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+  max-width: 56px;
+  margin: 0 8px;
+  box-shadow: 0 4px 12px rgba(6, 184, 247, 0.4);
+  position: relative;
+  top: -12px;
+  flex: 0 0 auto;
+  border: 2px solid #06b8f7;
+}
+
+.bottom-nav-add i {
+  font-size: 24px;
+  margin-bottom: 0;
+  color: #FFFFFF !important;
+}
+
+.bottom-nav-add span {
+  display: none;
+}
+
+.bottom-nav-add:hover {
+  background: #06b8f7;
+  box-shadow: 0 6px 16px rgba(6, 184, 247, 0.5);
+  transform: translateY(-2px);
+  color: #FFFFFF !important;
+  border-color: #06b8f7;
+  opacity: 0.9;
+}
+
+.bottom-nav-add:hover i {
+  color: #FFFFFF !important;
+}
+
+/* Ajustar conteúdo para não ficar escondido atrás da barra inferior */
+@media (max-width: 767.98px) {
+  .content-wrapper {
+    padding-bottom: 80px !important;
+    margin-left: 0 !important;
+  }
+
+  .content {
+    padding-bottom: 20px;
+  }
+
+  .main-footer {
+    margin-bottom: 70px !important;
+    margin-left: 0 !important;
+  }
+
+  /* Ocultar sidebar em mobile por padrão e desabilitar toggle */
+  .main-sidebar {
+    transform: translateX(-100%) !important;
+    transition: transform 0.3s ease;
+    position: fixed;
+    z-index: 1040;
+  }
+
+  .sidebar-open .main-sidebar,
+  .sidebar-open .main-sidebar.show {
+    transform: translateX(-100%) !important;
+  }
+
+  /* Desabilitar o botão hambúrguer em mobile */
+  .main-header .nav-link[data-widget="pushmenu"] {
+    display: none !important;
+  }
+
+  /* Ajustar navbar superior */
+  .main-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1031;
+    margin-left: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 57px;
+  }
+
+  /* Logo na navbar mobile */
+  .main-header .navbar-brand.d-md-none {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 0;
+    z-index: 1;
+  }
+
+  .main-header .navbar-brand.d-md-none img {
+    height: 40px;
+    max-width: 150px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+  }
+
+  /* Garantir que navbar-nav não interfira */
+  .main-header .navbar-nav {
+    flex-direction: row;
+  }
+
+  .content-wrapper {
+    margin-top: 57px;
+  }
+
+  /* Ocultar título e breadcrumbs em mobile */
+  .content-header {
+    display: none !important;
+  }
+
+  /* Ajustar margem do conteúdo quando não há header */
+  .content {
+    padding-top: 15px !important;
+  }
+
+  /* Reduzir espaçamento lateral em mobile */
+  .container-fluid {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+
+  /* Reduzir padding dos cards e widgets em mobile */
+  .card,
+  .dashboard-card-modern,
+  .widget-card,
+  .table-panel,
+  .chart-panel {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  /* Reduzir padding interno dos cards em mobile */
+  .card-body,
+  .dashboard-card-body {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  /* Ajustar row para não ter margem negativa */
+  .row {
+    margin-left: -4px !important;
+    margin-right: -4px !important;
+  }
+
+  .row > * {
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+  }
+
+  /* Garantir que modais não fiquem atrás da barra */
+  .modal {
+    z-index: 1055;
+  }
+
+  .modal-backdrop {
+    z-index: 1050;
+  }
+}
+
+
+/* Menu de adicionar (dropdown do botão central) - Agora contém todos os menus */
+.bottom-nav-add-menu {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #FFFFFF;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  padding: 8px;
+  min-width: 280px;
+  max-width: 90vw;
+  max-height: 70vh;
+  overflow-y: auto;
+  display: none;
+  z-index: 1032;
+}
+
+.bottom-nav-add-menu.show {
+  display: block;
+}
+
+.bottom-nav-add-menu::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid #FFFFFF;
+}
+
+.bottom-nav-add-menu a {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  color: #000000 !important;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.bottom-nav-add-menu a:hover {
+  background-color: #FFFFFF;
+  text-decoration: none;
+}
+
+.bottom-nav-add-menu a i {
+  margin-right: 12px;
+  width: 20px;
+  font-size: 18px;
+  color: #06b8f7;
+}
+
+.bottom-nav-add-menu strong {
+  color: #000000 !important;
+}
+
+.bottom-nav-add-menu a,
+.bottom-nav-add-menu a * {
+  color: #000000 !important;
+}
+
+.bottom-nav-add-menu a i {
+  color: #06b8f7 !important;
+}
+
+/* Overlay para fechar menus ao clicar fora */
+.bottom-nav-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 1029;
+  display: none;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.bottom-nav-overlay.show {
+  display: block;
+}
+
+/* Animações suaves */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bottom-nav-add-menu.show {
+  animation: fadeInUp 0.3s ease;
+}
+
+/* Scrollbar customizada para o menu */
+.bottom-nav-add-menu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.bottom-nav-add-menu::-webkit-scrollbar-track {
+  background: #FFFFFF;
+  border-radius: 3px;
+}
+
+.bottom-nav-add-menu::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+  border-radius: 3px;
+}
+
+.bottom-nav-add-menu::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
+}
+
+/* Ajustes para tablets */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .bottom-nav {
+    display: none;
+  }
+}
+
+/* Melhorias de acessibilidade e usabilidade */
+@media (max-width: 767.98px) {
+  /* Garantir que botões sejam grandes o suficiente para toque */
+  .bottom-nav-item {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Melhorar contraste e visibilidade */
+  .bottom-nav-item:active {
+    background-color: rgba(0, 0, 0, 0.15);
+    transform: scale(0.95);
+    color: #000000 !important;
+  }
+
+  .bottom-nav-item:active span {
+    color: #000000 !important;
+  }
+
+  .bottom-nav-item:active i {
+    color: #000000 !important;
+  }
+
+  /* Prevenir scroll horizontal */
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Ajustar espaçamento do conteúdo principal */
+  .content-wrapper > .content {
+    padding: 15px;
+  }
+}
+</style>
 
 <!-- REQUIRED SCRIPTS -->
 
@@ -293,7 +1057,117 @@
 
 </script>
 
+<script>
+// Script da barra de navegação inferior (mobile)
+$(document).ready(function() {
+  // Menu Adicionar (botão central) - Agora contém todos os menus
+  $('#bottomNavAdd').on('click', function(e) {
+    e.preventDefault();
+    var menu = $('.bottom-nav-add-menu');
+    if (menu.length === 0) {
+      var menuHtml = `
+        <div class="bottom-nav-add-menu">
+          <div style="padding: 8px 12px; border-bottom: 1px solid rgba(0,0,0,0.1); margin-bottom: 8px;">
+            <strong style="color: #000000 !important; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Cadastros</strong>
+          </div>
+          <a href="{{url('admin/services')}}">
+            <i class="fas fa-briefcase"></i> Serviços
+          </a>
+          <a href="{{url('admin/customers')}}">
+            <i class="fas fa-users"></i> Clientes
+          </a>
+          <a href="{{url('admin/suppliers')}}">
+            <i class="fas fa-truck"></i> Fornecedores
+          </a>
+          @if(auth()->user()->id == 1)
+          <a href="{{url('admin/users')}}">
+            <i class="fas fa-user-cog"></i> Usuários
+          </a>
+          <a href="{{url('admin/payable-categories')}}">
+            <i class="fas fa-tags"></i> Categorias
+          </a>
+          @endif
+          <div style="padding: 8px 12px; border-top: 1px solid rgba(0,0,0,0.1); border-bottom: 1px solid rgba(0,0,0,0.1); margin: 8px 0;">
+            <strong style="color: #000000 !important; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Relatórios</strong>
+          </div>
+          <a href="{{url('admin/reports/payables')}}">
+            <i class="fas fa-chart-pie"></i> Relatório Contas a Pagar
+          </a>
+          <a href="{{url('admin/reports/invoices')}}">
+            <i class="fas fa-chart-bar"></i> Relatório Contas a Receber
+          </a>
+          <a href="{{url('admin/receita-despesa')}}">
+            <i class="fas fa-chart-line"></i> Receita x Despesa
+          </a>
+          @if(auth()->user()->id == 1)
+          <div style="padding: 8px 12px; border-top: 1px solid rgba(0,0,0,0.1); margin-top: 8px;">
+            <strong style="color: #000000 !important; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Sistema</strong>
+          </div>
+          <a href="{{url('admin/logs')}}">
+            <i class="fas fa-file-alt"></i> Logs
+          </a>
+          @endif
+        </div>
+      `;
+      $('body').append(menuHtml);
+      menu = $('.bottom-nav-add-menu');
+    }
 
+    // Verificar se o menu já está aberto
+    if (menu.hasClass('show')) {
+      // Se estiver aberto, fechar
+      $('.bottom-nav-overlay').removeClass('show');
+      menu.removeClass('show');
+    } else {
+      // Se estiver fechado, abrir
+      $('.bottom-nav-overlay').addClass('show');
+      menu.addClass('show');
+    }
+  });
+
+  // Fechar menus ao clicar no overlay
+  $(document).on('click', '.bottom-nav-overlay', function() {
+    $('.bottom-nav-overlay').removeClass('show');
+    $('.bottom-nav-add-menu').removeClass('show');
+  });
+
+  // Fechar menus ao clicar em um item do menu
+  $(document).on('click', '.bottom-nav-add-menu a', function() {
+    setTimeout(function() {
+      $('.bottom-nav-overlay').removeClass('show');
+      $('.bottom-nav-add-menu').removeClass('show');
+    }, 100);
+  });
+
+  // Atualizar estado ativo baseado na URL atual
+  function updateBottomNavActive() {
+    var currentPath = window.location.pathname;
+    var segment2 = currentPath.split('/')[2] || '';
+
+    // Remover active de todos
+    $('.bottom-nav-item').removeClass('active');
+
+    // Adicionar active baseado na rota
+    if (segment2 === '' || segment2 === 'admin' || currentPath === '/admin' || currentPath === '/admin/') {
+      $('#bottomNavHome').addClass('active');
+    } else if (segment2 === 'invoices') {
+      $('#bottomNavInvoices').addClass('active');
+    } else if (segment2 === 'payables') {
+      $('#bottomNavPayables').addClass('active');
+    } else if (segment2 === 'users' && window.location.search.includes('act=edit')) {
+      $('#bottomNavSettings').addClass('active');
+    }
+  }
+
+  // Atualizar ao carregar a página
+  updateBottomNavActive();
+
+  // Atualizar ao navegar (para SPAs ou mudanças de rota)
+  $(window).on('popstate', function() {
+    updateBottomNavActive();
+  });
+});
+</script>
 
 @yield('scripts')
 

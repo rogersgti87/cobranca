@@ -20,175 +20,210 @@
     <div class="content">
       <div class="container-fluid">
 
-        <!-- Faturas a Receber -->
-        <div class="row mb-4">
-          <div class="col-12">
-            <h4 class="mb-3"><i class="fas fa-file-invoice-dollar text-primary"></i> Faturas a Receber</h4>
-          </div>
-
-          <div class="col-lg-2 col-md-4 col-6 mb-3">
-            <div class="small-box bg-gradient-indigo shadow-sm">
-              <div class="inner">
-                <h3>{{ $total_customers }}</h3>
-                <p>Clientes</p>
+        <!-- Resumo Geral Compacto -->
+        <div class="row mb-3">
+          <!-- Faturas a Receber - Agrupado -->
+          <div class="col-lg-6 col-md-12 mb-3">
+            <div class="dashboard-card-modern">
+              <div class="dashboard-card-header">
+                <h5 class="dashboard-card-title">
+                  <i class="fas fa-file-invoice-dollar"></i> Faturas a Receber
+                </h5>
               </div>
-              <div class="icon">
-                <i class="fas fa-users"></i>
+              <div class="dashboard-card-body">
+                <div class="dashboard-stats-grid">
+                  <div class="dashboard-stat-item">
+                    <div class="stat-icon" style="background: rgba(6,184,247,0.1);">
+                      <i class="fas fa-users" style="color: #06b8f7;"></i>
+                    </div>
+                    <div class="stat-content">
+                      <span class="stat-value">{{ $total_customers }}</span>
+                      <span class="stat-label">Clientes</span>
+                    </div>
+                  </div>
+                  <div class="dashboard-stat-item">
+                    <div class="stat-icon" style="background: rgba(108,203,72,0.2);">
+                      <i class="fas fa-check-circle" style="color: #6ccb48;"></i>
+                    </div>
+                    <div class="stat-content">
+                      <span class="stat-value">{{ $invoice->pay }}</span>
+                      <span class="stat-label">Pagas</span>
+                    </div>
+                  </div>
+                  <div class="dashboard-stat-item">
+                    <div class="stat-icon" style="background: rgba(254,201,17,0.2);">
+                      <i class="fas fa-hourglass" style="color: #fec911;"></i>
+                    </div>
+                    <div class="stat-content">
+                      <span class="stat-value">{{ $invoice->pendent }}</span>
+                      <span class="stat-label">Pendentes</span>
+                    </div>
+                  </div>
+                  <div class="dashboard-stat-item">
+                    <div class="stat-icon" style="background: rgba(6,184,247,0.1);">
+                      <i class="fas fa-spinner" style="color: #06b8f7;"></i>
+                    </div>
+                    <div class="stat-content">
+                      <span class="stat-value">{{ $invoice->proccessing }}</span>
+                      <span class="stat-label">Processamento</span>
+                    </div>
+                  </div>
+                  <div class="dashboard-stat-item">
+                    <div class="stat-icon" style="background: rgba(239,68,68,0.1);">
+                      <i class="fas fa-ban" style="color: #EF4444;"></i>
+                    </div>
+                    <div class="stat-content">
+                      <span class="stat-value">{{ $invoice->cancelled }}</span>
+                      <span class="stat-label">Canceladas</span>
+                    </div>
+                  </div>
+                  <div class="dashboard-stat-item">
+                    <div class="stat-icon" style="background: rgba(6,184,247,0.2);">
+                      <i class="fas fa-list" style="color: #06b8f7;"></i>
+                    </div>
+                    <div class="stat-content">
+                      <span class="stat-value">{{ $invoice->total }}</span>
+                      <span class="stat-label">Total</span>
+                    </div>
+                  </div>
+                </div>
+                <!-- Alertas de Faturas - Compactos -->
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(0,0,0,0.1);">
+                  <div class="dashboard-alerts-compact">
+                    <div class="alert-item-compact alert-danger">
+                      <i class="fas fa-calendar-times"></i>
+                      <div class="alert-content-compact">
+                        <span class="alert-label-compact">Vencidas</span>
+                        <span class="alert-value-compact">{{ $invoice->due }}</span>
+                      </div>
+                    </div>
+                    <div class="alert-item-compact alert-warning">
+                      <i class="fas fa-business-time"></i>
+                      <div class="alert-content-compact">
+                        <span class="alert-label-compact">5 dias</span>
+                        <span class="alert-value-compact">{{ $invoice->five_days }}</span>
+                      </div>
+                    </div>
+                    <div class="alert-item-compact alert-info">
+                      <i class="fas fa-calendar-day"></i>
+                      <div class="alert-content-compact">
+                        <span class="alert-label-compact">Hoje</span>
+                        <span class="alert-value-compact">{{ $invoice->today }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="col-lg-2 col-md-4 col-6 mb-3">
-            <div class="small-box bg-gradient-success shadow-sm">
-              <div class="inner">
-                <h3>{{ $invoice->pay }}</h3>
-                <p>Faturas Pagas</p>
+          <!-- Contas a Pagar - Agrupado -->
+          <div class="col-lg-6 col-md-12 mb-3">
+            <div class="dashboard-card-modern">
+              <div class="dashboard-card-header">
+                <h5 class="dashboard-card-title">
+                  <i class="fas fa-file-invoice"></i> Contas a Pagar
+                </h5>
               </div>
-              <div class="icon">
-                <i class="fas fa-check-circle"></i>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-2 col-md-4 col-6 mb-3">
-            <div class="small-box bg-gradient-maroon shadow-sm">
-              <div class="inner">
-                <h3>{{ $invoice->proccessing }}</h3>
-                <p>Em Processamento</p>
-              </div>
-              <div class="icon">
-                <i class="fas fa-spinner fa-spin"></i>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-2 col-md-4 col-6 mb-3">
-            <div class="small-box bg-gradient-warning shadow-sm">
-              <div class="inner">
-                <h3>{{ $invoice->pendent }}</h3>
-                <p>Faturas Pendentes</p>
-              </div>
-              <div class="icon">
-                <i class="far fa-hourglass"></i>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-2 col-md-4 col-6 mb-3">
-            <div class="small-box bg-gradient-danger shadow-sm">
-              <div class="inner">
-                <h3>{{ $invoice->cancelled }}</h3>
-                <p>Faturas Canceladas</p>
-              </div>
-              <div class="icon">
-                <i class="fas fa-ban"></i>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-2 col-md-4 col-6 mb-3">
-            <div class="small-box bg-gradient-info shadow-sm">
-              <div class="inner">
-                <h3>{{ $invoice->total }}</h3>
-                <p>Total de Faturas</p>
-              </div>
-              <div class="icon">
-                <i class="fas fa-list"></i>
+              <div class="dashboard-card-body">
+                <div class="dashboard-stats-grid">
+                  <div class="dashboard-stat-item">
+                    <div class="stat-icon" style="background: rgba(6,184,247,0.1);">
+                      <i class="fas fa-receipt" style="color: #06b8f7;"></i>
+                    </div>
+                    <div class="stat-content">
+                      <span class="stat-value">{{ $payable->total ?? 0 }}</span>
+                      <span class="stat-label">Total</span>
+                    </div>
+                  </div>
+                  <div class="dashboard-stat-item">
+                    <div class="stat-icon" style="background: rgba(108,203,72,0.2);">
+                      <i class="fas fa-check-double" style="color: #6ccb48;"></i>
+                    </div>
+                    <div class="stat-content">
+                      <span class="stat-value">{{ $payable->pay ?? 0 }}</span>
+                      <span class="stat-label">Pagas</span>
+                    </div>
+                  </div>
+                  <div class="dashboard-stat-item">
+                    <div class="stat-icon" style="background: rgba(254,201,17,0.2);">
+                      <i class="fas fa-exclamation-triangle" style="color: #fec911;"></i>
+                    </div>
+                    <div class="stat-content">
+                      <span class="stat-value">{{ $payable->pendent ?? 0 }}</span>
+                      <span class="stat-label">Pendentes</span>
+                    </div>
+                  </div>
+                  <div class="dashboard-stat-item">
+                    <div class="stat-icon" style="background: rgba(239,68,68,0.1);">
+                      <i class="fas fa-times-circle" style="color: #EF4444;"></i>
+                    </div>
+                    <div class="stat-content">
+                      <span class="stat-value">{{ $payable->cancelled ?? 0 }}</span>
+                      <span class="stat-label">Canceladas</span>
+                    </div>
+                  </div>
+                  <div class="dashboard-stat-item stat-item-large">
+                    <div class="stat-icon" style="background: rgba(254,201,17,0.2);">
+                      <i class="fas fa-dollar-sign" style="color: #fec911;"></i>
+                    </div>
+                    <div class="stat-content">
+                      <span class="stat-value">R$ {{ number_format($payable->total_pendente ?? 0, 2, ',', '.') }}</span>
+                      <span class="stat-label">Total Pendente</span>
+                    </div>
+                  </div>
+                  <div class="dashboard-stat-item stat-item-large">
+                    <div class="stat-icon" style="background: rgba(108,203,72,0.2);">
+                      <i class="fas fa-money-bill-wave" style="color: #6ccb48;"></i>
+                    </div>
+                    <div class="stat-content">
+                      <span class="stat-value">R$ {{ number_format($payable->total_pago ?? 0, 2, ',', '.') }}</span>
+                      <span class="stat-label">Total Pago</span>
+                    </div>
+                  </div>
+                </div>
+                <!-- Alertas de Contas a Pagar - Compactos -->
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(0,0,0,0.1);">
+                  <div class="dashboard-alerts-compact">
+                    <div class="alert-item-compact alert-danger">
+                      <i class="fas fa-calendar-times"></i>
+                      <div class="alert-content-compact">
+                        <span class="alert-label-compact">Vencidas</span>
+                        <span class="alert-value-compact">{{ $payable->due ?? 0 }}</span>
+                      </div>
+                    </div>
+                    <div class="alert-item-compact alert-warning">
+                      <i class="fas fa-business-time"></i>
+                      <div class="alert-content-compact">
+                        <span class="alert-label-compact">5 dias</span>
+                        <span class="alert-value-compact">{{ $payable->five_days ?? 0 }}</span>
+                      </div>
+                    </div>
+                    <div class="alert-item-compact alert-info">
+                      <i class="fas fa-calendar-day"></i>
+                      <div class="alert-content-compact">
+                        <span class="alert-label-compact">Hoje</span>
+                        <span class="alert-value-compact">{{ $payable->today ?? 0 }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Contas a Pagar -->
-        <div class="row mb-4">
-          <div class="col-12">
-            <h4 class="mb-3"><i class="fas fa-file-invoice text-danger"></i> Contas a Pagar</h4>
-          </div>
-
-          <div class="col-lg-2 col-md-4 col-6 mb-3">
-            <div class="small-box bg-gradient-primary shadow-sm">
-              <div class="inner">
-                <h3>{{ $payable->total ?? 0 }}</h3>
-                <p>Total de Contas</p>
-              </div>
-              <div class="icon">
-                <i class="fas fa-receipt"></i>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-2 col-md-4 col-6 mb-3">
-            <div class="small-box bg-gradient-success shadow-sm">
-              <div class="inner">
-                <h3>{{ $payable->pay ?? 0 }}</h3>
-                <p>Contas Pagas</p>
-              </div>
-              <div class="icon">
-                <i class="fas fa-check-double"></i>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-2 col-md-4 col-6 mb-3">
-            <div class="small-box bg-gradient-warning shadow-sm">
-              <div class="inner">
-                <h3>{{ $payable->pendent ?? 0 }}</h3>
-                <p>Contas Pendentes</p>
-              </div>
-              <div class="icon">
-                <i class="fas fa-exclamation-triangle"></i>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-2 col-md-4 col-6 mb-3">
-            <div class="small-box bg-gradient-danger shadow-sm">
-              <div class="inner">
-                <h3>{{ $payable->cancelled ?? 0 }}</h3>
-                <p>Contas Canceladas</p>
-              </div>
-              <div class="icon">
-                <i class="fas fa-times-circle"></i>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-2 col-md-4 col-6 mb-3">
-            <div class="small-box bg-gradient-secondary shadow-sm">
-              <div class="inner">
-                <h3>R$ {{ number_format($payable->total_pendente ?? 0, 2, ',', '.') }}</h3>
-                <p>Total Pendente</p>
-              </div>
-              <div class="icon">
-                <i class="fas fa-dollar-sign"></i>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-2 col-md-4 col-6 mb-3">
-            <div class="small-box bg-gradient-info shadow-sm">
-              <div class="inner">
-                <h3>R$ {{ number_format($payable->total_pago ?? 0, 2, ',', '.') }}</h3>
-                <p>Total Pago</p>
-              </div>
-              <div class="icon">
-                <i class="fas fa-money-bill-wave"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Gráficos de Faturas -->
+        <!-- Gráficos de Receitas e Despesas -->
         <div class="row mb-4">
           <div class="col-lg-6 col-md-12 mb-4">
             <div class="card shadow-sm">
               <div class="card-header bg-white border-bottom">
                 <div class="d-flex justify-content-between align-items-center">
                   <h3 class="card-title mb-0">
-                    <i class="fas fa-chart-bar text-primary"></i>
-                    Faturas por Status - Anual
+                    <i class="fas fa-chart-bar"></i>
+                    Receitas e Despesas - Anual
                   </h3>
-                  <select class="form-control form-control-sm" id="invoiceYearSelect" style="width: auto; max-width: 120px;" onchange="changeInvoiceYear()">
+                  <select class="form-control form-control-sm" id="receitasDespesasYearSelect" style="width: auto; max-width: 120px;" onchange="changeReceitasDespesasYear()">
                     @for($y = date('Y') - 5; $y <= date('Y') + 1; $y++)
                       <option value="{{$y}}" {{$y == date('Y') ? 'selected' : ''}}>{{$y}}</option>
                     @endfor
@@ -196,7 +231,7 @@
                 </div>
               </div>
               <div class="card-body">
-                <canvas id="paymentStatusChartYear" height="250"></canvas>
+                <canvas id="receitasDespesasChartYear" height="250"></canvas>
               </div>
             </div>
           </div>
@@ -206,11 +241,11 @@
               <div class="card-header bg-white border-bottom">
                 <div class="d-flex justify-content-between align-items-center">
                   <h3 class="card-title mb-0">
-                    <i class="fas fa-chart-bar text-primary"></i>
-                    Faturas por Status - Mensal
+                    <i class="fas fa-chart-bar"></i>
+                    Receitas e Despesas - Mensal
                   </h3>
                   <div class="d-flex align-items-center gap-2">
-                    <select class="form-control form-control-sm" id="invoiceMonthSelect" style="width: auto; max-width: 120px;" onchange="changeInvoiceMonth()">
+                    <select class="form-control form-control-sm" id="receitasDespesasMonthSelect" style="width: auto; max-width: 120px;" onchange="changeReceitasDespesasMonth()">
                       @php
                         $months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
                         $currentMonth = date('m');
@@ -219,7 +254,7 @@
                         <option value="{{$index + 1}}" {{($index + 1) == $currentMonth ? 'selected' : ''}}>{{$month}}</option>
                       @endforeach
                     </select>
-                    <select class="form-control form-control-sm" id="invoiceYearMonthSelect" style="width: auto; max-width: 100px;" onchange="changeInvoiceMonth()">
+                    <select class="form-control form-control-sm" id="receitasDespesasYearMonthSelect" style="width: auto; max-width: 100px;" onchange="changeReceitasDespesasMonth()">
                       @for($y = date('Y') - 2; $y <= date('Y') + 1; $y++)
                         <option value="{{$y}}" {{$y == date('Y') ? 'selected' : ''}}>{{$y}}</option>
                       @endfor
@@ -228,7 +263,7 @@
                 </div>
               </div>
               <div class="card-body">
-                <canvas id="paymentStatusChartMonth" height="250"></canvas>
+                <canvas id="receitasDespesasChartMonth" height="250"></canvas>
               </div>
             </div>
           </div>
@@ -290,80 +325,6 @@
           </div>
         </div>
 
-        <!-- Alertas e Vencimentos -->
-        <div class="row">
-          <div class="col-lg-6 col-md-12 mb-4">
-            <div class="card shadow-sm">
-              <div class="card-header bg-white border-bottom">
-                <h3 class="card-title mb-0">
-                  <i class="fas fa-bell text-warning"></i>
-                  Alertas de Faturas
-                </h3>
-              </div>
-              <div class="card-body">
-                <div class="info-box mb-3 bg-danger shadow-sm">
-                  <span class="info-box-icon"><i class="fas fa-calendar-times"></i></span>
-                  <div class="info-box-content">
-                    <span class="info-box-text">Faturas Vencidas</span>
-                    <span class="info-box-number">{{ $invoice->due }}</span>
-                  </div>
-                </div>
-
-                <div class="info-box mb-3 bg-info shadow-sm">
-                  <span class="info-box-icon"><i class="fas fa-business-time"></i></span>
-                  <div class="info-box-content">
-                    <span class="info-box-text">Vencendo em 5 dias</span>
-                    <span class="info-box-number">{{ $invoice->five_days }}</span>
-                  </div>
-                </div>
-
-                <div class="info-box mb-3 bg-success shadow-sm">
-                  <span class="info-box-icon"><i class="fas fa-calendar-day"></i></span>
-                  <div class="info-box-content">
-                    <span class="info-box-text">Vencendo Hoje</span>
-                    <span class="info-box-number">{{ $invoice->today }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-6 col-md-12 mb-4">
-            <div class="card shadow-sm">
-              <div class="card-header bg-white border-bottom">
-                <h3 class="card-title mb-0">
-                  <i class="fas fa-bell text-warning"></i>
-                  Alertas de Contas a Pagar
-                </h3>
-              </div>
-              <div class="card-body">
-                <div class="info-box mb-3 bg-danger shadow-sm">
-                  <span class="info-box-icon"><i class="fas fa-calendar-times"></i></span>
-                  <div class="info-box-content">
-                    <span class="info-box-text">Contas Vencidas</span>
-                    <span class="info-box-number">{{ $payable->due ?? 0 }}</span>
-                  </div>
-                </div>
-
-                <div class="info-box mb-3 bg-info shadow-sm">
-                  <span class="info-box-icon"><i class="fas fa-business-time"></i></span>
-                  <div class="info-box-content">
-                    <span class="info-box-text">Vencendo em 5 dias</span>
-                    <span class="info-box-number">{{ $payable->five_days ?? 0 }}</span>
-                  </div>
-                </div>
-
-                <div class="info-box mb-3 bg-success shadow-sm">
-                  <span class="info-box-icon"><i class="fas fa-calendar-day"></i></span>
-                  <div class="info-box-content">
-                    <span class="info-box-text">Vencendo Hoje</span>
-                    <span class="info-box-number">{{ $payable->today ?? 0 }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
 
       </div><!-- /.container-fluid -->
     </div>
@@ -415,22 +376,26 @@
 
     <script>
     // Variáveis globais para os gráficos
-    var chartYear = null;
-    var chartMonth = null;
+    var receitasDespesasChartYear = null;
+    var receitasDespesasChartMonth = null;
     var payableChartYear = null;
     var payableChartMonth = null;
 
-    // Função para mudar ano dos gráficos de faturas (anual)
-    function changeInvoiceYear() {
-        invoiceYear = parseInt(document.getElementById('invoiceYearSelect').value);
-        updateChartYear();
+    // Variáveis para controlar mês/ano dos gráficos de receitas e despesas
+    var receitasDespesasMonth = {{date('m')}};
+    var receitasDespesasYear = {{date('Y')}};
+
+    // Função para mudar ano dos gráficos de receitas e despesas (anual)
+    function changeReceitasDespesasYear() {
+        receitasDespesasYear = parseInt(document.getElementById('receitasDespesasYearSelect').value);
+        updateReceitasDespesasChartYear();
     }
 
-    // Função para mudar mês dos gráficos de faturas (mensal)
-    function changeInvoiceMonth() {
-        invoiceMonth = parseInt(document.getElementById('invoiceMonthSelect').value);
-        invoiceYear = parseInt(document.getElementById('invoiceYearMonthSelect').value);
-        updateChartMonth();
+    // Função para mudar mês dos gráficos de receitas e despesas (mensal)
+    function changeReceitasDespesasMonth() {
+        receitasDespesasMonth = parseInt(document.getElementById('receitasDespesasMonthSelect').value);
+        receitasDespesasYear = parseInt(document.getElementById('receitasDespesasYearMonthSelect').value);
+        updateReceitasDespesasChartMonth();
     }
 
     // Função para mudar ano dos gráficos de contas a pagar (anual)
@@ -452,120 +417,141 @@
     var payableMonth = {{date('m')}};
     var payableYear = {{date('Y')}};
 
-    function updateChartYear() {
-        var year = parseInt(document.getElementById('invoiceYearSelect').value);
+    function updateReceitasDespesasChartYear() {
+        var year = parseInt(document.getElementById('receitasDespesasYearSelect').value);
         $.ajax({
-            url: '{{url("admin/chart-invoices")}}',
+            url: '{{url("admin/chart-receitas-despesas")}}',
             type: 'GET',
             data: {
                 year: year
             },
             dataType: 'json',
             success: function (data) {
-                var labels = Object.keys(data.year);
-                var values = Object.values(data.year);
-
-                var colors = [
-                    'rgba(255, 99, 132, 0.8)', // Pendente
-                    'rgba(54, 162, 235, 0.8)', // Pago
-                    'rgba(255, 206, 86, 0.8)', // Cancelado
-                    'rgba(75, 192, 192, 0.8)', // Expirado
-                    'rgba(153, 102, 255, 0.8)', // Processamento
-                    'rgba(0, 0, 0, 0.8)' // Total
-                ];
-
-                var ctx = document.getElementById('paymentStatusChartYear');
-                if (chartYear) {
-                    chartYear.destroy();
+                var ctx = document.getElementById('receitasDespesasChartYear');
+                if (receitasDespesasChartYear) {
+                    receitasDespesasChartYear.destroy();
                 }
-                chartYear = new Chart(ctx, {
+                receitasDespesasChartYear = new Chart(ctx, {
                     type: 'bar',
                     data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Quantidade',
-                            data: values,
-                            backgroundColor: colors,
-                            borderColor: colors.map(c => c.replace('0.8', '1')),
-                            borderWidth: 2,
-                        }],
+                        labels: data.year.labels,
+                        datasets: [
+                            {
+                                label: 'Receitas',
+                                data: data.year.receitas,
+                                backgroundColor: 'rgba(108, 203, 72, 0.8)',
+                                borderColor: '#6ccb48',
+                                borderWidth: 2,
+                            },
+                            {
+                                label: 'Despesas',
+                                data: data.year.despesas,
+                                backgroundColor: 'rgba(6, 184, 247, 0.8)',
+                                borderColor: '#06b8f7',
+                                borderWidth: 2,
+                            }
+                        ],
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        backgroundColor: '#FFFFFF',
                         animation: {
                             duration: 1000,
                             easing: 'easeOutBounce'
                         },
                         plugins: {
                             legend: {
-                                display: false
+                                display: true,
+                                position: 'top',
+                                labels: {
+                                    usePointStyle: true,
+                                    padding: 15,
+                                    font: {
+                                        size: 12,
+                                        weight: '600'
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        var label = context.dataset.label || '';
+                                        var value = context.parsed.y || 0;
+                                        return label + ': R$ ' + value.toLocaleString('pt-BR', {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2
+                                        });
+                                    }
+                                }
                             }
                         },
                         scales: {
                             y: {
                                 beginAtZero: true,
-                                ticks: {
-                                    stepSize: 1,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
                                 },
+                                ticks: {
+                                    callback: function(value) {
+                                        return 'R$ ' + value.toLocaleString('pt-BR', {
+                                            minimumFractionDigits: 0,
+                                            maximumFractionDigits: 0
+                                        });
+                                    }
+                                }
                             },
+                            x: {
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            }
                         },
                     },
                 });
             },
             complete: function () {
-                setTimeout(updateChartYear, 30000);
+                setTimeout(updateReceitasDespesasChartYear, 30000);
             },
         });
     }
 
-    function updateChartMonth() {
+    function updateReceitasDespesasChartMonth() {
         $.ajax({
-            url: '{{url("admin/chart-invoices")}}',
+            url: '{{url("admin/chart-receitas-despesas")}}',
             type: 'GET',
             data: {
-                month: invoiceMonth,
-                year: invoiceYear
+                month: receitasDespesasMonth,
+                year: receitasDespesasYear
             },
             dataType: 'json',
             success: function (data) {
-                var labels = Object.keys(data.month || {});
-                var values = labels.length > 0 ? Object.values(data.month) : [0];
-
-                // Se não houver dados, mostrar mensagem
-                if (labels.length === 0) {
-                    labels = ['Sem dados'];
-                    values = [0];
+                var ctx = document.getElementById('receitasDespesasChartMonth');
+                if (receitasDespesasChartMonth) {
+                    receitasDespesasChartMonth.destroy();
                 }
-
-                var colors = [
-                    'rgba(255, 99, 132, 0.8)', // Pendente
-                    'rgba(54, 162, 235, 0.8)', // Pago
-                    'rgba(255, 206, 86, 0.8)', // Cancelado
-                    'rgba(75, 192, 192, 0.8)', // Expirado
-                    'rgba(153, 102, 255, 0.8)', // Processamento
-                    'rgba(0, 0, 0, 0.8)' // Total
-                ];
-
-                var ctx = document.getElementById('paymentStatusChartMonth');
-                if (chartMonth) {
-                    chartMonth.destroy();
-                }
-                chartMonth = new Chart(ctx, {
+                receitasDespesasChartMonth = new Chart(ctx, {
                     type: 'bar',
                     data: {
-                        labels: labels,
+                        labels: ['Receitas', 'Despesas'],
                         datasets: [{
-                            label: 'Quantidade',
-                            data: values,
-                            backgroundColor: colors,
-                            borderColor: colors.map(c => c.replace('0.8', '1')),
+                            label: 'Valores',
+                            data: [data.month.receitas, data.month.despesas],
+                            backgroundColor: [
+                                'rgba(108, 203, 72, 0.8)',
+                                'rgba(6, 184, 247, 0.8)'
+                            ],
+                            borderColor: [
+                                '#6ccb48',
+                                '#06b8f7'
+                            ],
                             borderWidth: 2,
                         }],
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        backgroundColor: '#FFFFFF',
                         animation: {
                             duration: 1000,
                             easing: 'easeOutBounce'
@@ -573,21 +559,46 @@
                         plugins: {
                             legend: {
                                 display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        var label = context.label || '';
+                                        var value = context.parsed.y || 0;
+                                        return label + ': R$ ' + value.toLocaleString('pt-BR', {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2
+                                        });
+                                    }
+                                }
                             }
                         },
                         scales: {
                             y: {
                                 beginAtZero: true,
-                                ticks: {
-                                    stepSize: 1,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
                                 },
+                                ticks: {
+                                    callback: function(value) {
+                                        return 'R$ ' + value.toLocaleString('pt-BR', {
+                                            minimumFractionDigits: 0,
+                                            maximumFractionDigits: 0
+                                        });
+                                    }
+                                }
                             },
+                            x: {
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            }
                         },
                     },
                 });
             },
             complete: function () {
-                setTimeout(updateChartMonth, 30000);
+                setTimeout(updateReceitasDespesasChartMonth, 30000);
             },
         });
     }
@@ -767,13 +778,13 @@
 
     $(document).ready(function () {
         // Inicializar variáveis com valores dos selects após o DOM estar carregado
-        invoiceMonth = parseInt(document.getElementById('invoiceMonthSelect').value);
-        invoiceYear = parseInt(document.getElementById('invoiceYearSelect').value);
+        receitasDespesasMonth = parseInt(document.getElementById('receitasDespesasMonthSelect').value);
+        receitasDespesasYear = parseInt(document.getElementById('receitasDespesasYearSelect').value);
         payableMonth = parseInt(document.getElementById('payableMonthSelect').value);
         payableYear = parseInt(document.getElementById('payableYearSelect').value);
 
-        updateChartYear();
-        updateChartMonth();
+        updateReceitasDespesasChartYear();
+        updateReceitasDespesasChartMonth();
         updatePayableChartYear();
         updatePayableChartMonth();
     });
@@ -804,32 +815,246 @@
     </script>
 
     <style>
-        .small-box {
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        /* Dashboard Moderno - Estilos Compactos */
+        .dashboard-card-modern {
+            background: #FFFFFF;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            overflow: hidden;
         }
-        .small-box:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
+
+        .dashboard-card-modern:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
         }
-        .card {
-            transition: box-shadow 0.2s ease-in-out;
+
+        .dashboard-card-header {
+            background: #FFFFFF;
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
         }
-        .card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
-        }
-        .info-box {
-            transition: transform 0.2s ease-in-out;
-        }
-        .info-box:hover {
-            transform: translateX(5px);
-        }
-        h4 {
+
+        .dashboard-card-title {
+            margin: 0;
+            font-size: 14px;
             font-weight: 600;
-            color: #495057;
+            color: #333333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
+
+        .dashboard-card-title i {
+            color: #06b8f7;
+            font-size: 16px;
+        }
+
+        .dashboard-card-body {
+            padding: 16px;
+        }
+
+        .dashboard-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .dashboard-stat-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #F9F9F9;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .dashboard-stat-item:hover {
+            background: rgba(6, 184, 247, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .stat-item-large {
+            grid-column: span 3;
+        }
+
+        .stat-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .stat-icon i {
+            font-size: 18px;
+        }
+
+        .stat-content {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333333;
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #6B7280;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Alertas Compactos - Dentro dos Cards */
+        .dashboard-alerts-compact {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .alert-item-compact {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .alert-item-compact:hover {
+            transform: translateY(-1px);
+        }
+
+        .alert-item-compact i {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .alert-content-compact {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .alert-label-compact {
+            font-size: 10px;
+            color: #6B7280;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .alert-value-compact {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333333;
+            line-height: 1.2;
+        }
+
+        .alert-item-compact.alert-danger {
+            background: rgba(239, 68, 68, 0.08);
+        }
+
+        .alert-item-compact.alert-danger i {
+            background: rgba(239, 68, 68, 0.2);
+            color: #EF4444;
+        }
+
+        .alert-item-compact.alert-warning {
+            background: rgba(254, 201, 17, 0.08);
+        }
+
+        .alert-item-compact.alert-warning i {
+            background: rgba(254, 201, 17, 0.2);
+            color: #fec911;
+        }
+
+        .alert-item-compact.alert-info {
+            background: rgba(6, 184, 247, 0.08);
+        }
+
+        .alert-item-compact.alert-info i {
+            background: rgba(6, 184, 247, 0.2);
+            color: #06b8f7;
+        }
+
+        /* Cards de Gráficos */
+        .card {
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            background: #FFFFFF;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .card-header h3 {
+            color: #333333;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .card-header h3 i {
+            color: #06b8f7;
+        }
+
+        /* Gráficos com fundo branco */
+        canvas {
+            background-color: #FFFFFF !important;
+        }
+
+        .card-body {
+            background-color: #FFFFFF !important;
+        }
+
+        /* Responsivo */
+        @media (max-width: 992px) {
+            .dashboard-stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .stat-item-large {
+                grid-column: span 2;
+            }
+        }
+
         @media (max-width: 768px) {
-            .small-box h3 {
-                font-size: 1.5rem !important;
+            .dashboard-stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .stat-item-large {
+                grid-column: span 1;
+            }
+            .stat-value {
+                font-size: 16px;
+            }
+            .dashboard-alerts-compact {
+                grid-template-columns: 1fr;
             }
             .form-control-sm {
                 font-size: 0.75rem;
@@ -837,9 +1062,6 @@
             }
             .card-header .d-flex {
                 flex-wrap: wrap;
-            }
-            .card-header .form-control-sm {
-                margin-top: 0.5rem;
             }
         }
     </style>

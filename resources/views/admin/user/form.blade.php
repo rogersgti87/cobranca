@@ -554,7 +554,7 @@ $.ajax({
                     html += `<td>
                         <button type="button" id="btn-qrcode" onclick="getQRCODE();" data-original-title="QRCODE"data-tt="tooltip" data-placement="left" class="btn btn-success btn-xs"> <i class="fa fa-qrcode"></i> QRCODE</button>
                         <button type="button" onclick="checkStatus();" id="btn-status" data-original-title="Verificar status" data-tt="tooltip" data-placement="left" class="btn btn-info btn-xs"> <i class="fa fa-info"></i> Status</button>
-                        <button type="button" onclick="logout();" id="btn-logout" data-original-title="Desconectar"data-tt="tooltip" data-placement="left" class="btn btn-warning btn-xs"> <i class="fas fa-sign-out-alt"></i> Desconectar</button>
+                        <button type="button" onclick="logout();" id="btn-logout" data-original-title="Desconectar"data-tt="tooltip" data-placement="left" class="btn btn-xs" style="background-color: #06b8f7; border-color: #06b8f7; color: #FFFFFF;"> <i class="fas fa-sign-out-alt"></i> Desconectar</button>
                         <button type="button" onclick="deleteWhatsapp();" id="btn-logout" data-original-title="Remover"data-tt="tooltip" data-placement="left" class="btn btn-danger btn-xs"> <i class="fas fa-trash"></i> Remover</button>
                         </td>`;
                     html += '</tr>';

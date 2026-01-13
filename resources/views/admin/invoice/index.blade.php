@@ -30,7 +30,7 @@
         <div class="col-md-12 mb-4">
          <div class="row">
               <div class="col-md-3 col-6 mb-3">
-                <div style="background-color: #F5F5DC; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <p style="color: #1F2937; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Total</p>
@@ -45,22 +45,22 @@
             </div>
 
             <div class="col-md-3 col-6 mb-3">
-                <div style="background-color: #F5F5DC; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <p style="color: #1F2937; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Pendentes</p>
-                            <h5 id="pendent_invoices_curerency" style="color: #FFBD59; font-size: 20px; font-weight: 600; margin: 5px 0 0 0;">R$0,00</h5>
+                            <h5 id="pendent_invoices_curerency" style="color: #06b8f7; font-size: 20px; font-weight: 600; margin: 5px 0 0 0;">R$0,00</h5>
                             <p id="total_pendent" style="color: #1F2937; font-size: 12px; margin: 5px 0 0 0; opacity: 0.6;">0 faturas</p>
                         </div>
-                        <div style="width: 48px; height: 48px; background-color: rgba(255,189,89,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                            <i class="far fa-hourglass" style="color: #FFBD59; font-size: 20px;"></i>
+                        <div style="width: 48px; height: 48px; background-color: rgba(6,184,247,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                            <i class="far fa-hourglass" style="color: #06b8f7; font-size: 20px;"></i>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="col-md-3 col-6 mb-3">
-                <div style="background-color: #F5F5DC; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <p style="color: #1F2937; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Pagas</p>
@@ -75,7 +75,7 @@
             </div>
 
             <div class="col-md-3 col-6 mb-3">
-                <div style="background-color: #F5F5DC; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <p style="color: #1F2937; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Canceladas</p>
@@ -98,7 +98,7 @@
             <div class="row">
                 <!-- Sidebar de Filtros -->
                 <div class="col-lg-3 col-md-4 mb-4">
-                    <div style="background-color: #F5F5DC; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: sticky; top: 20px;">
+                    <div style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: sticky; top: 20px;">
                         <h5 style="color: #1F2937; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
                             <i class="fa fa-filter"></i> Filtros
                         </h5>
@@ -158,7 +158,7 @@
                 <div class="col-lg-9 col-md-8">
                     <!-- Gráfico -->
                     <div class="mb-4">
-                        <div style="background-color: #F5F5DC; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <div style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                             <h5 style="color: #1F2937; font-weight: 600; margin-bottom: 15px; font-size: 16px;">
                                 <i class="fas fa-chart-pie"></i> Faturas por Status
                             </h5>
@@ -280,8 +280,8 @@
             <style>
 
                 pre {
-                   background-color: ghostwhite;
-                   border: 1px solid silver;
+                   background-color: #FFFFFF;
+                   border: 1px solid rgba(0,0,0,0.1);
                    padding: 10px 20px;
                    margin: 20px;
                    }
@@ -362,7 +362,7 @@
     }
 
     .accordion-toggle:hover {
-        background-color: #1E293B !important;
+        background-color: rgba(6, 184, 247, 0.05) !important;
     }
 
     .hiddenRow {
@@ -400,9 +400,9 @@
 
     /* Estilo para os botões de filtro rápido no sidebar */
     .filter-quick-btn:hover {
-        background-color: #FFBD59 !important;
-        color: #1F2937 !important;
-        border-color: #FFBD59 !important;
+        background-color: #06b8f7 !important;
+        color: #FFFFFF !important;
+        border-color: #06b8f7 !important;
     }
 
     /* Estilos para dropdown de ações */
@@ -415,11 +415,51 @@
     }
 
     .dropdown-item:hover {
-        background-color: #F5F5DC !important;
+        background-color: #FFFFFF !important;
     }
 
     .dropdown-toggle::after {
         display: none;
+    }
+
+    /* Garantir fundo branco na tabela - Sobrescrever dark-mode.css */
+    .table,
+    .table tbody,
+    .table tbody tr,
+    .table tbody td,
+    .table tbody tr td {
+        background-color: #FFFFFF !important;
+    }
+
+    .table-striped,
+    .table-striped tbody,
+    .table-striped tbody tr,
+    .table-striped tbody tr:nth-of-type(odd),
+    .table-striped tbody tr:nth-of-type(even),
+    .table-striped tbody tr:nth-of-type(odd) td,
+    .table-striped tbody tr:nth-of-type(even) td {
+        background-color: #FFFFFF !important;
+    }
+
+    .table-hover tbody tr:hover,
+    .table-hover tbody tr:hover td {
+        background-color: rgba(6, 184, 247, 0.05) !important;
+    }
+
+    .tbodyCustom,
+    .tbodyCustom tr,
+    .tbodyCustom tr td {
+        background-color: #FFFFFF !important;
+    }
+
+    /* Garantir fundo branco no collapse */
+    .collapse .card,
+    .collapse .card-body,
+    div[class*="collapse"] .card,
+    div[class*="collapse"] .card-body,
+    div[id*="collapse"] .card,
+    div[id*="collapse"] .card-body {
+        background-color: #FFFFFF !important;
     }
 </style>
 @endsection
@@ -1017,44 +1057,44 @@ $(document).on('click', '#btn-invoice-status', function(e) {
                 var paymentMethod = item.gateway_payment ? item.gateway_payment + ' (' + item.payment_method + ')' : item.payment_method || '-';
 
                 html += '<tr class="accordion-toggle">';
-                html += '<td><button class="btn btn-sm btn-link" style="color: #FFBD59; padding: 0; border: none; background: transparent;" onclick="event.stopPropagation(); $(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');"><i class="fas fa-chevron-down" id="icon-' + item.id + '"></i></button></td>';
+                html += '<td><button class="btn btn-sm btn-link" style="color: #06b8f7; padding: 0; border: none; background: transparent;" onclick="event.stopPropagation(); $(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');"><i class="fas fa-chevron-down" id="icon-' + item.id + '"></i></button></td>';
                 html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer;">' + item.id + '</td>';
                 html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer;">' + item.customer_name + '</td>';
                 html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer;">' + moment(item.date_invoice).format('DD/MM/YYYY') + '</td>';
                 html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer;">' + moment(item.date_due).format('DD/MM/YYYY') + '</td>';
-                html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer; color: #FFBD59; font-weight: 600;">' + item.price + '</td>';
+                html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer; color: #06b8f7; font-weight: 600;">' + item.price + '</td>';
                 html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer;"><span class="badge ' + statusBadgeClass + '">' + item.status + '</span></td>';
 
                 // Criar itens do dropdown de ações
                 var actionsMenuItems = [];
 
                 // Editar Cliente (sempre disponível)
-                actionsMenuItems.push('<a href="{{ url('admin/customers/form?act=edit&id=')}}' + item.customer_id + '" class="dropdown-item" data-original-title="Editar cliente" id="btn-edit-customer" data-placement="left" data-tt="tooltip" style="color: #1F2937; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#F5F5DC\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-user" style="margin-right: 8px; color: #1E293B;"></i> Editar Cliente</a>');
+                actionsMenuItems.push('<a href="{{ url('admin/customers/form?act=edit&id=')}}' + item.customer_id + '" class="dropdown-item" data-original-title="Editar cliente" id="btn-edit-customer" data-placement="left" data-tt="tooltip" style="color: #1F2937; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'rgba(6, 184, 247, 0.1)\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-user" style="margin-right: 8px; color: #1E293B;"></i> Editar Cliente</a>');
 
                 // Editar Fatura (apenas para Pendente, Erro ou Estabelecimento)
                 if(item.status == 'Pendente' || item.status == 'Erro' || item.status == 'Estabelecimento'){
-                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Editar fatura" id="btn-modal-invoice" data-type="edit-invoice" data-invoice="' + item.id + '" data-placement="left" data-tt="tooltip" style="color: #1F2937; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#F5F5DC\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="far fa-edit" style="margin-right: 8px; color: #1E293B;"></i> Editar Fatura</a>');
+                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Editar fatura" id="btn-modal-invoice" data-type="edit-invoice" data-invoice="' + item.id + '" data-placement="left" data-tt="tooltip" style="color: #1F2937; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'rgba(6, 184, 247, 0.1)\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="far fa-edit" style="margin-right: 8px; color: #1E293B;"></i> Editar Fatura</a>');
                 }
 
                 // Ver Erros (apenas para Erro)
                 if(item.status == 'Erro'){
-                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Erros" id="btn-modal-error" data-invoice="' + item.id + '" data-placement="left" data-tt="tooltip" style="color: #1F2937; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#F5F5DC\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-exclamation-triangle" style="margin-right: 8px; color: #DC2626;"></i> Ver Erros</a>');
+                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Erros" id="btn-modal-error" data-invoice="' + item.id + '" data-placement="left" data-tt="tooltip" style="color: #1F2937; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'rgba(6, 184, 247, 0.1)\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-exclamation-triangle" style="margin-right: 8px; color: #DC2626;"></i> Ver Erros</a>');
                 }
 
                 // Notificações (para todos exceto Erro)
                 if(item.status != 'Erro'){
-                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Notificações" id="btn-modal-notifications" data-invoice="' + item.id + '" data-placement="left" data-tt="tooltip" style="color: #1F2937; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#F5F5DC\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fa fa-info" style="margin-right: 8px; color: #FFBD59;"></i> Notificações</a>');
+                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Notificações" id="btn-modal-notifications" data-invoice="' + item.id + '" data-placement="left" data-tt="tooltip" style="color: #333333; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'rgba(6, 184, 247, 0.1)\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fa fa-info" style="margin-right: 8px; color: #06b8f7;"></i> Notificações</a>');
                 }
 
                 // Cancelar Fatura (apenas para Pendente, Erro ou Estabelecimento)
                 if(item.status == 'Pendente' || item.status == 'Erro' || item.status == 'Estabelecimento'){
-                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Cancelar Fatura" id="btn-delete-invoice" data-placement="left" data-invoice="' + item.id + '" data-tt="tooltip" style="color: #1F2937; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#F5F5DC\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-undo-alt" style="margin-right: 8px; color: #F87171;"></i> Cancelar Fatura</a>');
+                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Cancelar Fatura" id="btn-delete-invoice" data-placement="left" data-invoice="' + item.id + '" data-tt="tooltip" style="color: #1F2937; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'rgba(6, 184, 247, 0.1)\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-undo-alt" style="margin-right: 8px; color: #F87171;"></i> Cancelar Fatura</a>');
                 }
 
                 // Baixar Fatura (apenas para Pendente)
                 if(item.status == 'Pendente'){
                     var downloadUrl = item.payment_method == "Pix" ? item.image_url_pix : item.billet_url;
-                    actionsMenuItems.push('<a href="' + downloadUrl + '" target="_blank" class="dropdown-item" data-original-title="Baixar Fatura" id="btn-download-invoice" data-placement="left" data-tt="tooltip" style="color: #1F2937; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#F5F5DC\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-download" style="margin-right: 8px; color: #FFBD59;"></i> Baixar Fatura</a>');
+                    actionsMenuItems.push('<a href="' + downloadUrl + '" target="_blank" class="dropdown-item" data-original-title="Baixar Fatura" id="btn-download-invoice" data-placement="left" data-tt="tooltip" style="color: #333333; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'rgba(6, 184, 247, 0.1)\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-download" style="margin-right: 8px; color: #06b8f7;"></i> Baixar Fatura</a>');
                 }
 
                 // Criar dropdown de ações
@@ -1077,19 +1117,19 @@ $(document).on('click', '#btn-invoice-status', function(e) {
                 html += '<tr>';
                 html += '<td colspan="8" class="hiddenRow">';
                 html += '<div class="collapse" id="collapse-invoice-' + item.id + '">';
-                html += '<div class="card card-body" style="background-color: #1E293B; border: 1px solid rgba(255,255,255,0.1); margin: 10px 0;">';
+                html += '<div class="card card-body" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); margin: 10px 0;">';
                 html += '<div class="row">';
                 html += '<div class="col-md-6 col-sm-12 mb-3">';
-                html += '<strong style="color: #FFBD59;">Descrição:</strong><br>';
-                html += '<span style="color: #000000;">' + (item.description || '-') + '</span>';
+                html += '<strong style="color: #06b8f7;">Descrição:</strong><br>';
+                html += '<span style="color: #333333;">' + (item.description || '-') + '</span>';
                 html += '</div>';
                 html += '<div class="col-md-3 col-sm-6 mb-3">';
-                html += '<strong style="color: #FFBD59;">Pago em:</strong><br>';
-                html += '<span style="color: #000000;">' + datePayment + '</span>';
+                html += '<strong style="color: #06b8f7;">Pago em:</strong><br>';
+                html += '<span style="color: #333333;">' + datePayment + '</span>';
                 html += '</div>';
                 html += '<div class="col-md-3 col-sm-6 mb-3">';
-                html += '<strong style="color: #FFBD59;">Forma de Pagamento:</strong><br>';
-                html += '<span style="color: #000000;">' + paymentMethod + '</span>';
+                html += '<strong style="color: #06b8f7;">Forma de Pagamento:</strong><br>';
+                html += '<span style="color: #333333;">' + paymentMethod + '</span>';
                 html += '</div>';
                 html += '</div>';
                 html += '</div>';
@@ -1141,7 +1181,7 @@ $(document).on('click', '#btn-invoice-status', function(e) {
 
         if (!dateIni || !dateEnd) {
             // Se não há datas, destacar "Todos"
-            document.getElementById('btn-filter-all').style.border = '2px solid #FFBD59';
+            document.getElementById('btn-filter-all').style.border = '2px solid #06b8f7';
             document.getElementById('btn-filter-all').style.borderWidth = '2px';
             return;
         }
@@ -1153,10 +1193,10 @@ $(document).on('click', '#btn-invoice-status', function(e) {
         const nextMonthLast = new Date(now.getFullYear(), now.getMonth() + 2, 0).toISOString().split('T')[0];
 
         if (dateIni === currentMonthFirst && dateEnd === currentMonthLast) {
-            document.getElementById('btn-filter-current-month').style.border = '2px solid #FFBD59';
+            document.getElementById('btn-filter-current-month').style.border = '2px solid #06b8f7';
             document.getElementById('btn-filter-current-month').style.borderWidth = '2px';
         } else if (dateIni === nextMonthFirst && dateEnd === nextMonthLast) {
-            document.getElementById('btn-filter-next-month').style.border = '2px solid #FFBD59';
+            document.getElementById('btn-filter-next-month').style.border = '2px solid #06b8f7';
             document.getElementById('btn-filter-next-month').style.borderWidth = '2px';
         }
     }
@@ -1251,8 +1291,8 @@ function updateStatusChart(statusData) {
 
     // Mapear cores para cada status
     const statusColors = {
-        'Pendente': '#FFBD59',
-        'Pago': '#22C55E',
+        'Pendente': '#06b8f7',
+        'Pago': '#6ccb48',
         'Cancelado': '#F87171',
         'Erro': '#DC2626',
         'Estabelecimento': '#6366F1',

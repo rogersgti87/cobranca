@@ -58,7 +58,7 @@
 
           <div class="col-md-2">
             <ul class="button-action">
-                <li><a href="#" data-original-title="Novo" id="btn-modal-supplier" data-type="add-supplier" data-toggle="tooltip" class="btn btn-secondary btn-sm"> <i class="fa fa-plus"></i> Novo</a></li>
+                <li><a href="#" data-original-title="Novo" id="btn-modal-supplier" data-type="add-supplier" data-toggle="tooltip" class="btn btn-sm" style="background-color: #06b8f7; color: #FFFFFF !important; border: none; padding: 8px 12px; border-radius: 6px; font-weight: 600;"> <i class="fa fa-plus"></i> Novo</a></li>
              </ul>
           </div>
 
@@ -101,7 +101,7 @@
                                     <td>{{$result->email}}</td>
                                     <td>{{$result->phone}}</td>
                                     <td><span class="badge badge-{{$result->status == 'Ativo' ? 'success' : 'danger'}}">{{$result->status}}</span></td>
-                                    <td><a href="#" data-original-title="Editar" id="btn-modal-supplier" data-type="edit-supplier" data-supplier="{{$result->id}}" data-toggle="tooltip" class="btn btn-primary btn-xs"> <i class="fa fa-list"></i> Editar</a></td>
+                                    <td><a href="#" data-original-title="Editar" id="btn-modal-supplier" data-type="edit-supplier" data-supplier="{{$result->id}}" data-toggle="tooltip" class="btn btn-xs" style="background-color: #06b8f7; color: #FFFFFF !important; border: none; padding: 4px 8px; border-radius: 4px; font-weight: 600;"> <i class="fa fa-list"></i> Editar</a></td>
                                 </tr>
                             @endforeach
                         </form>
@@ -131,7 +131,7 @@
         <div class="modal-content" style="background-color: #111827; border: 1px solid rgba(255,255,255,0.1);">
             <form action="" class="form-horizontal" id="form-request-supplier">
                 <div class="modal-header" style="background-color: #1E293B; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                    <h5 class="modal-title" id="modalSupplierLabel" style="color: #FFBD59; font-weight: 600;"></h5>
+                    <h5 class="modal-title" id="modalSupplierLabel" style="color: #06b8f7; font-weight: 600;"></h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #E5E7EB;">
                         <span aria-hidden="true" style="color: #E5E7EB;">&times;</span>
                     </button>
@@ -266,9 +266,9 @@ $(document).on("click", "#btn-save-supplier", function() {
             var message = method == 'POST' ? data.data : data;
             Swal.fire({
                 width: 350,
-                title: "<h5 style='color:#FFBD59'>" + message + "</h5>",
+                title: "<h5 style='color:#06b8f7'>" + message + "</h5>",
                 icon: 'success',
-                confirmButtonColor: '#FFBD59',
+                confirmButtonColor: '#06b8f7',
                 cancelButtonColor: '#1E293B',
                 showConfirmButton: true,
                 showClass: {
@@ -287,7 +287,7 @@ $(document).on("click", "#btn-save-supplier", function() {
                     text: xhr.responseJSON,
                     width: 300,
                     icon: 'warning',
-                    confirmButtonColor: '#FFBD59',
+                    confirmButtonColor: '#06b8f7',
                     cancelButtonColor: '#1E293B',
                     showClass: {
                         popup: 'animate__animated animate__wobble'
@@ -298,7 +298,7 @@ $(document).on("click", "#btn-save-supplier", function() {
                     text: xhr.responseJSON || 'Erro ao salvar fornecedor',
                     width: 300,
                     icon: 'error',
-                    confirmButtonColor: '#FFBD59',
+                    confirmButtonColor: '#06b8f7',
                     cancelButtonColor: '#1E293B',
                     showClass: {
                         popup: 'animate__animated animate__wobble'
@@ -335,7 +335,7 @@ Swal.fire({
                     Swal.fire({
                         text: xhr.responseJSON,
                         icon: 'warning',
-                        confirmButtonColor: '#FFBD59',
+                        confirmButtonColor: '#06b8f7',
                         cancelButtonColor: '#1E293B',
                         showClass: {
                             popup: 'animate__animated animate__wobble'
@@ -345,7 +345,7 @@ Swal.fire({
                     Swal.fire({
                         text: xhr.responseJSON,
                         icon: 'error',
-                        confirmButtonColor: '#FFBD59',
+                        confirmButtonColor: '#06b8f7',
                         cancelButtonColor: '#1E293B',
                         showClass: {
                             popup: 'animate__animated animate__wobble'

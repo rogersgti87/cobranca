@@ -33,7 +33,7 @@
                     <a href="#" data-original-title="Deletar Selecionados" id="btn-delete" class="btn" style="background-color: #F87171; color: #FFFFFF !important; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; transition: all 0.3s;"> <i class="fa fa-trash"></i> Deletar Selecionados</a>
                 </div>
                 <div>
-                    <a href="#" data-original-title="Nova Categoria" id="btn-modal-category" data-type="add-category" data-toggle="tooltip" class="btn" style="background-color: #FFBD59; color: #0F172A !important; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; transition: all 0.3s;"> <i class="fa fa-plus"></i> Nova Categoria</a>
+                    <a href="#" data-original-title="Nova Categoria" id="btn-modal-category" data-type="add-category" data-toggle="tooltip" class="btn" style="background-color: #06b8f7; color: #FFFFFF !important; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; transition: all 0.3s;"> <i class="fa fa-plus"></i> Nova Categoria</a>
                 </div>
             </div>
 
@@ -93,7 +93,7 @@
                                     </td>
                                     <td style="padding: 12px;">
                                         @if(!$isGlobal)
-                                            <a href="#" data-original-title="Editar" id="btn-modal-category" data-type="edit-category" data-category="{{$result->id}}" data-toggle="tooltip" class="btn" style="background-color: #FFBD59; color: #0F172A !important; border: none; padding: 4px 12px; border-radius: 4px; font-size: 12px; text-decoration: none; display: inline-block; font-weight: 600;"> <i class="far fa-edit"></i> Editar</a>
+                                            <a href="#" data-original-title="Editar" id="btn-modal-category" data-type="edit-category" data-category="{{$result->id}}" data-toggle="tooltip" class="btn" style="background-color: #06b8f7; color: #FFFFFF !important; border: none; padding: 4px 12px; border-radius: 4px; font-size: 12px; text-decoration: none; display: inline-block; font-weight: 600;"> <i class="far fa-edit"></i> Editar</a>
                                         @else
                                             <span style="color: #9CA3AF; font-size: 12px;">-</span>
                                         @endif
@@ -125,7 +125,7 @@
         <div class="modal-content" style="background-color: #111827; border: 1px solid rgba(255,255,255,0.1);">
             <form action="" class="form-horizontal" id="form-request-category">
                 <div class="modal-header" style="background-color: #1E293B; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                    <h5 class="modal-title" id="modalCategoryLabel" style="color: #FFBD59; font-weight: 600;"></h5>
+                    <h5 class="modal-title" id="modalCategoryLabel" style="color: #06b8f7; font-weight: 600;"></h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #E5E7EB;">
                         <span aria-hidden="true" style="color: #E5E7EB;">&times;</span>
                     </button>
@@ -169,14 +169,15 @@
     }
 
     #btn-modal-category:hover {
-        background-color: #FFD700 !important;
+        background-color: #06b8f7 !important;
         transform: translateY(-1px);
-        box-shadow: 0 4px 6px rgba(255, 189, 89, 0.3);
+        box-shadow: 0 4px 6px rgba(6, 184, 247, 0.3);
+        opacity: 0.9;
     }
 
     .form-control:focus {
-        border-color: #FFBD59 !important;
-        box-shadow: 0 0 0 3px rgba(255, 189, 89, 0.2) !important;
+        border-color: #06b8f7 !important;
+        box-shadow: 0 0 0 3px rgba(6, 184, 247, 0.2) !important;
         outline: none;
         background-color: #0F172A !important;
         color: #E5E7EB !important;
@@ -257,7 +258,7 @@
                 $("#btn-save-category").html('<i class="fa fa-check"></i> Salvar');
                 var showClassObj = {};
                 showClassObj.popup = 'animate__animated animate__backInUp';
-                var titleHtml = "<h5 style='color:#FFBD59'>" + data.data + "</h5>";
+                var titleHtml = "<h5 style='color:#06b8f7'>" + data.data + "</h5>";
                 Swal.fire({
                     width: 350,
                     title: titleHtml,

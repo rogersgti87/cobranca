@@ -57,7 +57,7 @@
 
           <div class="col-md-2">
             <ul class="button-action">
-                <li><a href="{{url($linkFormAdd)}}" data-original-title="Novo" data-toggle="tooltip" class="btn btn-secondary btn-sm"> <i class="fa fa-plus"></i> Novo</a></li>
+                <li><a href="{{url($linkFormAdd)}}" data-original-title="Novo" data-toggle="tooltip" class="btn btn-sm" style="background-color: #06b8f7; color: #FFFFFF !important; border: none; padding: 8px 12px; border-radius: 6px; font-weight: 600;"> <i class="fa fa-plus"></i> Novo</a></li>
                 {{-- <li><a href="#" data-original-title="Copiar" id="btn-copy" data-toggle="tooltip" class="btn btn-info btn-sm"> <i class="fa fa-copy"></i> Copiar</a></li> --}}
                 {{-- <li><a href="#" data-original-title="Deletar" id="btn-delete" data-toggle="tooltip" class="btn btn-danger btn-sm"> <i class="fa fa-trash"></i> Excluir</a></li> --}}
              </ul>
@@ -96,7 +96,7 @@
                                     </td>
 
                                     <td>{{$result->name}} {{$result->company != null ?  ' - ( '. $result->company. ' ) ' : ''}}</td>
-                                    <td><a href="{{url($linkFormEdit."&id=$result->id")}}" data-original-title="Editar" data-toggle="tooltip" class="btn btn-primary btn-xs"> <i class="fa fa-list"></i> Editar</a></td>
+                                    <td><a href="{{url($linkFormEdit."&id=$result->id")}}" data-original-title="Editar" data-toggle="tooltip" class="btn btn-xs" style="background-color: #06b8f7; color: #FFFFFF !important; border: none; padding: 4px 8px; border-radius: 4px; font-weight: 600;"> <i class="fa fa-list"></i> Editar</a></td>
                                 </tr>
                             @endforeach
                         </form>

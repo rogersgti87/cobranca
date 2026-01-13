@@ -31,37 +31,37 @@
         <div class="col-md-12 mb-4">
          <div class="row">
               <div class="col-md-3 col-6 mb-3">
-                <div style="background-color: #F5F5DC; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <p style="color: #1F2937; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Total</p>
                             <h5 id="total_currency" style="color: #1F2937; font-size: 20px; font-weight: 600; margin: 5px 0 0 0;">R$0,00</h5>
                             <p id="total_count" style="color: #1F2937; font-size: 12px; margin: 5px 0 0 0; opacity: 0.6;">0 faturas</p>
                         </div>
-                        <div style="width: 48px; height: 48px; background-color: rgba(255,189,89,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-receipt" style="color: #FFBD59; font-size: 20px;"></i>
+                        <div style="width: 48px; height: 48px; background-color: rgba(6,184,247,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-receipt" style="color: #06b8f7; font-size: 20px;"></i>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="col-md-3 col-6 mb-3">
-                <div style="background-color: #F5F5DC; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <p style="color: #1F2937; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Pendentes</p>
-                            <h5 id="pendente_currency" style="color: #FFBD59; font-size: 20px; font-weight: 600; margin: 5px 0 0 0;">R$0,00</h5>
+                            <h5 id="pendente_currency" style="color: #06b8f7; font-size: 20px; font-weight: 600; margin: 5px 0 0 0;">R$0,00</h5>
                             <p id="pendente_count" style="color: #1F2937; font-size: 12px; margin: 5px 0 0 0; opacity: 0.6;">0 faturas</p>
                         </div>
-                        <div style="width: 48px; height: 48px; background-color: rgba(255,189,89,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                            <i class="far fa-hourglass" style="color: #FFBD59; font-size: 20px;"></i>
+                        <div style="width: 48px; height: 48px; background-color: rgba(6,184,247,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                            <i class="far fa-hourglass" style="color: #06b8f7; font-size: 20px;"></i>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="col-md-3 col-6 mb-3">
-                <div style="background-color: #F5F5DC; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <p style="color: #1F2937; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Recebidas</p>
@@ -76,7 +76,7 @@
             </div>
 
             <div class="col-md-3 col-6 mb-3">
-                <div style="background-color: #F5F5DC; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <p style="color: #1F2937; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Canceladas</p>
@@ -97,7 +97,7 @@
         <div class="col-md-12">
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
                 <div class="d-flex align-items-center flex-wrap" style="gap: 10px;">
-                    <button class="btn" type="button" data-toggle="collapse" data-target="#filtersCollapse" aria-expanded="false" aria-controls="filtersCollapse" style="background-color: #FFBD59; color: #1F2937 !important; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; transition: all 0.3s;">
+                    <button class="btn" type="button" data-toggle="collapse" data-target="#filtersCollapse" aria-expanded="false" aria-controls="filtersCollapse" style="background-color: #06b8f7; color: #FFFFFF !important; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; transition: all 0.3s;">
                         <i class="fa fa-filter"></i> Filtros
                     </button>
                     <div class="d-flex flex-wrap" style="gap: 8px;">
@@ -126,7 +126,7 @@
             </div>
 
             <div class="collapse mb-4" id="filtersCollapse">
-                <div class="form-row" style="background-color: #F5F5DC; padding: 20px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1);">
+                <div class="form-row" style="background-color: #FFFFFF; padding: 20px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1);">
 
                 <div class="form-group col-md-4 col-6">
                     <label style="color: #1F2937; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Tipo de Data</label>
@@ -150,8 +150,8 @@
                 <div class="form-group col-md-12 mt-3">
                     <div class="row">
                         <div class="col-md-6 col-12">
-                            <fieldset style="border: 1px solid rgba(255,189,89,0.5); border-radius: 8px; padding: 15px; margin: 0; background-color: #FFFFFF; position: relative;">
-                                <legend style="color: #FFBD59; font-size: 14px; font-weight: 600; padding: 0 10px; margin: 0; border: none;">Forma de Pagamento</legend>
+                            <fieldset style="border: 1px solid rgba(6,184,247,0.5); border-radius: 8px; padding: 15px; margin: 0; background-color: #FFFFFF; position: relative;">
+                                <legend style="color: #06b8f7; font-size: 14px; font-weight: 600; padding: 0 10px; margin: 0; border: none;">Forma de Pagamento</legend>
                                 <div class="d-flex" style="gap: 20px; margin-top: 10px; flex-wrap: nowrap; overflow-x: auto;">
                                     <label style="color: #1F2937; font-weight: 400; font-size: 14px; cursor: pointer; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0;">
                                         <input type="checkbox" class="payment-method-checkbox" value="Pix" style="margin-right: 6px; width: 18px; height: 18px; cursor: pointer;">
@@ -177,8 +177,8 @@
                             </fieldset>
                         </div>
                         <div class="col-md-6 col-12">
-                            <fieldset style="border: 1px solid rgba(255,189,89,0.5); border-radius: 8px; padding: 15px; margin: 0; background-color: #FFFFFF; position: relative;">
-                                <legend style="color: #FFBD59; font-size: 14px; font-weight: 600; padding: 0 10px; margin: 0; border: none;">Status</legend>
+                            <fieldset style="border: 1px solid rgba(6,184,247,0.5); border-radius: 8px; padding: 15px; margin: 0; background-color: #FFFFFF; position: relative;">
+                                <legend style="color: #06b8f7; font-size: 14px; font-weight: 600; padding: 0 10px; margin: 0; border: none;">Status</legend>
                                 <div class="d-flex" style="gap: 20px; margin-top: 10px; flex-wrap: nowrap; overflow-x: auto;">
                                     <label style="color: #1F2937; font-weight: 400; font-size: 14px; cursor: pointer; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0;">
                                         <input type="checkbox" class="status-checkbox" value="Pendente" style="margin-right: 6px; width: 18px; height: 18px; cursor: pointer;">
@@ -217,7 +217,7 @@
         </div>
 
       <div class="col-md-12 mb-4">
-        <div style="background-color: #F5F5DC; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <div style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
             <h5 style="color: #1F2937; font-weight: 600; margin-bottom: 20px;">
                 <i class="fas fa-chart-pie"></i> Total por Status
             </h5>
@@ -228,7 +228,7 @@
       </div>
 
       <div class="col-md-12">
-        <div style="background-color: #F5F5DC; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <div style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
             <h5 style="color: #1F2937; font-weight: 600; margin-bottom: 20px;">
                 <i class="fas fa-list"></i> Detalhamento
             </h5>
@@ -248,7 +248,7 @@
                     </tr>
                     </thead>
 
-                    <tbody id="list-report" style="background-color: #F5F5DC;">
+                    <tbody id="list-report" style="background-color: #FFFFFF;">
                         <tr>
                             <td colspan="9" class="text-center" style="padding: 40px; color: #6B7280;">
                                 <i class="fas fa-chart-bar" style="font-size: 48px; margin-bottom: 15px; opacity: 0.3;"></i>
@@ -275,6 +275,112 @@
 
 @endsection
 
+@section('styles')
+<style>
+    /* Checkboxes azuis */
+    input[type="checkbox"],
+    input[type="checkbox"]:checked,
+    input[type="checkbox"]:focus {
+        accent-color: #06b8f7 !important;
+        cursor: pointer;
+    }
+
+    /* Garantir que fieldsets e legendas sejam azuis */
+    fieldset {
+        border-color: rgba(6,184,247,0.5) !important;
+    }
+
+    legend {
+        color: #06b8f7 !important;
+    }
+
+    /* Responsividade Mobile */
+    @media (max-width: 767.98px) {
+        .content-header h1,
+        .content-header .breadcrumb {
+            font-size: 14px;
+        }
+
+        .col-md-3.col-6 {
+            margin-bottom: 15px;
+        }
+
+        .col-md-12.mb-4 > div {
+            padding: 15px !important;
+        }
+
+        fieldset {
+            padding: 10px !important;
+            margin-bottom: 15px !important;
+        }
+
+        legend {
+            font-size: 12px !important;
+        }
+
+        .d-flex[style*="gap: 20px"] {
+            flex-wrap: wrap !important;
+            gap: 10px !important;
+        }
+
+        label[style*="white-space: nowrap"] {
+            font-size: 12px !important;
+            white-space: normal !important;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .table th,
+        .table td {
+            padding: 8px 6px !important;
+            font-size: 12px !important;
+        }
+
+        .table th {
+            white-space: nowrap;
+        }
+
+        #filtersCollapse .form-group {
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            padding: 8px 12px !important;
+            font-size: 12px !important;
+        }
+
+        .col-md-6.col-12 {
+            margin-bottom: 15px;
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        .col-md-3.col-6 {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+
+        .table th,
+        .table td {
+            padding: 6px 4px !important;
+            font-size: 11px !important;
+        }
+
+        fieldset {
+            padding: 8px !important;
+        }
+
+        .d-flex[style*="gap: 20px"] {
+            flex-direction: column;
+            gap: 8px !important;
+        }
+    }
+</style>
+@endsection
+
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
@@ -283,7 +389,7 @@ let generateReportTimeout;
 let statusChart = null;
 
 $(document).ready(function() {
-    
+
     // Inicializar Select2 para clientes
     $('#filter-customers').select2({
         theme: 'bootstrap4',
@@ -319,7 +425,7 @@ $(document).ready(function() {
         if (!dateIni || !dateEnd) {
             // Se não há datas, destacar "Todos"
             $('#btn-filter-all').css({
-                'border': '2px solid #FFBD59',
+                'border': '2px solid #06b8f7',
                 'borderWidth': '2px'
             });
             return;
@@ -335,17 +441,17 @@ $(document).ready(function() {
 
         if (dateIni === currentMonthFirst && dateEnd === currentMonthLast) {
             $('#btn-filter-current-month').css({
-                'border': '2px solid #FFBD59',
+                'border': '2px solid #06b8f7',
                 'borderWidth': '2px'
             });
         } else if (dateIni === lastMonthFirst && dateEnd === lastMonthLast) {
             $('#btn-filter-last-month').css({
-                'border': '2px solid #FFBD59',
+                'border': '2px solid #06b8f7',
                 'borderWidth': '2px'
             });
         } else if (dateIni === currentYearFirst && dateEnd === currentYearLast) {
             $('#btn-filter-current-year').css({
-                'border': '2px solid #FFBD59',
+                'border': '2px solid #06b8f7',
                 'borderWidth': '2px'
             });
         }
@@ -356,7 +462,7 @@ $(document).ready(function() {
         const now = new Date();
         const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
         const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-        
+
         $('#filter-date-ini').val(formatDate(firstDay));
         $('#filter-date-end').val(formatDate(lastDay));
         updateQuickFilterHighlight();
@@ -367,7 +473,7 @@ $(document).ready(function() {
         const now = new Date();
         const firstDay = new Date(now.getFullYear(), now.getMonth() - 1, 1);
         const lastDay = new Date(now.getFullYear(), now.getMonth(), 0);
-        
+
         $('#filter-date-ini').val(formatDate(firstDay));
         $('#filter-date-end').val(formatDate(lastDay));
         updateQuickFilterHighlight();
@@ -378,7 +484,7 @@ $(document).ready(function() {
         const now = new Date();
         const firstDay = new Date(now.getFullYear(), 0, 1);
         const lastDay = new Date(now.getFullYear(), 11, 31);
-        
+
         $('#filter-date-ini').val(formatDate(firstDay));
         $('#filter-date-end').val(formatDate(lastDay));
         updateQuickFilterHighlight();
@@ -509,8 +615,8 @@ function displayReport(data, totals) {
         html = '<tr><td colspan="9" class="text-center" style="padding: 40px; color: #6B7280;">Nenhum registro encontrado</td></tr>';
     } else {
         data.forEach(function(item, index) {
-            const statusColor = item.status === 'Pago' ? '#22C55E' : item.status === 'Pendente' ? '#FFBD59' : item.status === 'Expirado' ? '#F59E0B' : '#F87171';
-            
+            const statusColor = item.status === 'Pago' ? '#22C55E' : item.status === 'Pendente' ? '#06b8f7' : item.status === 'Expirado' ? '#F59E0B' : '#F87171';
+
             html += '<tr>';
             html += '<td style="padding: 12px; border-bottom: 1px solid rgba(0,0,0,0.1);">' + (index + 1) + '</td>';
             html += '<td style="padding: 12px; border-bottom: 1px solid rgba(0,0,0,0.1);">' + (item.customer_name || '-') + '</td>';
@@ -593,7 +699,7 @@ function exportToPDF() {
 function exportToExcel() {
     // Criar CSV para Excel
     let csv = 'Cliente,Descrição,Serviço,Vencimento,Recebido em,Valor,Forma de Pagamento,Status\n';
-    
+
     reportData.forEach(function(item) {
         csv += '"' + (item.customer_name || '') + '",';
         csv += '"' + item.description + '",';
@@ -619,7 +725,7 @@ function exportToExcel() {
 
 function updateStatusChart(statusData) {
     const ctx = document.getElementById('statusChart');
-    
+
     if (!ctx) return;
 
     // Destruir gráfico anterior se existir
@@ -635,7 +741,7 @@ function updateStatusChart(statusData) {
 
     // Mapear cores para cada status
     const statusColors = {
-        'Pendente': '#FFBD59',
+        'Pendente': '#06b8f7',
         'Pago': '#22C55E',
         'Cancelado': '#F87171',
         'Expirado': '#F59E0B',

@@ -1,36 +1,70 @@
-<x-guest-layout>
-    <x-auth-card>
-        <x-slot name="logo">
-            <a href="/">
-                <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
-            </a>
-        </x-slot>
+@extends('layouts.app')
 
-        <div class="mb-4 text-sm text-gray-600">
-            {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
+@section('content')
+
+<div class="login-form-bd">
+    <div class="form-wrapper">
+        <div class="form-container">
+            <div class="logo">
+                <img alt="logo" src="{{url('/img/logo.png?')}}{{mt_rand(0,999)}}">
+            </div>
+            <h1>Esqueceu a Senha?</h1>
+
+            <p style="text-align: center; color: var(--text-gray); font-size: 0.938rem; margin-bottom: 2rem; line-height: 1.6;">
+                Sem problemas. Informe seu endereço de e-mail e enviaremos um link para redefinir sua senha.
+            </p>
+
+            <!-- Session Status -->
+            @if (session('status'))
+                <div class="alert alert-success">
+                    {{ session('status') }}
+                </div>
+            @endif
+
+            <!-- Validation Errors -->
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('password.email') }}">
+                @csrf
+
+                <!-- Email Address -->
+                <div class="form-control">
+                    <input
+                        id="email"
+                        type="email"
+                        class="@error('email') is-invalid @enderror"
+                        name="email"
+                        value="{{ old('email') }}"
+                        required
+                        autofocus
+                        placeholder=" "
+                    >
+                    @error('email')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                    <label>
+                        <span>E-mail</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="login-btn">Enviar Link de Redefinição</button>
+
+                <p class="text">
+                    <a href="{{ route('login') }}">Voltar para o login</a>
+                </p>
+            </form>
         </div>
+    </div>
+</div>
 
-        <!-- Session Status -->
-        <x-auth-session-status class="mb-4" :status="session('status')" />
-
-        <!-- Validation Errors -->
-        <x-auth-validation-errors class="mb-4" :errors="$errors" />
-
-        <form method="POST" action="{{ route('password.email') }}">
-            @csrf
-
-            <!-- Email Address -->
-            <div>
-                <x-label for="email" :value="__('Email')" />
-
-                <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />
-            </div>
-
-            <div class="flex items-center justify-end mt-4">
-                <x-button>
-                    {{ __('Email Password Reset Link') }}
-                </x-button>
-            </div>
-        </form>
-    </x-auth-card>
-</x-guest-layout>
+@endsection

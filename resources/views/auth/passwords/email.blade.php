@@ -1,47 +1,70 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">Recuperar senha</div>
 
-                <div class="card-body">
-                    @if (session('status'))
-                        <div class="alert alert-success" role="alert">
-                            {{ session('status') }}
-                        </div>
-                    @endif
-
-                    <form method="POST" action="{{ route('password.email') }}">
-                        @csrf
-
-                        <div class="row mb-3">
-                            <label for="email" class="col-md-4 col-form-label text-md-end">E-mail</label>
-
-                            <div class="col-md-6">
-                                <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
-
-                                @error('email')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="row mb-0">
-                            <div class="col-md-6 offset-md-4">
-                                <button type="submit" class="btn btn-primary">
-                                    Enviar
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
+<div class="login-form-bd">
+    <div class="form-wrapper">
+        <div class="form-container">
+            <div class="logo">
+                <img alt="logo" src="{{url('/img/logo.png?')}}{{mt_rand(0,999)}}">
             </div>
+            <h1>Recuperar Senha</h1>
+
+            <p style="text-align: center; color: var(--text-gray); font-size: 0.938rem; margin-bottom: 2rem; line-height: 1.6;">
+                Informe seu endereço de e-mail e enviaremos um link para redefinir sua senha.
+            </p>
+
+            <!-- Session Status -->
+            @if (session('status'))
+                <div class="alert alert-success">
+                    {{ session('status') }}
+                </div>
+            @endif
+
+            <!-- Validation Errors -->
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('password.email') }}">
+                @csrf
+
+                <!-- Email Address -->
+                <div class="form-control">
+                    <input
+                        id="email"
+                        type="email"
+                        class="@error('email') is-invalid @enderror"
+                        name="email"
+                        value="{{ old('email') }}"
+                        required
+                        autofocus
+                        placeholder=" "
+                    >
+                    @error('email')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                    <label>
+                        <span>E-mail</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="login-btn">Enviar Link de Redefinição</button>
+
+                <p class="text">
+                    <a href="{{ route('login') }}">Voltar para o login</a>
+                </p>
+            </form>
         </div>
     </div>
 </div>
+
 @endsection

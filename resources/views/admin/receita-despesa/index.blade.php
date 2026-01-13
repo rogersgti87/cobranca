@@ -196,7 +196,7 @@ $(document).ready(function() {
 function loadChart() {
     // Desabilitar botões durante o carregamento
     $('#btn-prev-month, #btn-next-month').prop('disabled', true);
-    
+
     $.ajax({
         url: '{{ url("admin/receita-despesa/data") }}',
         method: 'GET',
@@ -207,7 +207,7 @@ function loadChart() {
         success: function(data) {
             // Reabilitar botões
             $('#btn-prev-month, #btn-next-month').prop('disabled', false);
-            
+
             // Verificar se há dados
             if (!data || !data.labels) {
                 console.error('Dados inválidos recebidos:', data);
@@ -324,7 +324,7 @@ function loadChart() {
         error: function(xhr) {
             // Reabilitar botões em caso de erro
             $('#btn-prev-month, #btn-next-month').prop('disabled', false);
-            
+
             console.error('Erro ao carregar dados:', xhr);
             Swal.fire({
                 icon: 'error',

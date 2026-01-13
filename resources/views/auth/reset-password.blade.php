@@ -1,48 +1,97 @@
-<x-guest-layout>
-    <x-auth-card>
-        <x-slot name="logo">
-            <a href="/">
-                <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
-            </a>
-        </x-slot>
+@extends('layouts.app')
 
-        <!-- Validation Errors -->
-        <x-auth-validation-errors class="mb-4" :errors="$errors" />
+@section('content')
 
-        <form method="POST" action="{{ route('password.update') }}">
-            @csrf
-
-            <!-- Password Reset Token -->
-            <input type="hidden" name="token" value="{{ $request->route('token') }}">
-
-            <!-- Email Address -->
-            <div>
-                <x-label for="email" :value="__('Email')" />
-
-                <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email', $request->email)" required autofocus />
+<div class="login-form-bd">
+    <div class="form-wrapper">
+        <div class="form-container">
+            <div class="logo">
+                <img alt="logo" src="{{url('/img/logo.png?')}}{{mt_rand(0,999)}}">
             </div>
+            <h1>Redefinir Senha</h1>
 
-            <!-- Password -->
-            <div class="mt-4">
-                <x-label for="password" :value="__('Password')" />
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
-                <x-input id="password" class="block mt-1 w-full" type="password" name="password" required />
-            </div>
+            <form method="POST" action="{{ route('password.update') }}">
+                @csrf
 
-            <!-- Confirm Password -->
-            <div class="mt-4">
-                <x-label for="password_confirmation" :value="__('Confirm Password')" />
+                <!-- Password Reset Token -->
+                <input type="hidden" name="token" value="{{ $request->route('token') }}">
 
-                <x-input id="password_confirmation" class="block mt-1 w-full"
-                                    type="password"
-                                    name="password_confirmation" required />
-            </div>
+                <!-- Email Address -->
+                <div class="form-control">
+                    <input
+                        id="email"
+                        type="email"
+                        class="@error('email') is-invalid @enderror"
+                        name="email"
+                        value="{{ old('email', $request->email) }}"
+                        required
+                        autofocus
+                        placeholder=" "
+                    >
+                    @error('email')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                    <label>
+                        <span>E-mail</span>
+                    </label>
+                </div>
 
-            <div class="flex items-center justify-end mt-4">
-                <x-button>
-                    {{ __('Reset Password') }}
-                </x-button>
-            </div>
-        </form>
-    </x-auth-card>
-</x-guest-layout>
+                <!-- Password -->
+                <div class="form-control">
+                    <input
+                        id="password"
+                        type="password"
+                        class="@error('password') is-invalid @enderror"
+                        name="password"
+                        required
+                        placeholder=" "
+                    >
+                    @error('password')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                    <label>
+                        <span>Nova Senha</span>
+                    </label>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="form-control">
+                    <input
+                        id="password_confirmation"
+                        type="password"
+                        class="@error('password_confirmation') is-invalid @enderror"
+                        name="password_confirmation"
+                        required
+                        placeholder=" "
+                    >
+                    @error('password_confirmation')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                    <label>
+                        <span>Confirmar Nova Senha</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="login-btn">Redefinir Senha</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@endsection

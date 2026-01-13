@@ -489,7 +489,7 @@ class AdminController extends Controller
             $monthName = Carbon::create($yearParam, $monthParam, 1)->translatedFormat('F \d\e Y');
         } catch (\Exception $e) {
             // Fallback caso o locale não esteja disponível
-            $months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 
+            $months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
                       'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
             $monthName = $months[$monthParam - 1] . ' de ' . $yearParam;
         }

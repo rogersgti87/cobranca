@@ -14,6 +14,7 @@ use App\Models\Invoice;
 use App\Models\Customer;
 use App\Models\Payable;
 use App\Models\PayableCategory;
+use App\Models\Supplier;
 use RuntimeException;
 use Illuminate\Support\Facades\Http;
 use GuzzleHttp\Client;
@@ -505,6 +506,435 @@ class AdminController extends Controller
             'selected_month' => $monthParam,
             'month_name' => $monthName
         ]);
+    }
+
+    public function projecoes(){
+        // Buscar categorias globais (user_id NULL) e do usuário atual
+        $categories = PayableCategory::where(function($query) {
+                $query->whereNull('user_id')
+                      ->orWhere('user_id', auth()->user()->id);
+            })
+            ->orderByRaw('CASE WHEN user_id IS NULL THEN 0 ELSE 1 END') // Globais primeiro
+            ->orderBy('name','ASC')
+            ->get();
+
+        // Buscar fornecedores
+        $suppliers = Supplier::where('user_id', auth()->user()->id)
+            ->orderBy('name', 'ASC')
+            ->get();
+
+        $datarequest = [
+            'title'             => 'Projeções Futuras',
+            'link'              => 'admin/projecoes',
+            'path'              => 'admin.projecoes.'
+        ];
+
+        return view('admin.projecoes.index', compact('categories', 'suppliers'))->with($datarequest);
+    }
+
+    public function loadProjecoesData(){
+        $filterType = $this->request->input('filter_type', '12'); // current-month, next-month, ou número
+        $monthsAhead = $this->request->input('months_ahead', 12);
+        $monthsAhead = $monthsAhead ? (int) $monthsAhead : 12;
+
+        // Calcular datas de início e fim baseado no tipo de filtro
+        $today = Carbon::today();
+        $filterStartDate = $today->copy();
+        $filterEndDate = $today->copy();
+
+        if($filterType === 'current-month') {
+            // Mês atual: do primeiro dia do mês até o último dia do mês
+            $filterStartDate = $today->copy()->startOfMonth();
+            $filterEndDate = $today->copy()->endOfMonth();
+        } elseif($filterType === 'next-month') {
+            // Próximo mês: do primeiro dia do próximo mês até o último dia do próximo mês
+            $filterStartDate = $today->copy()->addMonth()->startOfMonth();
+            $filterEndDate = $today->copy()->addMonth()->endOfMonth();
+        } else {
+            // Período de X meses à frente
+            $filterEndDate = $today->copy()->addMonths($monthsAhead);
+        }
+
+        // Filtros
+        $categoryFilter = $this->request->input('category');
+        $supplierFilter = $this->request->input('supplier');
+        $recurrencePeriodFilter = $this->request->input('recurrence_period');
+
+        // Buscar todas as contas recorrentes ativas do usuário
+        $query = Payable::with(['supplier', 'category'])
+            ->where('user_id', auth()->user()->id)
+            ->where('type', 'Recorrente')
+            ->where('status', '!=', 'Cancelado')
+            ->whereNotNull('recurrence_period');
+
+        // Aplicar filtros
+        if($categoryFilter && $categoryFilter != ''){
+            $query->where('category_id', $categoryFilter);
+        }
+
+        if($supplierFilter && $supplierFilter != ''){
+            $query->where('supplier_id', $supplierFilter);
+        }
+
+        if($recurrencePeriodFilter && $recurrencePeriodFilter != ''){
+            $query->where('recurrence_period', $recurrencePeriodFilter);
+        }
+
+        // Buscar apenas as contas originais (primeira de cada recorrência)
+        $recurringPayables = $query->get()->filter(function($payable) {
+            // Verificar se é a conta original (primeira da recorrência)
+            $hasEarlier = Payable::where('user_id', $payable->user_id)
+                ->where('supplier_id', $payable->supplier_id)
+                ->where('description', $payable->description)
+                ->where('type', 'Recorrente')
+                ->where('date_due', '<', $payable->date_due)
+                ->exists();
+
+            return !$hasEarlier;
+        });
+
+        $projections = [];
+        $today = Carbon::today();
+        $endDate = $today->copy()->addMonths($monthsAhead);
+
+        foreach($recurringPayables as $payable) {
+            // Verificar se já passou da data de término
+            if($payable->recurrence_end && Carbon::parse($payable->recurrence_end)->isPast()) {
+                continue;
+            }
+
+            // Buscar a última conta gerada desta recorrência
+            $lastPayable = Payable::where('user_id', $payable->user_id)
+                ->where('supplier_id', $payable->supplier_id)
+                ->where('description', $payable->description)
+                ->where('type', 'Recorrente')
+                ->where('recurrence_period', $payable->recurrence_period)
+                ->orderBy('date_due', 'DESC')
+                ->first();
+
+            // Usar a última conta gerada ou a original como base
+            $basePayable = $lastPayable ?: $payable;
+            $baseDueDate = Carbon::parse($basePayable->date_due);
+
+            // Se a data base já passou, calcular a próxima data válida a partir da data inicial do filtro
+            if($baseDueDate->isPast()) {
+                // Calcular quantas recorrências já passaram desde a data base até a data inicial do filtro
+                $currentDate = $baseDueDate->copy();
+                $iterationsBeforeFilter = 0;
+                while($currentDate->lt($filterStartDate) && $iterationsBeforeFilter < 100) {
+                    $nextDate = $this->calculateNextProjectionDate($payable, $currentDate);
+                    if(!$nextDate) {
+                        break;
+                    }
+                    if($nextDate->gt($filterEndDate)) {
+                        break;
+                    }
+                    $currentDate = $nextDate;
+                    $iterationsBeforeFilter++;
+                }
+                // Se ainda está antes da data inicial do filtro, começar da data inicial
+                if($currentDate->lt($filterStartDate)) {
+                    $currentDate = $filterStartDate->copy();
+                }
+            } else {
+                // Se a data base é futura, usar a maior entre a data base e a data inicial do filtro
+                $currentDate = $baseDueDate->gte($filterStartDate) ? $baseDueDate->copy() : $filterStartDate->copy();
+            }
+
+            // Gerar projeções até a data limite ou até a data de término da recorrência
+            $maxIterations = 200; // Limite de segurança
+            $iterations = 0;
+
+            $payableProjectionsCount = 0;
+
+            // Se a data atual já está dentro do período do filtro, começar a partir dela
+            // Caso contrário, calcular a próxima data que cai dentro do período
+            $dateToCheck = $currentDate->copy();
+
+            while($iterations < $maxIterations && $dateToCheck->lte($filterEndDate)) {
+                $iterations++;
+
+                // Verificar se a data atual está dentro do período
+                if($dateToCheck->gte($filterStartDate) && $dateToCheck->lte($filterEndDate)) {
+                    // Verificar se passou da data de término
+                    if($payable->recurrence_end && $dateToCheck->gt(Carbon::parse($payable->recurrence_end))) {
+                        break;
+                    }
+
+                    // Adicionar projeção
+                    $projections[] = [
+                        'description' => $payable->description,
+                        'supplier_id' => $payable->supplier_id,
+                        'supplier_name' => $payable->supplier->name ?? '',
+                        'category_id' => $payable->category_id,
+                        'category_name' => $payable->category->name ?? '',
+                        'category_color' => $payable->category->color ?? '',
+                        'price' => (float) $payable->price,
+                        'date_due' => $dateToCheck->format('Y-m-d'),
+                        'recurrence_period' => $payable->recurrence_period,
+                        'payment_method' => $payable->payment_method,
+                    ];
+                    $payableProjectionsCount++;
+                }
+
+                // Calcular próxima data baseada no período de recorrência
+                $nextDate = $this->calculateNextProjectionDate($payable, $dateToCheck);
+
+                if(!$nextDate) {
+                    break;
+                }
+
+                // Verificar se passou da data de término
+                if($payable->recurrence_end && $nextDate->gt(Carbon::parse($payable->recurrence_end))) {
+                    break;
+                }
+
+                // Verificar se passou da data limite
+                if($nextDate->gt($filterEndDate)) {
+                    break;
+                }
+
+                $dateToCheck = $nextDate;
+            }
+        }
+
+        // Ordenar por data de vencimento
+        usort($projections, function($a, $b) {
+            return strcmp($a['date_due'], $b['date_due']);
+        });
+
+        // Calcular totais por mês
+        $monthlyTotals = [];
+        foreach($projections as $projection) {
+            $monthKey = Carbon::parse($projection['date_due'])->format('Y-m');
+            if(!isset($monthlyTotals[$monthKey])) {
+                $monthlyTotals[$monthKey] = [
+                    'month' => Carbon::parse($projection['date_due'])->format('m/Y'),
+                    'total' => 0,
+                    'count' => 0
+                ];
+            }
+            $monthlyTotals[$monthKey]['total'] += $projection['price'];
+            $monthlyTotals[$monthKey]['count']++;
+        }
+
+        // Calcular total geral
+        $totalAmount = array_sum(array_column($projections, 'price'));
+
+        return response()->json([
+            'projections' => $projections,
+            'monthly_totals' => array_values($monthlyTotals),
+            'total_amount' => $totalAmount,
+            'total_count' => count($projections),
+            'months_ahead' => $monthsAhead,
+            'debug' => [
+                'filter_type' => $filterType,
+                'filter_start_date' => $filterStartDate->format('Y-m-d'),
+                'filter_end_date' => $filterEndDate->format('Y-m-d'),
+                'projections_count' => count($projections)
+            ]
+        ]);
+    }
+
+    private function calculateNextProjectionDate($payable, $currentDate)
+    {
+        $nextDate = null;
+
+        switch($payable->recurrence_period) {
+            case 'Semanal':
+                $nextDate = Carbon::parse($currentDate)->addWeek();
+                break;
+
+            case 'Quinzenal':
+                $nextDate = Carbon::parse($currentDate)->addDays(15);
+                break;
+
+            case 'Mensal':
+                $nextDate = Carbon::parse($currentDate)->addMonth();
+                if($payable->recurrence_day) {
+                    $nextDate->day($payable->recurrence_day);
+                }
+                break;
+
+            case 'Bimestral':
+                $nextDate = Carbon::parse($currentDate)->addMonths(2);
+                if($payable->recurrence_day) {
+                    $nextDate->day($payable->recurrence_day);
+                }
+                break;
+
+            case 'Trimestral':
+                $nextDate = Carbon::parse($currentDate)->addMonths(3);
+                if($payable->recurrence_day) {
+                    $nextDate->day($payable->recurrence_day);
+                }
+                break;
+
+            case 'Semestral':
+                $nextDate = Carbon::parse($currentDate)->addMonths(6);
+                if($payable->recurrence_day) {
+                    $nextDate->day($payable->recurrence_day);
+                }
+                break;
+
+            case 'Anual':
+                $nextDate = Carbon::parse($currentDate)->addYear();
+                if($payable->recurrence_day) {
+                    $nextDate->day($payable->recurrence_day);
+                }
+                break;
+
+            default:
+                return null;
+        }
+
+        return $nextDate;
+    }
+
+    public function exportProjecoesPdf(){
+        $monthsAhead = $this->request->input('months_ahead', 12);
+        $monthsAhead = (int) $monthsAhead;
+
+        // Filtros
+        $categoryFilter = $this->request->input('category');
+        $supplierFilter = $this->request->input('supplier');
+        $recurrencePeriodFilter = $this->request->input('recurrence_period');
+
+        // Buscar todas as contas recorrentes ativas do usuário
+        $query = Payable::with(['supplier', 'category'])
+            ->where('user_id', auth()->user()->id)
+            ->where('type', 'Recorrente')
+            ->where('status', '!=', 'Cancelado')
+            ->whereNotNull('recurrence_period');
+
+        // Aplicar filtros
+        if($categoryFilter && is_array($categoryFilter) && count($categoryFilter) > 0){
+            $query->whereIn('category_id', $categoryFilter);
+        }
+
+        if($supplierFilter && is_array($supplierFilter) && count($supplierFilter) > 0){
+            $query->whereIn('supplier_id', $supplierFilter);
+        }
+
+        if($recurrencePeriodFilter && is_array($recurrencePeriodFilter) && count($recurrencePeriodFilter) > 0){
+            $query->whereIn('recurrence_period', $recurrencePeriodFilter);
+        }
+
+        // Buscar apenas as contas originais (primeira de cada recorrência)
+        $recurringPayables = $query->get()->filter(function($payable) {
+            $hasEarlier = Payable::where('user_id', $payable->user_id)
+                ->where('supplier_id', $payable->supplier_id)
+                ->where('description', $payable->description)
+                ->where('type', 'Recorrente')
+                ->where('date_due', '<', $payable->date_due)
+                ->exists();
+
+            return !$hasEarlier;
+        });
+
+        $projections = [];
+        $today = Carbon::today();
+        $endDate = $today->copy()->addMonths($monthsAhead);
+
+        foreach($recurringPayables as $payable) {
+            if($payable->recurrence_end && Carbon::parse($payable->recurrence_end)->isPast()) {
+                continue;
+            }
+
+            $lastPayable = Payable::where('user_id', $payable->user_id)
+                ->where('supplier_id', $payable->supplier_id)
+                ->where('description', $payable->description)
+                ->where('type', 'Recorrente')
+                ->where('recurrence_period', $payable->recurrence_period)
+                ->orderBy('date_due', 'DESC')
+                ->first();
+
+            $basePayable = $lastPayable ?: $payable;
+            $startDate = Carbon::parse($basePayable->date_due);
+
+            if($startDate->isPast()) {
+                $currentDate = $startDate->copy();
+                while($currentDate->lt($startDate)) {
+                    $nextDate = $this->calculateNextProjectionDate($payable, $currentDate);
+                    if(!$nextDate || $nextDate->gt($endDate)) {
+                        break;
+                    }
+                    $currentDate = $nextDate;
+                }
+                if($currentDate->lt($startDate)) {
+                    $currentDate = $startDate->copy();
+                }
+            } else {
+                $currentDate = $startDate->copy();
+            }
+
+            $maxIterations = 200;
+            $iterations = 0;
+
+            while($iterations < $maxIterations && $currentDate->lte($endDate)) {
+                $iterations++;
+
+                $nextDate = $this->calculateNextProjectionDate($payable, $currentDate);
+
+                if(!$nextDate) {
+                    break;
+                }
+
+                if($payable->recurrence_end && $nextDate->gt(Carbon::parse($payable->recurrence_end))) {
+                    break;
+                }
+
+                if($nextDate->gt($endDate)) {
+                    break;
+                }
+
+                if($nextDate->gte($today)) {
+                    $projections[] = [
+                        'description' => $payable->description,
+                        'supplier_name' => $payable->supplier->name ?? '',
+                        'category_name' => $payable->category->name ?? '',
+                        'price' => (float) $payable->price,
+                        'date_due' => $nextDate->format('Y-m-d'),
+                        'recurrence_period' => $payable->recurrence_period,
+                        'payment_method' => $payable->payment_method,
+                    ];
+                }
+
+                $currentDate = $nextDate;
+            }
+        }
+
+        usort($projections, function($a, $b) {
+            return strcmp($a['date_due'], $b['date_due']);
+        });
+
+        // Calcular totais por mês
+        $monthlyTotals = [];
+        foreach($projections as $projection) {
+            $monthKey = Carbon::parse($projection['date_due'])->format('Y-m');
+            if(!isset($monthlyTotals[$monthKey])) {
+                $monthlyTotals[$monthKey] = [
+                    'month' => Carbon::parse($projection['date_due'])->format('m/Y'),
+                    'total' => 0,
+                    'count' => 0
+                ];
+            }
+            $monthlyTotals[$monthKey]['total'] += $projection['price'];
+            $monthlyTotals[$monthKey]['count']++;
+        }
+
+        $totalAmount = array_sum(array_column($projections, 'price'));
+
+        $user = User::where('id', auth()->user()->id)->first();
+
+        $filters = [
+            'months_ahead' => $monthsAhead,
+            'category' => $categoryFilter,
+            'supplier' => $supplierFilter,
+            'recurrence_period' => $recurrencePeriodFilter
+        ];
+
+        return view('admin.projecoes.pdf', compact('projections', 'monthlyTotals', 'totalAmount', 'filters', 'user'));
     }
 
 }

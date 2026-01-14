@@ -165,8 +165,8 @@
 
 
               <!-- Menu Relatórios -->
-              <li class="nav-item has-treeview {{ in_array(Request::segment(2), ['reports', 'receita-despesa']) ? 'menu-open' : '' }}">
-                <a href="#" class="nav-link {{ in_array(Request::segment(2), ['reports', 'receita-despesa']) ? 'active' : '' }}">
+              <li class="nav-item has-treeview {{ in_array(Request::segment(2), ['reports', 'receita-despesa', 'projecoes']) ? 'menu-open' : '' }}">
+                <a href="#" class="nav-link {{ in_array(Request::segment(2), ['reports', 'receita-despesa', 'projecoes']) ? 'active' : '' }}">
                   <i class="nav-icon fas fa-chart-bar"></i>
                   <p>
                     Relatórios
@@ -192,6 +192,13 @@
                     <a href="{{url('admin/receita-despesa')}}" class="nav-link {{Request::segment(2) == 'receita-despesa' ? 'active' : ''}}">
                       <i class="far fa-circle nav-icon"></i>
                       <p>Receita x Despesa</p>
+                    </a>
+                  </li>
+
+                  <li class="nav-item">
+                    <a href="{{url('admin/projecoes')}}" class="nav-link {{Request::segment(2) == 'projecoes' ? 'active' : ''}}">
+                      <i class="far fa-circle nav-icon"></i>
+                      <p>Projeções</p>
                     </a>
                   </li>
                 </ul>
@@ -1098,6 +1105,9 @@ $(document).ready(function() {
           </a>
           <a href="{{url('admin/receita-despesa')}}">
             <i class="fas fa-chart-line"></i> Receita x Despesa
+          </a>
+          <a href="{{url('admin/projecoes')}}">
+            <i class="fas fa-project-diagram"></i> Projeções
           </a>
           @if(auth()->user()->id == 1)
           <div style="padding: 8px 12px; border-top: 1px solid rgba(0,0,0,0.1); margin-top: 8px;">

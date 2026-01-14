@@ -133,6 +133,11 @@ Route::group(['prefix' => 'admin','middleware' => ['auth']], function(){
     Route::get('receita-despesa',[AdminController::class,'receitaDespesa']);
     Route::get('receita-despesa/data',[AdminController::class,'chartReceitaDespesaDiario']);
 
+    // Projeções
+    Route::get('projecoes',[AdminController::class,'projecoes']);
+    Route::get('projecoes/data',[AdminController::class,'loadProjecoesData']);
+    Route::get('projecoes/pdf',[AdminController::class,'exportProjecoesPdf']);
+
     Route::get('payable-categories',[PayableCategoryController::class,'index']);
     Route::get('payable-categories/form',[PayableCategoryController::class,'form']);
     Route::post('payable-categories',[PayableCategoryController::class,'store']);

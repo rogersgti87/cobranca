@@ -137,34 +137,34 @@ class PayableController extends Controller
             if($data['type'] == 'Parcelada' && isset($data['installments']) && $data['installments'] > 1){
                 $totalValue = $model->price; // Valor total original
                 $numInstallments = $data['installments'];
-                
+
                 // Calcular valor base de cada parcela (arredondado para 2 casas decimais)
                 $baseInstallmentValue = round($totalValue / $numInstallments, 2);
-                
+
                 // Calcular o total das parcelas com valor arredondado
                 $totalRounded = $baseInstallmentValue * $numInstallments;
-                
+
                 // Calcular a diferença (resto) que será adicionada na primeira parcela
                 $difference = round($totalValue - $totalRounded, 2);
-                
+
                 // Primeira parcela recebe o valor base + a diferença (para compensar dízimas)
                 $firstInstallmentValue = round($baseInstallmentValue + $difference, 2);
-                
+
                 // Atualizar a primeira parcela com o valor calculado
                 $model->price = $firstInstallmentValue;
                 $model->description = $data['description'] . ' - Parcela 1/' . $numInstallments;
             }
-            
+
             $model->save();
 
             // Se for parcelada, criar as demais parcelas
             if($data['type'] == 'Parcelada' && isset($data['installments']) && $data['installments'] > 1){
                 $totalValue = moeda($data['price']); // Valor original total
                 $numInstallments = $data['installments'];
-                
+
                 // Calcular valor base (arredondado) para as parcelas 2 em diante
                 $baseValue = round($totalValue / $numInstallments, 2);
-                
+
                 $dueDate = Carbon::parse($data['date_due']);
                 $originalDay = $dueDate->day; // Capturar o dia original
                 $originalMonth = $dueDate->month;
@@ -179,13 +179,13 @@ class PayableController extends Controller
                     $installment->price           = $baseValue; // Valor base para as demais parcelas
                     $installment->type            = 'Parcelada';
                     $installment->payment_method  = isset($data['payment_method']) ? $data['payment_method'] : null;
-                    
+
                     // Calcular data de vencimento: adicionar (i-1) meses à data original
                     $nextDueDate = Carbon::create($originalYear, $originalMonth, 1)->addMonths($i - 1);
-                    
+
                     // Verificar quantos dias tem o novo mês
                     $lastDayOfMonth = $nextDueDate->copy()->endOfMonth()->day;
-                    
+
                     // Tentar usar o dia original, mas se não existir no mês, usar o último dia
                     if($originalDay <= $lastDayOfMonth){
                         // O dia original existe no mês, usar ele
@@ -194,9 +194,9 @@ class PayableController extends Controller
                         // O dia original não existe no mês (ex: 31 em fevereiro), usar o último dia
                         $nextDueDate->endOfMonth();
                     }
-                    
+
                     $installment->date_due        = $nextDueDate->format('Y-m-d');
-                    
+
                     $installment->status          = 'Pendente';
                     $installment->installments    = $numInstallments;
                     $installment->installment_number = $i;
@@ -224,6 +224,64 @@ class PayableController extends Controller
         }
 
         $data = $this->request->all();
+        $originalStatus = $model->status;
+
+        // Se o status original for "Pago", permitir atualizar todos os campos exceto valor, forma de pagamento e data de pagamento
+        if($originalStatus == 'Pago'){
+            $messages = [
+                'supplier_id.required'      => 'O Campo Fornecedor é obrigatório!',
+                'description.required'      => 'O campo Descrição é obrigatório!',
+                'date_due.required'        => 'O campo Data de vencimento é obrigatório!',
+                'category_id.required'     => 'O campo Categoria é obrigatório!',
+                'type.required'            => 'O campo Tipo de Conta é obrigatório!',
+            ];
+
+            $validator = Validator::make($data, [
+                'supplier_id'   => 'required',
+                'description'   => 'required',
+                'date_due'      => 'required',
+                'category_id'   => 'required',
+                'type'          => 'required',
+            ], $messages);
+
+            if( $validator->fails() ){
+                return response()->json($validator->errors()->first(), 422);
+            }
+
+            // Atualizar campos permitidos (não atualizar valor, forma de pagamento e data de pagamento)
+            $model->supplier_id     = $data['supplier_id'];
+            $model->category_id     = $data['category_id'];
+            $model->description     = $data['description'];
+            $model->date_due        = $data['date_due'];
+            $model->type            = $data['type'];
+
+            // Atualizar campos de recorrência se necessário
+            if($data['type'] == 'Recorrente'){
+                $model->recurrence_period = isset($data['recurrence_period']) ? $data['recurrence_period'] : null;
+                $model->recurrence_day    = isset($data['recurrence_day']) ? $data['recurrence_day'] : null;
+                $model->recurrence_end    = isset($data['recurrence_end']) ? $data['recurrence_end'] : null;
+            } else {
+                // Limpar campos de recorrência se mudou para outro tipo
+                $model->recurrence_period = null;
+                $model->recurrence_day    = null;
+                $model->recurrence_end    = null;
+            }
+
+            // Limpar campos de parcelamento se não for mais parcelada
+            if($data['type'] != 'Parcelada'){
+                $model->installments = null;
+                $model->installment_number = null;
+                $model->parent_id = null;
+            }
+
+            try{
+                $model->save();
+                return response()->json('Conta atualizada com sucesso', 200);
+            } catch(\Exception $e){
+                \Log::error($e->getMessage());
+                return response()->json($e->getMessage(), 500);
+            }
+        }
 
         $messages = [
             'supplier_id.required'      => 'O Campo Fornecedor é obrigatório!',
@@ -259,6 +317,11 @@ class PayableController extends Controller
             $model->status = 'Pendente';
         }
 
+        // Atualizar tipo se fornecido
+        if(isset($data['type']) && !empty($data['type'])){
+            $model->type = $data['type'];
+        }
+
         // Atualizar campos de recorrência se necessário
         if($model->type == 'Recorrente'){
             $model->recurrence_period = isset($data['recurrence_period']) ? $data['recurrence_period'] : $model->recurrence_period;
@@ -274,7 +337,7 @@ class PayableController extends Controller
             if($model->type == 'Parcelada' && isset($data['update_future_installments']) && $data['update_future_installments'] == '1'){
                 // Identificar o parent_id (conta pai)
                 $parentId = $model->parent_id ?? $model->id;
-                
+
                 // Buscar todas as parcelas do mesmo grupo
                 $allInstallments = Payable::where(function($query) use ($parentId) {
                     $query->where('id', $parentId)
@@ -363,7 +426,7 @@ class PayableController extends Controller
 
             $installments = [];
             $isOriginalRecurring = false;
-            
+
             // Verificar se é a conta original de uma recorrência
             if($payable->type == 'Recorrente') {
                 $hasEarlier = Payable::where('user_id', $payable->user_id)
@@ -374,7 +437,7 @@ class PayableController extends Controller
                     ->exists();
                 $isOriginalRecurring = !$hasEarlier;
             }
-            
+
             // Se for uma conta parcelada
             if($payable->type == 'Parcelada'){
                 // Se for a primeira parcela (parent_id == null)
@@ -387,7 +450,7 @@ class PayableController extends Controller
                     ->where('user_id', auth()->user()->id)
                     ->orderBy('installment_number', 'ASC')
                     ->get();
-                    
+
                     foreach($allInstallments as $inst){
                         $installments[] = [
                             'id' => $inst->id,
@@ -408,7 +471,7 @@ class PayableController extends Controller
                     ->where('user_id', auth()->user()->id)
                     ->orderBy('installment_number', 'ASC')
                     ->get();
-                    
+
                     foreach($allInstallments as $inst){
                         $installments[] = [
                             'id' => $inst->id,
@@ -447,7 +510,7 @@ class PayableController extends Controller
         try{
             // Verificar se foi enviado array de IDs no body da requisição
             $ids = $this->request->input('ids');
-            
+
             // Se não tiver array, usar apenas o ID da URL
             if(!$ids || !is_array($ids)){
                 $ids = [$id];
@@ -598,12 +661,12 @@ public function loadPayables(){
 
     // Construir condições de filtro para as subqueries
     $filterConditions = "user_id = " . auth()->user()->id;
-    
+
     if(!empty($types)){
         $typesList = "'" . implode("','", array_map(function($t) { return addslashes($t); }, $types)) . "'";
         $filterConditions .= " AND type IN ($typesList)";
     }
-    
+
     if(!empty($categories)){
         $categoriesList = implode(',', array_map('intval', $categories));
         $filterConditions .= " AND category_id IN ($categoriesList)";
@@ -620,7 +683,7 @@ public function loadPayables(){
 
             // Construir subqueries com todos os filtros aplicados
             $subqueryBase = "from payables where " . $fullFilterConditions;
-            
+
             // Para totais gerais, aplicar filtros de status se houver
             $subqueryTotal = $subqueryBase;
             if(!empty($statuses)){
@@ -660,7 +723,7 @@ public function loadPayables(){
     }else{
         // Quando não há filtro de data
         $subqueryBase = "from payables where " . $filterConditions;
-        
+
         // Para totais gerais, aplicar filtros de status se houver
         $subqueryTotal = $subqueryBase;
         if(!empty($statuses)){
@@ -682,16 +745,16 @@ public function loadPayables(){
         (select count(*) $subqueryBase AND type = 'Recorrente') as qtd_recurring,
         (select COALESCE(sum(price),0) $subqueryBase AND type = 'Recorrente') as recurring_currency
         "));
-        
+
         // Aplicar filtros na query principal
         if(!empty($statuses)){
             $query->whereIn('payables.status', $statuses);
         }
-        
+
         if(!empty($types)){
             $query->whereIn('payables.type', $types);
         }
-        
+
         if(!empty($categories)){
             $query->whereIn('payables.category_id', $categories);
         }
@@ -704,7 +767,7 @@ public function loadPayables(){
     // Criar uma cópia da query para buscar todos os dados (sem paginação) para o gráfico
     $queryForChart = clone $query;
     $allData = $queryForChart->get();
-    
+
     // Calcular totais por categoria para o gráfico
     $categoriesData = $allData->groupBy('category_id')->map(function ($items, $categoryId) {
         $firstItem = $items->first();
@@ -730,7 +793,7 @@ public function loadPayables(){
 }
 
     public function report(){
-        
+
         // Buscar categorias globais (user_id NULL) e do usuário atual
         $categories = PayableCategory::where(function($query) {
                 $query->whereNull('user_id')
@@ -755,7 +818,7 @@ public function loadPayables(){
     }
 
     public function loadReportData(){
-        
+
         $query = Payable::query();
 
         $query->leftJoin('suppliers','suppliers.id','payables.supplier_id')

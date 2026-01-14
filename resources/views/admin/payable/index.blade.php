@@ -1014,6 +1014,30 @@ let statusChart = null;
                 var maskOptions = {};
                 maskOptions.reverse = true;
                 $('.money').mask('000.000.000.000.000,00', maskOptions);
+
+                // Garantir que os scripts do formulário sejam executados
+                // Executar scripts inline do formulário de forma segura
+                var scripts = $("#form-content-payable").find('script');
+                scripts.each(function() {
+                    var scriptContent = $(this).html();
+                    if(scriptContent && scriptContent.trim() !== '') {
+                        try {
+                            var scriptElement = document.createElement('script');
+                            scriptElement.textContent = scriptContent;
+                            document.body.appendChild(scriptElement);
+                            document.body.removeChild(scriptElement);
+                        } catch(e) {
+                            console.error('Erro ao executar script:', e);
+                        }
+                    }
+                });
+
+                // Chamar função de inicialização do formulário se existir
+                setTimeout(function() {
+                    if(typeof window.initPayableForm === 'function') {
+                        window.initPayableForm();
+                    }
+                }, 200);
             });
     });
 
@@ -1263,6 +1287,7 @@ Swal.fire({
                 }
 
                 if(item.status == 'Pago') {
+                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Editar Tipo de Conta" id="btn-modal-payable" data-type="edit-payable" data-payable="'+item.id+'" data-placement="left" data-tt="tooltip" style="color: #333333; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#FFFFFF\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="far fa-edit" style="margin-right: 8px; color: #06b8f7;"></i> Editar Tipo de Conta</a>');
                     actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Estornar Pagamento" id="btn-reverse-payable" data-payable="'+item.id+'" data-placement="left" data-tt="tooltip" style="color: #333333; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#FFFFFF\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-undo" style="margin-right: 8px; color: #fec911;"></i> Estornar</a>');
                     actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Ver Histórico de Estornos" id="btn-view-reversals" data-payable="'+item.id+'" data-placement="left" data-tt="tooltip" style="color: #333333; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#FFFFFF\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-history" style="margin-right: 8px; color: #06b8f7;"></i> Histórico de Estornos</a>');
                 }

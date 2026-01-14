@@ -7,6 +7,24 @@
                 <input type="hidden" name="payable" id="payable" value="{{ isset($data) ? $data->id : '' }}">
                 <input type="hidden" name="supplier_id" value="{{ $supplier_id }}">
 
+                @php
+                    $isPaid = isset($data) && $data->status == 'Pago';
+                    $isEditMode = isset($data);
+                @endphp
+
+                @if($isPaid)
+                <div class="alert alert-info" style="background-color: #E0F2FE; border: 1px solid #06b8f7; color: #1F2937; padding: 12px; border-radius: 6px; margin-bottom: 15px;">
+                    <i class="fas fa-info-circle" style="color: #06b8f7;"></i> <strong>Atenção:</strong> Esta conta está com status "Pago". Os campos Valor, Forma de Pagamento e Data de Pagamento estão bloqueados. Os demais campos podem ser editados.
+                </div>
+                @endif
+
+                @if($isPaid)
+                <!-- Campos hidden para manter valores originais dos campos bloqueados quando status é Pago -->
+                <input type="hidden" name="price" value="{{ number_format($data->price,2,',','.') }}">
+                <input type="hidden" name="payment_method" value="{{ $data->payment_method }}">
+                <input type="hidden" name="date_payment" value="{{ $data->date_payment }}">
+                @endif
+
                 <div class="form-group col-md-6 col-sm-12">
                     <label style="color: #1F2937;">Fornecedor <span class="text-danger">*</span></label>
                     <select class="form-control custom-select" name="supplier_id" id="supplier_id" required style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); color: #1F2937;">
@@ -36,12 +54,12 @@
 
                 <div class="form-group col-md-4 col-sm-12">
                     <label style="color: #1F2937;">Valor <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control money" name="price" id="price" autocomplete="off" required value="{{isset($data->price) ? number_format($data->price,2,',','.') : ''}}" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); color: #1F2937;">
+                    <input type="text" class="form-control money" name="price" id="price" autocomplete="off" required {{ $isPaid ? 'disabled' : '' }} value="{{isset($data->price) ? number_format($data->price,2,',','.') : ''}}" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); color: #1F2937;">
                 </div>
 
                 <div class="form-group col-md-4 col-sm-12">
                     <label style="color: #1F2937;">Tipo de Conta <span class="text-danger">*</span></label>
-                    <select class="form-control custom-select" name="type" id="type" required {{ isset($data) ? 'disabled' : '' }} style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); color: #1F2937;">
+                    <select class="form-control custom-select" name="type" id="type" required style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); color: #1F2937;">
                         <option value="">Selecione o tipo</option>
                         <option {{ isset($data->type) && $data->type === 'Fixa' ? 'selected' : '' }} value="Fixa">Fixa</option>
                         <option {{ isset($data->type) && $data->type === 'Recorrente' ? 'selected' : '' }} value="Recorrente">Recorrente</option>
@@ -51,7 +69,7 @@
 
                 <div class="form-group col-md-4 col-sm-12">
                     <label style="color: #1F2937;">Forma de Pagamento</label>
-                    <select class="form-control custom-select" name="payment_method" id="payment_method" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); color: #1F2937;">
+                    <select class="form-control custom-select" name="payment_method" id="payment_method" {{ $isPaid ? 'disabled' : '' }} style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); color: #1F2937;">
                         <option value="">Selecione a Forma de Pagamento</option>
                         <option {{ isset($data->payment_method) && $data->payment_method === 'Pix' ? 'selected' : '' }} value="Pix">Pix</option>
                         <option {{ isset($data->payment_method) && $data->payment_method === 'Boleto' ? 'selected' : '' }} value="Boleto">Boleto</option>
@@ -69,7 +87,7 @@
 
                 <div class="form-group col-md-4 col-sm-12">
                     <label style="color: #1F2937;">Data de pagamento</label>
-                    <input type="date" class="form-control" name="date_payment" id="date_payment" autocomplete="off" value="{{isset($data->date_payment) ? $data->date_payment : ''}}" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); color: #1F2937;">
+                    <input type="date" class="form-control" name="date_payment" id="date_payment" autocomplete="off" {{ $isPaid ? 'disabled' : '' }} value="{{isset($data->date_payment) ? $data->date_payment : ''}}" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); color: #1F2937;">
                 </div>
 
                 <!-- Campos para conta recorrente -->
@@ -121,7 +139,7 @@
                             <div class="form-row">
                                 <div class="form-group col-md-6 col-sm-12">
                                     <label style="color: #1F2937;">Número de Parcelas</label>
-                                    <input type="number" class="form-control" name="installments" id="installments" min="2" max="60" value="{{isset($data->installments) ? $data->installments : '1'}}" placeholder="Número de parcelas" {{ isset($data) ? 'disabled' : '' }} style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); color: #1F2937;">
+                                    <input type="number" class="form-control" name="installments" id="installments" min="2" max="60" value="{{isset($data->installments) ? $data->installments : '1'}}" placeholder="Número de parcelas" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); color: #1F2937;">
                                     <small class="form-text" style="color: #6B7280;">O valor será dividido igualmente entre as parcelas</small>
                                 </div>
                             </div>
@@ -238,26 +256,137 @@
         }
     </style>
     <script>
-        $(document).ready(function(){
+        // Variáveis globais para serem acessadas após o carregamento
+        window.payableFormIsPaid = {{ $isPaid ? 'true' : 'false' }};
+        window.payableFormIsEditMode = {{ $isEditMode ? 'true' : 'false' }};
+
+        // Função global para inicializar o formulário
+        window.initPayableForm = function() {
+            var isPaid = window.payableFormIsPaid === true || window.payableFormIsPaid === 'true';
+            var isEditMode = window.payableFormIsEditMode === true || window.payableFormIsEditMode === 'true';
+
+            // Função para habilitar/desabilitar campos de recorrência e parcelamento
+            function toggleFieldsByType(type) {
+                // Quando o tipo é alterado, permitir editar os campos de configuração
+                // mesmo se a conta estiver paga (pois o usuário está mudando o tipo)
+
+                if(type == 'Recorrente'){
+                    // Habilitar campos de recorrência
+                    var $period = $('#recurrence_period');
+                    var $day = $('#recurrence_day');
+                    var $end = $('#recurrence_end');
+
+                    if($period.length) {
+                        $period.prop('disabled', false);
+                        $period.removeAttr('disabled');
+                    }
+                    if($day.length) {
+                        $day.prop('disabled', false);
+                        $day.removeAttr('disabled');
+                    }
+                    if($end.length) {
+                        $end.prop('disabled', false);
+                        $end.removeAttr('disabled');
+                    }
+
+                    // Desabilitar campos de parcelamento
+                    $('#installments').prop('disabled', true);
+                } else if(type == 'Parcelada'){
+                    // Desabilitar campos de recorrência
+                    $('#recurrence_period').prop('disabled', true);
+                    $('#recurrence_day').prop('disabled', true);
+                    $('#recurrence_end').prop('disabled', true);
+
+                    // Habilitar campo de parcelas quando tipo é Parcelada
+                    var $installments = $('#installments');
+                    if($installments.length) {
+                        $installments.prop('disabled', false);
+                        $installments.removeAttr('disabled');
+                    }
+                } else {
+                    // Tipo Fixa ou vazio - desabilitar todos os campos de configuração
+                    $('#recurrence_period').prop('disabled', true);
+                    $('#recurrence_day').prop('disabled', true);
+                    $('#recurrence_end').prop('disabled', true);
+                    $('#installments').prop('disabled', true);
+                }
+            }
+
+            // Remover event listeners anteriores para evitar duplicação
+            $('#type').off('change.payableForm');
+
             // Mostrar/ocultar campos baseado no tipo selecionado
-            $('#type').on('change', function(){
+            $('#type').on('change.payableForm', function(){
                 var type = $(this).val();
 
-                // Ocultar todos os campos específicos
+                // Ocultar todos os campos específicos primeiro
                 $('#recurrence-fields').hide();
                 $('#installment-fields').hide();
 
                 // Mostrar campos específicos baseado no tipo
                 if(type == 'Recorrente'){
                     $('#recurrence-fields').show();
+                    // Pequeno delay para garantir que o DOM está atualizado
+                    setTimeout(function() {
+                        toggleFieldsByType('Recorrente');
+                        // Verificação adicional para garantir que os campos sejam habilitados
+                        setTimeout(function() {
+                            $('#recurrence_period').prop('disabled', false).removeAttr('disabled');
+                            $('#recurrence_day').prop('disabled', false).removeAttr('disabled');
+                            $('#recurrence_end').prop('disabled', false).removeAttr('disabled');
+                        }, 100);
+                    }, 150);
                 } else if(type == 'Parcelada'){
                     $('#installment-fields').show();
+                    setTimeout(function() {
+                        toggleFieldsByType('Parcelada');
+                        // Verificação adicional para garantir que o campo seja habilitado
+                        setTimeout(function() {
+                            var $installments = $('#installments');
+                            if($installments.length) {
+                                $installments.prop('disabled', false);
+                                $installments.removeAttr('disabled');
+                            }
+                        }, 100);
+                    }, 150);
+                } else {
+                    toggleFieldsByType('Fixa');
                 }
             });
 
-            // Trigger inicial se já houver um tipo selecionado
-            if($('#type').val() != ''){
-                $('#type').trigger('change');
+            // Inicializar campos baseado no tipo atual
+            var currentType = $('#type').val();
+
+            if(currentType != ''){
+                // Mostrar campos correspondentes ao tipo atual
+                if(currentType == 'Recorrente'){
+                    $('#recurrence-fields').show();
+                } else if(currentType == 'Parcelada'){
+                    $('#installment-fields').show();
+                }
+                // Habilitar/desabilitar campos baseado no tipo
+                setTimeout(function() {
+                    toggleFieldsByType(currentType);
+                }, 150);
+            } else {
+                // Se não houver tipo selecionado, garantir que campos estejam desabilitados
+                toggleFieldsByType('');
+            }
+
+            // Se estiver pago, garantir que os campos bloqueados não sejam enviados
+            if(isPaid) {
+                $('#form-request-payable').off('submit.payableForm').on('submit.payableForm', function(e) {
+                    // Os campos bloqueados (valor, forma de pagamento, data de pagamento) 
+                    // já estão como hidden, então serão enviados com os valores originais
+                    // Não é necessário fazer nada adicional aqui
+                });
+            }
+        };
+
+        // Executar imediatamente quando o script carregar
+        $(document).ready(function(){
+            if(typeof window.initPayableForm === 'function') {
+                window.initPayableForm();
             }
         });
     </script>

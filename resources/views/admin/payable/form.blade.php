@@ -376,7 +376,7 @@
             // Se estiver pago, garantir que os campos bloqueados não sejam enviados
             if(isPaid) {
                 $('#form-request-payable').off('submit.payableForm').on('submit.payableForm', function(e) {
-                    // Os campos bloqueados (valor, forma de pagamento, data de pagamento) 
+                    // Os campos bloqueados (valor, forma de pagamento, data de pagamento)
                     // já estão como hidden, então serão enviados com os valores originais
                     // Não é necessário fazer nada adicional aqui
                 });

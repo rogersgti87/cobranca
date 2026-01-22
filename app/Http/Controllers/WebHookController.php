@@ -512,6 +512,12 @@ class WebHookController extends Controller
                 'external_reference' => $data['payment']['externalReference'] ?? null,
                 'event' => $data['event'] ?? null
             ]);
+            
+            // Se o evento for PAYMENT_RECEIVED e não encontrou a fatura, retorna 200 informando que não pertence ao sistema
+            if($data['event'] == 'PAYMENT_RECEIVED'){
+                return response()->json(['status' => 'success', 'message' => 'Pagamento não pertence a este sistema'], 200);
+            }
+            
             return response()->json(['status' => 'error', 'message' => 'Pagamento não encontrado'], 404);
         }
 

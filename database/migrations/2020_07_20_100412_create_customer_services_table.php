@@ -13,22 +13,24 @@ class CreateCustomerServicesTable extends Migration
      */
     public function up()
     {
-        Schema::create('customer_services', function (Blueprint $table) {
-            $table->id('id');
-            $table->integer('user_id');
-            $table->integer('customer_id');
-            $table->integer('service_id');
-            $table->text('description')->nullable();
-            $table->integer('day_due')->nullable();
-            $table->decimal('price', 10, 2)->default('0');
-            $table->string('period');
-            $table->string('gateway_payment');
-            $table->string('payment_method');
-            $table->date('start_billing');
-            $table->date('end_billing')->nullable();
-            $table->enum('status', ['Ativo','Inativo']);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('customer_services')) {
+            Schema::create('customer_services', function (Blueprint $table) {
+                $table->id('id');
+                $table->integer('user_id');
+                $table->integer('customer_id');
+                $table->integer('service_id');
+                $table->text('description')->nullable();
+                $table->integer('day_due')->nullable();
+                $table->decimal('price', 10, 2)->default('0');
+                $table->string('period');
+                $table->string('gateway_payment');
+                $table->string('payment_method');
+                $table->date('start_billing');
+                $table->date('end_billing')->nullable();
+                $table->enum('status', ['Ativo','Inativo']);
+                $table->timestamps();
+            });
+        }
     }
 
     /**

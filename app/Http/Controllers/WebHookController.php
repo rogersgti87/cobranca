@@ -33,6 +33,7 @@ class WebHookController extends Controller
         if($emailNotification != null){
 
             DB::table('email_events')->insert([
+                'company_id'        => $emailNotification->company_id,
                 'user_id'           => $emailNotification->user_id,
                 'event'             =>  $data['event'],
                 'email'             =>  $data['email'],
@@ -63,8 +64,8 @@ class WebHookController extends Controller
         'log'       =>  json_encode($data)
     ]);
 
-    $invoice = Invoice::select('invoices.id','invoices.transaction_id','users.token_paghiper','users.key_paghiper','invoices.payment_method')
-                        ->join('users','users.id','invoices.user_id')
+    $invoice = Invoice::select('invoices.id','invoices.transaction_id','companies.token_paghiper','companies.key_paghiper','invoices.payment_method')
+                        ->join('companies','companies.id','invoices.company_id')
                         ->where('transaction_id',$data['transaction_id'])
                         ->where('invoices.status','Pendente')
                         ->orwhere('invoices.status','Processamento')
@@ -150,8 +151,8 @@ class WebHookController extends Controller
     ]);
 
 
-    $invoice = Invoice::select('invoices.id as id','invoices.transaction_id','users.access_token_mp')
-                ->join('users','users.id','invoices.user_id')
+    $invoice = Invoice::select('invoices.id as id','invoices.transaction_id','companies.access_token_mp')
+                ->join('companies','companies.id','invoices.company_id')
                 ->where('transaction_id',$data['data']['id'])
                 ->where('invoices.status','Pendente')
                 ->first();
@@ -413,8 +414,8 @@ class WebHookController extends Controller
         }
 
         // Busca primeiro pelo transaction_id (payment.id)
-        $invoice = Invoice::select('invoices.id as id','invoices.transaction_id','invoices.status','users.access_token_mp')
-                    ->join('users','users.id','invoices.user_id')
+        $invoice = Invoice::select('invoices.id as id','invoices.transaction_id','invoices.status','companies.access_token_mp')
+                    ->join('companies','companies.id','invoices.company_id')
                     ->where('transaction_id',$data['payment']['id'])
                     ->where(function($query) {
                         $query->where('invoices.status','Pendente')
@@ -438,8 +439,8 @@ class WebHookController extends Controller
                 ? (int)$data['payment']['externalReference']
                 : $data['payment']['externalReference'];
 
-            $invoice = Invoice::select('invoices.id as id','invoices.transaction_id','invoices.status','users.access_token_mp')
-                        ->join('users','users.id','invoices.user_id')
+            $invoice = Invoice::select('invoices.id as id','invoices.transaction_id','invoices.status','companies.access_token_mp')
+                        ->join('companies','companies.id','invoices.company_id')
                         ->where('invoices.id', $external_ref)
                         ->first();
 
@@ -512,12 +513,12 @@ class WebHookController extends Controller
                 'external_reference' => $data['payment']['externalReference'] ?? null,
                 'event' => $data['event'] ?? null
             ]);
-            
+
             // Se o evento for PAYMENT_RECEIVED e não encontrou a fatura, retorna 200 informando que não pertence ao sistema
             if($data['event'] == 'PAYMENT_RECEIVED'){
                 return response()->json(['status' => 'success', 'message' => 'Pagamento não pertence a este sistema'], 200);
             }
-            
+
             return response()->json(['status' => 'error', 'message' => 'Pagamento não encontrado'], 404);
         }
 

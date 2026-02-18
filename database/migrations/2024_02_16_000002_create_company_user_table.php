@@ -13,20 +13,20 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('company_user', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('company_id');
-            $table->unsignedBigInteger('user_id');
-            $table->enum('role', ['owner', 'admin', 'user'])->default('user'); // Papel do usuário na empresa
-            $table->timestamps();
+        if (!Schema::hasTable('company_user')) {
+            Schema::create('company_user', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('company_id');
+                $table->unsignedBigInteger('user_id');
+                $table->enum('role', ['owner', 'admin', 'user'])->default('user');
+                $table->timestamps();
 
-            // Foreign keys - sem cascade delete em users para evitar problemas
-            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
-            $table->index('user_id'); // Apenas índice, sem foreign key
+                $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
+                $table->index('user_id');
 
-            // Índices únicos para evitar duplicatas
-            $table->unique(['company_id', 'user_id']);
-        });
+                $table->unique(['company_id', 'user_id']);
+            });
+        }
     }
 
     /**

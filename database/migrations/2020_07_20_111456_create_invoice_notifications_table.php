@@ -13,19 +13,21 @@ class CreateInvoiceNotificationsTable extends Migration
      */
     public function up()
     {
-        Schema::create('invoice_notifications', function (Blueprint $table) {
-            $table->id('id');
-            $table->integer('user_id');
-            $table->integer('invoice_id');
-            $table->string('type_send');
-            $table->string('subject')->nullable();
-            $table->datetime('date');
-            $table->string('email_id')->nullable();
-            $table->string('status')->nullable();
-            $table->text('message_status')->nullable();
-            $table->text('message')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('invoice_notifications')) {
+            Schema::create('invoice_notifications', function (Blueprint $table) {
+                $table->id('id');
+                $table->integer('user_id');
+                $table->integer('invoice_id');
+                $table->string('type_send');
+                $table->string('subject')->nullable();
+                $table->datetime('date');
+                $table->string('email_id')->nullable();
+                $table->string('status')->nullable();
+                $table->text('message_status')->nullable();
+                $table->text('message')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

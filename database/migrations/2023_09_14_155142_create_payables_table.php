@@ -13,18 +13,20 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('payables', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->integer('user_id');
-            $table->string('description')->nullable();
-            $table->decimal('price', 10, 2)->default('0');
-            $table->string('payment_method');
-            $table->date('date_invoice');
-            $table->date('date_due');
-            $table->date('date_payment')->nullable();
-            $table->enum('status', ['Pendente','Pago','Cancelado']);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('payables')) {
+            Schema::create('payables', function (Blueprint $table) {
+                $table->bigIncrements('id');
+                $table->integer('user_id');
+                $table->string('description')->nullable();
+                $table->decimal('price', 10, 2)->default('0');
+                $table->string('payment_method');
+                $table->date('date_invoice');
+                $table->date('date_due');
+                $table->date('date_payment')->nullable();
+                $table->enum('status', ['Pendente','Pago','Cancelado']);
+                $table->timestamps();
+            });
+        }
     }
 
     /**

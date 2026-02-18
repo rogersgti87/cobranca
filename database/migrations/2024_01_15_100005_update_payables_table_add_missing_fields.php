@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -50,21 +51,36 @@ return new class extends Migration
             if (!Schema::hasColumn('payables', 'parent_id')) {
                 $table->unsignedBigInteger('parent_id')->nullable()->after('installment_number')->index();
             }
-
-            // Adicionar índices
-            $table->index('user_id');
-            $table->index('date_due');
-            $table->index('status');
-
-            // Alterar description para NOT NULL (se ainda não foi)
-            DB::statement("ALTER TABLE payables MODIFY COLUMN description TEXT NOT NULL");
-            
-            // Alterar payment_method para nullable
-            DB::statement("ALTER TABLE payables MODIFY COLUMN payment_method VARCHAR(50) NULL");
-            
-            // Alterar status para ter default
-            DB::statement("ALTER TABLE payables MODIFY COLUMN status ENUM('Pendente','Pago','Cancelado') DEFAULT 'Pendente' NOT NULL");
         });
+
+        $tableName = 'payables';
+        $indexChecks = [
+            'payables_user_id_index' => 'user_id',
+            'payables_date_due_index' => 'date_due',
+            'payables_status_index' => 'status'
+        ];
+
+        foreach ($indexChecks as $indexName => $columnName) {
+            $indexExists = DB::select("SHOW INDEX FROM {$tableName} WHERE Key_name = ?", [$indexName]);
+            if (empty($indexExists)) {
+                DB::statement("ALTER TABLE {$tableName} ADD INDEX {$indexName} ({$columnName})");
+            }
+        }
+
+        try {
+            DB::statement("ALTER TABLE payables MODIFY COLUMN description TEXT NOT NULL");
+        } catch (\Exception $e) {
+        }
+        
+        try {
+            DB::statement("ALTER TABLE payables MODIFY COLUMN payment_method VARCHAR(50) NULL");
+        } catch (\Exception $e) {
+        }
+        
+        try {
+            DB::statement("ALTER TABLE payables MODIFY COLUMN status ENUM('Pendente','Pago','Cancelado') DEFAULT 'Pendente' NOT NULL");
+        } catch (\Exception $e) {
+        }
     }
 
     /**

@@ -13,22 +13,24 @@ class CreateEmailEventsTable extends Migration
      */
     public function up()
     {
-        Schema::create('email_events', function (Blueprint $table) {
-            $table->id('id');
-            $table->integer('user_id');
-            $table->string('event')->nullable();
-            $table->string('email')->nullable();
-            $table->string('identification')->nullable();
-            $table->datetime('date')->nullable();
-            $table->string('message_id')->nullable();
-            $table->string('subject')->nullable();
-            $table->string('tag')->nullable();
-            $table->string('sending_ip')->nullable();
-            $table->string('ts_epoch')->nullable();
-            $table->string('link')->nullable();
-            $table->string('reason')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('email_events')) {
+            Schema::create('email_events', function (Blueprint $table) {
+                $table->id('id');
+                $table->integer('user_id');
+                $table->string('event')->nullable();
+                $table->string('email')->nullable();
+                $table->string('identification')->nullable();
+                $table->datetime('date')->nullable();
+                $table->string('message_id')->nullable();
+                $table->string('subject')->nullable();
+                $table->string('tag')->nullable();
+                $table->string('sending_ip')->nullable();
+                $table->string('ts_epoch')->nullable();
+                $table->string('link')->nullable();
+                $table->string('reason')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

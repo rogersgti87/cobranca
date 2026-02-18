@@ -13,14 +13,16 @@ class CreateServicesTable extends Migration
      */
     public function up()
     {
-        Schema::create('services', function (Blueprint $table) {
-            $table->id('id');
-            $table->integer('user_id');
-            $table->string('name');
-            $table->decimal('price', 10, 2)->default('0');
-            $table->enum('status', ['Ativo','Inativo']);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('services')) {
+            Schema::create('services', function (Blueprint $table) {
+                $table->id('id');
+                $table->integer('user_id');
+                $table->string('name');
+                $table->decimal('price', 10, 2)->default('0');
+                $table->enum('status', ['Ativo','Inativo']);
+                $table->timestamps();
+            });
+        }
     }
 
     /**

@@ -133,32 +133,6 @@
                             </div>
                         </div>
 
-                        {{-- Configurações de Fatura --}}
-                        <div class="card card-modern mb-4">
-                            <div class="card-header card-header-modern">
-                                <h5 class="mb-0"><i class="fas fa-file-invoice"></i> Configurações de Fatura</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="form-group col-md-6">
-                                        <label for="day_generate_invoice">Dia de gerar fatura</label>
-                                        <input type="number" class="form-control @error('day_generate_invoice') is-invalid @enderror" name="day_generate_invoice" id="day_generate_invoice" value="{{ old('day_generate_invoice', $company->day_generate_invoice ?? 1) }}" min="1" max="31" placeholder="1-31">
-                                        <small class="text-muted">Dia do mês para geração automática (1-31)</small>
-                                        @error('day_generate_invoice')<span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>@enderror
-                                    </div>
-                                    <div class="form-group col-md-6">
-                                        <label for="send_generate_invoice">Enviar fatura gerada</label>
-                                        <select class="form-control @error('send_generate_invoice') is-invalid @enderror" name="send_generate_invoice" id="send_generate_invoice">
-                                            <option value="Sim" {{ old('send_generate_invoice', $company->send_generate_invoice ?? 'Sim') == 'Sim' ? 'selected' : '' }}>Sim</option>
-                                            <option value="Não" {{ old('send_generate_invoice', $company->send_generate_invoice) == 'Não' ? 'selected' : '' }}>Não</option>
-                                        </select>
-                                        <small class="text-muted">Enviar fatura automaticamente após geração</small>
-                                        @error('send_generate_invoice')<span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>@enderror
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                         {{-- Endereço --}}
                         <div class="card card-modern mb-4">
                             <div class="card-header card-header-modern">

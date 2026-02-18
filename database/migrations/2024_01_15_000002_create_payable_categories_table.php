@@ -13,13 +13,15 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('payable_categories', function (Blueprint $table) {
-            $table->id();
-            $table->integer('user_id')->nullable()->index();
-            $table->string('name')->index();
-            $table->string('color', 7)->default('#FFBD59');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('payable_categories')) {
+            Schema::create('payable_categories', function (Blueprint $table) {
+                $table->id();
+                $table->integer('user_id')->nullable()->index();
+                $table->string('name')->index();
+                $table->string('color', 7)->default('#FFBD59');
+                $table->timestamps();
+            });
+        }
     }
 
     /**

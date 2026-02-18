@@ -13,18 +13,20 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('gateway_payments', function (Blueprint $table) {
-            $table->id('id');
-            $table->string('name');
-            $table->char('Boleto')->default('n');
-            $table->char('Pix')->default('n');
-            $table->char('BoletoPix')->default('n');
-            $table->char('Cartão')->default('n');
-            $table->char('Dinheiro')->default('n');
-            $table->char('Depósito')->default('n');
-            $table->enum('status', ['Ativo','Inativo']);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('gateway_payments')) {
+            Schema::create('gateway_payments', function (Blueprint $table) {
+                $table->id('id');
+                $table->string('name');
+                $table->char('Boleto')->default('n');
+                $table->char('Pix')->default('n');
+                $table->char('BoletoPix')->default('n');
+                $table->char('Cartão')->default('n');
+                $table->char('Dinheiro')->default('n');
+                $table->char('Depósito')->default('n');
+                $table->enum('status', ['Ativo','Inativo']);
+                $table->timestamps();
+            });
+        }
     }
 
     /**

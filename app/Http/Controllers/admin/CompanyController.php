@@ -335,4 +335,172 @@ class CompanyController extends Controller
         return redirect()->route('companies.integrations', $company)
             ->with('success', 'Integrações atualizadas com sucesso!');
     }
+    
+    /**
+     * Check WhatsApp connection status (Evolution API v2)
+     */
+    public function whatsappStatus(Company $company)
+    {
+        if (!$company->isAdminOrOwner(Auth::id())) {
+            abort(403, 'Você não tem permissão para gerenciar integrações');
+        }
+        
+        if (!$company->api_session_whatsapp || !$company->api_token_whatsapp) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Configurações do WhatsApp não estão completas'
+            ], 400);
+        }
+        
+        try {
+            // Evolution API v2: GET /instance/connectionState/{instance}
+            $apiUrl = rtrim(env('API_URL_EVOLUTION', 'https://evolution.api.com'), '/');
+            
+            $response = \Http::withHeaders([
+                'apikey' => $company->api_token_whatsapp
+            ])->get($apiUrl . '/instance/connectionState/' . $company->api_session_whatsapp);
+            
+            if ($response->successful()) {
+                $data = $response->json();
+                $state = $data['instance']['state'] ?? 'unknown';
+                
+                // Estados possíveis: open, close, connecting
+                $isConnected = $state === 'open';
+                $statusText = $isConnected ? 'open' : $state;
+                
+                $company->update(['api_status_whatsapp' => $statusText]);
+                
+                $statusMessages = [
+                    'open' => 'WhatsApp Conectado! ✓',
+                    'close' => 'WhatsApp Desconectado',
+                    'connecting' => 'WhatsApp está conectando...',
+                ];
+                
+                return response()->json([
+                    'success' => true,
+                    'status' => $statusText,
+                    'message' => $statusMessages[$state] ?? "Status: {$state}"
+                ]);
+            }
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao verificar status: ' . $response->body()
+            ], 500);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao conectar com a API: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    /**
+     * Get WhatsApp QR Code (Evolution API v2)
+     */
+    public function whatsappQrCode(Company $company)
+    {
+        if (!$company->isAdminOrOwner(Auth::id())) {
+            abort(403, 'Você não tem permissão para gerenciar integrações');
+        }
+        
+        if (!$company->api_session_whatsapp || !$company->api_token_whatsapp) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Configurações do WhatsApp não estão completas'
+            ], 400);
+        }
+        
+        try {
+            // Evolution API v2: GET /instance/connect/{instance}
+            $apiUrl = rtrim(env('API_URL_EVOLUTION', 'https://evolution.api.com'), '/');
+            
+            $response = \Http::withHeaders([
+                'apikey' => $company->api_token_whatsapp
+            ])->get($apiUrl . '/instance/connect/' . $company->api_session_whatsapp);
+            
+            if ($response->successful()) {
+                $data = $response->json();
+                
+                // O QR Code pode vir em base64 ou como URL
+                $qrcode = $data['base64'] ?? $data['qrcode']['base64'] ?? $data['code'] ?? null;
+                
+                if ($qrcode) {
+                    // Se não tiver o prefixo data:image, adicionar
+                    if (!str_starts_with($qrcode, 'data:image')) {
+                        $qrcode = 'data:image/png;base64,' . $qrcode;
+                    }
+                    
+                    return response()->json([
+                        'success' => true,
+                        'qrcode' => $qrcode,
+                        'message' => 'QR Code obtido com sucesso! Escaneie com seu WhatsApp.'
+                    ]);
+                }
+                
+                return response()->json([
+                    'success' => false,
+                    'message' => 'QR Code não disponível. A instância pode já estar conectada.'
+                ], 400);
+            }
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao obter QR Code: ' . $response->body()
+            ], 500);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao conectar com a API: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    /**
+     * Disconnect WhatsApp (Evolution API v2)
+     */
+    public function whatsappDisconnect(Company $company)
+    {
+        if (!$company->isAdminOrOwner(Auth::id())) {
+            abort(403, 'Você não tem permissão para gerenciar integrações');
+        }
+        
+        if (!$company->api_session_whatsapp || !$company->api_token_whatsapp) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Configurações do WhatsApp não estão completas'
+            ], 400);
+        }
+        
+        try {
+            // Evolution API v2: DELETE /instance/logout/{instance}
+            $apiUrl = rtrim(env('API_URL_EVOLUTION', 'https://evolution.api.com'), '/');
+            
+            $response = \Http::withHeaders([
+                'apikey' => $company->api_token_whatsapp
+            ])->delete($apiUrl . '/instance/logout/' . $company->api_session_whatsapp);
+            
+            if ($response->successful()) {
+                $company->update(['api_status_whatsapp' => 'close']);
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'WhatsApp desconectado com sucesso!'
+                ]);
+            }
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao desconectar: ' . $response->body()
+            ], 500);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao conectar com a API: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

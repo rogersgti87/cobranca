@@ -66,20 +66,6 @@ return new class extends Migration
             if (!Schema::hasColumn('users', 'chave_pix')) {
                 $table->text('chave_pix')->nullable()->after('asaas_url_prod');
             }
-
-            // Atualizar valores padrão de campos existentes
-            if (Schema::hasColumn('users', 'inter_host')) {
-                $table->string('inter_host')->default('https://cdpj.partners.bancointer.com.br/')->nullable()->change();
-            }
-            if (Schema::hasColumn('users', 'inter_scope')) {
-                $table->string('inter_scope')->default('boleto-cobranca.read boleto-cobranca.write  extrato.read cob.write cob.read cobv.write cobv.read pix.write pix.read webhook.read webhook.write')->nullable()->change();
-            }
-            if (Schema::hasColumn('users', 'inter_webhook_url_billet')) {
-                $table->string('inter_webhook_url_billet')->default('https://cobrancasegura.com.br/webhook/intermediumbillet')->nullable()->change();
-            }
-            if (Schema::hasColumn('users', 'inter_webhook_url_pix')) {
-                $table->string('inter_webhook_url_pix')->default('https://cobrancasegura.com.br/webhook/intermediumpix')->nullable()->change();
-            }
         });
     }
 

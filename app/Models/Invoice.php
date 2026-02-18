@@ -8,7 +8,6 @@ use DB;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
-use App\Models\ViewInvoice;
 use App\Models\InvoiceNotification;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Storage;
@@ -19,19 +18,86 @@ class Invoice extends Model
 
 
     protected $fillable = [
-        'status',
+        'company_id',
+        'user_id',
+        'customer_id',
+        'customer_service_id',
+        'description',
+        'price',
+        'payment_method',
+        'date_invoice',
+        'date_due',
         'date_payment',
-        'updated_at',
         'transaction_id',
-        'billet_url',
-        'billet_base64',
-        'billet_digitable',
+        'status',
+        'gateway_payment',
         'image_url_pix',
         'pix_digitable',
         'qrcode_pix_base64',
-        'days_due_date',
-
+        'billet_url',
+        'billet_base64',
+        'billet_digitable',
+        'tax',
+        'tax_percent',
+        'notificated',
+        'msg_erro',
     ];
+
+    /**
+     * Empresa a qual a fatura pertence
+     */
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
+
+    /**
+     * Usuário que criou a fatura
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Cliente da fatura
+     */
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
+    /**
+     * Assinatura relacionada à fatura
+     */
+    public function customerService()
+    {
+        return $this->belongsTo(CustomerService::class);
+    }
+
+    /**
+     * Scope para filtrar por empresa
+     */
+    public function scopeForCompany($query, $companyId)
+    {
+        return $query->where('invoices.company_id', $companyId);
+    }
+
+    /**
+     * Scope para faturas pendentes
+     */
+    public function scopePendente($query)
+    {
+        return $query->where('status', 'Pendente');
+    }
+
+    /**
+     * Scope para faturas pagas
+     */
+    public function scopePago($query)
+    {
+        return $query->where('status', 'Pago');
+    }
 
     public static function generateBilletPH($invoice_id){
 
@@ -40,14 +106,18 @@ class Invoice extends Model
         }
 
 
-        $invoice = ViewInvoice::where('id',$invoice_id)->first();
+        $invoice = Invoice::with(['customerService.customer', 'company'])->find($invoice_id);
 
-        if($invoice['days_due_date'] == 0){
+        $customer = $invoice->customerService->customer;
+        $company = $invoice->company;
+        $days_due_date = Carbon::parse($invoice->date_due)->diffInDays($invoice->date_invoice);
+
+        if($days_due_date == 0){
             if(date('l') == 'Saturday' || date('l') == 'Sábado'){
-                $invoice['days_due_date'] = 2;
+                $days_due_date = 2;
             }
             if(date('l') == 'Sunday' || date('l') == 'Domingo'){
-                $invoice['days_due_date'] = 1;
+                $days_due_date = 1;
             }
         }
 
@@ -55,29 +125,29 @@ class Invoice extends Model
             'accept' => 'application/json',
             'content-type' => 'application/json',
           ])->post('https://api.paghiper.com/transaction/create/',[
-            'apiKey'            =>  $invoice['key_paghiper'],
-            'order_id'          =>  $invoice['id'],
-            'payer_email'       =>  $invoice['email'],
-            'payer_name'        =>  $invoice['name'],
-            'payer_cpf_cnpj'    =>  removeEspeciais($invoice['document']),
-            'payer_phone'       =>  $invoice['phone'],
-            'payer_street'      =>  $invoice['address'],
-            'payer_number'      =>  $invoice['number'],
-            'payer_complement'  =>  $invoice['complement'],
-            'payer_district'    =>  $invoice['district'],
-            'payer_city'        =>  $invoice['city'],
-            'payer_state'       =>  $invoice['state'],
-            'payer_zip_code'    =>  $invoice['cep'],
+            'apiKey'            =>  $company->key_paghiper,
+            'order_id'          =>  $invoice->id,
+            'payer_email'       =>  $customer->email,
+            'payer_name'        =>  $customer->name,
+            'payer_cpf_cnpj'    =>  removeEspeciais($customer->document),
+            'payer_phone'       =>  $customer->phone,
+            'payer_street'      =>  $customer->address,
+            'payer_number'      =>  $customer->number,
+            'payer_complement'  =>  $customer->complement,
+            'payer_district'    =>  $customer->district,
+            'payer_city'        =>  $customer->city,
+            'payer_state'       =>  $customer->state,
+            'payer_zip_code'    =>  $customer->cep,
             'type_bank_slip'    => 'boletoA4',
-            'days_due_date'     =>  $invoice['days_due_date'],
+            'days_due_date'     =>  $days_due_date,
             'notification_url'  => 'https://cobrancasegura.com.br/webhook/paghiper',
             'late_payment_fine' => '1',// Percentual de multa após vencimento.
             'per_day_interest'  => true, // Juros após vencimento.
             'items' => array([
                 'item_id'       => 1,
-                'description'   => $invoice['description'],
+                'description'   => $invoice->description,
                 'quantity'      => 1,
-                'price_cents'   => bcmul($invoice['price'],100)
+                'price_cents'   => bcmul($invoice->price,100)
           ])
           ]);
 
@@ -90,7 +160,7 @@ class Invoice extends Model
             if($result->result == 'success'){
 
             $contents = Http::get($result->bank_slip->url_slip_pdf)->body();
-            Storage::disk('public')->put('boletos/' .  $invoice->user_id.'_'.$invoice->id.'.'.'pdf', $contents);
+            Storage::disk('public')->put('boletos/' .  $invoice->user_id.'_'.$invoice->id.'.pdf', $contents);
             $billet_url = env('APP_URL').Storage::url('boletos/' . $invoice->user_id . '_' . $invoice->id . '.pdf');
             //\File::put(public_path(). '/boleto/' .  $invoice->user_id.'_'.$invoice->id.'.'.'pdf', $contents);
             //$billet_pdf   = 'https://cobrancasegura.com.br/boleto/'.$invoice->user_id.'_'.$invoice->id.'.pdf';
@@ -125,24 +195,27 @@ class Invoice extends Model
             Storage::disk('public')->makeDirectory('pix');
         }
 
-        $invoice = ViewInvoice::where('id',$invoice_id)->first();
+        $invoice = Invoice::with(['customerService.customer', 'company'])->find($invoice_id);
+
+        $customer = $invoice->customerService->customer;
+        $company = $invoice->company;
 
         $response = Http::withHeaders([
             'accept' => 'application/json',
             'content-type' => 'application/json',
           ])->post('https://pix.paghiper.com/invoice/create/',[
-            'apiKey'            =>  $invoice['key_paghiper'],
-            'order_id'          =>  $invoice['id'],
-            'payer_email'       =>  $invoice['email'],
-            'payer_name'        =>  $invoice['name'],
-            'payer_cpf_cnpj'    =>  $invoice['document'],
+            'apiKey'            =>  $company->key_paghiper,
+            'order_id'          =>  $invoice->id,
+            'payer_email'       =>  $customer->email,
+            'payer_name'        =>  $customer->name,
+            'payer_cpf_cnpj'    =>  $customer->document,
             'days_due_date'     =>  90,
             'notification_url'  => 'https://cobrancasegura.com.br/webhook/paghiper',
             'items' => array([
                 'item_id'       => 1,
-                'description'   => $invoice['description'],
+                'description'   => $invoice->description,
                 'quantity'      => 1,
-                'price_cents'   => bcmul($invoice['price'],100)
+                'price_cents'   => bcmul($invoice->price,100)
           ])
           ]);
 
@@ -155,16 +228,16 @@ class Invoice extends Model
                     'status'            =>  'Pendente',
                     'msg_erro'          =>  null,
                     'transaction_id'    => $result->transaction_id,
-                    'image_url_pix'     => 'https://cobrancasegura.com.br/storage/pix/'.$invoice['user_id'].'_'.$invoice['id'].'.png',
+                    'image_url_pix'     => 'https://cobrancasegura.com.br/storage/pix/'.$invoice->user_id.'_'.$invoice->id.'.png',
                     'pix_digitable'     => $result->pix_code->emv,
                     'qrcode_pix_base64' => $result->pix_code->qrcode_base64,
                 ]);
 
 
 
-                //\File::put(public_path(). '/pix/' . $invoice['user_id'].'_'.$invoice['id'].'.'.'png', base64_decode($result->pix_code->qrcode_base64));
+                //\File::put(public_path(). '/pix/' . $invoice->user_id.'_'.$invoice->id.'.png', base64_decode($result->pix_code->qrcode_base64));
                 $contents = Http::get($result->pix_code->qrcode_image_url)->body();
-                Storage::disk('public')->put('pix/' .  $invoice['user_id'].'_'.$invoice['id'].'.'.'png', $contents);
+                Storage::disk('public')->put('pix/' .  $invoice->user_id.'_'.$invoice->id.'.png', $contents);
 
                 return ['status' => 'success', 'message' => 'ok'];
             }
@@ -187,20 +260,23 @@ class Invoice extends Model
             Storage::disk('public')->makeDirectory('pix');
         }
 
-        $invoice = ViewInvoice::where('id',$invoice_id)->first();
+        $invoice = Invoice::with(['customerService.customer', 'company'])->find($invoice_id);
 
-        \MercadoPago\SDK::setAccessToken($invoice['access_token_mp']);
+        $customer = $invoice->customerService->customer;
+        $company = $invoice->company;
+
+        \MercadoPago\SDK::setAccessToken($company->access_token_mp);
 
         $payment = new \MercadoPago\Payment();
-        $payment->transaction_amount    = $invoice['price'];
-        $payment->statement_descriptor  = $invoice['company'];
-        $payment->description           = $invoice['description'];
+        $payment->transaction_amount    = $invoice->price;
+        $payment->statement_descriptor  = $customer->company;
+        $payment->description           = $invoice->description;
         $payment->payment_method_id     = "pix";
         $payment->notification_url      = 'https://cobrancasegura.com.br/webhook/mercadopago?source_news=webhooks';
-        $payment->external_reference    = $invoice['id'];
+        $payment->external_reference    = $invoice->id;
         $payment->date_of_expiration    = Carbon::now()->addDays(40)->format('Y-m-d\TH:i:s') . '.000-04:00';
         $payment->payer = array(
-            "email"    => $invoice['email']
+            "email"    => $customer->email
         );
 
         $status_payment = $payment->save();
@@ -211,7 +287,7 @@ class Invoice extends Model
             return ['status' => 'reject', 'message' => 'O valor do pix esta abaixo do minimo permitido de R$ 3,00.'];
         }else{
 
-            \MercadoPago\SDK::setAccessToken($invoice['access_token_mp']);
+            \MercadoPago\SDK::setAccessToken($company->access_token_mp);
 
             try{
                 $payment = \MercadoPago\Payment::find_by_id($payment_id);
@@ -220,7 +296,7 @@ class Invoice extends Model
                     'status'            =>  'Pendente',
                     'msg_erro'          =>  null,
                     'transaction_id'    => $payment_id,
-                    'image_url_pix'     => 'https://cobrancasegura.com.br/storage/pix/'.$invoice['user_id'].'_'.$invoice['id'].'.png',
+                    'image_url_pix'     => 'https://cobrancasegura.com.br/storage/pix/'.$invoice->user_id.'_'.$invoice->id.'.png',
                     'pix_digitable'     => $payment->point_of_interaction->transaction_data->qr_code,
                     'qrcode_pix_base64' => $payment->point_of_interaction->transaction_data->qr_code_base64,
                 ]);
@@ -229,7 +305,7 @@ class Invoice extends Model
 
                 //\File::put(public_path(). '/pix/' . $invoice['user_id'].'_'.$invoice['id'].'.'.'png', base64_decode($payment->point_of_interaction->transaction_data->qr_code_base64));
 
-                Storage::disk('public')->put('pix/' .  $invoice['user_id'].'_'.$invoice['id'].'.'.'png', base64_decode($payment->point_of_interaction->transaction_data->qr_code_base64));
+                Storage::disk('public')->put('pix/' .  $invoice->user_id.'_'.$invoice->id.'.png', base64_decode($payment->point_of_interaction->transaction_data->qr_code_base64));
                 return ['status' => 'success', 'message' => 'OK'];
 
             } catch(\Exception $e){
@@ -248,42 +324,43 @@ class Invoice extends Model
             Storage::disk('public')->makeDirectory('pix');
         }
 
-        $invoice = ViewInvoice::where('id',$invoice_id)->first();
+        $invoice = Invoice::with(['customerService.customer', 'company'])->find($invoice_id);
 
-        $user = User::where('id',$invoice['user_id'])->first();
+        $customer = $invoice->customerService->customer;
+        $company = $invoice->company;
 
-        $access_token = $user['access_token_inter'];
+        $access_token = $company->access_token_inter;
 
         if($access_token == null){
             return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Access token inválido!']]];
         }
-        if($user['inter_host'] == ''){
+        if($company->inter_host == ''){
             return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'HOST banco inter não cadastrado!']]];
         }
-        if($user['inter_client_id'] == ''){
+        if($company->inter_client_id == ''){
             return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'CLIENT ID banco inter não cadastrado!']]];
         }
-        if($user['inter_client_secret'] == ''){
+        if($company->inter_client_secret == ''){
             return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'CLIENT SECRET banco inter não cadastrado!']]];
         }
-        if($user['inter_crt_file'] == ''){
+        if($company->inter_crt_file == ''){
             return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado CRT banco inter não cadastrado!']]];
         }
-        if(!file_exists(storage_path('/app/'.$user['inter_crt_file']))){
+        if(!file_exists(storage_path('/app/'.$company->inter_crt_file))){
             return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado CRT banco inter não existe!']]];
         }
-        if($user['inter_key_file'] == ''){
+        if($company->inter_key_file == ''){
             return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado KEY banco inter não cadastrado!']]];
         }
-        if(!file_exists(storage_path('/app/'.$user['inter_key_file']))){
+        if(!file_exists(storage_path('/app/'.$company->inter_key_file))){
             return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado KEY banco inter não existe!']]];
         }
 
 
         $check_access_token = Http::withOptions(
             [
-            'cert' => storage_path('/app/'.$user['inter_crt_file']),
-            'ssl_key' => storage_path('/app/'.$user['inter_key_file'])
+            'cert' => storage_path('/app/'.$company->inter_crt_file),
+            'ssl_key' => storage_path('/app/'.$company->inter_key_file)
             ]
             )->withHeaders([
             'Authorization' => 'Bearer ' . $access_token
@@ -291,23 +368,23 @@ class Invoice extends Model
 
         if ($check_access_token->unauthorized()) {
             $response = Http::withOptions([
-                'cert' => storage_path('/app/'.$user['inter_crt_file']),
-                'ssl_key' => storage_path('/app/'.$user['inter_key_file']),
-            ])->asForm()->post($user['inter_host'].'oauth/v2/token', [
-                'client_id' => $user['inter_client_id'],
-                'client_secret' => $user['inter_client_secret'],
-                'scope' => $user['inter_scope'],
+                'cert' => storage_path('/app/'.$company->inter_crt_file),
+                'ssl_key' => storage_path('/app/'.$company->inter_key_file),
+            ])->asForm()->post($company->inter_host.'oauth/v2/token', [
+                'client_id' => $company->inter_client_id,
+                'client_secret' => $company->inter_client_secret,
+                'scope' => $company->inter_scope,
                 'grant_type' => 'client_credentials',
             ]);
 
             if ($response->successful()) {
                 $responseBody = $response->body();
                 $access_token = json_decode($responseBody)->access_token;
-                User::where('id',$user['id'])->update([
+                \App\Models\Company::where('id',$company->id)->update([
                     'access_token_inter' => $access_token
                 ]);
 
-                $invoice = ViewInvoice::where('id',$invoice_id)->first();
+                $company->refresh();
             }else{
                 return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Access token Expirado ou inválido!']]];
             }
@@ -317,54 +394,54 @@ class Invoice extends Model
 
        $body = [
             "calendario"                    => [
-                "dataDeVencimento"          => $invoice['date_due'],
+                "dataDeVencimento"          => $invoice->date_due,
                 "validadeAposVencimento"    => 30,
             ],
             // "loc"                           => [
-            //     "id"                        => $invoice['id'],
+            //     "id"                        => $invoice->id,
             // ],
             "devedor"                       => [
-                "logradouro"                => $invoice['address'],
-                "cidade"                    => $invoice['city'],
-                "uf"                        => $invoice['state'],
-                "cep"                       => removeEspeciais($invoice['cep']),
+                "logradouro"                => $customer->address,
+                "cidade"                    => $customer->city,
+                "uf"                        => $customer->state,
+                "cep"                       => removeEspeciais($customer->cep),
               ],
             "valor"                         => [
-                "original"                  => $invoice['price'],
+                "original"                  => $invoice->price,
                 "juros"                     => [
                     "modalidade"            => "2",
                     "valorPerc"             => "1.00"
                 ],
             ],
-            "chave"                         => $invoice['inter_chave_pix'],
-            "solicitacaoPagador"            => $invoice['description']
+            "chave"                         => $company->inter_chave_pix,
+            "solicitacaoPagador"            => $invoice->description
             ];
 
-        if($invoice['type'] == 'Física'){
-            $body['devedor']['cpf']     = $invoice['document'];
-            $body['devedor']['nome']    = Str::limit($invoice['name'], 30);
+        if($customer->type == 'Física'){
+            $body['devedor']['cpf']     = $customer->document;
+            $body['devedor']['nome']    = Str::limit($customer->name, 30);
         }else{
-            $body['devedor']['cnpj']    = $invoice['document'];
-            $body['devedor']['nome']    = Str::limit($invoice['name'], 30);
+            $body['devedor']['cnpj']    = $customer->document;
+            $body['devedor']['nome']    = Str::limit($customer->name, 30);
         }
 
 
         $response_generate_pix = Http::withOptions([
-            'cert' => storage_path('/app/'.$invoice['inter_crt_file']),
-            'ssl_key' => storage_path('/app/'.$invoice['inter_key_file']),
+            'cert' => storage_path('/app/'.$company->inter_crt_file),
+            'ssl_key' => storage_path('/app/'.$company->inter_key_file),
             ])->withHeaders([
             'Authorization' => 'Bearer ' . $access_token
-          ])->put($invoice['inter_host'].'pix/v2/cobv/'.$txid,$body);
+          ])->put($company->inter_host.'pix/v2/cobv/'.$txid,$body);
 
 
         if ($response_generate_pix->successful()) {
 
             $result_generate_pix = $response_generate_pix->json();
-            $result_generate_pix = json_decode($response_generate_pix);
+            $result_generate_pix = json_decode(json_encode($result_generate_pix));
 
 
-            QrCode::format('png')->size(220)->generate($result_generate_pix->pixCopiaECola, storage_path('app/public'). '/pix/' . $invoice['user_id'].'_'.$invoice['id'].'.'.'png');
-            $image_pix = env('APP_URL').Storage::url('pix/'.$invoice['user_id'].'_'.$invoice['id'].'.png');
+            QrCode::format('png')->size(220)->generate($result_generate_pix->pixCopiaECola, storage_path('app/public'). '/pix/' . $invoice->user_id.'_'.$invoice->id.'.png');
+            $image_pix = env('APP_URL').Storage::url('pix/'.$invoice->user_id.'_'.$invoice->id.'.png');
 
             //QrCode::format('png')->size(220)->generate($result_generate_pix->pixCopiaECola, storage_path('public'). '/pix/' . $invoice['user_id'].'_'.$invoice['id'].'.'.'png');
             //$image_pix   = config()->get('app.url').'/pix/'.$invoice['user_id'].'_'.$invoice['id'].'.png';
@@ -471,41 +548,42 @@ class Invoice extends Model
                 Storage::disk('public')->makeDirectory('boletos');
             }
 
-            $invoice = ViewInvoice::where('id',$invoice_id)->first();
+            $invoice = Invoice::with(['customerService.customer', 'company'])->find($invoice_id);
 
-            $user = User::where('id',$invoice['user_id'])->first();
+            $customer = $invoice->customerService->customer;
+            $company = $invoice->company;
 
-            $access_token = $user['access_token_inter'];
+            $access_token = $company->access_token_inter;
 
             if($access_token == null){
                 return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Access token inválido!']]];
             }
-            if($user['inter_host'] == ''){
+            if($company->inter_host == ''){
                 return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'HOST banco inter não cadastrado!']]];
             }
-            if($user['inter_client_id'] == ''){
+            if($company->inter_client_id == ''){
                 return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'CLIENT ID banco inter não cadastrado!']]];
             }
-            if($user['inter_client_secret'] == ''){
+            if($company->inter_client_secret == ''){
                 return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'CLIENT SECRET banco inter não cadastrado!']]];
             }
-            if($user['inter_crt_file'] == ''){
+            if($company->inter_crt_file == ''){
                 return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado CRT banco inter não cadastrado!']]];
             }
-            if(!file_exists(storage_path('/app/'.$user['inter_crt_file']))){
+            if(!file_exists(storage_path('/app/'.$company->inter_crt_file))){
                 return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado CRT banco inter não existe!']]];
             }
-            if($user['inter_key_file'] == ''){
+            if($company->inter_key_file == ''){
                 return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado KEY banco inter não cadastrado!']]];
             }
-            if(!file_exists(storage_path('/app/'.$user['inter_key_file']))){
+            if(!file_exists(storage_path('/app/'.$company->inter_key_file))){
                 return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado KEY banco inter não existe!']]];
             }
 
             $check_access_token = Http::withOptions(
                 [
-                'cert' => storage_path('/app/'.$user['inter_crt_file']),
-                'ssl_key' => storage_path('/app/'.$user['inter_key_file'])
+                'cert' => storage_path('/app/'.$company->inter_crt_file),
+                'ssl_key' => storage_path('/app/'.$company->inter_key_file)
                 ]
                 )->withHeaders([
                 'Authorization' => 'Bearer ' . $access_token
@@ -513,36 +591,36 @@ class Invoice extends Model
 
             if ($check_access_token->unauthorized()) {
                 $response = Http::withOptions([
-                    'cert' => storage_path('/app/'.$user['inter_crt_file']),
-                    'ssl_key' => storage_path('/app/'.$user['inter_key_file']),
-                ])->asForm()->post($user['inter_host'].'oauth/v2/token', [
-                    'client_id' => $user['inter_client_id'],
-                    'client_secret' => $user['inter_client_secret'],
-                    'scope' => $user['inter_scope'],
+                    'cert' => storage_path('/app/'.$company->inter_crt_file),
+                    'ssl_key' => storage_path('/app/'.$company->inter_key_file),
+                ])->asForm()->post($company->inter_host.'oauth/v2/token', [
+                    'client_id' => $company->inter_client_id,
+                    'client_secret' => $company->inter_client_secret,
+                    'scope' => $company->inter_scope,
                     'grant_type' => 'client_credentials',
                 ]);
 
                 if ($response->successful()) {
                     $responseBody = $response->body();
                     $access_token = json_decode($responseBody)->access_token;
-                    User::where('id',$user->id)->update([
+                    \App\Models\Company::where('id',$company->id)->update([
                         'access_token_inter' => $access_token
                     ]);
 
-                    $invoice = ViewInvoice::where('id',$invoice_id)->first();
+                    $company->refresh();
                 }else{
                     return ['status' => 'reject', 'title' => 'Erro ao gerar Boleto', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Access token Expirado ou inválido!']]];
                 }
             }
 
 
-            $date_multa = Carbon::parse($invoice['date_due'])->addDays(1);
+            $date_multa = Carbon::parse($invoice->date_due)->addDays(1);
             if(date('l') == 'Saturday' || date('l') == 'Sábado'){
-                $date_multa = Carbon::parse($invoice['date_due'])->addDays(2);
+                $date_multa = Carbon::parse($invoice->date_due)->addDays(2);
             }
 
             // Validar e corrigir data de vencimento
-            $dataVencimento = Carbon::parse($invoice['date_due']);
+            $dataVencimento = Carbon::parse($invoice->date_due);
             $dataAtual = Carbon::now();
             
             // Se a data de vencimento for menor que a data atual, ajustar para hoje
@@ -558,36 +636,36 @@ class Invoice extends Model
                     $dataVencimento->addDay();
                 }
                 
-                \Log::warning("Data de vencimento ajustada para invoice ID: {$invoice_id}. Data original: {$invoice['date_due']}, Nova data: {$dataVencimento->format('Y-m-d')}");
+                \Log::warning("Data de vencimento ajustada para invoice ID: {$invoice_id}. Data original: {$invoice->date_due}, Nova data: {$dataVencimento->format('Y-m-d')}");
             }
             
             // Garantir formato Y-m-d
             $dataVencimentoFormatada = $dataVencimento->format('Y-m-d');
 
             $response_generate_billet = Http::withOptions([
-                'cert' => storage_path('/app/'.$invoice['inter_crt_file']),
-                'ssl_key' => storage_path('/app/'.$invoice['inter_key_file']),
+                'cert' => storage_path('/app/'.$company->inter_crt_file),
+                'ssl_key' => storage_path('/app/'.$company->inter_key_file),
                 ])->withHeaders([
                 'Authorization' => 'Bearer ' . $access_token
-              ])->post($invoice['inter_host'].'cobranca/v3/cobrancas',[
-                "seuNumero"=> $invoice['id'],
-                "valorNominal"=> $invoice['price'],
+              ])->post($company->inter_host.'cobranca/v3/cobrancas',[
+                "seuNumero"=> $invoice->id,
+                "valorNominal"=> $invoice->price,
                 "dataVencimento"=> $dataVencimentoFormatada,
                 "numDiasAgenda"=> 60,
                 "pagador"=> [
-                  "cpfCnpj"=> $invoice['document'],
-                  "nome"=> $invoice['name'],
-                  "email"=> $invoice['email'],
-                  "telefone"=> substr($invoice['whatsapp'],2),
-                  "cep"=> removeEspeciais($invoice['cep']),
-                  "numero"=> $invoice['number'],
-                  "complemento"=> $invoice['complement'],
-                  "bairro"=> $invoice['district'],
-                  "cidade"=> $invoice['city'],
-                  "uf"=> $invoice['state'],
-                  "endereco"=> $invoice['address'],
-                  "ddd"=> substr($invoice['whatsapp'],0,2),
-                  "tipoPessoa"=> $invoice['type'] == 'Física' ? 'FISICA' : 'JURIDICA'
+                  "cpfCnpj"=> $customer->document,
+                  "nome"=> $customer->name,
+                  "email"=> $customer->email,
+                  "telefone"=> substr($customer->whatsapp,2),
+                  "cep"=> removeEspeciais($customer->cep),
+                  "numero"=> $customer->number,
+                  "complemento"=> $customer->complement,
+                  "bairro"=> $customer->district,
+                  "cidade"=> $customer->city,
+                  "uf"=> $customer->state,
+                  "endereco"=> $customer->address,
+                  "ddd"=> substr($customer->whatsapp,0,2),
+                  "tipoPessoa"=> $customer->type == 'Física' ? 'FISICA' : 'JURIDICA'
                 ],
                 "multa"=> [
                 "codigo"=> "PERCENTUAL",
@@ -608,46 +686,38 @@ class Invoice extends Model
                 $codigoSolicitacao = trim((string) $result_generate_billet->codigoSolicitacao);
 
                 // V3 API: Need to get the cobranca details to retrieve boleto information
-                $response_get_billet = Http::retry(3, 100)->withOptions(
-                    [
-                    'cert' => storage_path('/app/'.$user['inter_crt_file']),
-                    'ssl_key' => storage_path('/app/'.$user['inter_key_file'])
-                    ]
-                    )->withHeaders([
-                    'Authorization' => 'Bearer ' . $access_token
-
-                ])->get($invoice['inter_host'].'cobranca/v3/cobrancas/'.$codigoSolicitacao);
+                $response_get_billet = Http::retry(3, 100)->withOptions([
+                    'cert' => storage_path('/app/'.$company->inter_crt_file),
+                    'ssl_key' => storage_path('/app/'.$company->inter_key_file),
+                ])->withHeaders([
+                    'Authorization' => 'Bearer ' . $access_token,
+                ])->get($company->inter_host.'cobranca/v3/cobrancas/'.$codigoSolicitacao);
 
                 if ($response_get_billet->successful()) {
                     $result_get_billet = json_decode($response_get_billet->body());
-                    
-                    // Log da estrutura para debug
                     \Log::info('Estrutura resposta get_billet: '.json_encode($result_get_billet));
                 } else {
                     \Log::error('Erro ao obter detalhes do boleto: '.$response_get_billet->body());
                     return ['status' => 'reject', 'title' => 'Erro ao gerar Boleto', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Erro ao obter codigo boleto intermedium!']]];
                 }
 
-                $response_pdf_billet = Http::retry(3, 100)->withOptions(
-                    [
-                    'cert' => storage_path('/app/'.$user['inter_crt_file']),
-                    'ssl_key' => storage_path('/app/'.$user['inter_key_file'])
-                    ]
-                    )->withHeaders([
-                    'Authorization' => 'Bearer ' . $access_token
-
-                ])->get($invoice['inter_host'].'cobranca/v3/cobrancas/'.$codigoSolicitacao.'/pdf');
+                $response_pdf_billet = Http::retry(3, 100)->withOptions([
+                    'cert' => storage_path('/app/'.$company->inter_crt_file),
+                    'ssl_key' => storage_path('/app/'.$company->inter_key_file),
+                ])->withHeaders([
+                    'Authorization' => 'Bearer ' . $access_token,
+                ])->get($company->inter_host.'cobranca/v3/cobrancas/'.$codigoSolicitacao.'/pdf');
 
                 if ($response_pdf_billet->successful()) {
 
                     $responseBodyPdf = $response_pdf_billet->getBody();
                     $pdf = json_decode($responseBodyPdf)->pdf;
 
-                    //\File::put(public_path(). '/boleto/' . $invoice['user_id'].'_'.$invoice['id'].'.'.'pdf', base64_decode($pdf));
-                    //$billet_pdf   = 'https://cobrancasegura.com.br/boleto/'.$invoice['user_id'].'_'.$invoice['id'].'.pdf';
+                    //\File::put(public_path(). '/boleto/' . $invoice->user_id.'_'.$invoice->id.'.pdf', base64_decode($pdf));
+                    //$billet_pdf   = 'https://cobrancasegura.com.br/boleto/'.$invoice->user_id.'_'.$invoice->id.'.pdf';
 
-                    Storage::disk('public')->put('boletos/' .  $invoice['user_id'].'_'.$invoice['id'].'.'.'pdf', base64_decode($pdf));
-                    $billet_pdf = env('APP_URL').Storage::url('boletos/' .$invoice['user_id'].'_'.$invoice['id'].'.pdf');
+                    Storage::disk('public')->put('boletos/' .  $invoice->user_id.'_'.$invoice->id.'.pdf', base64_decode($pdf));
+                    $billet_pdf = env('APP_URL').Storage::url('boletos/' .$invoice->user_id.'_'.$invoice->id.'.pdf');
 
                     // Tenta obter linhaDigitavel de diferentes estruturas possíveis
                     $linhaDigitavel = null;
@@ -698,41 +768,42 @@ class Invoice extends Model
                 Storage::disk('public')->makeDirectory('boletopix');
             }
 
-            $invoice = ViewInvoice::where('id',$invoice_id)->first();
+            $invoice = Invoice::with(['customerService.customer', 'company'])->find($invoice_id);
 
-            $user = User::where('id',$invoice['user_id'])->first();
+            $customer = $invoice->customerService->customer;
+            $company = $invoice->company;
 
-            $access_token = $user['access_token_inter'];
+            $access_token = $company->access_token_inter;
 
             if($access_token == null){
                 return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Access token inválido!']]];
             }
-            if($user['inter_host'] == ''){
+            if($company->inter_host == ''){
                 return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'HOST banco inter não cadastrado!']]];
             }
-            if($user['inter_client_id'] == ''){
+            if($company->inter_client_id == ''){
                 return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'CLIENT ID banco inter não cadastrado!']]];
             }
-            if($user['inter_client_secret'] == ''){
+            if($company->inter_client_secret == ''){
                 return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'CLIENT SECRET banco inter não cadastrado!']]];
             }
-            if($user['inter_crt_file'] == ''){
+            if($company->inter_crt_file == ''){
                 return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado CRT banco inter não cadastrado!']]];
             }
-            if(!file_exists(storage_path('/app/'.$user['inter_crt_file']))){
+            if(!file_exists(storage_path('/app/'.$company->inter_crt_file))){
                 return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado CRT banco inter não existe!']]];
             }
-            if($user['inter_key_file'] == ''){
+            if($company->inter_key_file == ''){
                 return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado KEY banco inter não cadastrado!']]];
             }
-            if(!file_exists(storage_path('/app/'.$user['inter_key_file']))){
+            if(!file_exists(storage_path('/app/'.$company->inter_key_file))){
                 return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado KEY banco inter não existe!']]];
             }
 
             $check_access_token = Http::withOptions(
                 [
-                'cert' => storage_path('/app/'.$user['inter_crt_file']),
-                'ssl_key' => storage_path('/app/'.$user['inter_key_file'])
+                'cert' => storage_path('/app/'.$company->inter_crt_file),
+                'ssl_key' => storage_path('/app/'.$company->inter_key_file)
                 ]
                 )->withHeaders([
                 'Authorization' => 'Bearer ' . $access_token
@@ -740,30 +811,30 @@ class Invoice extends Model
 
             if ($check_access_token->unauthorized()) {
                 $response = Http::withOptions([
-                    'cert' => storage_path('/app/'.$user['inter_crt_file']),
-                    'ssl_key' => storage_path('/app/'.$user['inter_key_file']),
-                ])->asForm()->post($user['inter_host'].'oauth/v2/token', [
-                    'client_id' => $user['inter_client_id'],
-                    'client_secret' => $user['inter_client_secret'],
-                    'scope' => $user['inter_scope'],
+                    'cert' => storage_path('/app/'.$company->inter_crt_file),
+                    'ssl_key' => storage_path('/app/'.$company->inter_key_file),
+                ])->asForm()->post($company->inter_host.'oauth/v2/token', [
+                    'client_id' => $company->inter_client_id,
+                    'client_secret' => $company->inter_client_secret,
+                    'scope' => $company->inter_scope,
                     'grant_type' => 'client_credentials',
                 ]);
 
                 if ($response->successful()) {
                     $responseBody = $response->body();
                     $access_token = json_decode($responseBody)->access_token;
-                    User::where('id',$user->id)->update([
+                    \App\Models\Company::where('id',$company->id)->update([
                         'access_token_inter' => $access_token
                     ]);
 
-                    $invoice = ViewInvoice::where('id',$invoice_id)->first();
+                    $company->refresh();
                 }else{
                     return ['status' => 'reject', 'title' => 'Erro ao gerar BoletoPix', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Access token Expirado ou inválido!']]];
                 }
             }
 
             // Validar e corrigir data de vencimento
-            $dataVencimento = Carbon::parse($invoice['date_due']);
+            $dataVencimento = Carbon::parse($invoice->date_due);
             $dataAtual = Carbon::now();
             
             // Se a data de vencimento for menor que a data atual, ajustar para hoje
@@ -779,36 +850,36 @@ class Invoice extends Model
                     $dataVencimento->addDay();
                 }
                 
-                \Log::warning("Data de vencimento ajustada para invoice ID: {$invoice_id} (BoletoPix). Data original: {$invoice['date_due']}, Nova data: {$dataVencimento->format('Y-m-d')}");
+                \Log::warning("Data de vencimento ajustada para invoice ID: {$invoice_id} (BoletoPix). Data original: {$invoice->date_due}, Nova data: {$dataVencimento->format('Y-m-d')}");
             }
             
             // Garantir formato Y-m-d
             $dataVencimentoFormatada = $dataVencimento->format('Y-m-d');
 
             $response_generate_billet = Http::withOptions([
-                'cert' => storage_path('/app/'.$invoice['inter_crt_file']),
-                'ssl_key' => storage_path('/app/'.$invoice['inter_key_file']),
+                'cert' => storage_path('/app/'.$company->inter_crt_file),
+                'ssl_key' => storage_path('/app/'.$company->inter_key_file),
                 ])->withHeaders([
                 'Authorization' => 'Bearer ' . $access_token
-              ])->post($invoice['inter_host'].'cobranca/v3/cobrancas',[
-                "seuNumero"=> $invoice['id'],
-                "valorNominal"=> $invoice['price'],
+              ])->post($company->inter_host.'cobranca/v3/cobrancas',[
+                "seuNumero"=> $invoice->id,
+                "valorNominal"=> $invoice->price,
                 "dataVencimento"=> $dataVencimentoFormatada,
                 "numDiasAgenda"=> 60,
                 "pagador"=> [
-                  "cpfCnpj"=> $invoice['document'],
-                  "nome"=> $invoice['name'],
-                  "email"=> $invoice['email'],
-                  "telefone"=> substr($invoice['whatsapp'],2),
-                  "cep"=> removeEspeciais($invoice['cep']),
-                  "numero"=> $invoice['number'],
-                  "complemento"=> $invoice['complement'],
-                  "bairro"=> $invoice['district'],
-                  "cidade"=> $invoice['city'],
-                  "uf"=> $invoice['state'],
-                  "endereco"=> $invoice['address'],
-                  "ddd"=> substr($invoice['whatsapp'],0,2),
-                  "tipoPessoa"=> $invoice['type'] == 'Física' ? 'FISICA' : 'JURIDICA'
+                  "cpfCnpj"=> $customer->document,
+                  "nome"=> $customer->name,
+                  "email"=> $customer->email,
+                  "telefone"=> substr($customer->whatsapp,2),
+                  "cep"=> removeEspeciais($customer->cep),
+                  "numero"=> $customer->number,
+                  "complemento"=> $customer->complement,
+                  "bairro"=> $customer->district,
+                  "cidade"=> $customer->city,
+                  "uf"=> $customer->state,
+                  "endereco"=> $customer->address,
+                  "ddd"=> substr($customer->whatsapp,0,2),
+                  "tipoPessoa"=> $customer->type == 'Física' ? 'FISICA' : 'JURIDICA'
                 ],
                 "multa"=> [
                 "codigo"=> "PERCENTUAL",
@@ -828,46 +899,38 @@ class Invoice extends Model
 
                 $codigoSolicitacao = trim((string) $result_generate_billet->codigoSolicitacao);
 
-                $response_get_billet = Http::retry(3, 100)->withOptions(
-                    [
-                    'cert' => storage_path('/app/'.$user['inter_crt_file']),
-                    'ssl_key' => storage_path('/app/'.$user['inter_key_file'])
-                    ]
-                    )->withHeaders([
-                    'Authorization' => 'Bearer ' . $access_token
-
-                ])->get($invoice['inter_host'].'cobranca/v3/cobrancas/'.$codigoSolicitacao);
+                $response_get_billet = Http::retry(3, 100)->withOptions([
+                    'cert' => storage_path('/app/'.$company->inter_crt_file),
+                    'ssl_key' => storage_path('/app/'.$company->inter_key_file),
+                ])->withHeaders([
+                    'Authorization' => 'Bearer ' . $access_token,
+                ])->get($company->inter_host.'cobranca/v3/cobrancas/'.$codigoSolicitacao);
 
                 if ($response_get_billet->successful()) {
                     $result_get_billet = json_decode($response_get_billet->body());
-                    
-                    // Log da estrutura para debug
                     \Log::info('Estrutura resposta get_billet (BoletoPix): '.json_encode($result_get_billet));
                 }else{
                     \Log::error('Erro ao obter detalhes do boletopix: '.$response_get_billet->body());
                     return ['status' => 'reject', 'title' => 'Erro ao gerar BoletoPix', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Erro ao obter codigo boletopix intermedium!']]];
                 }
 
-                $response_pdf_billet = Http::retry(3, 100)->withOptions(
-                    [
-                    'cert' => storage_path('/app/'.$user['inter_crt_file']),
-                    'ssl_key' => storage_path('/app/'.$user['inter_key_file'])
-                    ]
-                    )->withHeaders([
-                    'Authorization' => 'Bearer ' . $access_token
-
-                ])->get($invoice['inter_host'].'cobranca/v3/cobrancas/'.$codigoSolicitacao.'/pdf');
+                $response_pdf_billet = Http::retry(3, 100)->withOptions([
+                    'cert' => storage_path('/app/'.$company->inter_crt_file),
+                    'ssl_key' => storage_path('/app/'.$company->inter_key_file),
+                ])->withHeaders([
+                    'Authorization' => 'Bearer ' . $access_token,
+                ])->get($company->inter_host.'cobranca/v3/cobrancas/'.$codigoSolicitacao.'/pdf');
 
                 if ($response_pdf_billet->successful()) {
 
                     $responseBodyPdf = $response_pdf_billet->getBody();
                     $pdf = json_decode($responseBodyPdf)->pdf;
 
-                    //\File::put(public_path(). '/boletopix/' . $invoice['user_id'].'_'.$invoice['id'].'.'.'pdf', base64_decode($pdf));
-                    //$billet_pdf   = 'https://cobrancasegura.com.br/boletopix/'.$invoice['user_id'].'_'.$invoice['id'].'.pdf';
+                    //\File::put(public_path(). '/boletopix/' . $invoice->user_id.'_'.$invoice->id.'.pdf', base64_decode($pdf));
+                    //$billet_pdf   = 'https://cobrancasegura.com.br/boletopix/'.$invoice->user_id.'_'.$invoice->id.'.pdf';
 
-                    Storage::disk('public')->put('boletopix/' .  $invoice['user_id'].'_'.$invoice['id'].'.'.'pdf', base64_decode($pdf));
-                    $billet_pdf = env('APP_URL').Storage::url('boletopix/' .$invoice['user_id'].'_'.$invoice['id'].'.pdf');
+                    Storage::disk('public')->put('boletopix/' .  $invoice->user_id.'_'.$invoice->id.'.pdf', base64_decode($pdf));
+                    $billet_pdf = env('APP_URL').Storage::url('boletopix/' .$invoice->user_id.'_'.$invoice->id.'.pdf');
 
                     // Tenta obter linhaDigitavel de diferentes estruturas possíveis
                     $linhaDigitavel = null;
@@ -1179,23 +1242,27 @@ class Invoice extends Model
                     Storage::disk('public')->makeDirectory('boletos');
                 }
 
-                $invoice = ViewInvoice::where('id',$invoice_id)->first();
+                $invoice = Invoice::with(['customerService.customer', 'company'])->find($invoice_id);
 
-                if($invoice['days_due_date'] == 0){
+                $customer = $invoice->customerService->customer;
+                $company = $invoice->company;
+                $days_due_date = Carbon::parse($invoice->date_due)->diffInDays($invoice->date_invoice);
+
+                if($days_due_date == 0){
                     if(date('l') == 'Saturday' || date('l') == 'Sábado'){
-                        $invoice['days_due_date'] = 2;
+                        $days_due_date = 2;
                     }
                     if(date('l') == 'Sunday' || date('l') == 'Domingo'){
-                        $invoice['days_due_date'] = 1;
+                        $days_due_date = 1;
                     }
                 }
 
-                if($invoice->environment_asaas == 'Teste'){
-                    $url = $invoice->asaas_url_test;
-                    $at_asaas = $invoice->at_asaas_test;
+                if($company->environment_asaas == 'Teste'){
+                    $url = $company->asaas_url_test;
+                    $at_asaas = $company->at_asaas_test;
                 }else{
-                    $url = $invoice->asaas_url_prod;
-                    $at_asaas = $invoice->at_asaas_prod;
+                    $url = $company->asaas_url_prod;
+                    $at_asaas = $company->at_asaas_prod;
                 }
 
 
@@ -1205,7 +1272,7 @@ class Invoice extends Model
                     'content-type' => 'application/json',
                     'access_token' => $at_asaas,
                     'User-Agent' => 'CobrancaSegura/1.0 (Laravel API)'
-                  ])->get($url.'v3/customers?cpfCnpj='.removeEspeciais($invoice['document']));
+                  ])->get($url.'v3/customers?cpfCnpj='.removeEspeciais($customer->document));
 
                   if ($get_customer->successful()) {
                     $result_get_customer = $get_customer->json();
@@ -1218,11 +1285,11 @@ class Invoice extends Model
                             'access_token' => $at_asaas,
                             'User-Agent' => 'CobrancaSegura/1.0 (Laravel API)'
                           ])->post($url.'v3/customers',[
-                            'name'                  =>  $invoice['name'],
-                            'cpfCnpj'               =>  $invoice['document'],
+                            'name'                  =>  $customer->name,
+                            'cpfCnpj'               =>  $customer->document,
                             'notificationDisabled'  =>  true,
-                            'postalCode'            =>  $invoice['cep'],
-                            'addressNumber'         =>  $invoice['number'],
+                            'postalCode'            =>  $customer->cep,
+                            'addressNumber'         =>  $customer->number,
                           ]);
 
                           if ($post_customer->successful()) {
@@ -1243,11 +1310,11 @@ class Invoice extends Model
                   ])->post($url.'v3/payments',[
                     'customer'          =>  $customer_id,
                     'billingType'       =>  'BOLETO',
-                    'value'             =>  $invoice['price'],
-                    'dueDate'           => $invoice['date_due'],
-                    'description'       => $invoice['description'],
+                    'value'             =>  $invoice->price,
+                    'dueDate'           => $invoice->date_due,
+                    'description'       => $invoice->description,
                     //'daysAfterDueDateToRegistrationCancellation'    => 40,
-                    'externalReference' =>  $invoice['id'],
+                    'externalReference' =>  $invoice->id,
                     'fine'              =>  [
                         'value'         =>  2,
                         'type'          =>  'PERCENTAGE'
@@ -1312,14 +1379,17 @@ class Invoice extends Model
                 Storage::disk('public')->makeDirectory('pix');
             }
 
-            $invoice = ViewInvoice::where('id',$invoice_id)->first();
+            $invoice = Invoice::with(['customerService.customer', 'company'])->find($invoice_id);
 
-            if($invoice->environment_asaas == 'Teste'){
-                $url = $invoice->asaas_url_test;
-                $at_asaas = $invoice->at_asaas_test;
+            $customer = $invoice->customerService->customer;
+            $company = $invoice->company;
+
+            if($company->environment_asaas == 'Teste'){
+                $url = $company->asaas_url_test;
+                $at_asaas = $company->at_asaas_test;
             }else{
-                $url = $invoice->asaas_url_prod;
-                $at_asaas = $invoice->at_asaas_prod;
+                $url = $company->asaas_url_prod;
+                $at_asaas = $company->at_asaas_prod;
             }
 
             $headers = [
@@ -1331,7 +1401,7 @@ class Invoice extends Model
 
             $customer_id = null;
 
-            $get_customer = Http::withHeaders($headers)->get($url.'v3/customers?cpfCnpj='.removeEspeciais($invoice['document']));
+            $get_customer = Http::withHeaders($headers)->get($url.'v3/customers?cpfCnpj='.removeEspeciais($customer->document));
 
             if ($get_customer->successful()) {
                 $result_get_customer = $get_customer->json();
@@ -1339,11 +1409,11 @@ class Invoice extends Model
                     $customer_id = $result_get_customer['data'][0]['id'];
                 }else{
                     $post_customer = Http::withHeaders($headers)->post($url.'v3/customers',[
-                        'name'                  =>  $invoice['name'],
-                        'cpfCnpj'               =>  $invoice['document'],
+                        'name'                  =>  $customer->name,
+                        'cpfCnpj'               =>  $customer->document,
                         'notificationDisabled'  =>  true,
-                        'postalCode'            =>  $invoice['cep'],
-                        'addressNumber'         =>  $invoice['number'],
+                        'postalCode'            =>  $customer->cep,
+                        'addressNumber'         =>  $customer->number,
                     ]);
 
                     if ($post_customer->successful()) {
@@ -1362,10 +1432,10 @@ class Invoice extends Model
             $response = Http::withHeaders($headers)->post($url.'v3/payments',[
                 'customer'          =>  $customer_id,
                 'billingType'       =>  'PIX',
-                'value'             =>  $invoice['price'],
-                'dueDate'           => $invoice['date_due'],
-                'description'       => $invoice['description'],
-                'externalReference' =>  $invoice['id'],
+                'value'             =>  $invoice->price,
+                'dueDate'           => $invoice->date_due,
+                'description'       => $invoice->description,
+                'externalReference' =>  $invoice->id,
                 'fine'              =>  [
                     'value'         =>  2,
                     'type'          =>  'PERCENTAGE'
@@ -1398,7 +1468,7 @@ class Invoice extends Model
             $encodedImage = $pix_data['encodedImage'];
             $imageParts = explode(',', $encodedImage);
             $imageBase64 = count($imageParts) > 1 ? $imageParts[1] : $imageParts[0];
-            $fileName = $invoice['user_id'].'_'.$invoice['id'].'.png';
+            $fileName = $invoice->user_id.'_'.$invoice->id.'.png';
 
             Storage::disk('public')->put('pix/' .  $fileName, base64_decode($imageBase64));
             $image_pix = env('APP_URL').Storage::url('pix/' . $fileName);
@@ -1424,14 +1494,14 @@ class Invoice extends Model
 
 public static function cancelBilletAsaas($transaction_id){
 
-    $invoice = ViewInvoice::where('transaction_id',$transaction_id)->first();
+    $invoice = Invoice::with('company')->where('transaction_id',$transaction_id)->first();
 
-    if($invoice->environment_asaas == 'Teste'){
-        $url        = $invoice->asaas_url_test;
-        $at_asaas   = $invoice->at_asaas_test;
+    if($invoice->company->environment_asaas == 'Teste'){
+        $url        = $invoice->company->asaas_url_test;
+        $at_asaas   = $invoice->company->at_asaas_test;
     }else{
-        $url        = $invoice->asaas_url_prod;
-        $at_asaas   = $invoice->at_asaas_prod;
+        $url        = $invoice->company->asaas_url_prod;
+        $at_asaas   = $invoice->company->at_asaas_prod;
     }
 
     $response = Http::withHeaders([
@@ -1461,14 +1531,14 @@ public static function cancelBilletAsaas($transaction_id){
 
 public static function cancelPixAsaas($user_id, $transaction_id){
 
-    $invoice = ViewInvoice::where('transaction_id',$transaction_id)->first();
+    $invoice = Invoice::with('company')->where('transaction_id',$transaction_id)->first();
 
-    if($invoice->environment_asaas == 'Teste'){
-        $url        = $invoice->asaas_url_test;
-        $at_asaas   = $invoice->at_asaas_test;
+    if($invoice->company->environment_asaas == 'Teste'){
+        $url        = $invoice->company->asaas_url_test;
+        $at_asaas   = $invoice->company->at_asaas_test;
     }else{
-        $url        = $invoice->asaas_url_prod;
-        $at_asaas   = $invoice->at_asaas_prod;
+        $url        = $invoice->company->asaas_url_prod;
+        $at_asaas   = $invoice->company->at_asaas_prod;
     }
 
     $response = Http::withHeaders([

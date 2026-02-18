@@ -71,11 +71,11 @@ class ServiceController extends Controller
 
             if($this->request->input('filter')){
                 $data = Service::orderByRaw("$column_name")
-                            ->where('user_id',auth()->user()->id)
+                            ->forCompany(currentCompanyId())
                             ->whereraw("$field $operator $newValue")
                             ->paginate(15);
             }else{
-                $data = Service::orderByRaw("$column_name")->where('user_id',auth()->user()->id)->paginate(15);
+                $data = Service::orderByRaw("$column_name")->forCompany(currentCompanyId())->paginate(15);
             }
 
 
@@ -122,6 +122,7 @@ class ServiceController extends Controller
             return response()->json($validator->errors()->first(), 422);
         }
 
+        $newService->company_id     = currentCompanyId();
         $newService->user_id        = auth()->user()->id;
         $newService->name           = $data['name'];
         $newService->price          = moeda($data['price']);
@@ -145,7 +146,7 @@ class ServiceController extends Controller
     public function update($id)
     {
 
-        $newService = Service::where('id',$id)->where('user_id',auth()->user()->id)->first();
+        $newService = Service::forCompany(currentCompanyId())->where('id',$id)->first();
 
         $data = $this->request->all();
 
@@ -196,7 +197,7 @@ class ServiceController extends Controller
 
         try{
             foreach($data['selected'] as $result){
-                $find = $model->where('id',$result)->where('user_id',auth()->user()->id);
+                $find = Service::forCompany(currentCompanyId())->where('id',$result);
                 $find->delete();
             }
 

@@ -27,6 +27,7 @@ class GenerateRecurringPayables extends Command
         $recurringPayables = Payable::where('type', 'Recorrente')
             ->where('status', '!=', 'Cancelado')
             ->whereNotNull('recurrence_period')
+            ->whereNotNull('company_id')
             ->get()
             ->filter(function($payable) {
                 // Verificar se é a conta original (primeira da recorrência)
@@ -36,6 +37,7 @@ class GenerateRecurringPayables extends Command
                     ->where('description', $payable->description)
                     ->where('type', 'Recorrente')
                     ->where('date_due', '<', $payable->date_due)
+                    ->whereNotNull('company_id')
                     ->exists();
 
                 return !$hasEarlier;
@@ -63,6 +65,7 @@ class GenerateRecurringPayables extends Command
                     ->where('type', 'Recorrente')
                     ->where('recurrence_period', $payable->recurrence_period)
                     ->where('id', '!=', $payable->id) // Excluir a conta original
+                    ->whereNotNull('company_id')
                     ->orderBy('date_due', 'DESC')
                     ->first();
 
@@ -136,6 +139,7 @@ class GenerateRecurringPayables extends Command
                             ->where('description', $payable->description)
                             ->where('date_due', $nextDueDate->format('Y-m-d'))
                             ->where('type', 'Recorrente')
+                            ->whereNotNull('company_id')
                             ->lockForUpdate() // Lock para evitar duplicação em execuções simultâneas
                             ->first();
 
@@ -150,6 +154,7 @@ class GenerateRecurringPayables extends Command
 
                         // Criar nova conta recorrente
                         $newPayable = new Payable();
+                        $newPayable->company_id = $payable->company_id;
                         $newPayable->user_id = $payable->user_id;
                         $newPayable->supplier_id = $payable->supplier_id;
                         $newPayable->category_id = $payable->category_id;
@@ -181,6 +186,7 @@ class GenerateRecurringPayables extends Command
                                 ->where('description', $payable->description)
                                 ->where('date_due', $nextDueDate->format('Y-m-d'))
                                 ->where('type', 'Recorrente')
+                                ->whereNotNull('company_id')
                                 ->first();
                             if($existingPayable) {
                                 $currentBasePayable = $existingPayable;

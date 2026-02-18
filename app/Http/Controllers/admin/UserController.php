@@ -71,26 +71,40 @@ class UserController extends Controller
             $newValue = "'$value'";
         }
 
+        // Superadmin (ID 1) vê todos os usuários de todas as empresas
         if(auth()->user()->id == 1){
-
             if($this->request->input('filter')){
-                    $data = User::orderByRaw("$column_name")
-                                ->whereraw("$field $operator $newValue")
-                                ->paginate(15);
-                }else{
-                    $data = User::orderByRaw("$column_name")->paginate(15);
-                }
-
-        } else {
+                $data = User::orderByRaw("$column_name")
+                            ->whereraw("$field $operator $newValue")
+                            ->paginate(15);
+            }else{
+                $data = User::orderByRaw("$column_name")->paginate(15);
+            }
+        } 
+        // Usuários normais veem apenas os usuários da(s) empresa(s) que gerenciam
+        else {
+            // Pegar IDs das empresas que o usuário tem acesso
+            $companyIds = auth()->user()->companies()->pluck('companies.id')->toArray();
+            
+            // Se não tem empresas, mostra só ele mesmo
+            if(empty($companyIds)){
+                $companyIds = [auth()->user()->current_company_id];
+            }
+            
             if($this->request->input('filter')){
-                    $data = User::orderByRaw("$column_name")
-                                ->whereraw("$field $operator $newValue")
-                                ->where('id',auth()->user()->id)
-                                ->paginate(15);
-                }else{
-                    $data = User::orderByRaw("$column_name")->where('id',auth()->user()->id)
-                                ->paginate(15);
-                }
+                $data = User::orderByRaw("$column_name")
+                            ->whereraw("$field $operator $newValue")
+                            ->whereHas('companies', function($query) use ($companyIds) {
+                                $query->whereIn('companies.id', $companyIds);
+                            })
+                            ->paginate(15);
+            }else{
+                $data = User::orderByRaw("$column_name")
+                            ->whereHas('companies', function($query) use ($companyIds) {
+                                $query->whereIn('companies.id', $companyIds);
+                            })
+                            ->paginate(15);
+            }
         }
 
 
@@ -139,44 +153,46 @@ class UserController extends Controller
             return response()->json($validator->errors()->first(), 422);
         }
 
-
-        if(!validarDocumento($data['document'])){
-            return response()->json('CPF/CNPJ inválido!', 422);
+        // Validar CPF apenas se foi preenchido
+        if(isset($data['document']) && !empty($data['document'])){
+            $cpf = preg_replace('/[^0-9]/', '', $data['document']);
+            if (strlen($cpf) != 11 || !validarCPF($cpf)) {
+                return response()->json('CPF inválido!', 422);
+            }
+            $model->document = removeEspeciais($data['document']);
+        }else{
+            $model->document = null;
         }
-
-        $model->document        = $data['document'];
-
-        $model->company         = $data['company'];
         $model->name            = $data['name'];
         $model->email           = $data['email'];
 
         if(isset($data['password']) && $data['password'] != null){
             $model->password = bcrypt($data['password']);
         }
-        $model->status                      = $data['status'];
-        $model->image                       = $data['image'];
-        $model->telephone                   = removeEspeciais($data['telephone']);
-        $model->whatsapp                    = removeEspeciais($data['whatsapp']);
-        $model->cep                         = $data['cep'];
-        $model->address                     = $data['address'];
-        $model->number                      = $data['number'];
-        $model->complement                  = $data['complement'];
-        $model->district                    = $data['district'];
-        $model->city                        = $data['city'];
-        $model->state                       = $data['state'];
-        //$model->api_host_whatsapp           = $data['api_host_whatsapp'];
-        //$model->api_access_token_whatsapp   = $data['api_access_token_whatsapp'];
-        //$model->token_paghiper              = $data['token_paghiper'];
-        //$model->key_paghiper                = $data['key_paghiper'];
-        //$model->access_token_mp             = $data['access_token_mp'];
-        $model->day_generate_invoice        = $data['day_generate_invoice'];
-        $model->send_generate_invoice       = $data['send_generate_invoice'];
+        $model->status          = $data['status'];
+        $model->image           = $data['image'];
+        $model->telephone       = removeEspeciais($data['telephone']);
+        $model->whatsapp        = removeEspeciais($data['whatsapp']);
+        $model->cep             = $data['cep'];
+        $model->address         = $data['address'];
+        $model->number          = $data['number'];
+        $model->complement      = $data['complement'];
+        $model->district        = $data['district'];
+        $model->city            = $data['city'];
+        $model->state           = $data['state'];
 
 
 
 
         try{
             $model->save();
+            
+            // Vincular o novo usuário à empresa ativa do usuário logado
+            if(auth()->user()->current_company_id){
+                $model->companies()->attach(auth()->user()->current_company_id, ['role' => 'user']);
+                $model->current_company_id = auth()->user()->current_company_id;
+                $model->save();
+            }
         } catch(\Exception $e){
             \Log::error($e->getMessage());
             return response()->json($e->getMessage(), 500);
@@ -215,13 +231,17 @@ class UserController extends Controller
             return response()->json($validator->errors()->first(), 422);
         }
 
-        if(!validarDocumento($data['document'])){
-            return response()->json('CPF/CNPJ inválido!', 422);
+        // Validar CPF apenas se foi preenchido
+        if(isset($data['document']) && !empty($data['document'])){
+            $cpf = preg_replace('/[^0-9]/', '', $data['document']);
+            if (strlen($cpf) != 11 || !validarCPF($cpf)) {
+                return response()->json('CPF inválido!', 422);
+            }
+            $model->document = removeEspeciais($data['document']);
+        }else{
+            $model->document = null;
         }
 
-
-        $model->document        = removeEspeciais($data['document']);
-        $model->company         = $data['company'];
         $model->name            = $data['name'];
         $model->email           = $data['email'];
 
@@ -229,24 +249,17 @@ class UserController extends Controller
             $model->password = bcrypt($data['password']);
         }
 
-        $model->status                      = $data['status'];
-        $model->image                       = $data['image'];
-        $model->telephone                   = removeEspeciais($data['telephone']);
-        $model->whatsapp                    = removeEspeciais($data['whatsapp']);
-        $model->cep                         = $data['cep'];
-        $model->address                     = $data['address'];
-        $model->number                      = $data['number'];
-        $model->complement                  = $data['complement'];
-        $model->district                    = $data['district'];
-        $model->city                        = $data['city'];
-        $model->state                       = $data['state'];
-        //$model->api_host_whatsapp           = $data['api_host_whatsapp'];
-        //$model->api_access_token_whatsapp   = $data['api_access_token_whatsapp'];
-        //$model->token_paghiper              = $data['token_paghiper'];
-        //$model->key_paghiper                = $data['key_paghiper'];
-        //$model->access_token_mp             = $data['access_token_mp'];
-        $model->day_generate_invoice        = $data['day_generate_invoice'];
-        $model->send_generate_invoice       = $data['send_generate_invoice'];
+        $model->status          = $data['status'];
+        $model->image           = $data['image'];
+        $model->telephone       = removeEspeciais($data['telephone']);
+        $model->whatsapp        = removeEspeciais($data['whatsapp']);
+        $model->cep             = $data['cep'];
+        $model->address         = $data['address'];
+        $model->number          = $data['number'];
+        $model->complement      = $data['complement'];
+        $model->district        = $data['district'];
+        $model->city            = $data['city'];
+        $model->state           = $data['state'];
 
 
 
@@ -284,377 +297,5 @@ class UserController extends Controller
 
 
         return response()->json(true, 200);
-
-
     }
-
-    public function loadWhatsapp(){
-
-        $data = User::where('id',auth()->user()->id)->select('api_token_whatsapp','api_session_whatsapp','api_status_whatsapp')->first();
-
-        return response()->json($data);
-
-
-    }
-
-
-    public function createWhatsapp(){
-
-        if(auth()->user()->api_token_whatsapp != null || auth()->user()->api_session_whatsapp != null || auth()->user()->api_status_whatsapp != null){
-            return response()->json(['icon' => 'warning', 'title' => 'Sessão já cadastrada, remova a sessão anterior para cadastrar uma nova.']);
-        }
-
-        $response = Http::withHeaders([
-            "Content-Type"  => "application/json",
-            'apikey'        => config('options.api_key_evolution')
-        ])
-        ->post(config('options.api_url_evolution').'instance/create',[
-            "instanceName"      => auth()->user()->id.'-cobsegura',
-            "token"             => auth()->user()->id.'-'.date('ymdhis').str::uuid(),
-            "qrcode"            => false,
-            "webhook"           =>[
-                "url" => "https://cobrancasegura.com.br/webhook/whatsapp/".auth()->user()->id."-cobsegura",
-                "byEvents" => false,
-                "base64" => false,
-            ],
-            "events" => [
-                    "MESSAGES_UPSERT",
-                    "MESSAGES_UPDATE",
-                    "SEND_MESSAGE"
-            ]
-
-        ]);
-
-        if ($response->successful()) {
-            $result = $response->json();
-            User::where('id',auth()->user()->id)->update(['api_session_whatsapp' => $result['instance']['instanceName'],'api_token_whatsapp' => $result['hash']['apikey']]);
-            return response()->json(['icon' => 'success', 'title' => 'Sessão criada com sucesso'], 200);
-        }else{
-            return $response->json('Erro ao criar sessão', 422);
-        }
-
-
-    }
-
-
-    public function statusWhatsapp(){
-
-
-        $response = Http::withHeaders([
-            "Content-Type"  => "application/json",
-            'apikey'        => auth()->user()->api_token_whatsapp
-        ])
-        ->get(config('options.api_url_evolution').'instance/connectionState/'.auth()->user()->api_session_whatsapp);
-
-        if ($response->successful()) {
-
-            $result = $response->json();
-
-            if(isset($result['instance']['state'])){
-                if($result['instance']['state'] == 'open'){
-                    $status = 'Conectado';
-                    $icon   = 'success';
-                }else{
-                    $status = 'Desconectado';
-                    $icon   = 'warning';
-                }
-
-                User::where('id',auth()->user()->id)->update(['api_status_whatsapp' => $result['instance']['state']]);
-            }
-
-           return response()->json(['title' => $status,'icon' => $icon,'msg' => '']);
-        }else{
-            return $response->json();
-        }
-
-
-    }
-
-
-    public function qrcodeWhatsapp(){
-
-        $response = Http::withHeaders([
-            "Content-Type"  => "application/json",
-            'apikey'        => auth()->user()->api_token_whatsapp
-        ])
-        ->get(config('options.api_url_evolution').'instance/connect/'.auth()->user()->api_session_whatsapp);
-        if ($response->successful()) {
-            $result = $response->json();
-            if(isset($result['code'])){
-                return response()->json(['title' => 'Leia o QRCODE','icon' => 'success', 'msg' => '<img src="'.$result['base64'].'" class="image-thumbnail" width="220" height="220">'], 200);
-            }else{
-                if($result['instance']['state'] == 'open'){
-                    $status = 'A Sessão "'.strtoupper(auth()->user()->api_session_whatsapp).'" já está conectada';
-                }else{
-                    $status = 'Desconectado';
-                }
-               return response()->json(['title' => $status,'icon' => 'success', 'msg' => ''], 200);
-            }
-
-        }else{
-            if($response->status() === 404){
-                return response()->json(['title' => 'Sessão não existe!','icon' => 'warning','msg' => '']);
-            }
-
-        }
-
-    }
-
-    public function logoutWhatsapp(){
-
-        $response = Http::withHeaders([
-            "Content-Type"  => "application/json",
-            'apikey'        => auth()->user()->api_token_whatsapp
-        ])
-        ->delete(config('options.api_url_evolution').'instance/logout/'.auth()->user()->api_session_whatsapp);
-
-        if ($response->successful()) {
-           return response()->json(['icon' => 'success', 'msg' => 'A Sessão "'.strtoupper(auth()->user()->api_session_whatsapp).'" foi desconectada'], 200);
-        }
-
-        if($response->status() === 404){
-            return response()->json(['icon' => 'warning','msg' => 'Sessão não existe!']);
-        }
-
-        if($response->status() === 400){
-            return response()->json(['icon' => 'warning','msg' => 'Sessão já desconectada!']);
-        }
-    }
-
-    public function deleteWhatsapp()
-    {
-
-        if(auth()->user()->api_token_whatsapp == null){
-            User::where('id',auth()->user()->id)->update(['api_status_whatsapp' => null,'api_session_whatsapp' => null, 'api_token_whatsapp' => null]);
-        }else{
-            $response = Http::withHeaders([
-                "Content-Type"  => "application/json",
-                'apikey'        => auth()->user()->api_token_whatsapp
-            ])
-            ->delete(config('options.api_url_evolution').'instance/delete/'.auth()->user()->api_session_whatsapp);
-
-            $result = $response->json();
-
-            if($result['status'] === 404){
-                User::where('id',auth()->user()->id)->update(['api_status_whatsapp' => null,'api_session_whatsapp' => null, 'api_token_whatsapp' => null]);
-                return response()->json(['icon' => 'success', 'msg' => 'A Sessão "'.strtoupper(auth()->user()->api_session_whatsapp).'" foi removida'], 200);
-            }
-
-            if($result['status'] === 400){
-                return response()->json('Atenção, desconecte a sua sessão antes de remover!',422);
-            }
-
-            if ($response->successful()) {
-                User::where('id',auth()->user()->id)->update(['api_status_whatsapp' => null,'api_session_whatsapp' => null, 'api_token_whatsapp' => null]);
-                return response()->json(['icon' => 'success', 'msg' => 'A Sessão "'.strtoupper(auth()->user()->api_session_whatsapp).'" foi removida'], 200);
-            }else{
-                if($response->status() === 404){
-                    User::where('id',auth()->user()->id)->update(['api_status_whatsapp' => null,'api_session_whatsapp' => null, 'api_token_whatsapp' => null]);
-                    return response()->json(['icon' => 'warning','msg' => 'Sessão não existe!']);
-                }
-
-            }
-        }
-
-    }
-
-
-    public function inter(){
-
-
-        $model = User::where('id',auth()->user()->id)->first();
-
-        $data = $this->request->all();
-
-        $model->inter_host                  = $data['inter_host'];
-        $model->inter_client_id             = $data['inter_client_id'];
-        $model->inter_client_secret         = $data['inter_client_secret'];
-        $model->inter_scope                 = $data['inter_scope'];
-        $model->inter_webhook_url_billet    = $data['inter_webhook_url_billet'];
-        $model->inter_webhook_url_pix       = $data['inter_webhook_url_pix'];
-        $model->inter_chave_pix             = $data['inter_chave_pix'];
-
-        if(!file_exists(storage_path('app/certificates')))
-            \File::makeDirectory(storage_path('app/certificates'));
-
-
-        if($this->request->has('inter_crt_file')){
-            $inter_crt_file = $this->request->file('inter_crt_file');
-            $inter_crt_file->storeAs('certificates/',auth()->user()->id.'_inter_crt_file.crt');
-            $model->inter_crt_file = 'certificates/'.auth()->user()->id.'_inter_crt_file.crt';
-        }
-
-
-        if($this->request->has('inter_key_file')){
-            $inter_key_file = $this->request->file('inter_key_file');
-            $inter_key_file->storeAs('certificates/',auth()->user()->id.'_inter_key_file.key');
-            $model->inter_key_file = 'certificates/'.auth()->user()->id.'_inter_key_file.key';
-        }
-
-        if($this->request->has('inter_crt_file_webhook')){
-            $inter_crt_file_webhook = $this->request->file('inter_crt_file_webhook');
-            $inter_crt_file_webhook->storeAs('certificates/',auth()->user()->id.'_inter_crt_file_webhook.crt');
-            $model->inter_crt_file_webhook = 'certificates/'.auth()->user()->id.'_inter_crt_file_webhook.crt';
-        }
-
-        $model->save();
-
-        $user = User::where('id',auth()->user()->id)->first();
-
-        $access_token = $user['access_token_inter'];
-
-        if($user['inter_host'] == ''){
-            return response()->json('HOST banco inter não cadastrado!', 422);
-        }
-        if($user['inter_client_id'] == ''){
-            return response()->json('CLIENT ID banco inter não cadastrado!', 422);
-        }
-        if($user['inter_client_secret'] == ''){
-            return response()->json('CLIENT SECRET banco inter não cadastrado!', 422);
-        }
-        if($user['inter_crt_file'] == ''){
-            return response()->json('Certificado CRT banco inter não cadastrado!', 422);
-        }
-        if(!file_exists(storage_path('/app/'.$user['inter_crt_file']))){
-            return response()->json('Certificado CRT banco inter não existe!', 422);
-        }
-        if($user['inter_key_file'] == ''){
-            return response()->json('Certificado KEY banco inter não cadastrado!', 422);
-        }
-        if(!file_exists(storage_path('/app/'.$user['inter_key_file']))){
-            return response()->json('Certificado KEY banco inter não existe!', 422);
-        }
-
-        $check_access_token = Http::withOptions(
-            [
-            'cert' => storage_path('/app/'.$user['inter_crt_file']),
-            'ssl_key' => storage_path('/app/'.$user['inter_key_file'])
-            ]
-            )->withHeaders([
-            'Authorization' => 'Bearer ' . $access_token
-        ])->get('https://cdpj.partners.bancointer.com.br/cobranca/v3/cobrancas?dataInicial=2023-01-01&dataFinal=2023-01-01');
-
-        if ($check_access_token->unauthorized()) {
-            $response = Http::withOptions([
-                'cert' => storage_path('/app/'.$user['inter_crt_file']),
-                'ssl_key' => storage_path('/app/'.$user['inter_key_file']),
-            ])->asForm()->post($user['inter_host'].'oauth/v2/token', [
-                'client_id' => $user['inter_client_id'],
-                'client_secret' => $user['inter_client_secret'],
-                'scope' => $user['inter_scope'],
-                'grant_type' => 'client_credentials',
-            ]);
-
-            if ($response->successful()) {
-                $responseBody = $response->body();
-                $access_token = json_decode($responseBody)->access_token;
-                User::where('id',$user['id'])->update([
-                    'access_token_inter' => $access_token
-                ]);
-
-                $user = User::where('id',auth()->user()->id)->first();
-            }else{
-                return response()->json('Verifique suas credenciais, erro ao autenticar!', 422);
-            }
-        }
-
-
-        $response_webhook_billet = Http::withOptions([
-            'cert' => storage_path('/app/'.$user['inter_crt_file']),
-            'ssl_key' => storage_path('/app/'.$user['inter_key_file']),
-            ])->withHeaders([
-            'Authorization' => 'Bearer ' . $access_token
-          ])->put($user['inter_host'].'cobranca/v3/cobrancas/webhook/',[
-            "webhookUrl"=> "https://cobrancasegura.com.br/webhook/intermediumbillet"
-        ]);
-
-        if ($response_webhook_billet->status() != 204) {
-            return response()->json('Erro ao gravar Webhook Boleto Inter!', 422);
-        }
-
-        $response_webhook_pix = Http::withOptions([
-            'cert' => storage_path('/app/'.$user['inter_crt_file']),
-            'ssl_key' => storage_path('/app/'.$user['inter_key_file']),
-            ])->withHeaders([
-            'Authorization' => 'Bearer ' . $access_token
-          ])->put($user['inter_host'].'pix/v2/webhook/'.$user['inter_chave_pix'],[
-            "webhookUrl"=> "https://cobrancasegura.com.br/webhook/intermediumpix"
-        ]);
-
-        if ($response_webhook_pix->status() != 204) {
-            return response()->json('Erro ao gravar Webhook Boleto Inter!');
-        }
-
-        $response_webhook_pix = Http::withOptions([
-            'cert' => storage_path('/app/'.$user['inter_crt_file']),
-            'ssl_key' => storage_path('/app/'.$user['inter_key_file']),
-            ])->withHeaders([
-            'Authorization' => 'Bearer ' . $access_token
-          ])->put($user['inter_host'].'cobranca/v3/cobrancas/webhook/',[
-            "webhookUrl"=> "https://cobrancasegura.com.br/webhook/intermediumpix"
-        ]);
-
-        if ($response_webhook_pix->status() != 204) {
-            return response()->json('Erro ao gravar Webhook Boleto Inter!');
-        }
-
-
-        return response()->json('Salvo com sucesso!',200);
-
-
-
-    }
-
-
-    public function ph(){
-
-
-        $model = User::where('id',auth()->user()->id)->first();
-
-        $data = $this->request->all();
-
-        $model->token_paghiper  = $data['token_paghiper'];
-        $model->key_paghiper    = $data['key_paghiper'];
-        $model->save();
-
-        return response()->json('Salvo com sucesso!',200);
-
-
-    }
-
-    public function mp(){
-
-
-        $model = User::where('id',auth()->user()->id)->first();
-
-        $data = $this->request->all();
-
-        $model->access_token_mp  = $data['access_token_mp'];
-        $model->save();
-
-        return response()->json('Salvo com sucesso!',200);
-
-
-    }
-
-    public function asaas(){
-
-
-        $model = User::where('id',auth()->user()->id)->first();
-
-        $data = $this->request->all();
-
-        $model->environment_asaas   = $data['environment_asaas'];
-        $model->at_asaas_prod       = $data['at_asaas_prod'];
-        $model->asaas_url_prod      = $data['asaas_url_prod'];
-        $model->at_asaas_test       = $data['at_asaas_test'];
-        $model->asaas_url_test      = $data['asaas_url_test'];
-        $model->save();
-
-        return response()->json('Salvo com sucesso!',200);
-
-
-    }
-
-
 }

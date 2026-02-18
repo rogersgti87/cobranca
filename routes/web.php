@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\admin\AdminController;
 use App\Http\Controllers\admin\UserController;
+use App\Http\Controllers\admin\CompanyController;
 use App\Http\Controllers\admin\CustomerController;
 use App\Http\Controllers\admin\ServiceController;
 use App\Http\Controllers\admin\CustomerServiceController;
@@ -11,15 +12,16 @@ use App\Http\Controllers\admin\PayableController;
 use App\Http\Controllers\admin\PayableCategoryController;
 use App\Http\Controllers\admin\SupplierController;
 use App\Http\Controllers\admin\LogController;
+// use App\Http\Controllers\admin\SettingController;
 
 
 use App\Http\Controllers\front\HomeController;
-use App\Http\Controllers\front\ContactController;
+// use App\Http\Controllers\front\ContactController;
 
 use App\Http\Controllers\WebHookController;
 
 Route::get('/',[HomeController::class, 'index']);
-Route::get('/contact',[ContactController::class,'index']);
+// Route::get('/contact',[ContactController::class,'index']);
 
 Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['web', 'auth']], function () {
     \UniSharp\LaravelFilemanager\Lfm::routes();
@@ -45,30 +47,32 @@ Route::prefix('webhook')->group(function () {
 
 Route::group(['prefix' => 'admin','middleware' => ['auth']], function(){
 
-    Route::get('/',[AdminController::class,'index']);
+    Route::get('/',[AdminController::class,'index'])->name('admin.index');
     Route::get('chart-invoices',[AdminController::class,'chartinvoices']);
     Route::get('chart-payables',[AdminController::class,'chartPayables']);
     Route::get('chart-receitas-despesas',[AdminController::class,'chartReceitasDespesas']);
+
+    // Rotas de Empresas (Companies)
+    Route::get('companies',[CompanyController::class,'index'])->name('companies.index');
+    Route::get('companies/create',[CompanyController::class,'create'])->name('companies.create');
+    Route::post('companies',[CompanyController::class,'store'])->name('companies.store');
+    Route::get('companies/{company}',[CompanyController::class,'show'])->name('companies.show');
+    Route::get('companies/{company}/edit',[CompanyController::class,'edit'])->name('companies.edit');
+    Route::put('companies/{company}',[CompanyController::class,'update'])->name('companies.update');
+    Route::delete('companies/bulk',[CompanyController::class,'bulkDestroy'])->name('companies.bulkDestroy');
+    Route::delete('companies/{company}',[CompanyController::class,'destroy'])->name('companies.destroy');
+    Route::post('companies/{company}/switch',[CompanyController::class,'switch'])->name('companies.switch');
+    Route::get('companies/{company}/integrations',[CompanyController::class,'integrations'])->name('companies.integrations');
+    Route::put('companies/{company}/integrations',[CompanyController::class,'updateIntegrations'])->name('companies.integrations.update');
 
     Route::get('users',[UserController::class,'index']);
     Route::get('users/form',[UserController::class,'form']);
     Route::post('users',[UserController::class,'store']);
     Route::post('users/{id}',[UserController::class,'update']);
     Route::delete('users',[UserController::class,'destroy']);
-    Route::post('users-whatsapp',[UserController::class,'createWhatsapp']);
-    Route::get('users-whatsapp',[UserController::class,'loadwhatsapp']);
-    Route::get('users-whatsapp-status',[UserController::class,'statusWhatsapp']);
-    Route::get('users-whatsapp-qrcode',[UserController::class,'qrcodeWhatsapp']);
-    Route::get('users-whatsapp-logout',[UserController::class,'logoutWhatsapp']);
-    Route::get('users-whatsapp-delete',[UserController::class,'deleteWhatsapp']);
 
-    Route::post('user-inter',[UserController::class,'inter']);
-    Route::post('user-ph',[UserController::class,'ph']);
-    Route::post('user-mp',[UserController::class,'mp']);
-    Route::post('user-asaas',[UserController::class,'asaas']);
-
-    Route::get('settings',[SettingController::class,'form']);
-    Route::put('settings',[SettingController::class,'update']);
+    // Route::get('settings',[SettingController::class,'form']);
+    // Route::put('settings',[SettingController::class,'update']);
 
 
 

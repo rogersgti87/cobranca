@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Models\ViewInvoice;
 use App\Models\User;
 use App\Models\InvoiceNotification;
 use App\Models\Invoice;
@@ -29,7 +28,11 @@ class GenerateInvoiceCron extends Command
   public function handle()
   {
 
-$invoices = ViewInvoice::where('status','Gerando')->limit(1)->get();
+$invoices = Invoice::with(['customerService.customer', 'company'])
+    ->where('status', 'Gerando')
+    ->whereNotNull('company_id')
+    ->limit(1)
+    ->get();
 
 if($invoices != null){
 

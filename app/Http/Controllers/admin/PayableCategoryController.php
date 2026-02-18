@@ -32,7 +32,8 @@ class PayableCategoryController extends Controller
     public function index()
     {
         // Buscar categorias globais (user_id NULL) e do usuário atual
-        $data = PayableCategory::where(function($query) {
+        $data = PayableCategory::forCompany(currentCompanyId())
+            ->where(function($query) {
                 $query->whereNull('user_id')
                       ->orWhere('user_id', auth()->user()->id);
             })
@@ -54,7 +55,8 @@ class PayableCategoryController extends Controller
                 $this->datarequest['linkFormEdit'] = $this->datarequest['linkFormEdit'].'&id='.$this->request->input('id');
                 $this->datarequest['linkUpdate']   = $this->datarequest['linkUpdate'].$this->request->input('id');
 
-                $data = PayableCategory::where('id', $this->request->input('id'))
+                $data = PayableCategory::forCompany(currentCompanyId())
+                    ->where('id', $this->request->input('id'))
                     ->where(function($query) {
                         $query->whereNull('user_id')
                               ->orWhere('user_id', auth()->user()->id);
@@ -86,7 +88,8 @@ class PayableCategoryController extends Controller
         ];
 
         // Validação customizada: verificar se já existe categoria com mesmo nome para este usuário
-        $exists = PayableCategory::where('name', $data['name'])
+        $exists = PayableCategory::forCompany(currentCompanyId())
+            ->where('name', $data['name'])
             ->where('user_id', auth()->user()->id)
             ->first();
 
@@ -103,8 +106,9 @@ class PayableCategoryController extends Controller
             return response()->json($validator->errors()->first(), 422);
         }
 
-        $model->user_id = auth()->user()->id;
-        $model->name   = $data['name'];
+        $model->company_id = currentCompanyId();
+        $model->user_id    = auth()->user()->id;
+        $model->name       = $data['name'];
         $model->color  = isset($data['color']) ? $data['color'] : '#FFBD59';
 
         try{
@@ -119,7 +123,8 @@ class PayableCategoryController extends Controller
 
     public function update($id)
     {
-        $model = PayableCategory::where('id', $id)
+        $model = PayableCategory::forCompany(currentCompanyId())
+            ->where('id', $id)
             ->where('user_id', auth()->user()->id)
             ->first();
 
@@ -141,7 +146,8 @@ class PayableCategoryController extends Controller
         ];
 
         // Validação customizada: verificar se já existe categoria com mesmo nome para este usuário (exceto a atual)
-        $exists = PayableCategory::where('name', $data['name'])
+        $exists = PayableCategory::forCompany(currentCompanyId())
+            ->where('name', $data['name'])
             ->where('user_id', auth()->user()->id)
             ->where('id', '!=', $id)
             ->first();
@@ -182,7 +188,8 @@ class PayableCategoryController extends Controller
 
         try{
             foreach($data['selected'] as $result){
-                $find = PayableCategory::where('id', $result)
+                $find = PayableCategory::forCompany(currentCompanyId())
+                    ->where('id', $result)
                     ->where('user_id', auth()->user()->id)
                     ->first();
                 

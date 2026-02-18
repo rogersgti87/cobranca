@@ -10,14 +10,39 @@ class PayableCategory extends Model
     use HasFactory;
 
     protected $fillable = [
+        'company_id',
         'user_id',
         'name',
         'color'
     ];
 
+    /**
+     * Empresa a qual a categoria pertence
+     */
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
+
+    /**
+     * Usuário que criou a categoria
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function payables()
     {
-        return $this->hasMany(Payable::class);
+        return $this->hasMany(Payable::class, 'category_id');
+    }
+
+    /**
+     * Scope para filtrar por empresa
+     */
+    public function scopeForCompany($query, $companyId)
+    {
+        return $query->where('company_id', $companyId);
     }
 }
 

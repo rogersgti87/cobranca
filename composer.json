@@ -5,7 +5,7 @@
     "keywords": ["framework", "laravel"],
     "license": "MIT",
     "require": {
-        "php": "^8.0.2",
+        "php": "^8.3",
         "ext-imagick": "*",
         "chillerlan/php-qrcode": "^5.0",
         "endroid/qr-code": "^5.0",
@@ -41,7 +41,8 @@
             "Database\\Seeders\\": "database/seeders/"
         },
         "files": [
-            "app/Helpers/functions.php"
+            "app/Helpers/functions.php",
+            "app/Helpers/company_helpers.php"
         ]
     },
     "autoload-dev": {

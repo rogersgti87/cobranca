@@ -2,16 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\sendInvoice;
+use App\Models\Company;
 use Illuminate\Console\Command;
-use DB;
-use Carbon\Carbon;
-use App\Models\Invoice;
-use App\Models\User;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Queue;
-use App\Models\InvoiceNotification;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Facades\Log;
 
 
 class TokenInterCron extends Command
@@ -28,73 +22,71 @@ class TokenInterCron extends Command
 
   public function handle()
   {
+    $companies = Company::where('status', 'Ativo')->whereNotNull('inter_client_id')->get();
 
-
-    $users = User::where('status','Ativo')->where('use_intermedium','s')->get();
-
-
-    foreach($users as $user){
-
-        if($user->inter_host == ''){
-            $error = ['status' => 'reject', 'message' => 'HOST banco inter não cadastrado!'];
-            \Log::info('TokenInterCron: '.json_encode($error));
+    foreach ($companies as $company) {
+        if ($company->inter_host == '' || $company->inter_host === null) {
+            $error = ['status' => 'reject', 'message' => 'HOST banco inter não cadastrado!', 'company_id' => $company->id];
+            Log::info('TokenInterCron: ' . json_encode($error));
+            continue;
         }
 
-        else if($user->inter_client_id == ''){
-            $error =  ['status' => 'reject', 'message' => 'CLIENT ID banco inter não cadastrado!'];
-            \Log::info('TokenInterCron: '.json_encode($error));
-        }
-        else if($user->inter_client_secret == ''){
-            $error =  ['status' => 'reject', 'message' => 'CLIENT SECRET banco inter não cadastrado!'];
-            \Log::info('TokenInterCron: '.json_encode($error));
-        }
-        else if($user->inter_crt_file == ''){
-            $error =  ['status' => 'reject', 'message' => 'Certificado CRT banco inter não cadastrado!'];
-            \Log::info('TokenInterCron: '.json_encode($error));
-        }
-        else if(!file_exists(storage_path('/app/'.$user->inter_crt_file))){
-            $error =  ['status' => 'reject', 'message' => 'Certificado CRT banco inter não existe!'];
-            \Log::info('TokenInterCron: '.json_encode($error));
+        if ($company->inter_client_secret == '' || $company->inter_client_secret === null) {
+            $error = ['status' => 'reject', 'message' => 'CLIENT SECRET banco inter não cadastrado!', 'company_id' => $company->id];
+            Log::info('TokenInterCron: ' . json_encode($error));
+            continue;
         }
 
-        else if($user->inter_key_file == ''){
-            $error =  ['status' => 'reject', 'message' => 'Certificado KEY banco inter não cadastrado!'];
-            \Log::info('TokenInterCron: '.json_encode($error));
+        if ($company->inter_crt_file == '' || $company->inter_crt_file === null) {
+            $error = ['status' => 'reject', 'message' => 'Certificado CRT banco inter não cadastrado!', 'company_id' => $company->id];
+            Log::info('TokenInterCron: ' . json_encode($error));
+            continue;
         }
-        else if(!file_exists(storage_path('/app/'.$user->inter_key_file))){
-            $error =  ['status' => 'reject', 'message' => 'Certificado KEY banco inter não existe!'];
-            \Log::info('TokenInterCron: '.json_encode($error));
-        }
-        else{
 
-            $response = Http::withOptions([
-                'cert' => storage_path('/app/'.$user->inter_crt_file),
-                'ssl_key' => storage_path('/app/'.$user->inter_key_file),
-            ])->asForm()->post($user->inter_host.'oauth/v2/token', [
-                'client_id' => $user->inter_client_id,
-                'client_secret' => $user->inter_client_secret,
-                'scope' => $user->inter_scope,
-                'grant_type' => 'client_credentials',
+        if (!file_exists(storage_path('/app/' . $company->inter_crt_file))) {
+            $error = ['status' => 'reject', 'message' => 'Certificado CRT banco inter não existe!', 'company_id' => $company->id];
+            Log::info('TokenInterCron: ' . json_encode($error));
+            continue;
+        }
+
+        if ($company->inter_key_file == '' || $company->inter_key_file === null) {
+            $error = ['status' => 'reject', 'message' => 'Certificado KEY banco inter não cadastrado!', 'company_id' => $company->id];
+            Log::info('TokenInterCron: ' . json_encode($error));
+            continue;
+        }
+
+        if (!file_exists(storage_path('/app/' . $company->inter_key_file))) {
+            $error = ['status' => 'reject', 'message' => 'Certificado KEY banco inter não existe!', 'company_id' => $company->id];
+            Log::info('TokenInterCron: ' . json_encode($error));
+            continue;
+        }
+
+        $response = Http::withOptions([
+            'cert' => storage_path('/app/' . $company->inter_crt_file),
+            'ssl_key' => storage_path('/app/' . $company->inter_key_file),
+        ])->asForm()->post($company->inter_host . 'oauth/v2/token', [
+            'client_id' => $company->inter_client_id,
+            'client_secret' => $company->inter_client_secret,
+            'scope' => $company->inter_scope ?? 'boleto-cobranca.read boleto-cobranca.write',
+            'grant_type' => 'client_credentials',
+        ]);
+
+        if ($response->successful()) {
+            $responseBody = $response->body();
+            $access_token = json_decode($responseBody)->access_token;
+            $company->update([
+                'access_token_inter' => $access_token,
             ]);
-
-            if ($response->successful()) {
-                $responseBody = $response->body();
-                $access_token = json_decode($responseBody)->access_token;
-                User::where('id',$user->id)->update([
-                    'access_token_inter' => $access_token
-                ]);
-            }else{
-                $error = ['status' => 'reject', 'message' => 'Erro ao autenticar com o Banco Inter, informe ao Administrador do sistema!'];
-
-                \Log::info('TokenInterCron: '.json_encode($error));
-            }
-
+        } else {
+            $error = [
+                'status' => 'reject',
+                'message' => 'Erro ao autenticar com o Banco Inter, informe ao Administrador do sistema!',
+                'company_id' => $company->id,
+            ];
+            Log::info('TokenInterCron: ' . json_encode($error));
         }
-
-
     }
 
-
-
+    return 'TokenInterCron atualizado com sucesso';
   }
 }

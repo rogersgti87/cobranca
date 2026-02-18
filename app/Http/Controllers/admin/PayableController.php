@@ -59,21 +59,17 @@ class PayableController extends Controller
         $supplier_id = $this->request->input('supplier_id');
         $supplier_id = $supplier_id != null ? $supplier_id : '';
 
-        $suppliers = Supplier::where('user_id',auth()->user()->id)
+        $suppliers = Supplier::forCompany(currentCompanyId())
             ->where('status','Ativo')
             ->orderBy('name','ASC')
             ->get();
 
-        // Buscar categorias globais (user_id NULL) e do usuário atual
-        $categories = PayableCategory::where(function($query) {
-                $query->whereNull('user_id')
-                      ->orWhere('user_id', auth()->user()->id);
-            })
-            ->orderByRaw('CASE WHEN user_id IS NULL THEN 0 ELSE 1 END') // Globais primeiro
+        // Buscar categorias da empresa
+        $categories = PayableCategory::forCompany(currentCompanyId())
             ->orderBy('name','ASC')
             ->get();
 
-        $data = Payable::where('id',$this->request->input('id'))->where('user_id',auth()->user()->id)->first();
+        $data = Payable::forCompany(currentCompanyId())->where('id',$this->request->input('id'))->first();
 
         return view($this->datarequest['path'].'.form',compact('suppliers','categories','data','supplier_id'))->render();
 
@@ -107,6 +103,7 @@ class PayableController extends Controller
             return response()->json($validator->errors()->first(), 422);
         }
 
+        $model->company_id      = currentCompanyId();
         $model->user_id         = auth()->user()->id;
         $model->supplier_id     = $data['supplier_id'];
         $model->category_id     = isset($data['category_id']) && $data['category_id'] != '' ? $data['category_id'] : null;
@@ -172,6 +169,7 @@ class PayableController extends Controller
 
                 for($i = 2; $i <= $numInstallments; $i++){
                     $installment = new Payable();
+                    $installment->company_id      = currentCompanyId();
                     $installment->user_id         = auth()->user()->id;
                     $installment->supplier_id     = $data['supplier_id'];
                     $installment->category_id     = isset($data['category_id']) && $data['category_id'] != '' ? $data['category_id'] : null;
@@ -217,7 +215,7 @@ class PayableController extends Controller
 
     public function update($id)
     {
-        $model = Payable::where('id',$id)->where('user_id',auth()->user()->id)->first();
+        $model = Payable::forCompany(currentCompanyId())->where('id',$id)->first();
 
         if(!$model){
             return response()->json('Registro não encontrado', 404);
@@ -339,11 +337,11 @@ class PayableController extends Controller
                 $parentId = $model->parent_id ?? $model->id;
 
                 // Buscar todas as parcelas do mesmo grupo
-                $allInstallments = Payable::where(function($query) use ($parentId) {
+                $allInstallments = Payable::forCompany(currentCompanyId())
+                ->where(function($query) use ($parentId) {
                     $query->where('id', $parentId)
                           ->orWhere('parent_id', $parentId);
                 })
-                ->where('user_id', auth()->user()->id)
                 ->where('type', 'Parcelada')
                 ->orderBy('installment_number', 'ASC')
                 ->get();
@@ -388,7 +386,7 @@ class PayableController extends Controller
     public function getReversals($id)
     {
         try{
-            $payable = Payable::where('id',$id)->where('user_id',auth()->user()->id)->first();
+            $payable = Payable::forCompany(currentCompanyId())->where('id',$id)->first();
 
             if(!$payable){
                 return response()->json('Registro não encontrado', 404);
@@ -418,7 +416,7 @@ class PayableController extends Controller
     public function getInstallments($id)
     {
         try{
-            $payable = Payable::where('id',$id)->where('user_id',auth()->user()->id)->first();
+            $payable = Payable::forCompany(currentCompanyId())->where('id',$id)->first();
 
             if(!$payable){
                 return response()->json('Registro não encontrado', 404);
@@ -429,7 +427,7 @@ class PayableController extends Controller
 
             // Verificar se é a conta original de uma recorrência
             if($payable->type == 'Recorrente') {
-                $hasEarlier = Payable::where('user_id', $payable->user_id)
+                $hasEarlier = Payable::forCompany(currentCompanyId())
                     ->where('supplier_id', $payable->supplier_id)
                     ->where('description', $payable->description)
                     ->where('type', 'Recorrente')
@@ -443,11 +441,11 @@ class PayableController extends Controller
                 // Se for a primeira parcela (parent_id == null)
                 if($payable->parent_id == null){
                     // Buscar todas as parcelas relacionadas
-                    $allInstallments = Payable::where(function($query) use ($id) {
+                    $allInstallments = Payable::forCompany(currentCompanyId())
+                    ->where(function($query) use ($id) {
                         $query->where('id', $id)
                               ->orWhere('parent_id', $id);
                     })
-                    ->where('user_id', auth()->user()->id)
                     ->orderBy('installment_number', 'ASC')
                     ->get();
 
@@ -464,11 +462,11 @@ class PayableController extends Controller
                 } else {
                     // Se for uma parcela filha, buscar todas as parcelas do mesmo grupo
                     $parentId = $payable->parent_id;
-                    $allInstallments = Payable::where(function($query) use ($parentId) {
+                    $allInstallments = Payable::forCompany(currentCompanyId())
+                    ->where(function($query) use ($parentId) {
                         $query->where('id', $parentId)
                               ->orWhere('parent_id', $parentId);
                     })
-                    ->where('user_id', auth()->user()->id)
                     ->orderBy('installment_number', 'ASC')
                     ->get();
 
@@ -516,8 +514,8 @@ class PayableController extends Controller
                 $ids = [$id];
             }
 
-            $payables = Payable::whereIn('id', $ids)
-                ->where('user_id', auth()->user()->id)
+            $payables = Payable::forCompany(currentCompanyId())
+                ->whereIn('id', $ids)
                 ->get();
 
             if($payables->isEmpty()){
@@ -540,7 +538,7 @@ class PayableController extends Controller
     public function stopRecurrence($id)
     {
         try{
-            $payable = Payable::where('id',$id)->where('user_id',auth()->user()->id)->first();
+            $payable = Payable::forCompany(currentCompanyId())->where('id',$id)->first();
 
             if(!$payable){
                 return response()->json('Registro não encontrado', 404);
@@ -555,8 +553,8 @@ class PayableController extends Controller
             $originalPayable = $payable;
             if($payable->parent_id){
                 // Se tem parent_id, buscar a conta original
-                $originalPayable = Payable::where('id', $payable->parent_id)
-                    ->where('user_id', auth()->user()->id)
+                $originalPayable = Payable::forCompany(currentCompanyId())
+                    ->where('id', $payable->parent_id)
                     ->first();
                 if(!$originalPayable){
                     $originalPayable = $payable;
@@ -565,7 +563,7 @@ class PayableController extends Controller
 
             // Buscar todas as contas desta recorrência (original + geradas)
             // Usar a mesma lógica do comando GenerateRecurringPayables
-            $allRecurringPayables = Payable::where('user_id', $originalPayable->user_id)
+            $allRecurringPayables = Payable::forCompany(currentCompanyId())
                 ->where('supplier_id', $originalPayable->supplier_id)
                 ->where('description', $originalPayable->description)
                 ->where('type', 'Recorrente')
@@ -579,7 +577,8 @@ class PayableController extends Controller
             $endDate = $lastPayable ? $lastPayable->date_due : $originalPayable->date_due;
 
             // Atualizar todas as contas desta recorrência com a data de término
-            Payable::whereIn('id', $allRecurringPayables->pluck('id'))
+            Payable::forCompany(currentCompanyId())
+                ->whereIn('id', $allRecurringPayables->pluck('id'))
                 ->update(['recurrence_end' => $endDate]);
 
             return response()->json('Recorrência interrompida com sucesso. Não serão geradas novas contas a partir de ' . date('d/m/Y', strtotime($endDate)) . '.', 200);
@@ -593,7 +592,7 @@ class PayableController extends Controller
     public function reverse($id)
     {
         try{
-            $payable = Payable::where('id',$id)->where('user_id',auth()->user()->id)->first();
+            $payable = Payable::forCompany(currentCompanyId())->where('id',$id)->first();
 
             if(!$payable){
                 return response()->json('Registro não encontrado', 404);
@@ -632,13 +631,12 @@ class PayableController extends Controller
 
 public function loadPayables(){
 
-    $query = Payable::query();
+    $query = Payable::forCompany(currentCompanyId());
 
     $fields = "payables.id as id,payables.description,payables.payment_method,payables.price,payables.date_due,payables.date_payment,payables.status,payables.type,payables.installment_number,payables.installments,payables.recurrence_end,payables.recurrence_period,suppliers.id as supplier_id, suppliers.name as supplier_name,payable_categories.id as category_id,payable_categories.name as category_name,payable_categories.color as category_color,payables.updated_at";
 
     $query->leftJoin('suppliers','suppliers.id','payables.supplier_id')
-            ->leftJoin('payable_categories','payable_categories.id','payables.category_id')
-            ->where('payables.user_id',auth()->user()->id);
+            ->leftJoin('payable_categories','payable_categories.id','payables.category_id');
 
     // Coletar filtros para usar nas subqueries
     $statuses = [];
@@ -660,7 +658,7 @@ public function loadPayables(){
     }
 
     // Construir condições de filtro para as subqueries
-    $filterConditions = "user_id = " . auth()->user()->id;
+    $filterConditions = "company_id = " . currentCompanyId();
 
     if(!empty($types)){
         $typesList = "'" . implode("','", array_map(function($t) { return addslashes($t); }, $types)) . "'";
@@ -794,17 +792,13 @@ public function loadPayables(){
 
     public function report(){
 
-        // Buscar categorias globais (user_id NULL) e do usuário atual
-        $categories = PayableCategory::where(function($query) {
-                $query->whereNull('user_id')
-                      ->orWhere('user_id', auth()->user()->id);
-            })
-            ->orderByRaw('CASE WHEN user_id IS NULL THEN 0 ELSE 1 END') // Globais primeiro
+        // Buscar categorias da empresa
+        $categories = PayableCategory::forCompany(currentCompanyId())
             ->orderBy('name','ASC')
             ->get();
 
-        // Buscar fornecedores
-        $suppliers = Supplier::where('user_id', auth()->user()->id)
+        // Buscar fornecedores da empresa
+        $suppliers = Supplier::forCompany(currentCompanyId())
             ->orderBy('name', 'ASC')
             ->get();
 
@@ -819,11 +813,10 @@ public function loadPayables(){
 
     public function loadReportData(){
 
-        $query = Payable::query();
+        $query = Payable::forCompany(currentCompanyId());
 
         $query->leftJoin('suppliers','suppliers.id','payables.supplier_id')
-                ->leftJoin('payable_categories','payable_categories.id','payables.category_id')
-                ->where('payables.user_id',auth()->user()->id);
+                ->leftJoin('payable_categories','payable_categories.id','payables.category_id');
 
         // Filtros
         if($this->request->has('status') && $this->request->input('status') != ''){

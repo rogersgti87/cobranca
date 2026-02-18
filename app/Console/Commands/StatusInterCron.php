@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 use DB;
 use Carbon\Carbon;
 use App\Models\Invoice;
-use App\Models\User;
+use App\Models\Company;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use App\Models\InvoiceNotification;
@@ -28,79 +28,90 @@ class StatusInterCron extends Command
 
   public function handle()
   {
+    $invoices = Invoice::where('status', 'Pendente')
+        ->whereIn('gateway_payment', ['Inter', 'Intermedium'])
+        ->whereNotNull('company_id')
+        ->whereNotNull('transaction_id')
+        ->with('company')
+        ->get();
 
-    $users = User::where('status','Ativo')->where('use_intermedium','s')->get();
+    foreach ($invoices as $invoice) {
+        $company = $invoice->company;
+        if (!$company) {
+            \Log::warning('StatusInterCron - Invoice ID: '.$invoice['id'].' sem company associada.');
+            continue;
+        }
 
-    foreach($users as $user){
+        $access_token = $company->access_token_inter;
+        if ($access_token == null) {
+            \Log::warning('StatusInterCron - Company ID: '.$company->id.' - Access token inválido, Invoice ID: '.$invoice['id']);
+            continue;
+        }
+        if ($company->inter_host == '' || $company->inter_host === null) {
+            \Log::warning('StatusInterCron - Company ID: '.$company->id.' - HOST banco inter não cadastrado.');
+            continue;
+        }
+        if ($company->inter_client_id == '' || $company->inter_client_id === null) {
+            \Log::warning('StatusInterCron - Company ID: '.$company->id.' - CLIENT ID banco inter não cadastrado.');
+            continue;
+        }
+        if ($company->inter_client_secret == '' || $company->inter_client_secret === null) {
+            \Log::warning('StatusInterCron - Company ID: '.$company->id.' - CLIENT SECRET banco inter não cadastrado.');
+            continue;
+        }
+        if ($company->inter_crt_file == '' || $company->inter_crt_file === null) {
+            \Log::warning('StatusInterCron - Company ID: '.$company->id.' - Certificado CRT banco inter não cadastrado.');
+            continue;
+        }
+        if (!file_exists(storage_path('/app/'.$company->inter_crt_file))) {
+            \Log::warning('StatusInterCron - Company ID: '.$company->id.' - Certificado CRT banco inter não existe.');
+            continue;
+        }
+        if ($company->inter_key_file == '' || $company->inter_key_file === null) {
+            \Log::warning('StatusInterCron - Company ID: '.$company->id.' - Certificado KEY banco inter não cadastrado.');
+            continue;
+        }
+        if (!file_exists(storage_path('/app/'.$company->inter_key_file))) {
+            \Log::warning('StatusInterCron - Company ID: '.$company->id.' - Certificado KEY banco inter não existe.');
+            continue;
+        }
 
-        $access_token = $user['access_token_inter'];
+        if ($invoice['payment_method'] == 'Boleto') {
 
-        $invoices = Invoice::where('gateway_payment','Intermedium')->where('status','Pendente')->where('user_id',$user['id'])->whereNotNull('transaction_id')->get();
+            // Valida e limpa o transaction_id
+            $transaction_id = trim((string) $invoice['transaction_id']);
+            if (empty($transaction_id)) {
+                continue;
+            }
 
-        foreach($invoices as $invoice){
-            if($invoices != null){
+            // Remove caracteres não numéricos/alphanuméricos que podem causar problemas
+            $transaction_id_clean = preg_replace('/[^a-zA-Z0-9\-]/', '', $transaction_id);
 
-                if($access_token == null){
-                    return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Access token inválido!']]];
-                }
-                if($user['inter_host'] == ''){
-                    return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'HOST banco inter não cadastrado!']]];
-                }
-                if($user['inter_client_id'] == ''){
-                    return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'CLIENT ID banco inter não cadastrado!']]];
-                }
-                if($user['inter_client_secret'] == ''){
-                    return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'CLIENT SECRET banco inter não cadastrado!']]];
-                }
-                if($user['inter_crt_file'] == ''){
-                    return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado CRT banco inter não cadastrado!']]];
-                }
-                if(!file_exists(storage_path('/app/'.$user['inter_crt_file']))){
-                    return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado CRT banco inter não existe!']]];
-                }
-                if($user['inter_key_file'] == ''){
-                    return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado KEY banco inter não cadastrado!']]];
-                }
-                if(!file_exists(storage_path('/app/'.$user['inter_key_file']))){
-                    return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado KEY banco inter não existe!']]];
-                }
+            // Verifica se é UUID (V3) ou número (V2 antigo)
+            // UUID tem hífens, nossoNumero antigo é apenas numérico
+            $is_uuid = (strpos($transaction_id_clean, '-') !== false);
 
-                if($invoice['payment_method'] == 'Boleto'){
+            if (!$is_uuid && is_numeric($transaction_id_clean)) {
+                // É um nossoNumero antigo da V2 - tenta consultar via API V2
+                $nossoNumero = $transaction_id_clean;
 
-                    // Valida e limpa o transaction_id
-                    $transaction_id = trim((string) $invoice['transaction_id']);
-                    if(empty($transaction_id)){
-                        continue;
-                    }
+                // A API V2 requer dataInicial e dataFinal obrigatórios
+                // Usa a data de vencimento do boleto como referência
+                $dataVencimento = $invoice['date_due'] ?? Carbon::now()->format('Y-m-d');
+                $dataInicial = Carbon::parse($dataVencimento)->subDays(30)->format('Y-m-d'); // 30 dias antes
+                $dataFinal = Carbon::parse($dataVencimento)->addDays(30)->format('Y-m-d'); // 30 dias depois
 
-                    // Remove caracteres não numéricos/alphanuméricos que podem causar problemas
-                    $transaction_id_clean = preg_replace('/[^a-zA-Z0-9\-]/', '', $transaction_id);
-                    
-                    // Verifica se é UUID (V3) ou número (V2 antigo)
-                    // UUID tem hífens, nossoNumero antigo é apenas numérico
-                    $is_uuid = (strpos($transaction_id_clean, '-') !== false);
-                    
-                    if(!$is_uuid && is_numeric($transaction_id_clean)){
-                        // É um nossoNumero antigo da V2 - tenta consultar via API V2
-                        $nossoNumero = $transaction_id_clean;
-                        
-                        // A API V2 requer dataInicial e dataFinal obrigatórios
-                        // Usa a data de vencimento do boleto como referência
-                        $dataVencimento = $invoice['date_due'] ?? Carbon::now()->format('Y-m-d');
-                        $dataInicial = Carbon::parse($dataVencimento)->subDays(30)->format('Y-m-d'); // 30 dias antes
-                        $dataFinal = Carbon::parse($dataVencimento)->addDays(30)->format('Y-m-d'); // 30 dias depois
-                        
-                        // Tenta consultar via API V2 usando o endpoint de listagem com filtro
-                        $url_v2 = rtrim($user['inter_host'], '/').'/cobranca/v2/boletos?dataInicial='.$dataInicial.'&dataFinal='.$dataFinal.'&nossoNumero='.$nossoNumero.'&itensPorPagina=100';
-                        
-                        $response_v2 = Http::withOptions(
-                            [
-                            'cert' => storage_path('/app/'.$user['inter_crt_file']),
-                            'ssl_key' => storage_path('/app/'.$user['inter_key_file'])
-                            ]
-                            )->withHeaders([
-                            'Authorization' => 'Bearer ' . $access_token
-                        ])->get($url_v2);
+                // Tenta consultar via API V2 usando o endpoint de listagem com filtro
+                $url_v2 = rtrim($company->inter_host, '/').'/cobranca/v2/boletos?dataInicial='.$dataInicial.'&dataFinal='.$dataFinal.'&nossoNumero='.$nossoNumero.'&itensPorPagina=100';
+
+                $response_v2 = Http::withOptions(
+                    [
+                        'cert' => storage_path('/app/'.$company->inter_crt_file),
+                        'ssl_key' => storage_path('/app/'.$company->inter_key_file)
+                    ]
+                )->withHeaders([
+                    'Authorization' => 'Bearer ' . $access_token
+                ])->get($url_v2);
                         
                         if ($response_v2->successful()) {
                             $responseBody_v2 = $response_v2->body();
@@ -138,20 +149,20 @@ class StatusInterCron extends Command
                         
                         continue; // Pula para próximo invoice após processar V2
                     }
-                    
-                    $transaction_id = $transaction_id_clean;
-                    $url = rtrim($user['inter_host'], '/').'/cobranca/v3/cobrancas/'.$transaction_id;
 
-                    $response = Http::withOptions(
-                        [
-                        'cert' => storage_path('/app/'.$user['inter_crt_file']),
-                        'ssl_key' => storage_path('/app/'.$user['inter_key_file'])
-                        ]
-                        )->withHeaders([
+                    $transaction_id = $transaction_id_clean;
+                    $url = rtrim($company->inter_host, '/').'/cobranca/v3/cobrancas/'.$transaction_id;
+
+                    $certPath = storage_path('/app/'.$company->inter_crt_file);
+                    $keyPath = storage_path('/app/'.$company->inter_key_file);
+                    $response = Http::withOptions([
+                        'cert' => $certPath,
+                        'ssl_key' => $keyPath
+                    ])->withHeaders([
                         'Authorization' => 'Bearer ' . $access_token
                     ])->get($url);
 
-                        if ($response->successful()) {
+                    if ($response->successful()) {
                             $responseBody = $response->body();
                             $status = json_decode($responseBody)->cobranca->situacao;
 
@@ -171,92 +182,82 @@ class StatusInterCron extends Command
 
                 }
 
-                if($invoice['payment_method'] == 'BoletoPix'){
-                    // Valida e limpa o transaction_id
-                    $transaction_id = trim((string) $invoice['transaction_id']);
-                    if(empty($transaction_id)){
-                        continue;
+        elseif ($invoice['payment_method'] == 'BoletoPix') {
+            // Valida e limpa o transaction_id
+            $transaction_id = trim((string) $invoice['transaction_id']);
+            if (empty($transaction_id)) {
+                continue;
+            }
+
+            // Remove caracteres não numéricos/alphanuméricos que podem causar problemas
+            $transaction_id = preg_replace('/[^a-zA-Z0-9\-]/', '', $transaction_id);
+            $url = rtrim($company->inter_host, '/').'/cobranca/v3/cobrancas/'.$transaction_id;
+
+            $certPath = storage_path('/app/'.$company->inter_crt_file);
+            $keyPath = storage_path('/app/'.$company->inter_key_file);
+            $response = Http::withOptions([
+                'cert' => $certPath,
+                'ssl_key' => $keyPath
+            ])->withHeaders([
+                'Authorization' => 'Bearer ' . $access_token
+            ])->get($url);
+
+            if ($response->successful()) {
+                $responseBody = $response->body();
+                $responseData = json_decode($responseBody);
+                $status = $responseData->cobranca->situacao ?? null;
+
+                if ($status == 'RECEBIDO') {
+                    try {
+                        Invoice::where('transaction_id', $transaction_id)->update(['status' => 'Pago']);
+                        InvoiceNotification::Email($invoice['id']);
+                        InvoiceNotification::Whatsapp($invoice['id']);
+                    } catch (\Exception $e) {
+                        \Log::error('Erro ao atualizar status BoletoPix - Invoice ID: '.$invoice['id'].' - '.$e->getMessage());
                     }
-
-                    // Remove caracteres não numéricos/alphanuméricos que podem causar problemas
-                    $transaction_id = preg_replace('/[^a-zA-Z0-9\-]/', '', $transaction_id);
-                    $url = rtrim($user['inter_host'], '/').'/cobranca/v3/cobrancas/'.$transaction_id;
-
-                    $response = Http::withOptions(
-                        [
-                        'cert' => storage_path('/app/'.$user['inter_crt_file']),
-                        'ssl_key' => storage_path('/app/'.$user['inter_key_file'])
-                        ]
-                        )->withHeaders([
-                        'Authorization' => 'Bearer ' . $access_token
-                    ])->get($url);
-
-                        if ($response->successful()) {
-                            $responseBody = $response->body();
-                            $responseData = json_decode($responseBody);
-                            $status = $responseData->cobranca->situacao ?? null;
-
-                            if($status == 'RECEBIDO'){
-                                try{
-                                Invoice::where('transaction_id',$transaction_id)->update(['status' => 'Pago']);
-                                InvoiceNotification::Email($invoice['id']);
-                                InvoiceNotification::Whatsapp($invoice['id']);
-                                 } catch(\Exception $e){
-                                    \Log::error('Erro ao atualizar status BoletoPix - Invoice ID: '.$invoice['id'].' - '.$e->getMessage());
-                                }
-                            }
-
-                        }else{
-                            \Log::error('Status BoletoPix - Erro na consulta - Invoice ID: '.$invoice['id'].' - transaction_id: '.$transaction_id.' - Status Code: '.$response->status().' - Response: '.$response->body());
-                        }
-
                 }
-
-                if($invoice['payment_method'] == 'Pix'){
-
-                    // Valida e limpa o transaction_id
-                    $transaction_id = trim((string) $invoice['transaction_id']);
-                    if(empty($transaction_id)){
-                        continue;
-                    }
-
-                    // Remove caracteres não numéricos/alphanuméricos que podem causar problemas
-                    $transaction_id = preg_replace('/[^a-zA-Z0-9\-]/', '', $transaction_id);
-                    $url = rtrim($user['inter_host'], '/').'/pix/v2/cobv/'.$transaction_id;
-
-                    $response = Http::withOptions(
-                        [
-                        'cert' => storage_path('/app/'.$user['inter_crt_file']),
-                        'ssl_key' => storage_path('/app/'.$user['inter_key_file'])
-                        ]
-                        )->withHeaders([
-                        'Authorization' => 'Bearer ' . $access_token
-                    ])->get($url);
-
-                        if ($response->successful()) {
-                            $responseBody = $response->body();
-                            $status = json_decode($responseBody)->status;
-
-                            if($status == 'CONCLUIDA'){
-                                Invoice::where('transaction_id',$transaction_id)->update(['status' => 'Pago']);
-                                InvoiceNotification::Email($invoice['id']);
-                                InvoiceNotification::Whatsapp($invoice['id']);
-                            }
-
-                        }else{
-                            \Log::error('Status Pix - Erro na consulta - Invoice ID: '.$invoice['id'].' - transaction_id: '.$transaction_id.' - Status Code: '.$response->status().' - Response: '.$response->body());
-                        }
-
-                }
-
-
-
+            } else {
+                \Log::error('Status BoletoPix - Erro na consulta - Invoice ID: '.$invoice['id'].' - transaction_id: '.$transaction_id.' - Status Code: '.$response->status().' - Response: '.$response->body());
             }
         }
 
+        elseif ($invoice['payment_method'] == 'Pix') {
+
+            // Valida e limpa o transaction_id
+            $transaction_id = trim((string) $invoice['transaction_id']);
+            if (empty($transaction_id)) {
+                continue;
+            }
+
+            // Remove caracteres não numéricos/alphanuméricos que podem causar problemas
+            $transaction_id = preg_replace('/[^a-zA-Z0-9\-]/', '', $transaction_id);
+            $url = rtrim($company->inter_host, '/').'/pix/v2/cobv/'.$transaction_id;
+
+            $certPath = storage_path('/app/'.$company->inter_crt_file);
+            $keyPath = storage_path('/app/'.$company->inter_key_file);
+            $response = Http::withOptions([
+                'cert' => $certPath,
+                'ssl_key' => $keyPath
+            ])->withHeaders([
+                'Authorization' => 'Bearer ' . $access_token
+            ])->get($url);
+
+            if ($response->successful()) {
+                $responseBody = $response->body();
+                $status = json_decode($responseBody)->status;
+
+                if ($status == 'CONCLUIDA') {
+                    Invoice::where('transaction_id', $transaction_id)->update(['status' => 'Pago']);
+                    InvoiceNotification::Email($invoice['id']);
+                    InvoiceNotification::Whatsapp($invoice['id']);
+                }
+            } else {
+                \Log::error('Status Pix - Erro na consulta - Invoice ID: '.$invoice['id'].' - transaction_id: '.$transaction_id.' - Status Code: '.$response->status().' - Response: '.$response->body());
+            }
+        }
     }
 
-
-
+    $this->info('StatusInterCron atualizado com sucesso');
+    return 0;
   }
 }

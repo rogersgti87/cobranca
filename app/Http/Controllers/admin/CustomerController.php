@@ -69,14 +69,18 @@ class CustomerController extends Controller
         }
 
 
-        if($this->request->input('filter')){
-            $data = Customer::orderByRaw("$column_name")
-                        ->where('user_id',auth()->user()->id)
+        // Filtra quando tem valor (AJAX) ou quando botão buscar foi clicado (filter)
+        $allowedFields = ['name', 'email', 'document', 'phone', 'status'];
+        $shouldFilter = ($this->request->input('filter') || $value !== '') && in_array($field, $allowedFields);
+
+        if($shouldFilter){
+            $data = Customer::forCompany(currentCompanyId())
+                        ->orderByRaw("$column_name")
                         ->whereraw("$field $operator $newValue")
                         ->orderby('name','ASC')
                         ->paginate(20);
         }else{
-            $data = Customer::orderByRaw("$column_name")->where('user_id',auth()->user()->id)->paginate(20);
+            $data = Customer::forCompany(currentCompanyId())->orderByRaw("$column_name")->paginate(20);
         }
 
 
@@ -94,7 +98,7 @@ class CustomerController extends Controller
             $this->datarequest['linkFormEdit'] = $this->datarequest['linkFormEdit'].'&id='.$this->request->input('id');
             $this->datarequest['linkUpdate']   = $this->datarequest['linkUpdate'].$this->request->input('id');
 
-            $data = Customer::where('id',$this->request->input('id'))->where('user_id',auth()->user()->id)->first();
+            $data = Customer::forCompany(currentCompanyId())->where('id',$this->request->input('id'))->first();
 
 
             return view($this->datarequest['path'].'form',compact('data'))->with($this->datarequest);
@@ -141,6 +145,7 @@ class CustomerController extends Controller
         if( $validator->fails() ){
             return response()->json($validator->errors()->first(), 422);
         }
+        $model->company_id              = currentCompanyId();
         $model->user_id                 = auth()->user()->id;
         $model->name                    = $data['name'];
         $model->type                    = $data['type'];
@@ -186,7 +191,7 @@ class CustomerController extends Controller
     public function update($id)
     {
 
-        $model = Customer::where('id',$id)->first();
+        $model = Customer::forCompany(currentCompanyId())->where('id',$id)->first();
 
         $data = $this->request->all();
 
@@ -269,7 +274,7 @@ class CustomerController extends Controller
 
         try{
             foreach($data['selected'] as $result){
-                $find = $model->where('id',$result)->where('user_id',auth()->user()->id);
+                $find = Customer::forCompany(currentCompanyId())->where('id',$result);
                 $find->delete();
             }
 

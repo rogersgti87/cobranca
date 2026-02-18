@@ -77,6 +77,27 @@
             </div>
           </div>
 
+          <!-- Company Selector -->
+          @if(auth()->user()->companies()->count() > 1)
+          <div class="px-3 pb-3 mb-3">
+            <label class="text-sm text-muted">Empresa Ativa:</label>
+            <select id="company-selector" class="form-control form-control-sm" onchange="switchCompany(this.value)">
+                @foreach(auth()->user()->companies as $company)
+                    <option value="{{ $company->id }}" {{ auth()->user()->current_company_id == $company->id ? 'selected' : '' }}>
+                        {{ $company->name }}
+                    </option>
+                @endforeach
+            </select>
+          </div>
+          @else
+          <div class="px-3 pb-3 mb-3 text-center">
+            <small class="text-muted">
+                <i class="fas fa-building"></i> 
+                {{ auth()->user()->currentCompany->name ?? 'Sem empresa' }}
+            </small>
+          </div>
+          @endif
+
           <!-- SidebarSearch Form -->
           <div class="form-inline">
             <div class="input-group" data-widget="sidebar-search">
@@ -103,8 +124,8 @@
                   </li>
 
                   <!-- Menu Cadastros -->
-                  <li class="nav-item has-treeview {{ in_array(Request::segment(2), ['users', 'services', 'customers', 'suppliers', 'payable-categories']) ? 'menu-open' : '' }}">
-                    <a href="#" class="nav-link {{ in_array(Request::segment(2), ['users', 'services', 'customers', 'suppliers', 'payable-categories']) ? 'active' : '' }}">
+                  <li class="nav-item has-treeview {{ in_array(Request::segment(2), ['users', 'companies', 'services', 'customers', 'suppliers', 'payable-categories']) ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link {{ in_array(Request::segment(2), ['users', 'companies', 'services', 'customers', 'suppliers', 'payable-categories']) ? 'active' : '' }}">
                       <i class="nav-icon fas fa-folder"></i>
                       <p>
                         Cadastros
@@ -112,14 +133,18 @@
                       </p>
                     </a>
                     <ul class="nav nav-treeview">
-                      @if(auth()->user()->id == 1)
                       <li class="nav-item">
                         <a href="{{url('admin/users')}}" class="nav-link {{Request::segment(2) == 'users' ? 'active' : ''}}">
                           <i class="far fa-circle nav-icon"></i>
                           <p>Usuários</p>
                         </a>
                       </li>
-                      @endif
+                      <li class="nav-item">
+                        <a href="{{url('admin/companies')}}" class="nav-link {{Request::segment(2) == 'companies' ? 'active' : ''}}">
+                          <i class="far fa-circle nav-icon"></i>
+                          <p>Empresas</p>
+                        </a>
+                      </li>
                       <li class="nav-item">
                         <a href="{{url('admin/services')}}" class="nav-link {{Request::segment(2) == 'services' ? 'active' : ''}}">
                           <i class="far fa-circle nav-icon"></i>
@@ -1086,14 +1111,15 @@ $(document).ready(function() {
           <a href="{{url('admin/suppliers')}}">
             <i class="fas fa-truck"></i> Fornecedores
           </a>
-          @if(auth()->user()->id == 1)
           <a href="{{url('admin/users')}}">
             <i class="fas fa-user-cog"></i> Usuários
+          </a>
+          <a href="{{url('admin/companies')}}">
+            <i class="fas fa-building"></i> Empresas
           </a>
           <a href="{{url('admin/payable-categories')}}">
             <i class="fas fa-tags"></i> Categorias
           </a>
-          @endif
           <div style="padding: 8px 12px; border-top: 1px solid rgba(0,0,0,0.1); border-bottom: 1px solid rgba(0,0,0,0.1); margin: 8px 0;">
             <strong style="color: #000000 !important; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Relatórios</strong>
           </div>
@@ -1177,6 +1203,25 @@ $(document).ready(function() {
     updateBottomNavActive();
   });
 });
+
+// Função para trocar de empresa
+function switchCompany(companyId) {
+    if (!companyId) return;
+    
+    $.ajax({
+        url: '{{ url("admin/companies") }}/' + companyId + '/switch',
+        type: 'POST',
+        data: {
+            _token: '{{ csrf_token() }}'
+        },
+        success: function(response) {
+            location.reload();
+        },
+        error: function() {
+            alert('Erro ao trocar empresa. Tente novamente.');
+        }
+    });
+}
 </script>
 
 @yield('scripts')

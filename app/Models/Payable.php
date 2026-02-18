@@ -10,6 +10,7 @@ class Payable extends Model
     use HasFactory;
 
     protected $fillable = [
+        'company_id',
         'user_id',
         'supplier_id',
         'category_id',
@@ -28,6 +29,22 @@ class Payable extends Model
         'parent_id'
     ];
 
+    /**
+     * Empresa a qual a conta pertence
+     */
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
+
+    /**
+     * Usuário que criou a conta
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function supplier()
     {
         return $this->belongsTo(Supplier::class);
@@ -41,5 +58,29 @@ class Payable extends Model
     public function reversals()
     {
         return $this->hasMany(PayableReversal::class);
+    }
+
+    /**
+     * Scope para filtrar por empresa
+     */
+    public function scopeForCompany($query, $companyId)
+    {
+        return $query->where('payables.company_id', $companyId);
+    }
+
+    /**
+     * Scope para contas pendentes
+     */
+    public function scopePendente($query)
+    {
+        return $query->where('status', 'Pendente');
+    }
+
+    /**
+     * Scope para contas pagas
+     */
+    public function scopePago($query)
+    {
+        return $query->where('status', 'Pago');
     }
 }

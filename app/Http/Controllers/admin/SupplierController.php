@@ -67,12 +67,12 @@ class SupplierController extends Controller
 
         if($this->request->input('filter')){
             $data = Supplier::orderByRaw("$column_name")
-                        ->where('user_id',auth()->user()->id)
+                        ->forCompany(currentCompanyId())
                         ->whereraw("$field $operator $newValue")
                         ->orderby('name','ASC')
                         ->paginate(20);
         }else{
-            $data = Supplier::orderByRaw("$column_name")->where('user_id',auth()->user()->id)->paginate(20);
+            $data = Supplier::orderByRaw("$column_name")->forCompany(currentCompanyId())->paginate(20);
         }
 
         return view($this->datarequest['path'].'.index',compact('column','order','data'))->with($this->datarequest);
@@ -89,7 +89,7 @@ class SupplierController extends Controller
                 $this->datarequest['linkFormEdit'] = $this->datarequest['linkFormEdit'].'&id='.$this->request->input('id');
                 $this->datarequest['linkUpdate']   = $this->datarequest['linkUpdate'].$this->request->input('id');
 
-                $data = Supplier::where('id',$this->request->input('id'))->where('user_id',auth()->user()->id)->first();
+                $data = Supplier::forCompany(currentCompanyId())->where('id',$this->request->input('id'))->first();
 
                 return view($this->datarequest['path'].'form',compact('data'))->with($this->datarequest);
             }
@@ -111,7 +111,7 @@ class SupplierController extends Controller
         ];
 
         $validator = Validator::make($data, [
-            'name'     => 'required|unique:suppliers,name,NULL,id,user_id,'.auth()->user()->id,
+            'name'     => 'required|unique:suppliers,name,NULL,id,company_id,'.currentCompanyId(),
             'state'    => 'nullable|max:2',
         ], $messages);
 
@@ -119,6 +119,7 @@ class SupplierController extends Controller
             return response()->json($validator->errors()->first(), 422);
         }
 
+        $model->company_id  = currentCompanyId();
         $model->user_id     = auth()->user()->id;
         $model->name        = $data['name'];
         $model->type        = isset($data['type']) ? $data['type'] : 'Física';
@@ -150,7 +151,7 @@ class SupplierController extends Controller
 
     public function update($id)
     {
-        $model = Supplier::where('id',$id)->where('user_id',auth()->user()->id)->first();
+        $model = Supplier::forCompany(currentCompanyId())->where('id',$id)->first();
 
         if(!$model){
             return response()->json('Registro não encontrado', 404);
@@ -165,7 +166,7 @@ class SupplierController extends Controller
         ];
 
         $validator = Validator::make($data, [
-            'name'     => 'required|unique:suppliers,name,'.$id.',id,user_id,'.auth()->user()->id,
+            'name'     => 'required|unique:suppliers,name,'.$id.',id,company_id,'.currentCompanyId(),
             'state'    => 'nullable|max:2',
         ], $messages);
 
@@ -203,7 +204,6 @@ class SupplierController extends Controller
 
     public function destroy()
     {
-        $model = new Supplier;
         $data = $this->request->all();
 
         if(!isset($data['selected'])){
@@ -212,7 +212,7 @@ class SupplierController extends Controller
 
         try{
             foreach($data['selected'] as $result){
-                $find = $model->where('id',$result)->where('user_id',auth()->user()->id);
+                $find = Supplier::forCompany(currentCompanyId())->where('id',$result);
                 $find->delete();
             }
 
@@ -226,7 +226,7 @@ class SupplierController extends Controller
 
     public function loadSuppliers()
     {
-        $suppliers = Supplier::where('user_id',auth()->user()->id)
+        $suppliers = Supplier::forCompany(currentCompanyId())
             ->where('status','Ativo')
             ->orderBy('name','ASC')
             ->get();

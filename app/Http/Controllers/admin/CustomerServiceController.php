@@ -45,7 +45,7 @@ class CustomerServiceController extends Controller
 
     public function index(){
 
-        $data = CustomerService::where('user_id',auth()->user()->id)->orderby('id','desc')->get();
+        $data = CustomerService::forCompany(currentCompanyId())->orderby('id','desc')->get();
 
         return response()->json($data);
     }
@@ -56,9 +56,11 @@ class CustomerServiceController extends Controller
 
         $customer_id = $customer_id != null ? $customer_id : '';
 
-        $data = CustomerService::where('id',$this->request->input('id'))->where('user_id',auth()->user()->id)->first();
+        $data = CustomerService::forCompany(currentCompanyId())->where('id',$this->request->input('id'))->first();
 
-        return view($this->datarequest['path'].'.form',compact('data','customer_id'))->render();
+        $companies = auth()->user()->companies;
+
+        return view($this->datarequest['path'].'.form',compact('data','customer_id','companies'))->render();
 
     }
 
@@ -78,7 +80,11 @@ class CustomerServiceController extends Controller
             'payment_method.required'       => 'O campo Forma de pagamento é obrigatório!',
         ];
 
+        $userCompanyIds = auth()->user()->companies->pluck('id')->toArray();
         $validator = Validator::make($data, [
+            'company_id'        =>  ['required', 'exists:companies,id', function ($attr, $val, $fail) use ($userCompanyIds) {
+                if (!in_array((int)$val, $userCompanyIds)) { $fail('Empresa inválida.'); }
+            }],
             'description'       =>  'required',
             'price'             =>  'required',
             'start_billing'     =>  'required',
@@ -97,6 +103,7 @@ class CustomerServiceController extends Controller
             }
         }
 
+        $model->company_id          = isset($data['company_id']) ? $data['company_id'] : currentCompanyId();
         $model->user_id             = auth()->user()->id;
         $model->customer_id         = $data['customer_id'];
         $model->description         = $data['description'];
@@ -114,6 +121,7 @@ class CustomerServiceController extends Controller
             if(isset($data['generate_invoice'])){
                 $user = User::where('id',auth()->user()->id)->first();
                 $newInvoice = new Invoice();
+                $newInvoice->company_id          = $model->company_id;
                 $newInvoice->user_id             = $model->user_id;
                 $newInvoice->customer_id         = $model->customer_id;
                 $newInvoice->customer_service_id = $model->id;
@@ -298,7 +306,11 @@ class CustomerServiceController extends Controller
             'payment_method.required'       => 'O campo Forma de pagamento é obrigatório!',
         ];
 
+        $userCompanyIds = auth()->user()->companies->pluck('id')->toArray();
         $validator = Validator::make($data, [
+            'company_id'        =>  ['required', 'exists:companies,id', function ($attr, $val, $fail) use ($userCompanyIds) {
+                if (!in_array((int)$val, $userCompanyIds)) { $fail('Empresa inválida.'); }
+            }],
             'description'       =>  'required',
             'price'             =>  'required',
             'start_billing'     =>  'required',
@@ -317,6 +329,9 @@ class CustomerServiceController extends Controller
             }
         }
 
+        if(isset($data['company_id'])){
+            $model->company_id      = $data['company_id'];
+        }
         $model->user_id             = auth()->user()->id;
         $model->customer_id         = $data['customer_id'];
         $model->description         = $data['description'];
@@ -335,6 +350,7 @@ class CustomerServiceController extends Controller
             if(isset($data['generate_invoice'])){
                 $user = User::where('id',auth()->user()->id)->first();
                 $newInvoice = new Invoice();
+                $newInvoice->company_id          = $model->company_id;
                 $newInvoice->user_id             = $model->user_id;
                 $newInvoice->customer_id         = $model->customer_id;
                 $newInvoice->customer_service_id = $model->id;
@@ -506,12 +522,8 @@ class CustomerServiceController extends Controller
 
     public function destroy($id)
     {
-        $model = new CustomerService();
-
         try{
-
-            $model->where('id',$id)->where('user_id',auth()->user()->id)->delete();
-
+            CustomerService::forCompany(currentCompanyId())->where('id',$id)->delete();
         } catch(\Exception $e){
             \Log::error($e->getMessage());
             return response()->json('Erro interno, favor comunicar ao administrador', 500);
@@ -524,9 +536,10 @@ class CustomerServiceController extends Controller
 
     public function Load($customer_id){
 
-        $result = CustomerService::select('customer_services.id as id','customer_services.description','customer_services.price',
+        $result = CustomerService::forCompany(currentCompanyId())
+                ->select('customer_services.id as id','customer_services.description','customer_services.price',
                 'customer_services.day_due','customer_services.period','customer_services.status')
-                ->where('customer_services.customer_id',$customer_id)->where('customer_services.user_id',auth()->user()->id)
+                ->where('customer_services.customer_id',$customer_id)
                 ->get();
         return response()->json($result);
 

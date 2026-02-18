@@ -7,14 +7,25 @@
                 <input type="hidden" name="customer_service_id" id="customer_service_id" value="{{ isset($data) ? $data->id : '' }}">
                 <input type="hidden" name="customer_id" value="{{ $customer_id }}">
 
+                <div class="form-group col-md-12 col-sm-12">
+                    <label>Empresa <span class="text-danger">*</span></label>
+                    <select class="form-control compact-input" name="company_id" id="company_id" required>
+                        <option value="">Selecione a empresa...</option>
+                        @foreach(auth()->user()->companies ?? [] as $comp)
+                            <option value="{{ $comp->id }}" {{ (isset($data) && $data->company_id == $comp->id) || auth()->user()->current_company_id == $comp->id ? 'selected' : '' }}>{{ $comp->name }}</option>
+                        @endforeach
+                    </select>
+                    <small class="text-muted">Escolha qual empresa gerará estas faturas</small>
+                </div>
+
                 <div class="form-group col-md-8 col-sm-12">
-                    <label>Descrição</label>
-                    <input type="text" class="form-control" name="description" id="description" autocomplete="off" required value="{{isset($data->description) ? $data->description : ''}}">
+                    <label>Descrição (Serviço)</label>
+                    <input type="text" class="form-control compact-input" name="description" id="description" autocomplete="off" required value="{{isset($data->description) ? $data->description : ''}}">
                 </div>
 
                 <div class="form-group col-md-4 col-sm-12">
                     <label>Status</label>
-                    <select class="form-control custom-select" name="status" id="status">
+                    <select class="form-control custom-select compact-input" name="status" id="status">
                         <option {{ isset($data->status) && $data->status === 'Ativo' ? 'selected' : '' }} value="Ativo">Ativo</option>
                         <option {{ isset($data->status) && $data->status === 'Inativo' ? 'selected' : '' }} value="Inativo">Inativo</option>
                     </select>

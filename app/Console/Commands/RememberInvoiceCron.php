@@ -35,7 +35,8 @@ class RememberInvoiceCron extends Command
         INNER JOIN customers c ON  cs.customer_id = c.id
         INNER JOIN users u ON i.user_id = u.id
         WHERE NOT EXISTS (SELECT * FROM invoice_notifications b WHERE i.id = b.invoice_id AND CURRENT_DATE = cast(b.date as date))
-        and i.status = 'Pendente' AND i.date_due <= CURDATE() + interval 5 DAY";
+        and i.status = 'Pendente' AND i.date_due <= CURDATE() + interval 5 DAY
+        AND i.company_id IS NOT NULL";
 
     $verifyInvoices = DB::select($sql);
 

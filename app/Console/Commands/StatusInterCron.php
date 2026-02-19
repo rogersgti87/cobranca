@@ -28,14 +28,23 @@ class StatusInterCron extends Command
 
   public function handle()
   {
+    // Limitar a quantidade de faturas processadas por execução para evitar rate limit
+    $limite_por_execucao = 50;
+    
     $invoices = Invoice::where('status', 'Pendente')
         ->whereIn('gateway_payment', ['Inter', 'Intermedium'])
         ->whereNotNull('company_id')
         ->whereNotNull('transaction_id')
         ->with('company')
+        ->orderBy('date_due', 'asc') // Priorizar faturas com vencimento mais próximo
+        ->limit($limite_por_execucao)
         ->get();
 
+    $this->info('Processando '.$invoices->count().' faturas...');
+    
+    $contador = 0;
     foreach ($invoices as $invoice) {
+        $contador++;
         $company = $invoice->company;
         if (!$company) {
             \Log::warning('StatusInterCron - Invoice ID: '.$invoice['id'].' sem company associada.');
@@ -144,9 +153,16 @@ class StatusInterCron extends Command
                                 }
                             }
                         } else {
-                            \Log::error('Status Boleto V2 - Erro ao consultar - Invoice ID: '.$invoice['id'].' - nossoNumero: '.$nossoNumero.' - Status Code: '.$response_v2->status().' - Response: '.$response_v2->body());
+                            if($response_v2->status() == 429){
+                                \Log::warning('Status Boleto V2 - Rate limit (429) - Invoice ID: '.$invoice['id'].' - Aguardando para continuar...');
+                                sleep(5); // Aguarda 5 segundos antes de continuar
+                            } else {
+                                \Log::error('Status Boleto V2 - Erro ao consultar - Invoice ID: '.$invoice['id'].' - nossoNumero: '.$nossoNumero.' - Status Code: '.$response_v2->status().' - Response: '.$response_v2->body());
+                            }
                         }
                         
+                        // Delay entre requisições para evitar rate limit
+                        usleep(500000); // 0.5 segundo entre cada requisição
                         continue; // Pula para próximo invoice após processar V2
                     }
 
@@ -177,8 +193,16 @@ class StatusInterCron extends Command
                             }
 
                         }else{
-                            \Log::error('Status Boleto - Erro na consulta - Invoice ID: '.$invoice['id'].' - transaction_id: '.$transaction_id.' - Status Code: '.$response->status().' - Response: '.$response->body());
+                            if($response->status() == 429){
+                                \Log::warning('Status Boleto V3 - Rate limit (429) - Invoice ID: '.$invoice['id'].' - Aguardando para continuar...');
+                                sleep(5);
+                            } else {
+                                \Log::error('Status Boleto - Erro na consulta - Invoice ID: '.$invoice['id'].' - transaction_id: '.$transaction_id.' - Status Code: '.$response->status().' - Response: '.$response->body());
+                            }
                         }
+                        
+                        // Delay entre requisições
+                        usleep(500000); // 0.5 segundo
 
                 }
 
@@ -217,8 +241,16 @@ class StatusInterCron extends Command
                     }
                 }
             } else {
-                \Log::error('Status BoletoPix - Erro na consulta - Invoice ID: '.$invoice['id'].' - transaction_id: '.$transaction_id.' - Status Code: '.$response->status().' - Response: '.$response->body());
+                if($response->status() == 429){
+                    \Log::warning('Status BoletoPix - Rate limit (429) - Invoice ID: '.$invoice['id'].' - Aguardando para continuar...');
+                    sleep(5);
+                } else {
+                    \Log::error('Status BoletoPix - Erro na consulta - Invoice ID: '.$invoice['id'].' - transaction_id: '.$transaction_id.' - Status Code: '.$response->status().' - Response: '.$response->body());
+                }
             }
+            
+            // Delay entre requisições
+            usleep(500000); // 0.5 segundo
         }
 
         elseif ($invoice['payment_method'] == 'Pix') {
@@ -252,12 +284,25 @@ class StatusInterCron extends Command
                     InvoiceNotification::Whatsapp($invoice['id']);
                 }
             } else {
-                \Log::error('Status Pix - Erro na consulta - Invoice ID: '.$invoice['id'].' - transaction_id: '.$transaction_id.' - Status Code: '.$response->status().' - Response: '.$response->body());
+                if($response->status() == 429){
+                    \Log::warning('Status Pix - Rate limit (429) - Invoice ID: '.$invoice['id'].' - Aguardando para continuar...');
+                    sleep(5);
+                } else {
+                    \Log::error('Status Pix - Erro na consulta - Invoice ID: '.$invoice['id'].' - transaction_id: '.$transaction_id.' - Status Code: '.$response->status().' - Response: '.$response->body());
+                }
             }
+            
+            // Delay entre requisições
+            usleep(500000); // 0.5 segundo
+        }
+        
+        // Informar progresso a cada 10 faturas
+        if($contador % 10 == 0){
+            $this->info("Processadas {$contador} de {$invoices->count()} faturas...");
         }
     }
 
-    $this->info('StatusInterCron atualizado com sucesso');
+    $this->info('StatusInterCron finalizado - Total: '.$contador.' faturas processadas');
     return 0;
   }
 }

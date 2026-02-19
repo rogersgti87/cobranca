@@ -183,7 +183,7 @@ foreach($invoices as $invoice){
             "Content-Type"  => "application/json",
             'apikey'        => $data['api_token_whatsapp']
         ])
-        ->post(config('options.api_url_evolution').'message/sendText/'.$data['api_session_whatsapp'],[
+        ->post(rtrim(config('options.api_url_evolution'), '/').'/message/sendText/'.$data['api_session_whatsapp'],[
             "number"        => $request->input('remoteJid'),
             "options"       =>  [
                 //"delay"     => $this->campaign->interval_send * 1000
@@ -218,7 +218,7 @@ foreach($invoices as $invoice){
                 "Content-Type"  => "application/json",
                 'apikey'        => $data['api_token_whatsapp']
             ])
-            ->post(config('options.api_url_evolution').'message/sendMedia/'.$data['api_session_whatsapp'],[
+            ->post(rtrim(config('options.api_url_evolution'), '/').'/message/sendMedia/'.$data['api_session_whatsapp'],[
                 "number"         => $request->input('remoteJid'),
                 "mediaMessage"   => [
                     "mediatype"  =>  "image",
@@ -256,7 +256,7 @@ foreach($invoices as $invoice){
                 "Content-Type"  => "application/json",
                 'apikey'        => $data['api_token_whatsapp']
             ])
-            ->post(config('options.api_url_evolution').'message/sendMedia/'.$data['api_session_whatsapp'],[
+            ->post(rtrim(config('options.api_url_evolution'), '/').'/message/sendMedia/'.$data['api_session_whatsapp'],[
                 "number"         => $request->input('remoteJid'),
                 "mediaMessage"   => [
                     "mediatype"  =>  "document",
@@ -274,7 +274,7 @@ foreach($invoices as $invoice){
                     "Content-Type"  => "application/json",
                     'apikey'        => $data['api_token_whatsapp']
                 ])
-                ->post(config('options.api_url_evolution').'message/sendMedia/'.$data['api_session_whatsapp'],[
+                ->post(rtrim(config('options.api_url_evolution'), '/').'/message/sendMedia/'.$data['api_session_whatsapp'],[
                     "number"         => $request->input('remoteJid'),
                     "mediaMessage"   => [
                         "mediatype"  =>  "document",

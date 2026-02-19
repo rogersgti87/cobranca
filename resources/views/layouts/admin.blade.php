@@ -238,13 +238,6 @@
               </li>
             @endif
 
-                <li class="nav-item">
-                    <a href="{{url('admin/users/form?act=edit&id='.auth()->user()->id)}}" class="nav-link {{Request::segment(2) == 'users' ? 'active' : ''}}">
-                      <i class="far fa-circle nav-icon"></i>
-                      <p>Configurações</p>
-                    </a>
-                  </li>
-
               <li class="nav-item">
                 <a href="{{ route('logout') }}" class="nav-link" onclick="event.preventDefault();
                 document.getElementById('logout-form').submit();">
@@ -297,10 +290,6 @@
     <a href="{{url('admin/payables')}}" class="bottom-nav-item {{Request::segment(2) == 'payables' ? 'active' : '' }}" id="bottomNavPayables">
       <i class="fas fa-file-invoice-dollar"></i>
       <span>Contas a Pagar</span>
-    </a>
-    <a href="{{url('admin/users/form?act=edit&id='.auth()->user()->id)}}" class="bottom-nav-item {{Request::segment(2) == 'users' && Request::get('act') == 'edit' ? 'active' : '' }}" id="bottomNavSettings">
-      <i class="fas fa-cog"></i>
-      <span>Configurações</span>
     </a>
   </div>
 </nav>
@@ -1190,8 +1179,6 @@ $(document).ready(function() {
       $('#bottomNavInvoices').addClass('active');
     } else if (segment2 === 'payables') {
       $('#bottomNavPayables').addClass('active');
-    } else if (segment2 === 'users' && window.location.search.includes('act=edit')) {
-      $('#bottomNavSettings').addClass('active');
     }
   }
 

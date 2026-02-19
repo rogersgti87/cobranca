@@ -12,7 +12,7 @@
             <h1 class="m-0">Contas a receber</h1>
           </div><!-- /.col -->
           <div class="col-sm-6">
-            <ol class="breadcrumb float-sm-right">
+            <ol class="breadcrumb float-sm-right mb-0">
               <li class="breadcrumb-item"><a href="{{url('admin')}}">Home</a></li>
               <li class="breadcrumb-item active">Contas a receber</li>
             </ol>
@@ -170,11 +170,19 @@
 
                     <!-- Tabela de Faturas -->
                     <div class="card-box">
-                        <div class="row d-flex justify-content-center align-items-center">
-                            <div class="col-12">
-                                <div id="pagination" class="d-flex justify-content-center align-items-center mb-3 flex-wrap" style="gap: 5px;">
+                        <div class="row d-flex justify-content-between align-items-center mb-3">
+                            <div class="col-auto">
+                                <button type="button" class="btn btn-primary btn-new-invoice-sidebar" id="btn-modal-new-invoice" style="border-radius: 8px; background: linear-gradient(135deg, #06b8f7 0%, #05a0d6 100%); border: none; box-shadow: 0 2px 8px rgba(6, 184, 247, 0.3); font-weight: 500; padding: 8px 16px; font-size: 14px;">
+                                    <i class="fas fa-plus"></i> Nova Conta a Receber
+                                </button>
+                            </div>
+                            <div class="col">
+                                <div id="pagination" class="d-flex justify-content-center align-items-center flex-wrap" style="gap: 5px;">
                                     <!-- Paginação será gerada dinamicamente aqui -->
                                 </div>
+                            </div>
+                            <div class="col-auto">
+                                <!-- Espaço para balancear o layout -->
                             </div>
                         </div>
 
@@ -242,7 +250,7 @@
 
 
 
-  <!-- Modal :: Form Invoice -->
+ <!-- Modal :: Form Invoice -->
   <div class="modal fade" id="modalNotifications" tabindex="-1" role="dialog" aria-labelledby="modalNotificationsLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -263,8 +271,57 @@
             </form>
         </div>
     </div>
- </div>
- <!-- Modal :: Form Invoice -->
+</div>
+<!-- Modal :: Form Invoice -->
+
+<!-- Modal :: Nova Conta a Receber -->
+<div class="modal fade" id="modalNewInvoice" tabindex="-1" role="dialog" aria-labelledby="modalNewInvoiceLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form action="" class="form-horizontal" id="form-request-new-invoice">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalNewInvoiceLabel"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="form-content-new-invoice"><!-- carregado via AJAX --></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn save-button" id="btn-save-new-invoice"><i class="fa fa-check"></i> Salvar</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.btn-new-invoice-sidebar {
+    transition: all 0.3s ease;
+}
+
+.btn-new-invoice-sidebar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(6, 184, 247, 0.4) !important;
+    background: linear-gradient(135deg, #05a0d6 0%, #0489b8 100%) !important;
+}
+
+.btn-new-invoice-sidebar:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+    .btn-new-invoice-sidebar {
+        font-size: 13px;
+        padding: 6px 12px !important;
+    }
+
+    .btn-new-invoice-sidebar span {
+        display: none;
+    }
+}
+</style>
+<!-- Modal :: Nova Conta a Receber -->
 
    <!-- Modal :: Log -->
    <div class="modal fade" id="modal-error" tabindex="-1" role="dialog" aria-labelledby="modalErrorLabel" aria-hidden="true">
@@ -1371,6 +1428,70 @@ function updateStatusChart(statusData) {
         }
     });
 }
+
+// Modal Nova Conta a Receber
+$(document).on("click", "#btn-modal-new-invoice", function(e) {
+    e.preventDefault();
+    $("#modalNewInvoiceLabel").html('Nova Conta a Receber');
+    var url = `{{ url("/admin/invoices/form-quick") }}`;
+    $("#modalNewInvoice").modal('show');
+    $("#form-content-new-invoice").html('Carregando...');
+    $.get(url, function(data) {
+        $("#form-content-new-invoice").html(data);
+        $('.money').mask('000.000.000.000.000,00', {reverse: true});
+        $('[data-tt="tooltip"]').tooltip();
+
+        // Garantir que o gateway seja carregado corretamente
+        setTimeout(function(){
+            $('#gateway_payment').trigger('change');
+        }, 200);
+    });
+});
+
+// Save new invoice
+$(document).on('click', '#btn-save-new-invoice', function(e) {
+    e.preventDefault();
+    $("#btn-save-new-invoice").attr("disabled", true).html('Aguarde...');
+    $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': "{{csrf_token()}}" } });
+    var data = $('#form-request-new-invoice').serialize();
+
+    // Verificar se está gerando fatura
+    var generate_invoice = $('#generate_invoice').is(':checked');
+    var customer_service_id = $('#customer_service_id').val();
+
+    var url = "{{ url('admin/invoices/store-quick') }}";
+    var method = 'POST';
+
+    $.ajax({
+        url: url,
+        data: data,
+        method: method,
+        success: function(response){
+            $("#btn-save-new-invoice").attr("disabled", false).html('<i class="fa fa-check"></i> Salvar');
+            Swal.fire({
+                width: 350,
+                title: "<h5 style='color:#007bff'>" + response.message + "</h5>",
+                icon: 'success',
+                showConfirmButton: true,
+                showClass: { popup: 'animate__animated animate__backInUp' },
+                allowOutsideClick: false
+            }).then((result) => {
+                $('#modalNewInvoice').modal('hide');
+                load();
+            });
+        },
+        error: function(xhr) {
+            $("#btn-save-new-invoice").attr("disabled", false).html('<i class="fa fa-check"></i> Salvar');
+            Swal.fire({
+                text: xhr.responseJSON,
+                width: 300,
+                icon: xhr.status === 422 ? 'warning' : 'error',
+                confirmButtonColor: "#007bff",
+                showClass: { popup: 'animate__animated animate__wobble' }
+            });
+        }
+    });
+});
 </script>
 
 

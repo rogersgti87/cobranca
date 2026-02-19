@@ -104,6 +104,8 @@ Route::group(['prefix' => 'admin','middleware' => ['auth']], function(){
 
     Route::get('invoices',[InvoiceController::class,'index']);
     Route::get('invoices/form',[InvoiceController::class,'form']);
+    Route::get('invoices/form-quick',[InvoiceController::class,'formQuick']);
+    Route::post('invoices/store-quick',[InvoiceController::class,'storeQuick']);
     Route::post('invoices',[InvoiceController::class,'store']);
     Route::post('invoices/{id}',[InvoiceController::class,'update']);
     Route::post('invoices/copy',[InvoiceController::class,'copy']);

@@ -538,7 +538,9 @@ class CustomerServiceController extends Controller
 
         $result = CustomerService::forCompany(currentCompanyId())
                 ->select('customer_services.id as id','customer_services.description','customer_services.price',
-                'customer_services.day_due','customer_services.period','customer_services.status')
+                'customer_services.day_due','customer_services.period','customer_services.status',
+                'customer_services.gateway_payment','customer_services.payment_method',
+                'customer_services.start_billing','customer_services.end_billing')
                 ->where('customer_services.customer_id',$customer_id)
                 ->get();
         return response()->json($result);

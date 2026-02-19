@@ -356,7 +356,7 @@ class InvoiceNotification extends Model
             "Content-Type"  => "application/json",
             'apikey'        => $data['api_token_whatsapp']
         ])
-        ->post(config('options.api_url_evolution').'message/sendText/'.$data['api_session_whatsapp'],[
+        ->post(rtrim(config('options.api_url_evolution'), '/').'/message/sendText/'.$data['api_session_whatsapp'],[
             "number"        => '55'.$data['customer_whatsapp'],
              "text"      =>  $data['text_whatsapp'],
              "linkPreview" => false,
@@ -425,7 +425,7 @@ class InvoiceNotification extends Model
                 "Content-Type"  => "application/json",
                 'apikey'        => $data['api_token_whatsapp']
             ])
-            ->post(config('options.api_url_evolution').'message/sendMedia/'.$data['api_session_whatsapp'],[
+            ->post(rtrim(config('options.api_url_evolution'), '/').'/message/sendMedia/'.$data['api_session_whatsapp'],[
                 "number"         => '55'.$data['customer_whatsapp'],
                 "mediatype"  =>  "image",
                 "mimetype" =>  "image/png",
@@ -500,7 +500,7 @@ class InvoiceNotification extends Model
                 "Content-Type"  => "application/json",
                 'apikey'        => $data['api_token_whatsapp']
             ])
-            ->post(config('options.api_url_evolution').'message/sendMedia/'.$data['api_session_whatsapp'],[
+            ->post(rtrim(config('options.api_url_evolution'), '/').'/message/sendMedia/'.$data['api_session_whatsapp'],[
                 "number"         => '55'.$data['customer_whatsapp'],
                 "mediatype"  =>  "document",
                 "mimetype" =>  "application/pdf",
@@ -517,7 +517,7 @@ class InvoiceNotification extends Model
                     "Content-Type"  => "application/json",
                     'apikey'        => $data['api_token_whatsapp']
                 ])
-                ->post(config('options.api_url_evolution').'message/sendMedia/'.$data['api_session_whatsapp'],[
+                ->post(rtrim(config('options.api_url_evolution'), '/').'/message/sendMedia/'.$data['api_session_whatsapp'],[
                     "number"         => '55'.$data['customer_whatsapp'],
                     "mediatype"  =>  "document",
                     "mimetype" =>  "application/pdf",

@@ -13,6 +13,7 @@ use App\Models\InvoiceNotification;
 use App\Models\CustomerService;
 use App\Models\Customer;
 use App\Models\Service;
+use App\Models\Company;
 use RuntimeException;
 use Illuminate\Support\Facades\Http;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -50,8 +51,13 @@ class InvoiceController extends Controller
     }
 
     public function index(){
+        
+        // Buscar todas as empresas do usuário autenticado
+        $companies = Company::whereHas('users', function($query) {
+            $query->where('users.id', auth()->id());
+        })->orderBy('name')->get();
 
-        return view('admin.invoice.index')->with($this->datarequest);
+        return view('admin.invoice.index', compact('companies'))->with($this->datarequest);
     }
 
     public function form(){
@@ -70,6 +76,193 @@ class InvoiceController extends Controller
 
     }
 
+    public function formQuick(){
+        
+        // Buscar empresas do usuário
+        $companies = Company::whereHas('users', function($query) {
+            $query->where('users.id', auth()->id());
+        })->orderBy('name')->get();
+        
+        // Buscar clientes
+        $customers = Customer::forCompany(currentCompanyId())->orderBy('name')->get();
+
+        return view($this->datarequest['path'].'.form-quick', compact('companies', 'customers'))->render();
+
+    }
+
+    public function storeQuick()
+    {
+        $data = $this->request->all();
+        
+        $messages = [
+            'company_id.required'           => 'O campo Empresa é obrigatório!',
+            'customer_id.required'          => 'O campo Cliente é obrigatório!',
+            'description.required'          => 'O campo Descrição é obrigatório!',
+            'price.required'                => 'O campo Preço é obrigatório!',
+            'gateway_payment.required'      => 'O campo Gateway de pagamento é obrigatório!',
+            'payment_method.required'       => 'O campo Forma de pagamento é obrigatório!',
+        ];
+
+        $validator = Validator::make($data, [
+            'company_id'            => 'required',
+            'customer_id'           => 'required',
+            'description'           => 'required',
+            'price'                 => 'required',
+            'gateway_payment'       => 'required',
+            'payment_method'        => 'required',
+        ], $messages);
+
+        if($validator->fails()){
+            return response()->json($validator->errors()->first(), 422);
+        }
+
+        try {
+            // Sempre criar um novo customer service
+            $customerService = new CustomerService();
+            $customerService->company_id        = $data['company_id'];
+            $customerService->user_id           = auth()->user()->id;
+            $customerService->customer_id       = $data['customer_id'];
+            $customerService->description       = $data['description'];
+            $customerService->status            = isset($data['status']) ? $data['status'] : 'Ativo';
+            $customerService->day_due           = isset($data['day_due']) ? $data['day_due'] : 10;
+            $customerService->price             = moeda($data['price']);
+            $customerService->period            = isset($data['period']) ? $data['period'] : 'Único';
+            $customerService->gateway_payment   = $data['gateway_payment'];
+            $customerService->payment_method    = $data['payment_method'];
+            $customerService->start_billing     = isset($data['start_billing']) ? $data['start_billing'] : date('Y-m-d');
+            $customerService->end_billing       = isset($data['end_billing']) ? $data['end_billing'] : null;
+            $customerService->save();
+            
+            $customer_service_id = $customerService->id;
+            
+            // Se marcou para gerar fatura
+            if(isset($data['generate_invoice']) && $data['generate_invoice'] == '1'){
+                if(!isset($data['date_due']) || $data['date_due'] == ''){
+                    return response()->json('Você marcou a opção Gerar Fatura, Selecione a Data de vencimento.', 422);
+                }
+                
+                $user = User::where('id', auth()->user()->id)->first();
+                $newInvoice = new Invoice();
+                $newInvoice->company_id          = $data['company_id'];
+                $newInvoice->user_id             = auth()->user()->id;
+                $newInvoice->customer_id         = $data['customer_id'];
+                $newInvoice->customer_service_id = $customer_service_id;
+                $newInvoice->description         = $data['description'];
+                $newInvoice->price               = moeda($data['price']);
+                $newInvoice->gateway_payment     = $data['gateway_payment'];
+                $newInvoice->payment_method      = $data['payment_method'];
+                $newInvoice->date_invoice        = Carbon::now();
+                $newInvoice->date_due            = $data['date_due'];
+                $newInvoice->date_payment        = null;
+                $newInvoice->status              = 'Pendente';
+                $newInvoice->save();
+
+                // Processar pagamento conforme gateway e método
+                if($newInvoice['payment_method'] == 'Pix'){
+                    if($newInvoice['gateway_payment'] == 'Pag Hiper'){
+                        $generatePixPH = Invoice::generatePixPH($newInvoice['id']);
+                        if($generatePixPH['status'] == 'reject'){
+                            Invoice::where('id',$newInvoice['id'])->delete();
+                            return response()->json($generatePixPH['message'], 422);
+                        }
+                    }elseif($newInvoice['gateway_payment'] == 'Mercado Pago'){
+                        $generatePixMP = Invoice::generatePixMP($newInvoice['id']);
+                        if($generatePixMP['status'] == 'reject'){
+                            Invoice::where('id',$newInvoice['id'])->delete();
+                            return response()->json($generatePixMP['message'], 422);
+                        }
+                    }elseif($newInvoice['gateway_payment'] == 'Intermedium'){
+                        $generatePixIntermedium = Invoice::generatePixIntermedium($newInvoice['id']);
+                        if($generatePixIntermedium['status'] == 'reject'){
+                            Invoice::where('id',$newInvoice['id'])->delete();
+                            $msgInterPix = '';
+                            foreach($generatePixIntermedium['message'] as $messageInterPix){
+                                $msgInterPix .= $messageInterPix['razao'].' - '.$messageInterPix['propriedade'].',';
+                            }
+                            return response()->json($generatePixIntermedium['title'].': '.$msgInterPix, 422);
+                        }
+                    }elseif($newInvoice['gateway_payment'] == 'Asaas'){
+                        $generatePixAsaas = Invoice::generatePixAsaas($newInvoice['id']);
+                        if($generatePixAsaas['status'] == 'reject'){
+                            return response()->json($generatePixAsaas['message'], 422);
+                        }
+                    }elseif($newInvoice['gateway_payment'] == 'Estabelecimento'){
+                        $fileName = $newInvoice->user_id . '_' . $newInvoice['id'];
+                        $pixKey = $user->chave_pix;
+                        $payload = gerarCodigoPix($pixKey, $newInvoice->price);
+                        
+                        QrCode::format('png')->size(174)->generate($payload, storage_path('app/public'). '/pix/' . $fileName . '.'.'png');
+                        
+                        $image_url_pix = env('APP_URL') . Storage::url('pix/' . $fileName . '.png');
+                        $qrcode_pix_base64 = base64_encode(file_get_contents($image_url_pix));
+                        
+                        Invoice::where('id',$newInvoice['id'])->update([
+                            'status' => 'Pendente',
+                            'pix_digitable' => $payload,
+                            'image_url_pix' => $image_url_pix,
+                            'qrcode_pix_base64' => $qrcode_pix_base64,
+                            'status' => 'Pendente'
+                        ]);
+                    }
+                } elseif($newInvoice['payment_method'] == 'Boleto'){
+                    if($newInvoice['gateway_payment'] == 'Pag Hiper'){
+                        $generateBilletPH = Invoice::generateBilletPH($newInvoice['id']);
+                        if($generateBilletPH['status'] == 'reject'){
+                            Invoice::where('id',$newInvoice['id'])->delete();
+                            return response()->json($generateBilletPH['message'], 422);
+                        }
+                    }elseif($newInvoice['gateway_payment'] == 'Intermedium'){
+                        $generateBilletIntermedium = Invoice::generateBilletIntermedium($newInvoice['id']);
+                        if($generateBilletIntermedium['status'] == 'reject'){
+                            Invoice::where('id',$newInvoice['id'])->delete();
+                            $msgInterBillet = '';
+                            foreach($generateBilletIntermedium['message'] as $messageInterBillet){
+                                $msgInterBillet .= $messageInterBillet['razao'].' - '.$messageInterBillet['propriedade'].' - '.$messageInterBillet['valor'].',';
+                            }
+                            return response()->json($generateBilletIntermedium['title'].': '.$msgInterBillet, 422);
+                        }
+                    }elseif($newInvoice['gateway_payment'] == 'Asaas'){
+                        $generateBilletAsaas = Invoice::generateBilletAsaas($newInvoice['id']);
+                        if($generateBilletAsaas['status'] == 'reject'){
+                            Invoice::where('id',$newInvoice['id'])->delete();
+                            return response()->json($generateBilletAsaas['message'], 422);
+                        }
+                    }elseif($newInvoice['gateway_payment'] == 'Estabelecimento'){
+                        Invoice::where('id',$newInvoice['id'])->update(['status' => 'Estabelecimento']);
+                    }
+                } elseif($newInvoice['payment_method'] == 'BoletoPix'){
+                    if($newInvoice['gateway_payment'] == 'Intermedium'){
+                        $generateBilletIntermedium = Invoice::generateBilletPixIntermedium($newInvoice['id']);
+                        if($generateBilletIntermedium['status'] == 'reject'){
+                            Invoice::where('id',$newInvoice['id'])->delete();
+                            $msgInterBillet = '';
+                            foreach($generateBilletIntermedium['message'] as $messageInterBillet){
+                                $msgInterBillet .= $messageInterBillet['razao'].' - '.$messageInterBillet['propriedade'];
+                            }
+                            return response()->json($generateBilletIntermedium['title'].': '.$msgInterBillet, 422);
+                        }
+                    }elseif($newInvoice['gateway_payment'] == 'Estabelecimento'){
+                        Invoice::where('id',$newInvoice['id'])->update(['status' => 'Estabelecimento']);
+                    }
+                }
+
+                if(isset($data['send_invoice_email']))
+                    InvoiceNotification::Email($newInvoice['id']);
+
+                if(isset($data['send_invoice_whatsapp']))
+                    InvoiceNotification::Whatsapp($newInvoice['id']);
+                    
+                return response()->json(['message' => 'Fatura criada e enviada com sucesso!'], 200);
+            }
+            
+            return response()->json(['message' => 'Serviço criado! Fatura será gerada automaticamente no período configurado.'], 200);
+            
+        } catch(\Exception $e){
+            \Log::error($e->getMessage());
+            return response()->json($e->getMessage(), 500);
+        }
+    }
+
 
     public function store()
     {
@@ -81,39 +274,44 @@ class InvoiceController extends Controller
         $data = $this->request->all();
 
         $messages = [
-            'customer_service_id.required'  => 'O Campo Serviço é obrigatório!',
-            'description.unique'            => 'O campo Descrição é obrigatório!',
+            'customer_id.required'          => 'O campo Cliente é obrigatório!',
+            'description.required'          => 'O campo Descrição é obrigatório!',
             'price.required'                => 'O campo Preço é obrigatório!',
             'payment_method.required'       => 'O campo Forma de pagamento é obrigatório!',
             'date_invoice.required'         => 'O campo Data data fatura é obrigatório!',
             'date_due.required'             => 'O campo Data de vencimento é obrigatório!',
             'status.required'               => 'O campo Status é obrigatório!',
+            'gateway_payment.required'      => 'O campo Gateway de pagamento é obrigatório!',
+            'company_id.required'           => 'O campo Empresa é obrigatório!',
         ];
 
         $validator = Validator::make($data, [
-            'customer_service_id'   => 'required',
+            'customer_id'           => 'required',
             'description'           => 'required',
             'price'                 => 'required',
             'payment_method'        => 'required',
             'date_invoice'          => 'required',
             'date_due'              => 'required',
             'status'                => 'required',
+            'gateway_payment'       => 'required',
+            'company_id'            => 'required',
         ], $messages);
 
         if( $validator->fails() ){
             return response()->json($validator->errors()->first(), 422);
         }
 
-        $model->company_id          = currentCompanyId();
+        $model->company_id          = $data['company_id'];
         $model->user_id             = auth()->user()->id;
-        $model->customer_service_id = $data['customer_service_id'];
+        $model->customer_id         = $data['customer_id'];
+        $model->customer_service_id = isset($data['customer_service_id']) && $data['customer_service_id'] != '' ? $data['customer_service_id'] : null;
         $model->description         = $data['description'];
         $model->price               = moeda($data['price']);
         $model->gateway_payment     = $data['gateway_payment'];
         $model->payment_method      = $data['payment_method'];
         $model->date_invoice        = $data['date_invoice'];
         $model->date_due            = $data['date_due'];
-        $model->date_payment        = $data['date_payment'] != null ? $data['date_payment'] : null;
+        $model->date_payment        = isset($data['date_payment']) && $data['date_payment'] != null ? $data['date_payment'] : null;
         $model->status              = $data['status'];
 
 

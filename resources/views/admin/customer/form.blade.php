@@ -909,15 +909,69 @@ function loadInvoices(){
 
 $(document).on('click', '#btn-delete-invoice', function(e) {
     e.preventDefault();
+    e.stopPropagation();
+    
     var invoice = $(this).data('invoice');
-    Swal.fire({ title: 'Deseja cancelar esta fatura?', text: "Você não poderá reverter isso!", icon: 'question', showCancelButton: true, cancelButtonText: 'Cancelar', confirmButtonColor: '#3085d6', cancelButtonColor: '#d33', confirmButtonText: 'Sim, cancelar!' }).then((result) => {
-        if (result.value) {
+    
+    // Verificar se Swal está disponível
+    if(typeof Swal === 'undefined'){
+        alert('SweetAlert2 não está carregado!');
+        return;
+    }
+    
+    if(!invoice){
+        Swal.fire({ 
+            text: 'ID da fatura não encontrado!', 
+            icon: 'error',
+            confirmButtonColor: "#007bff"
+        });
+        return;
+    }
+    
+    Swal.fire({ 
+        title: 'Deseja cancelar esta fatura?', 
+        text: "Você não poderá reverter isso!", 
+        icon: 'question', 
+        showCancelButton: true, 
+        cancelButtonText: 'Não, manter', 
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6', 
+        confirmButtonText: 'Sim, cancelar fatura!' 
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Mostrar loading
+            Swal.fire({
+                title: 'Cancelando...',
+                text: 'Aguarde enquanto cancelamos a fatura',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
             $.ajaxSetup({ headers: { 'X-CSRF-TOKEN': "{{csrf_token()}}" } });
             $.ajax({
                 url: "{{url('admin/invoices')}}/"+invoice,
                 method: 'DELETE',
-                success: function(){ loadInvoices(); },
-                error: function(xhr) { Swal.fire({ text: xhr.responseJSON, icon: xhr.status === 422 ? 'warning' : 'error', showClass: { popup: 'animate__animated animate__wobble' } }); }
+                success: function(response){ 
+                    Swal.fire({
+                        title: 'Sucesso!',
+                        text: 'Fatura cancelada com sucesso',
+                        icon: 'success',
+                        confirmButtonColor: "#007bff"
+                    });
+                    loadInvoices(); 
+                },
+                error: function(xhr) { 
+                    var errorMsg = xhr.responseJSON?.message || xhr.responseJSON || 'Erro ao cancelar fatura';
+                    Swal.fire({ 
+                        title: 'Erro!',
+                        text: errorMsg, 
+                        icon: xhr.status === 422 ? 'warning' : 'error',
+                        confirmButtonColor: "#007bff",
+                        showClass: { popup: 'animate__animated animate__wobble' } 
+                    }); 
+                }
             });
         }
     });

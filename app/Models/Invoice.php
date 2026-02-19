@@ -486,15 +486,31 @@ class Invoice extends Model
 
     public static function cancelPixPH($user_id,$transaction_id){
 
+        $invoice = Invoice::where('transaction_id', $transaction_id)->first();
 
-        $user = User::where('id',$user_id)->first();
-        //Consultar status da transação
+        if (!$invoice) {
+            \Log::error('cancelPixPH: Invoice não encontrada com transaction_id: ' . $transaction_id);
+            return (object)['status' => 'reject', 'message' => 'Fatura não encontrada'];
+        }
+
+        $company = \App\Models\Company::find($invoice->company_id);
+
+        if (!$company) {
+            \Log::error('cancelPixPH: Company não encontrada para invoice ID: ' . $invoice->id);
+            return (object)['status' => 'reject', 'message' => 'Empresa não encontrada'];
+        }
+
+        if (!$company->token_paghiper || !$company->key_paghiper) {
+            \Log::error('cancelPixPH: Credenciais Pag Hiper não configuradas para company ID: ' . $company->id);
+            return (object)['status' => 'reject', 'message' => 'Credenciais Pag Hiper não configuradas'];
+        }
+
         $response = Http::withHeaders([
             'accept' => 'application/json',
             'content-type' => 'application/json',
         ])->post('https://pix.paghiper.com/invoice/cancel/',[
-            'token'             => $user->token_paghiper,
-            'apiKey'            => $user->key_paghiper,
+            'token'             => $company->token_paghiper,
+            'apiKey'            => $company->key_paghiper,
             'status'            => 'canceled',
             'transaction_id'    => $transaction_id
         ]);
@@ -507,15 +523,31 @@ class Invoice extends Model
 
     public static function cancelBilletPH($user_id,$transaction_id){
 
+        $invoice = Invoice::where('transaction_id', $transaction_id)->first();
 
-        $user = User::where('id',$user_id)->first();
-        //Consultar status da transação
+        if (!$invoice) {
+            \Log::error('cancelBilletPH: Invoice não encontrada com transaction_id: ' . $transaction_id);
+            return (object)['status' => 'reject', 'message' => 'Fatura não encontrada'];
+        }
+
+        $company = \App\Models\Company::find($invoice->company_id);
+
+        if (!$company) {
+            \Log::error('cancelBilletPH: Company não encontrada para invoice ID: ' . $invoice->id);
+            return (object)['status' => 'reject', 'message' => 'Empresa não encontrada'];
+        }
+
+        if (!$company->token_paghiper || !$company->key_paghiper) {
+            \Log::error('cancelBilletPH: Credenciais Pag Hiper não configuradas para company ID: ' . $company->id);
+            return (object)['status' => 'reject', 'message' => 'Credenciais Pag Hiper não configuradas'];
+        }
+
         $response = Http::withHeaders([
             'accept' => 'application/json',
             'content-type' => 'application/json',
         ])->post('https://api.paghiper.com/transaction/cancel/',[
-            'token'             => $user->token_paghiper,
-            'apiKey'            => $user->key_paghiper,
+            'token'             => $company->token_paghiper,
+            'apiKey'            => $company->key_paghiper,
             'status'            => 'canceled',
             'transaction_id'    => $transaction_id
         ]);
@@ -622,11 +654,11 @@ class Invoice extends Model
             // Validar e corrigir data de vencimento
             $dataVencimento = Carbon::parse($invoice->date_due);
             $dataAtual = Carbon::now();
-            
+
             // Se a data de vencimento for menor que a data atual, ajustar para hoje
             if($dataVencimento->lt($dataAtual)){
                 $dataVencimento = $dataAtual->copy();
-                
+
                 // Se for sábado, ajustar para segunda-feira
                 if($dataVencimento->isSaturday()){
                     $dataVencimento->addDays(2);
@@ -635,10 +667,10 @@ class Invoice extends Model
                 elseif($dataVencimento->isSunday()){
                     $dataVencimento->addDay();
                 }
-                
+
                 \Log::warning("Data de vencimento ajustada para invoice ID: {$invoice_id}. Data original: {$invoice->date_due}, Nova data: {$dataVencimento->format('Y-m-d')}");
             }
-            
+
             // Garantir formato Y-m-d
             $dataVencimentoFormatada = $dataVencimento->format('Y-m-d');
 
@@ -676,7 +708,7 @@ class Invoice extends Model
             if ($response_generate_billet->successful()) {
 
                 $result_generate_billet = json_decode($response_generate_billet->body());
-                
+
                 // Valida se codigoSolicitacao foi retornado
                 if(empty($result_generate_billet->codigoSolicitacao)){
                     \Log::error('Erro ao gerar boleto: codigoSolicitacao não retornado para invoice ID: '.$invoice_id);
@@ -836,11 +868,11 @@ class Invoice extends Model
             // Validar e corrigir data de vencimento
             $dataVencimento = Carbon::parse($invoice->date_due);
             $dataAtual = Carbon::now();
-            
+
             // Se a data de vencimento for menor que a data atual, ajustar para hoje
             if($dataVencimento->lt($dataAtual)){
                 $dataVencimento = $dataAtual->copy();
-                
+
                 // Se for sábado, ajustar para segunda-feira
                 if($dataVencimento->isSaturday()){
                     $dataVencimento->addDays(2);
@@ -849,10 +881,10 @@ class Invoice extends Model
                 elseif($dataVencimento->isSunday()){
                     $dataVencimento->addDay();
                 }
-                
+
                 \Log::warning("Data de vencimento ajustada para invoice ID: {$invoice_id} (BoletoPix). Data original: {$invoice->date_due}, Nova data: {$dataVencimento->format('Y-m-d')}");
             }
-            
+
             // Garantir formato Y-m-d
             $dataVencimentoFormatada = $dataVencimento->format('Y-m-d');
 
@@ -890,7 +922,7 @@ class Invoice extends Model
             if ($response_generate_billet->successful()) {
 
                 $result_generate_billet = json_decode($response_generate_billet->body());
-                
+
                 // Valida se codigoSolicitacao foi retornado
                 if(empty($result_generate_billet->codigoSolicitacao)){
                     \Log::error('Erro ao gerar boletopix: codigoSolicitacao não retornado para invoice ID: '.$invoice_id);
@@ -977,36 +1009,46 @@ class Invoice extends Model
 
         public static function cancelBilletIntermedium($user_id, $transaction_id){
 
-            $user = User::where('id',$user_id)->first();
+            $invoice = Invoice::where('transaction_id', $transaction_id)->first();
 
-            $access_token = $user['access_token_inter'];
+            if(!$invoice){
+                return response()->json('Fatura não encontrada!', 404);
+            }
 
-            if($user['inter_host'] == ''){
+            $company = Company::find($invoice->company_id);
+
+            if(!$company){
+                return response()->json('Empresa não encontrada!', 404);
+            }
+
+            $access_token = $company->access_token_inter;
+
+            if($company->inter_host == '' || $company->inter_host == null){
                 return response()->json('HOST banco inter não cadastrado!', 422);
             }
-            if($user['inter_client_id'] == ''){
+            if($company->inter_client_id == '' || $company->inter_client_id == null){
                 return response()->json('CLIENT ID banco inter não cadastrado!', 422);
             }
-            if($user['inter_client_secret'] == ''){
+            if($company->inter_client_secret == '' || $company->inter_client_secret == null){
                 return response()->json('CLIENT SECRET banco inter não cadastrado!', 422);
             }
-            if($user['inter_crt_file'] == ''){
+            if($company->inter_crt_file == '' || $company->inter_crt_file == null){
                 return response()->json('Certificado CRT banco inter não cadastrado!', 422);
             }
-            if(!file_exists(storage_path('/app/'.$user['inter_crt_file']))){
+            if(!file_exists(storage_path('/app/'.$company->inter_crt_file))){
                 return response()->json('Certificado CRT banco inter não existe!', 422);
             }
-            if($user['inter_key_file'] == ''){
+            if($company->inter_key_file == '' || $company->inter_key_file == null){
                 return response()->json('Certificado KEY banco inter não cadastrado!', 422);
             }
-            if(!file_exists(storage_path('/app/'.$user['inter_key_file']))){
+            if(!file_exists(storage_path('/app/'.$company->inter_key_file))){
                 return response()->json('Certificado KEY banco inter não existe!', 422);
             }
 
             $check_access_token = Http::withOptions(
                 [
-                'cert' => storage_path('/app/'.$user['inter_crt_file']),
-                'ssl_key' => storage_path('/app/'.$user['inter_key_file'])
+                'cert' => storage_path('/app/'.$company->inter_crt_file),
+                'ssl_key' => storage_path('/app/'.$company->inter_key_file)
                 ]
                 )->withHeaders([
                 'Authorization' => 'Bearer ' . $access_token
@@ -1014,50 +1056,36 @@ class Invoice extends Model
 
             if ($check_access_token->unauthorized()) {
                 $response = Http::withOptions([
-                    'cert' => storage_path('/app/'.$user['inter_crt_file']),
-                    'ssl_key' => storage_path('/app/'.$user['inter_key_file']),
-                ])->asForm()->post($user['inter_host'].'oauth/v2/token', [
-                    'client_id' => $user['inter_client_id'],
-                    'client_secret' => $user['inter_client_secret'],
-                    'scope' => $user['inter_scope'],
+                    'cert' => storage_path('/app/'.$company->inter_crt_file),
+                    'ssl_key' => storage_path('/app/'.$company->inter_key_file),
+                ])->asForm()->post($company->inter_host.'oauth/v2/token', [
+                    'client_id' => $company->inter_client_id,
+                    'client_secret' => $company->inter_client_secret,
+                    'scope' => $company->inter_scope,
                     'grant_type' => 'client_credentials',
                 ]);
 
                 if ($response->successful()) {
                     $responseBody = $response->body();
                     $access_token = json_decode($responseBody)->access_token;
-                    User::where('id',$user['id'])->update([
+                    Company::where('id',$company->id)->update([
                         'access_token_inter' => $access_token
                     ]);
 
-                    $user = User::where('id',$user_id)->first();
+                    $company = Company::find($company->id);
                 }else{
                     return response()->json('Verifique suas credenciais, erro ao autenticar!', 422);
                 }
             }
 
 
-            $response = Http::withOptions([
-                'cert' => storage_path('/app/'.$user->inter_crt_file),
-                'ssl_key' => storage_path('/app/'.$user->inter_key_file),
-            ])->asForm()->post($user->inter_host.'oauth/v2/token', [
-                'client_id' => $user->inter_client_id,
-                'client_secret' => $user->inter_client_secret,
-                'scope' => $user->inter_scope,
-                'grant_type' => 'client_credentials',
-            ]);
-
-            $responseBody = $response->body();
-            $access_token = json_decode($responseBody)->access_token;
-
-
             $response_cancel_billet = Http::withOptions([
-                'cert' => storage_path('/app/'.$user->inter_crt_file),
-                'ssl_key' => storage_path('/app/'.$user->inter_key_file),
+                'cert' => storage_path('/app/'.$company->inter_crt_file),
+                'ssl_key' => storage_path('/app/'.$company->inter_key_file),
             ])->withHeaders([
                 'Authorization' => 'Bearer ' . $access_token
 
-            ])->post($user->inter_host.'cobranca/v3/cobrancas/'.$transaction_id.'/cancelar',[
+            ])->post($company->inter_host.'cobranca/v3/cobrancas/'.$transaction_id.'/cancelar',[
                 "motivoCancelamento" => "ACERTOS"
             ]);
 
@@ -1067,42 +1095,51 @@ class Invoice extends Model
                 \Log::info('Erro ao cancelar pagamento intermedium: '.$response_cancel_billet->json());
             }
 
-            }
+        }
 
 
             public static function cancelBilletPixIntermedium($user_id, $transaction_id){
 
-                $user = User::where('id',$user_id)->first();
+                $invoice = Invoice::where('transaction_id', $transaction_id)->first();
 
+                if(!$invoice){
+                    return response()->json('Fatura não encontrada!', 404);
+                }
 
-                $access_token = $user['access_token_inter'];
+                $company = Company::find($invoice->company_id);
 
-            if($user['inter_host'] == ''){
+                if(!$company){
+                    return response()->json('Empresa não encontrada!', 404);
+                }
+
+                $access_token = $company->access_token_inter;
+
+            if($company->inter_host == '' || $company->inter_host == null){
                 return response()->json('HOST banco inter não cadastrado!', 422);
             }
-            if($user['inter_client_id'] == ''){
+            if($company->inter_client_id == '' || $company->inter_client_id == null){
                 return response()->json('CLIENT ID banco inter não cadastrado!', 422);
             }
-            if($user['inter_client_secret'] == ''){
+            if($company->inter_client_secret == '' || $company->inter_client_secret == null){
                 return response()->json('CLIENT SECRET banco inter não cadastrado!', 422);
             }
-            if($user['inter_crt_file'] == ''){
+            if($company->inter_crt_file == '' || $company->inter_crt_file == null){
                 return response()->json('Certificado CRT banco inter não cadastrado!', 422);
             }
-            if(!file_exists(storage_path('/app/'.$user['inter_crt_file']))){
+            if(!file_exists(storage_path('/app/'.$company->inter_crt_file))){
                 return response()->json('Certificado CRT banco inter não existe!', 422);
             }
-            if($user['inter_key_file'] == ''){
+            if($company->inter_key_file == '' || $company->inter_key_file == null){
                 return response()->json('Certificado KEY banco inter não cadastrado!', 422);
             }
-            if(!file_exists(storage_path('/app/'.$user['inter_key_file']))){
+            if(!file_exists(storage_path('/app/'.$company->inter_key_file))){
                 return response()->json('Certificado KEY banco inter não existe!', 422);
             }
 
             $check_access_token = Http::withOptions(
                 [
-                'cert' => storage_path('/app/'.$user['inter_crt_file']),
-                'ssl_key' => storage_path('/app/'.$user['inter_key_file'])
+                'cert' => storage_path('/app/'.$company->inter_crt_file),
+                'ssl_key' => storage_path('/app/'.$company->inter_key_file)
                 ]
                 )->withHeaders([
                 'Authorization' => 'Bearer ' . $access_token
@@ -1110,23 +1147,23 @@ class Invoice extends Model
 
             if ($check_access_token->unauthorized()) {
                 $response = Http::withOptions([
-                    'cert' => storage_path('/app/'.$user['inter_crt_file']),
-                    'ssl_key' => storage_path('/app/'.$user['inter_key_file']),
-                ])->asForm()->post($user['inter_host'].'oauth/v2/token', [
-                    'client_id' => $user['inter_client_id'],
-                    'client_secret' => $user['inter_client_secret'],
-                    'scope' => $user['inter_scope'],
+                    'cert' => storage_path('/app/'.$company->inter_crt_file),
+                    'ssl_key' => storage_path('/app/'.$company->inter_key_file),
+                ])->asForm()->post($company->inter_host.'oauth/v2/token', [
+                    'client_id' => $company->inter_client_id,
+                    'client_secret' => $company->inter_client_secret,
+                    'scope' => $company->inter_scope,
                     'grant_type' => 'client_credentials',
                 ]);
 
                 if ($response->successful()) {
                     $responseBody = $response->body();
                     $access_token = json_decode($responseBody)->access_token;
-                    User::where('id',$user['id'])->update([
+                    Company::where('id',$company->id)->update([
                         'access_token_inter' => $access_token
                     ]);
 
-                    $user = User::where('id',$user_id)->first();
+                    $company = Company::find($company->id);
                 }else{
                     return response()->json('Verifique suas credenciais, erro ao autenticar!', 422);
                 }
@@ -1134,12 +1171,12 @@ class Invoice extends Model
 
 
                 $response_cancel_billet = Http::withOptions([
-                    'cert' => storage_path('/app/'.$user->inter_crt_file),
-                    'ssl_key' => storage_path('/app/'.$user->inter_key_file),
+                    'cert' => storage_path('/app/'.$company->inter_crt_file),
+                    'ssl_key' => storage_path('/app/'.$company->inter_key_file),
                 ])->withHeaders([
                     'Authorization' => 'Bearer ' . $access_token
 
-                ])->post($user->inter_host.'cobranca/v3/cobrancas/'.$transaction_id.'/cancelar',[
+                ])->post($company->inter_host.'cobranca/v3/cobrancas/'.$transaction_id.'/cancelar',[
                     "motivoCancelamento" => "ACERTOS"
                 ]);
 
@@ -1156,36 +1193,46 @@ class Invoice extends Model
 
         public static function cancelPixIntermedium($user_id, $transaction_id){
 
-            $user = User::where('id',$user_id)->first();
+            $invoice = Invoice::where('transaction_id', $transaction_id)->first();
 
-            $access_token = $user['access_token_inter'];
+            if(!$invoice){
+                return response()->json('Fatura não encontrada!', 404);
+            }
 
-            if($user['inter_host'] == ''){
+            $company = Company::find($invoice->company_id);
+
+            if(!$company){
+                return response()->json('Empresa não encontrada!', 404);
+            }
+
+            $access_token = $company->access_token_inter;
+
+            if($company->inter_host == '' || $company->inter_host == null){
                 return response()->json('HOST banco inter não cadastrado!', 422);
             }
-            if($user['inter_client_id'] == ''){
+            if($company->inter_client_id == '' || $company->inter_client_id == null){
                 return response()->json('CLIENT ID banco inter não cadastrado!', 422);
             }
-            if($user['inter_client_secret'] == ''){
+            if($company->inter_client_secret == '' || $company->inter_client_secret == null){
                 return response()->json('CLIENT SECRET banco inter não cadastrado!', 422);
             }
-            if($user['inter_crt_file'] == ''){
+            if($company->inter_crt_file == '' || $company->inter_crt_file == null){
                 return response()->json('Certificado CRT banco inter não cadastrado!', 422);
             }
-            if(!file_exists(storage_path('/app/'.$user['inter_crt_file']))){
+            if(!file_exists(storage_path('/app/'.$company->inter_crt_file))){
                 return response()->json('Certificado CRT banco inter não existe!', 422);
             }
-            if($user['inter_key_file'] == ''){
+            if($company->inter_key_file == '' || $company->inter_key_file == null){
                 return response()->json('Certificado KEY banco inter não cadastrado!', 422);
             }
-            if(!file_exists(storage_path('/app/'.$user['inter_key_file']))){
+            if(!file_exists(storage_path('/app/'.$company->inter_key_file))){
                 return response()->json('Certificado KEY banco inter não existe!', 422);
             }
 
             $check_access_token = Http::withOptions(
                 [
-                'cert' => storage_path('/app/'.$user['inter_crt_file']),
-                'ssl_key' => storage_path('/app/'.$user['inter_key_file'])
+                'cert' => storage_path('/app/'.$company->inter_crt_file),
+                'ssl_key' => storage_path('/app/'.$company->inter_key_file)
                 ]
                 )->withHeaders([
                 'Authorization' => 'Bearer ' . $access_token
@@ -1193,35 +1240,35 @@ class Invoice extends Model
 
             if ($check_access_token->unauthorized()) {
                 $response = Http::withOptions([
-                    'cert' => storage_path('/app/'.$user['inter_crt_file']),
-                    'ssl_key' => storage_path('/app/'.$user['inter_key_file']),
-                ])->asForm()->post($user['inter_host'].'oauth/v2/token', [
-                    'client_id' => $user['inter_client_id'],
-                    'client_secret' => $user['inter_client_secret'],
-                    'scope' => $user['inter_scope'],
+                    'cert' => storage_path('/app/'.$company->inter_crt_file),
+                    'ssl_key' => storage_path('/app/'.$company->inter_key_file),
+                ])->asForm()->post($company->inter_host.'oauth/v2/token', [
+                    'client_id' => $company->inter_client_id,
+                    'client_secret' => $company->inter_client_secret,
+                    'scope' => $company->inter_scope,
                     'grant_type' => 'client_credentials',
                 ]);
 
                 if ($response->successful()) {
                     $responseBody = $response->body();
                     $access_token = json_decode($responseBody)->access_token;
-                    User::where('id',$user['id'])->update([
+                    Company::where('id',$company->id)->update([
                         'access_token_inter' => $access_token
                     ]);
 
-                    $user = User::where('id',$user_id)->first();
+                    $company = Company::find($company->id);
                 }else{
                     return response()->json('Verifique suas credenciais, erro ao autenticar!', 422);
                 }
             }
 
             $response_cancel_billet = Http::withOptions([
-                'cert' => storage_path('/app/'.$user->inter_crt_file),
-                'ssl_key' => storage_path('/app/'.$user->inter_key_file),
+                'cert' => storage_path('/app/'.$company->inter_crt_file),
+                'ssl_key' => storage_path('/app/'.$company->inter_key_file),
             ])->withHeaders([
                 'Authorization' => 'Bearer ' . $access_token
 
-            ])->patch($user->inter_host.'pix/v2/cobv/'.$transaction_id,[
+            ])->patch($company->inter_host.'pix/v2/cobv/'.$transaction_id,[
                 "status" => "REMOVIDA_PELO_USUARIO_RECEBEDOR"
             ]);
 

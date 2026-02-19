@@ -744,98 +744,168 @@ if(isset($data['send_invoice_whatsapp'])){
     public function destroy($id)
     {
         $model = new Invoice();
+        
+        \Log::info('==== INICIO CANCELAMENTO FATURA ====');
+        \Log::info('Invoice ID: ' . $id);
+        \Log::info('User ID: ' . auth()->user()->id);
+        \Log::info('Company ID: ' . currentCompanyId());
 
         try{
 
             $invoice = Invoice::forCompany(currentCompanyId())->where('id',$id)->first();
 
             if (!$invoice) {
+                \Log::error('Fatura não encontrada - ID: ' . $id);
                 return response()->json('Fatura não encontrada.', 404);
             }
+            
+            \Log::info('Fatura encontrada - Status: ' . $invoice->status);
+            \Log::info('Payment Method: ' . $invoice->payment_method);
+            \Log::info('Gateway Payment: ' . $invoice->gateway_payment);
+            \Log::info('Transaction ID: ' . $invoice->transaction_id);
 
             $status = 'error';
 
             if($invoice->payment_method == 'Pix' && $invoice->transaction_id != ''){
+                \Log::info('Tentando cancelar PIX no gateway: ' . $invoice->gateway_payment);
 
                 if($invoice->gateway_payment == 'Pag Hiper'){
+                    \Log::info('Chamando cancelPixPH...');
                     $status = Invoice::cancelPixPH(auth()->user()->id,$invoice->transaction_id);
+                    \Log::info('Resposta cancelPixPH: ' . json_encode($status));
                     if($status->result == 'success'){
                         $status = 'success';
                     }
 
                 }
                 else if($invoice->gateway_payment == 'Mercado Pago'){
-                    $status = Invoice::cancelPixMP(auth()->user()->access_token_mp,$invoice->transaction_id);
+                    \Log::info('Chamando cancelPixMP...');
+                    $status = Invoice::cancelPixMP($invoice->company->access_token_mp,$invoice->transaction_id);
+                    \Log::info('Resposta cancelPixMP: ' . $status);
                     if($status == 'cancelled'){
                         $status = 'success';
                     }
                 }
 
                 else if($invoice->gateway_payment == 'Intermedium'){
+                    \Log::info('Chamando cancelPixIntermedium...');
                     $status = Invoice::cancelPixIntermedium(auth()->user()->id,$invoice->transaction_id);
+                    \Log::info('Resposta cancelPixIntermedium: ' . json_encode($status));
                     if($status == 'success'){
                         $status = 'success';
                     }else{
+                        \Log::error('Erro ao cancelar Pix Intermedium: ' . json_encode($status));
                         return response()->json($status['message'],422);
                     }
                 }
 
                 else if($invoice->gateway_payment == 'Asaas'){
+                    \Log::info('Chamando cancelPixAsaas...');
                     $status = Invoice::cancelPixAsaas(auth()->user()->id,$invoice->transaction_id);
+                    \Log::info('Resposta cancelPixAsaas: ' . json_encode($status));
                     if($status == 'success'){
                         $status = 'success';
                     }else{
+                        \Log::error('Erro ao cancelar Pix Asaas: ' . json_encode($status));
                         return response()->json($status['message'],422);
                     }
                 }
 
             }
             else if($invoice->payment_method == 'Boleto' && $invoice->transaction_id != ''){
+                \Log::info('Tentando cancelar BOLETO no gateway: ' . $invoice->gateway_payment);
 
                 if($invoice->gateway_payment == 'Pag Hiper'){
+                    \Log::info('Chamando cancelBilletPH...');
                     $status = Invoice::cancelBilletPH(auth()->user()->id,$invoice->transaction_id);
+                    \Log::info('Resposta cancelBilletPH: ' . json_encode($status));
                     if($status->result == 'success'){
                         $status = 'success';
                     }
 
                 }
                 else if($invoice->gateway_payment == 'Mercado Pago'){
+                    \Log::info('Mercado Pago Boleto - cancelamento não implementado');
                     //$cancelPixMP = Invoice::cancelBilletMP(auth()->user()->id,$invoice->transaction_id);
                 }
                 else if($invoice->gateway_payment == 'Intermedium'){
+                    \Log::info('Chamando cancelBilletIntermedium...');
                     $status = Invoice::cancelBilletIntermedium(auth()->user()->id,$invoice->transaction_id);
+                    \Log::info('Resposta cancelBilletIntermedium: ' . json_encode($status));
                     if($status == 'success'){
                         $status = 'success';
                     }
                 }else if($invoice->gateway_payment == 'Asaas'){
+                    \Log::info('Chamando cancelBilletAsaas...');
                     $status = Invoice::cancelBilletAsaas($invoice->transaction_id);
+                    \Log::info('Resposta cancelBilletAsaas: ' . json_encode($status));
                     if($status == 'success'){
                         $status = 'success';
                     }
                 }
             }
             else if($invoice->payment_method == 'BoletoPix' && $invoice->transaction_id != ''){
+                \Log::info('Tentando cancelar BOLETOPIX no gateway: ' . $invoice->gateway_payment);
+                
                 if($invoice->gateway_payment == 'Intermedium'){
+                    \Log::info('Chamando cancelBilletPixIntermedium...');
                     $status = Invoice::cancelBilletPixIntermedium(auth()->user()->id,$invoice->transaction_id);
+                    \Log::info('Resposta cancelBilletPixIntermedium: ' . json_encode($status));
                     if($status == 'success'){
                         $status = 'success';
                     }
                 }
             }
+            else {
+                \Log::info('Fatura sem transaction_id ou método de pagamento manual');
+            }
 
-            if($status == 'success' || $invoice->payment_method == 'Dinheiro' || $invoice->payment_method == 'Cartão' || $invoice->payment_method == 'Depósito' || $invoice->transaction_id == ''){
-                Invoice::forCompany(currentCompanyId())->where('id',$id)->update([
+            \Log::info('Status final de cancelamento do gateway: ' . $status);
+            
+            $canCancel = ($status == 'success' || 
+                         $invoice->payment_method == 'Dinheiro' || 
+                         $invoice->payment_method == 'Cartão' || 
+                         $invoice->payment_method == 'Depósito' || 
+                         $invoice->transaction_id == '' ||
+                         $invoice->gateway_payment == 'Estabelecimento');
+            
+            \Log::info('Pode cancelar? ' . ($canCancel ? 'SIM' : 'NÃO'));
+            
+            if($canCancel){
+                \Log::info('Condição para cancelar atendida. Atualizando status para Cancelado...');
+                
+                $updated = Invoice::forCompany(currentCompanyId())->where('id',$id)->update([
                     'status' => 'Cancelado'
                 ]);
+                
+                \Log::info('Linhas afetadas no update: ' . $updated);
+                \Log::info('==== FIM CANCELAMENTO FATURA (SUCESSO) ====');
+                
+                if($updated > 0){
+                    \Log::info('✓ Fatura ID ' . $id . ' cancelada com sucesso!');
+                    return response()->json('Fatura cancelada com sucesso!', 200);
+                } else {
+                    \Log::warning('✗ Nenhuma linha foi atualizada para Invoice ID: ' . $id);
+                    return response()->json('Não foi possível cancelar a fatura. Verifique se ela pertence à empresa atual.', 422);
+                }
+            } else {
+                \Log::warning('✗ Condição para cancelar NÃO atendida');
+                \Log::warning('Status do gateway: ' . $status);
+                \Log::warning('Payment Method: ' . $invoice->payment_method);
+                \Log::warning('Gateway Payment: ' . $invoice->gateway_payment);
+                \Log::warning('Transaction ID vazio: ' . ($invoice->transaction_id == '' ? 'SIM' : 'NÃO'));
+                \Log::info('==== FIM CANCELAMENTO FATURA (FALHA) ====');
+                return response()->json('Não foi possível cancelar a fatura no gateway. Status: ' . $status, 422);
             }
 
 
         } catch(\Exception $e){
-            \Log::error($e->getMessage());
+            \Log::error('==== ERRO EXCEPTION AO CANCELAR FATURA ====');
+            \Log::error('ERRO: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            \Log::info('==== FIM CANCELAMENTO FATURA (EXCEPTION) ====');
             return response()->json($e->getMessage(), 500);
         }
-
-        return response()->json(true, 200);
 
 
     }

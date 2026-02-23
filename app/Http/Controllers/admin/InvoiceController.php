@@ -914,8 +914,10 @@ if(isset($data['send_invoice_whatsapp'])){
 
         $result = Invoice::forUserCompanies()
                 ->join('customer_services','customer_services.id','invoices.customer_service_id')
+                ->join('companies','companies.id','invoices.company_id')
                 ->select('invoices.id as id','invoices.description','invoices.payment_method','invoices.price','invoices.date_invoice',
-                'invoices.date_due','invoices.date_payment','invoices.status','invoices.gateway_payment','invoices.billet_url','invoices.image_url_pix')
+                'invoices.date_due','invoices.date_payment','invoices.status','invoices.gateway_payment','invoices.billet_url','invoices.image_url_pix',
+                'companies.id as company_id','companies.name as company_name')
                 ->where('customer_services.customer_id',$customer_id)
                 ->orderby('invoices.id','DESC')
                 ->get();

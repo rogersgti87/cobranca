@@ -470,6 +470,7 @@
                                                     <th>Preço</th>
                                                     <th>Vencimento</th>
                                                     <th>Período</th>
+                                                    <th>Empresa</th>
                                                     <th>Status</th>
                                                     <th style="width: 150px;"></th>
                                                 </tr>
@@ -497,6 +498,7 @@
                                                     <th>Data</th>
                                                     <th>Vencimento</th>
                                                     <th>Pago em</th>
+                                                    <th>Empresa</th>
                                                     <th>Status</th>
                                                     <th style="width: 150px;"></th>
                                                 </tr>
@@ -789,6 +791,7 @@ function loadCustomerServices(){
                 html += `<td>R$ ${parseFloat(item.price).toLocaleString('pt-br', {minimumFractionDigits: 2})}</td>`;
                 html += `<td>${item.day_due}</td>`;
                 html += `<td>${item.period}</td>`;
+                html += `<td><span class="badge badge-info" style="background-color: #17a2b8;">${item.company_name || 'N/A'}</span></td>`;
                 html += `<td><label class="badge badge-${item.status == 'Ativo' ? 'success' : 'danger'}">${item.status}</label></td>`;
                 html += `<td>
                     <a href="#" data-original-title="Editar Serviço" id="btn-modal-customer-service" data-type="edit-customer-service" data-customer-service-id="${item.id}" data-toggle="tooltip" class="btn btn-primary btn-xs"><i class="fa fa-edit"></i> Editar</a>
@@ -890,6 +893,7 @@ function loadInvoices(){
                 html += `<td>${moment(item.date_invoice).format('DD/MM/YYYY')}</td>`;
                 html += `<td>${moment(item.date_due).format('DD/MM/YYYY')}</td>`;
                 html += `<td>${item.date_payment != null ? moment(item.date_payment).format('DD/MM/YYYY') : '-'}</td>`;
+                html += `<td><span class="badge badge-info" style="background-color: #17a2b8;">${item.company_name || 'N/A'}</span></td>`;
                 html += `<td><label class="badge badge-${item.status == 'Pago' ? 'success' : item.status == 'Pendente' ? 'warning' : item.status == 'Estabelecimento' ? 'info' : 'danger'}">${item.status}</label></td>`;
                 html += `<td>
                     ${item.status == 'Pendente' || item.status == 'Erro' || item.status == 'Estabelecimento' ? '<a href="#" data-original-title="Editar fatura" id="btn-modal-invoice" data-type="edit-invoice" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-secondary btn-xs"><i class="far fa-edit"></i></a> ' : ''}

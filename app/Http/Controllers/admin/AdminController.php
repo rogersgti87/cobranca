@@ -99,42 +99,43 @@ class AdminController extends Controller
 
         // return 1;
 
-        $total_customers  = Customer::forCompany(currentCompanyId())->count();
+        $total_customers  = Customer::forUserCompanies()->count();
+        $companyIds = userCompanyIds();
+        $companyIdsStr = implode(',', $companyIds);
+        
         $invoice = Invoice::select(DB::raw("
-        (select count(*) from invoices where company_id = ".currentCompanyId()." ) as total,
-        (select count(*) from invoices where status = 'Pendente' and company_id = ".currentCompanyId().") as pendent,
-        (select count(*) from invoices where status = 'Pago' and company_id = ".currentCompanyId()." ) as pay,
-        (select count(*) from invoices where status = 'Processamento' and company_id = ".currentCompanyId()." ) as proccessing,
-        (select count(*) from invoices where status = 'Cancelado' and company_id = ".currentCompanyId()." ) as cancelled,
-        (select count(*) from invoices where status = 'Pendente' and company_id = ".currentCompanyId()." and CURRENT_DATE > date_due) as due,
-        (select count(*) from invoices where status = 'Pendente' and company_id = ".currentCompanyId()." and DATEDIFF(date_due, CURRENT_DATE) = 5 ) as five_days,
-        (select count(*) from invoices where status = 'Pendente' and company_id = ".currentCompanyId()." and DATEDIFF(date_due, CURRENT_DATE) = 0 ) as today,
-        (select count(*) from invoices where status = 'Erro' and company_id = ".currentCompanyId().") as error
+        (select count(*) from invoices where company_id IN ({$companyIdsStr}) ) as total,
+        (select count(*) from invoices where status = 'Pendente' and company_id IN ({$companyIdsStr})) as pendent,
+        (select count(*) from invoices where status = 'Pago' and company_id IN ({$companyIdsStr}) ) as pay,
+        (select count(*) from invoices where status = 'Processamento' and company_id IN ({$companyIdsStr}) ) as proccessing,
+        (select count(*) from invoices where status = 'Cancelado' and company_id IN ({$companyIdsStr}) ) as cancelled,
+        (select count(*) from invoices where status = 'Pendente' and company_id IN ({$companyIdsStr}) and CURRENT_DATE > date_due) as due,
+        (select count(*) from invoices where status = 'Pendente' and company_id IN ({$companyIdsStr}) and DATEDIFF(date_due, CURRENT_DATE) = 5 ) as five_days,
+        (select count(*) from invoices where status = 'Pendente' and company_id IN ({$companyIdsStr}) and DATEDIFF(date_due, CURRENT_DATE) = 0 ) as today,
+        (select count(*) from invoices where status = 'Erro' and company_id IN ({$companyIdsStr})) as error
         "))->first();
 
-        $companyId = currentCompanyId();
-
         $payable = (object) [
-            'total' => Payable::forCompany($companyId)->count(),
-            'pendent' => Payable::forCompany($companyId)->where('status', 'Pendente')->count(),
-            'pay' => Payable::forCompany($companyId)->where('status', 'Pago')->count(),
-            'cancelled' => Payable::forCompany($companyId)->where('status', 'Cancelado')->count(),
-            'due' => Payable::forCompany($companyId)
+            'total' => Payable::forUserCompanies()->count(),
+            'pendent' => Payable::forUserCompanies()->where('status', 'Pendente')->count(),
+            'pay' => Payable::forUserCompanies()->where('status', 'Pago')->count(),
+            'cancelled' => Payable::forUserCompanies()->where('status', 'Cancelado')->count(),
+            'due' => Payable::forUserCompanies()
                 ->where('status', 'Pendente')
                 ->whereRaw('CURRENT_DATE > date_due')
                 ->count(),
-            'five_days' => Payable::forCompany($companyId)
+            'five_days' => Payable::forUserCompanies()
                 ->where('status', 'Pendente')
                 ->whereRaw('DATEDIFF(date_due, CURRENT_DATE) = 5')
                 ->count(),
-            'today' => Payable::forCompany($companyId)
+            'today' => Payable::forUserCompanies()
                 ->where('status', 'Pendente')
                 ->whereRaw('DATEDIFF(date_due, CURRENT_DATE) = 0')
                 ->count(),
-            'total_pendente' => (float) Payable::forCompany($companyId)
+            'total_pendente' => (float) Payable::forUserCompanies()
                 ->where('status', 'Pendente')
                 ->sum('price'),
-            'total_pago' => (float) Payable::forCompany($companyId)
+            'total_pago' => (float) Payable::forUserCompanies()
                 ->where('status', 'Pago')
                 ->sum('price')
         ];
@@ -150,7 +151,7 @@ class AdminController extends Controller
         $monthParam = (int) $monthParam;
 
         $year = Invoice::select('status', DB::raw('count(*) as count'))
-            ->forCompany(currentCompanyId())
+            ->forUserCompanies()
             ->whereYear('date_due', $yearParam)
             ->groupBy('status')
             ->pluck('count', 'status')
@@ -159,7 +160,7 @@ class AdminController extends Controller
         $year['Total'] = $total_year;
 
         $month = Invoice::select('status', DB::raw('count(*) as count'))
-        ->forCompany(currentCompanyId())
+        ->forUserCompanies()
         ->whereMonth('date_due', $monthParam)
         ->whereYear('date_due', $yearParam)
         ->groupBy('status')
@@ -191,7 +192,7 @@ class AdminController extends Controller
                 DB::raw('COALESCE(sum(payables.price),0) as total')
             )
             ->leftJoin('payable_categories', 'payable_categories.id', '=', 'payables.category_id')
-            ->forCompany(currentCompanyId())
+            ->forUserCompanies()
             ->whereYear('payables.date_due', $yearParam)
             ->groupBy(DB::raw('COALESCE(payable_categories.name, "Sem Categoria")'), DB::raw('COALESCE(payable_categories.color, "#6c757d")'))
             ->get()
@@ -212,7 +213,7 @@ class AdminController extends Controller
                 DB::raw('COALESCE(sum(payables.price),0) as total')
             )
             ->leftJoin('payable_categories', 'payable_categories.id', '=', 'payables.category_id')
-            ->forCompany(currentCompanyId())
+            ->forUserCompanies()
             ->whereMonth('payables.date_due', $monthParam)
             ->whereYear('payables.date_due', $yearParam)
             ->groupBy(DB::raw('COALESCE(payable_categories.name, "Sem Categoria")'), DB::raw('COALESCE(payable_categories.color, "#6c757d")'))
@@ -245,7 +246,7 @@ class AdminController extends Controller
                 DB::raw('MONTH(date_due) as month'),
                 DB::raw('COALESCE(sum(price),0) as total')
             )
-            ->forCompany(currentCompanyId())
+            ->forUserCompanies()
             ->whereYear('date_due', $yearParam)
             ->where('status', 'Pago')
             ->groupBy(DB::raw('MONTH(date_due)'))
@@ -260,7 +261,7 @@ class AdminController extends Controller
                 DB::raw('MONTH(date_due) as month'),
                 DB::raw('COALESCE(sum(price),0) as total')
             )
-            ->forCompany(currentCompanyId())
+            ->forUserCompanies()
             ->whereYear('date_due', $yearParam)
             ->where('status', 'Pago')
             ->groupBy(DB::raw('MONTH(date_due)'))
@@ -274,7 +275,7 @@ class AdminController extends Controller
         $receitasMonth = Invoice::select(
                 DB::raw('COALESCE(sum(price),0) as total')
             )
-            ->forCompany(currentCompanyId())
+            ->forUserCompanies()
             ->whereMonth('date_due', $monthParam)
             ->whereYear('date_due', $yearParam)
             ->where('status', 'Pago')
@@ -284,7 +285,7 @@ class AdminController extends Controller
         $despesasMonth = Payable::select(
                 DB::raw('COALESCE(sum(price),0) as total')
             )
-            ->forCompany(currentCompanyId())
+            ->forUserCompanies()
             ->whereMonth('date_due', $monthParam)
             ->whereYear('date_due', $yearParam)
             ->where('status', 'Pago')
@@ -334,7 +335,7 @@ class AdminController extends Controller
                 DB::raw('DAY(date_payment) as day'),
                 DB::raw('COALESCE(sum(price),0) as total')
             )
-            ->forCompany(currentCompanyId())
+            ->forUserCompanies()
             ->where('status', 'Pago')
             ->whereNotNull('date_payment')
             ->where('date_payment', '!=', '0000-00-00')
@@ -351,7 +352,7 @@ class AdminController extends Controller
                 DB::raw('DAY(date_due) as day'),
                 DB::raw('COALESCE(sum(price),0) as total')
             )
-            ->forCompany(currentCompanyId())
+            ->forUserCompanies()
             ->where('status', 'Pago')
             ->where(function($q) {
                 $q->whereNull('date_payment')
@@ -380,7 +381,7 @@ class AdminController extends Controller
                 DB::raw('DAY(date_payment) as day'),
                 DB::raw('COALESCE(sum(price),0) as total')
             )
-            ->forCompany(currentCompanyId())
+            ->forUserCompanies()
             ->where('status', 'Pago')
             ->whereNotNull('date_payment')
             ->where('date_payment', '!=', '0000-00-00')
@@ -397,7 +398,7 @@ class AdminController extends Controller
                 DB::raw('DAY(date_due) as day'),
                 DB::raw('COALESCE(sum(price),0) as total')
             )
-            ->forCompany(currentCompanyId())
+            ->forUserCompanies()
             ->where('status', 'Pago')
             ->where(function($q) {
                 $q->whereNull('date_payment')
@@ -423,7 +424,7 @@ class AdminController extends Controller
 
         // Total do mês - Receitas
         $totalReceitasComPayment = Invoice::select(DB::raw('COALESCE(sum(price),0) as total'))
-            ->forCompany(currentCompanyId())
+            ->forUserCompanies()
             ->where('status', 'Pago')
             ->whereNotNull('date_payment')
             ->where('date_payment', '!=', '0000-00-00')
@@ -432,7 +433,7 @@ class AdminController extends Controller
             ->first();
 
         $totalReceitasSemPayment = Invoice::select(DB::raw('COALESCE(sum(price),0) as total'))
-            ->forCompany(currentCompanyId())
+            ->forUserCompanies()
             ->where('status', 'Pago')
             ->where(function($q) {
                 $q->whereNull('date_payment')
@@ -446,7 +447,7 @@ class AdminController extends Controller
 
         // Total do mês - Despesas
         $totalDespesasComPayment = Payable::select(DB::raw('COALESCE(sum(price),0) as total'))
-            ->forCompany(currentCompanyId())
+            ->forUserCompanies()
             ->where('status', 'Pago')
             ->whereNotNull('date_payment')
             ->where('date_payment', '!=', '0000-00-00')
@@ -455,7 +456,7 @@ class AdminController extends Controller
             ->first();
 
         $totalDespesasSemPayment = Payable::select(DB::raw('COALESCE(sum(price),0) as total'))
-            ->forCompany(currentCompanyId())
+            ->forUserCompanies()
             ->where('status', 'Pago')
             ->where(function($q) {
                 $q->whereNull('date_payment')
@@ -519,7 +520,7 @@ class AdminController extends Controller
             ->get();
 
         // Buscar fornecedores
-        $suppliers = Supplier::forCompany(currentCompanyId())
+        $suppliers = Supplier::forUserCompanies()
             ->orderBy('name', 'ASC')
             ->get();
 
@@ -562,7 +563,7 @@ class AdminController extends Controller
 
         // Buscar todas as contas recorrentes ativas da empresa
         $query = Payable::with(['supplier', 'category'])
-            ->forCompany(currentCompanyId())
+            ->forUserCompanies()
             ->where('type', 'Recorrente')
             ->where('status', '!=', 'Cancelado')
             ->whereNotNull('recurrence_period');
@@ -583,7 +584,7 @@ class AdminController extends Controller
         // Buscar apenas as contas originais (primeira de cada recorrência)
         $recurringPayables = $query->get()->filter(function($payable) {
             // Verificar se é a conta original (primeira da recorrência)
-            $hasEarlier = Payable::forCompany(currentCompanyId())
+            $hasEarlier = Payable::forUserCompanies()
                 ->where('supplier_id', $payable->supplier_id)
                 ->where('description', $payable->description)
                 ->where('type', 'Recorrente')
@@ -604,7 +605,7 @@ class AdminController extends Controller
             }
 
             // Buscar a última conta gerada desta recorrência
-            $lastPayable = Payable::forCompany(currentCompanyId())
+            $lastPayable = Payable::forUserCompanies()
                 ->where('supplier_id', $payable->supplier_id)
                 ->where('description', $payable->description)
                 ->where('type', 'Recorrente')
@@ -802,7 +803,7 @@ class AdminController extends Controller
 
         // Buscar todas as contas recorrentes ativas da empresa
         $query = Payable::with(['supplier', 'category'])
-            ->forCompany(currentCompanyId())
+            ->forUserCompanies()
             ->where('type', 'Recorrente')
             ->where('status', '!=', 'Cancelado')
             ->whereNotNull('recurrence_period');
@@ -822,7 +823,7 @@ class AdminController extends Controller
 
         // Buscar apenas as contas originais (primeira de cada recorrência)
         $recurringPayables = $query->get()->filter(function($payable) {
-            $hasEarlier = Payable::forCompany(currentCompanyId())
+            $hasEarlier = Payable::forUserCompanies()
                 ->where('supplier_id', $payable->supplier_id)
                 ->where('description', $payable->description)
                 ->where('type', 'Recorrente')
@@ -841,7 +842,7 @@ class AdminController extends Controller
                 continue;
             }
 
-            $lastPayable = Payable::forCompany(currentCompanyId())
+            $lastPayable = Payable::forUserCompanies()
                 ->where('supplier_id', $payable->supplier_id)
                 ->where('description', $payable->description)
                 ->where('type', 'Recorrente')

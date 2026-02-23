@@ -45,7 +45,7 @@ class CustomerServiceController extends Controller
 
     public function index(){
 
-        $data = CustomerService::forCompany(currentCompanyId())->orderby('id','desc')->get();
+        $data = CustomerService::forUserCompanies()->orderby('id','desc')->get();
 
         return response()->json($data);
     }
@@ -56,7 +56,7 @@ class CustomerServiceController extends Controller
 
         $customer_id = $customer_id != null ? $customer_id : '';
 
-        $data = CustomerService::forCompany(currentCompanyId())->where('id',$this->request->input('id'))->first();
+        $data = CustomerService::forUserCompanies()->where('id',$this->request->input('id'))->first();
 
         $companies = auth()->user()->companies;
 
@@ -523,7 +523,7 @@ class CustomerServiceController extends Controller
     public function destroy($id)
     {
         try{
-            CustomerService::forCompany(currentCompanyId())->where('id',$id)->delete();
+            CustomerService::forUserCompanies()->where('id',$id)->delete();
         } catch(\Exception $e){
             \Log::error($e->getMessage());
             return response()->json('Erro interno, favor comunicar ao administrador', 500);
@@ -536,7 +536,7 @@ class CustomerServiceController extends Controller
 
     public function Load($customer_id){
 
-        $result = CustomerService::forCompany(currentCompanyId())
+        $result = CustomerService::forUserCompanies()
                 ->select('customer_services.id as id','customer_services.description','customer_services.price',
                 'customer_services.day_due','customer_services.period','customer_services.status',
                 'customer_services.gateway_payment','customer_services.payment_method',

@@ -66,6 +66,20 @@ class Customer extends Model
     }
 
     /**
+     * Scope para filtrar por todas as empresas do usuário autenticado
+     */
+    public function scopeForUserCompanies($query)
+    {
+        $companyIds = userCompanyIds();
+        
+        if (empty($companyIds)) {
+            return $query->whereRaw('1 = 0');
+        }
+        
+        return $query->whereIn('company_id', $companyIds);
+    }
+
+    /**
      * Scope para clientes ativos
      */
     public function scopeActive($query)

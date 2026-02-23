@@ -84,6 +84,20 @@ class Invoice extends Model
     }
 
     /**
+     * Scope para filtrar por todas as empresas do usuário autenticado
+     */
+    public function scopeForUserCompanies($query)
+    {
+        $companyIds = userCompanyIds();
+        
+        if (empty($companyIds)) {
+            return $query->whereRaw('1 = 0');
+        }
+        
+        return $query->whereIn('invoices.company_id', $companyIds);
+    }
+
+    /**
      * Scope para faturas pendentes
      */
     public function scopePendente($query)

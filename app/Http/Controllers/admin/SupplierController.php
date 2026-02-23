@@ -67,12 +67,12 @@ class SupplierController extends Controller
 
         if($this->request->input('filter')){
             $data = Supplier::orderByRaw("$column_name")
-                        ->forCompany(currentCompanyId())
+                        ->forUserCompanies()
                         ->whereraw("$field $operator $newValue")
                         ->orderby('name','ASC')
                         ->paginate(20);
         }else{
-            $data = Supplier::orderByRaw("$column_name")->forCompany(currentCompanyId())->paginate(20);
+            $data = Supplier::orderByRaw("$column_name")->forUserCompanies()->paginate(20);
         }
 
         return view($this->datarequest['path'].'.index',compact('column','order','data'))->with($this->datarequest);
@@ -89,7 +89,7 @@ class SupplierController extends Controller
                 $this->datarequest['linkFormEdit'] = $this->datarequest['linkFormEdit'].'&id='.$this->request->input('id');
                 $this->datarequest['linkUpdate']   = $this->datarequest['linkUpdate'].$this->request->input('id');
 
-                $data = Supplier::forCompany(currentCompanyId())->where('id',$this->request->input('id'))->first();
+                $data = Supplier::forUserCompanies()->where('id',$this->request->input('id'))->first();
 
                 return view($this->datarequest['path'].'form',compact('data'))->with($this->datarequest);
             }
@@ -151,7 +151,7 @@ class SupplierController extends Controller
 
     public function update($id)
     {
-        $model = Supplier::forCompany(currentCompanyId())->where('id',$id)->first();
+        $model = Supplier::forUserCompanies()->where('id',$id)->first();
 
         if(!$model){
             return response()->json('Registro não encontrado', 404);
@@ -212,7 +212,7 @@ class SupplierController extends Controller
 
         try{
             foreach($data['selected'] as $result){
-                $find = Supplier::forCompany(currentCompanyId())->where('id',$result);
+                $find = Supplier::forUserCompanies()->where('id',$result);
                 $find->delete();
             }
 
@@ -226,7 +226,7 @@ class SupplierController extends Controller
 
     public function loadSuppliers()
     {
-        $suppliers = Supplier::forCompany(currentCompanyId())
+        $suppliers = Supplier::forUserCompanies()
             ->where('status','Ativo')
             ->orderBy('name','ASC')
             ->get();

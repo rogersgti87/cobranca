@@ -31,8 +31,13 @@ class StatusInterCron extends Command
     // Limitar a quantidade de faturas processadas por execução para evitar rate limit
     $limite_por_execucao = 50;
     
+    // CONFIGURAÇÃO: Defina quais métodos de pagamento devem ser processados
+    // Para desabilitar a consulta de PIX, remova 'Pix' do array abaixo
+    $metodosAtivos = ['Boleto', 'BoletoPix']; // 'Pix' foi removido - adicione de volta se necessário
+    
     $invoices = Invoice::where('status', 'Pendente')
         ->whereIn('gateway_payment', ['Inter', 'Intermedium'])
+        ->whereIn('payment_method', $metodosAtivos) // Filtra apenas métodos ativos
         ->whereNotNull('company_id')
         ->whereNotNull('transaction_id')
         ->with('company')
@@ -40,7 +45,7 @@ class StatusInterCron extends Command
         ->limit($limite_por_execucao)
         ->get();
 
-    $this->info('Processando '.$invoices->count().' faturas...');
+    $this->info('Processando '.$invoices->count().' faturas (Métodos: '.implode(', ', $metodosAtivos).')...');
     
     $contador = 0;
     foreach ($invoices as $invoice) {
@@ -261,35 +266,47 @@ class StatusInterCron extends Command
                 continue;
             }
 
+            // VALIDAÇÃO EXTRA: Verifica se os certificados existem antes de tentar consultar PIX
+            $certPath = storage_path('/app/'.$company->inter_crt_file);
+            $keyPath = storage_path('/app/'.$company->inter_key_file);
+            
+            if (!file_exists($certPath) || !file_exists($keyPath)) {
+                \Log::warning('Status Pix - Certificados não encontrados para Company ID: '.$company->id.' - Invoice ID: '.$invoice['id'].' - Pulando consulta');
+                continue;
+            }
+
             // Remove caracteres não numéricos/alphanuméricos que podem causar problemas
             $transaction_id = preg_replace('/[^a-zA-Z0-9\-]/', '', $transaction_id);
             $url = rtrim($company->inter_host, '/').'/pix/v2/cobv/'.$transaction_id;
+            
+            try {
+                $response = Http::withOptions([
+                    'cert' => $certPath,
+                    'ssl_key' => $keyPath
+                ])->withHeaders([
+                    'Authorization' => 'Bearer ' . $access_token
+                ])->get($url);
 
-            $certPath = storage_path('/app/'.$company->inter_crt_file);
-            $keyPath = storage_path('/app/'.$company->inter_key_file);
-            $response = Http::withOptions([
-                'cert' => $certPath,
-                'ssl_key' => $keyPath
-            ])->withHeaders([
-                'Authorization' => 'Bearer ' . $access_token
-            ])->get($url);
+                if ($response->successful()) {
+                    $responseBody = $response->body();
+                    $status = json_decode($responseBody)->status;
 
-            if ($response->successful()) {
-                $responseBody = $response->body();
-                $status = json_decode($responseBody)->status;
-
-                if ($status == 'CONCLUIDA') {
-                    Invoice::where('transaction_id', $transaction_id)->update(['status' => 'Pago']);
-                    InvoiceNotification::Email($invoice['id']);
-                    InvoiceNotification::Whatsapp($invoice['id']);
-                }
-            } else {
-                if($response->status() == 429){
-                    \Log::warning('Status Pix - Rate limit (429) - Invoice ID: '.$invoice['id'].' - Aguardando para continuar...');
-                    sleep(5);
+                    if ($status == 'CONCLUIDA') {
+                        Invoice::where('transaction_id', $transaction_id)->update(['status' => 'Pago']);
+                        InvoiceNotification::Email($invoice['id']);
+                        InvoiceNotification::Whatsapp($invoice['id']);
+                    }
                 } else {
-                    \Log::error('Status Pix - Erro na consulta - Invoice ID: '.$invoice['id'].' - transaction_id: '.$transaction_id.' - Status Code: '.$response->status().' - Response: '.$response->body());
+                    if($response->status() == 429){
+                        \Log::warning('Status Pix - Rate limit (429) - Invoice ID: '.$invoice['id'].' - Aguardando para continuar...');
+                        sleep(5);
+                    } else {
+                        \Log::error('Status Pix - Erro na consulta - Invoice ID: '.$invoice['id'].' - transaction_id: '.$transaction_id.' - Status Code: '.$response->status().' - Response: '.$response->body());
+                    }
                 }
+            } catch (\Exception $e) {
+                \Log::error('Status Pix - Exceção ao consultar - Invoice ID: '.$invoice['id'].' - transaction_id: '.$transaction_id.' - Erro: '.$e->getMessage());
+                // Continua processando próxima fatura ao invés de quebrar
             }
             
             // Delay entre requisições

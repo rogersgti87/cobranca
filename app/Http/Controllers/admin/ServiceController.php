@@ -71,11 +71,11 @@ class ServiceController extends Controller
 
             if($this->request->input('filter')){
                 $data = Service::orderByRaw("$column_name")
-                            ->forCompany(currentCompanyId())
+                            ->forUserCompanies()
                             ->whereraw("$field $operator $newValue")
                             ->paginate(15);
             }else{
-                $data = Service::orderByRaw("$column_name")->forCompany(currentCompanyId())->paginate(15);
+                $data = Service::orderByRaw("$column_name")->forUserCompanies()->paginate(15);
             }
 
 
@@ -146,7 +146,7 @@ class ServiceController extends Controller
     public function update($id)
     {
 
-        $newService = Service::forCompany(currentCompanyId())->where('id',$id)->first();
+        $newService = Service::forUserCompanies()->where('id',$id)->first();
 
         $data = $this->request->all();
 
@@ -197,7 +197,7 @@ class ServiceController extends Controller
 
         try{
             foreach($data['selected'] as $result){
-                $find = Service::forCompany(currentCompanyId())->where('id',$result);
+                $find = Service::forUserCompanies()->where('id',$result);
                 $find->delete();
             }
 

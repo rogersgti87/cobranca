@@ -66,11 +66,11 @@ class InvoiceController extends Controller
 
         $customer_id = $customer_id != null ? $customer_id : '';
 
-        $customer_services = CustomerService::forCompany(currentCompanyId())
+        $customer_services = CustomerService::forUserCompanies()
         ->select('customer_services.id as id','customer_services.description','customer_services.price','customer_services.day_due','customer_services.period','customer_services.status')
         ->where('customer_services.customer_id',$customer_id)->get();
 
-        $data = Invoice::forCompany(currentCompanyId())->where('id',$this->request->input('id'))->first();
+        $data = Invoice::forUserCompanies()->where('id',$this->request->input('id'))->first();
 
         return view($this->datarequest['path'].'.form',compact('customer_services','data','customer_id'))->render();
 
@@ -84,7 +84,7 @@ class InvoiceController extends Controller
         })->orderBy('name')->get();
         
         // Buscar clientes
-        $customers = Customer::forCompany(currentCompanyId())->orderBy('name')->get();
+        $customers = Customer::forUserCompanies()->orderBy('name')->get();
 
         return view($this->datarequest['path'].'.form-quick', compact('companies', 'customers'))->render();
 
@@ -365,7 +365,7 @@ class InvoiceController extends Controller
                     }
                 }
                 elseif($model['gateway_payment'] == 'Estabelecimento'){
-                    Invoice::forCompany(currentCompanyId())->where('id',$model['id'])->update(['status' => 'Estabelecimento']);
+                    Invoice::forUserCompanies()->where('id',$model['id'])->update(['status' => 'Estabelecimento']);
                 }
             } elseif($model['payment_method'] == 'Boleto'){
 
@@ -397,7 +397,7 @@ class InvoiceController extends Controller
 
                 }
                 elseif($model['gateway_payment'] == 'Estabelecimento'){
-                    Invoice::forCompany(currentCompanyId())->where('id',$model['id'])->update(['status' => 'Estabelecimento']);
+                    Invoice::forUserCompanies()->where('id',$model['id'])->update(['status' => 'Estabelecimento']);
                 }
         }
         elseif($model['payment_method'] == 'BoletoPix'){
@@ -416,7 +416,7 @@ class InvoiceController extends Controller
 
             }
             elseif($model['gateway_payment'] == 'Estabelecimento'){
-                Invoice::forCompany(currentCompanyId())->where('id',$model['id'])->update(['status' => 'Estabelecimento']);
+                Invoice::forUserCompanies()->where('id',$model['id'])->update(['status' => 'Estabelecimento']);
             }
     }
 
@@ -447,7 +447,7 @@ class InvoiceController extends Controller
 
         $customer_id = $this->request->input('customer_id');
 
-        $model = Invoice::forCompany(currentCompanyId())->where('id',$id)->first();
+        $model = Invoice::forUserCompanies()->where('id',$id)->first();
         $user = User::where('id',auth()->user()->id)->first();
 
         $data = $this->request->all();
@@ -752,7 +752,7 @@ if(isset($data['send_invoice_whatsapp'])){
 
         try{
 
-            $invoice = Invoice::forCompany(currentCompanyId())->where('id',$id)->first();
+            $invoice = Invoice::forUserCompanies()->where('id',$id)->first();
 
             if (!$invoice) {
                 \Log::error('Fatura não encontrada - ID: ' . $id);
@@ -874,7 +874,7 @@ if(isset($data['send_invoice_whatsapp'])){
             if($canCancel){
                 \Log::info('Condição para cancelar atendida. Atualizando status para Cancelado...');
                 
-                $updated = Invoice::forCompany(currentCompanyId())->where('id',$id)->update([
+                $updated = Invoice::forUserCompanies()->where('id',$id)->update([
                     'status' => 'Cancelado'
                 ]);
                 
@@ -912,7 +912,7 @@ if(isset($data['send_invoice_whatsapp'])){
 
     public function Load($customer_id){
 
-        $result = Invoice::forCompany(currentCompanyId())
+        $result = Invoice::forUserCompanies()
                 ->join('customer_services','customer_services.id','invoices.customer_service_id')
                 ->select('invoices.id as id','invoices.description','invoices.payment_method','invoices.price','invoices.date_invoice',
                 'invoices.date_due','invoices.date_payment','invoices.status','invoices.gateway_payment','invoices.billet_url','invoices.image_url_pix')
@@ -943,7 +943,7 @@ if(isset($data['send_invoice_whatsapp'])){
     public function loadinvoiceerror(){
 
         $data = Invoice::with(['customerService.customer', 'customerService.service', 'company'])
-            ->forCompany(currentCompanyId())
+            ->forUserCompanies()
             ->where('status', 'Erro')
             ->get()
             ->map(function ($invoice) {
@@ -959,7 +959,7 @@ if(isset($data['send_invoice_whatsapp'])){
 
     public function checkStatus($invoice_id){
 
-        $checkInvoice = Invoice::forCompany(currentCompanyId())
+        $checkInvoice = Invoice::forUserCompanies()
                         ->select('invoices.id','invoices.transaction_id','users.token_paghiper','users.key_paghiper','invoices.payment_method','invoices.gateway_payment')
                         ->join('users','users.id','invoices.user_id')
                         ->where('invoices.id',$invoice_id)
@@ -996,7 +996,7 @@ if(isset($data['send_invoice_whatsapp'])){
 
 
             if($result->status == 'completed' || $result->status == 'paid'){
-                Invoice::forCompany(currentCompanyId())->where('id',$checkInvoice->id)->update([
+                Invoice::forUserCompanies()->where('id',$checkInvoice->id)->update([
                     'status'       =>   'Pago',
                     'date_payment' =>   isset($result->status_date) ? date('d/m/Y', strtotime($result->status_date)) : Carbon::now(),
                     'updated_at'   =>   Carbon::now()
@@ -1010,7 +1010,7 @@ if(isset($data['send_invoice_whatsapp'])){
             }
 
             if($result->status == 'canceled' || $result->status == 'refunded'){
-                Invoice::forCompany(currentCompanyId())->where('id',$checkInvoice->id)->update([
+                Invoice::forUserCompanies()->where('id',$checkInvoice->id)->update([
                     'status'       =>   'Cancelado',
                     'date_payment' =>   Null,
                     'updated_at'   =>   Carbon::now()
@@ -1041,7 +1041,8 @@ public function loadInvoices(){
 
 
     $companyId = currentCompanyId();
-    $query = Invoice::forCompany($companyId);
+    $companyIds = userCompanyIds();
+    $query = Invoice::whereIn('invoices.company_id', $companyIds);
 
 
     $fields = "invoices.id as id,invoices.description,invoices.payment_method,invoices.price,invoices.date_invoice,customers.id as customer_id, customers.name as customer_name,
@@ -1132,7 +1133,7 @@ public function invoiceNotificate($invoice_id){
 
 
     $invoice = Invoice::with(['customerService.customer', 'company', 'user'])
-        ->forCompany(currentCompanyId())
+        ->forUserCompanies()
         ->find($invoice_id);
 
         foreach($options as $option){
@@ -1162,7 +1163,7 @@ public function invoiceNotificate($invoice_id){
 
 
 public function error($id){
-    $data = Invoice::forCompany(currentCompanyId())->select('msg_erro')->where('id',$id)->first();
+    $data = Invoice::forUserCompanies()->select('msg_erro')->where('id',$id)->first();
     return response()->json($data);
 }
 
@@ -1213,7 +1214,7 @@ protected function convertPdfToJpg($pdfPath, $fileName)
     public function report(){
 
         // Buscar clientes
-        $customers = Customer::forCompany(currentCompanyId())
+        $customers = Customer::forUserCompanies()
             ->orderBy('name', 'ASC')
             ->get();
 
@@ -1228,7 +1229,7 @@ protected function convertPdfToJpg($pdfPath, $fileName)
 
     public function loadReportData(){
 
-        $query = Invoice::forCompany(currentCompanyId());
+        $query = Invoice::forUserCompanies();
 
         $query->leftJoin('customer_services','customer_services.id','invoices.customer_service_id')
                 ->leftJoin('customers','customers.id','customer_services.customer_id')
@@ -1322,7 +1323,7 @@ protected function convertPdfToJpg($pdfPath, $fileName)
 
     public function exportPdf(){
 
-        $query = Invoice::forCompany(currentCompanyId());
+        $query = Invoice::forUserCompanies();
 
         $query->leftJoin('customer_services','customer_services.id','invoices.customer_service_id')
                 ->leftJoin('customers','customers.id','customer_services.customer_id')

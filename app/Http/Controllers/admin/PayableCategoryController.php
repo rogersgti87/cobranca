@@ -32,7 +32,7 @@ class PayableCategoryController extends Controller
     public function index()
     {
         // Buscar categorias globais (user_id NULL) e do usuário atual
-        $data = PayableCategory::forCompany(currentCompanyId())
+        $data = PayableCategory::forUserCompanies()
             ->where(function($query) {
                 $query->whereNull('user_id')
                       ->orWhere('user_id', auth()->user()->id);
@@ -55,7 +55,7 @@ class PayableCategoryController extends Controller
                 $this->datarequest['linkFormEdit'] = $this->datarequest['linkFormEdit'].'&id='.$this->request->input('id');
                 $this->datarequest['linkUpdate']   = $this->datarequest['linkUpdate'].$this->request->input('id');
 
-                $data = PayableCategory::forCompany(currentCompanyId())
+                $data = PayableCategory::forUserCompanies()
                     ->where('id', $this->request->input('id'))
                     ->where(function($query) {
                         $query->whereNull('user_id')
@@ -88,7 +88,7 @@ class PayableCategoryController extends Controller
         ];
 
         // Validação customizada: verificar se já existe categoria com mesmo nome para este usuário
-        $exists = PayableCategory::forCompany(currentCompanyId())
+        $exists = PayableCategory::forUserCompanies()
             ->where('name', $data['name'])
             ->where('user_id', auth()->user()->id)
             ->first();
@@ -123,7 +123,7 @@ class PayableCategoryController extends Controller
 
     public function update($id)
     {
-        $model = PayableCategory::forCompany(currentCompanyId())
+        $model = PayableCategory::forUserCompanies()
             ->where('id', $id)
             ->where('user_id', auth()->user()->id)
             ->first();
@@ -146,7 +146,7 @@ class PayableCategoryController extends Controller
         ];
 
         // Validação customizada: verificar se já existe categoria com mesmo nome para este usuário (exceto a atual)
-        $exists = PayableCategory::forCompany(currentCompanyId())
+        $exists = PayableCategory::forUserCompanies()
             ->where('name', $data['name'])
             ->where('user_id', auth()->user()->id)
             ->where('id', '!=', $id)
@@ -188,7 +188,7 @@ class PayableCategoryController extends Controller
 
         try{
             foreach($data['selected'] as $result){
-                $find = PayableCategory::forCompany(currentCompanyId())
+                $find = PayableCategory::forUserCompanies()
                     ->where('id', $result)
                     ->where('user_id', auth()->user()->id)
                     ->first();

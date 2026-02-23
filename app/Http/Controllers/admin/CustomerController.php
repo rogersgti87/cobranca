@@ -74,13 +74,13 @@ class CustomerController extends Controller
         $shouldFilter = ($this->request->input('filter') || $value !== '') && in_array($field, $allowedFields);
 
         if($shouldFilter){
-            $data = Customer::forCompany(currentCompanyId())
+            $data = Customer::forUserCompanies()
                         ->orderByRaw("$column_name")
                         ->whereraw("$field $operator $newValue")
                         ->orderby('name','ASC')
                         ->paginate(20);
         }else{
-            $data = Customer::forCompany(currentCompanyId())->orderByRaw("$column_name")->paginate(20);
+            $data = Customer::forUserCompanies()->orderByRaw("$column_name")->paginate(20);
         }
 
 
@@ -98,7 +98,7 @@ class CustomerController extends Controller
             $this->datarequest['linkFormEdit'] = $this->datarequest['linkFormEdit'].'&id='.$this->request->input('id');
             $this->datarequest['linkUpdate']   = $this->datarequest['linkUpdate'].$this->request->input('id');
 
-            $data = Customer::forCompany(currentCompanyId())->where('id',$this->request->input('id'))->first();
+            $data = Customer::forUserCompanies()->where('id',$this->request->input('id'))->first();
 
 
             return view($this->datarequest['path'].'form',compact('data'))->with($this->datarequest);
@@ -191,7 +191,7 @@ class CustomerController extends Controller
     public function update($id)
     {
 
-        $model = Customer::forCompany(currentCompanyId())->where('id',$id)->first();
+        $model = Customer::forUserCompanies()->where('id',$id)->first();
 
         $data = $this->request->all();
 
@@ -274,7 +274,7 @@ class CustomerController extends Controller
 
         try{
             foreach($data['selected'] as $result){
-                $find = Customer::forCompany(currentCompanyId())->where('id',$result);
+                $find = Customer::forUserCompanies()->where('id',$result);
                 $find->delete();
             }
 

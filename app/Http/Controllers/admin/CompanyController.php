@@ -274,7 +274,10 @@ class CompanyController extends Controller
             abort(403, 'Você não tem permissão para gerenciar integrações');
         }
         
-        return view('admin.companies.integrations', compact('company'));
+        // Obter informações do certificado Inter
+        $certInfo = $company->getInterCertificateInfo();
+        
+        return view('admin.companies.integrations', compact('company', 'certInfo'));
     }
     
     /**

@@ -28,6 +28,13 @@ class StatusInterCron extends Command
 
   public function handle()
   {
+    // Configuração SSL
+    $sslVerify = env('INTER_SSL_VERIFY', true);
+    $caBundle = env('INTER_CA_BUNDLE', '');
+    
+    // Se há um bundle CA específico, usa ele; senão usa a configuração booleana
+    $verifyOption = !empty($caBundle) ? $caBundle : $sslVerify;
+    
     // Limitar a quantidade de faturas processadas por execução para evitar rate limit
     $limite_por_execucao = 50;
     
@@ -81,6 +88,15 @@ class StatusInterCron extends Command
             \Log::warning('StatusInterCron - Company ID: '.$company->id.' - Certificado CRT banco inter não existe.');
             continue;
         }
+        
+        // Verifica se o certificado está válido (não expirado)
+        $certData = openssl_x509_parse(file_get_contents(storage_path('/app/'.$company->inter_crt_file)));
+        if ($certData && isset($certData['validTo_time_t'])) {
+            if ($certData['validTo_time_t'] < time()) {
+                \Log::warning('StatusInterCron - Company ID: '.$company->id.' - Certificado CRT banco inter EXPIRADO em '.date('d/m/Y', $certData['validTo_time_t']).' - Pulando faturas desta empresa.');
+                continue;
+            }
+        }
         if ($company->inter_key_file == '' || $company->inter_key_file === null) {
             \Log::warning('StatusInterCron - Company ID: '.$company->id.' - Certificado KEY banco inter não cadastrado.');
             continue;
@@ -118,12 +134,21 @@ class StatusInterCron extends Command
                 // Tenta consultar via API V2 usando o endpoint de listagem com filtro
                 $url_v2 = rtrim($company->inter_host, '/').'/cobranca/v2/boletos?dataInicial='.$dataInicial.'&dataFinal='.$dataFinal.'&nossoNumero='.$nossoNumero.'&itensPorPagina=100';
 
-                $response_v2 = Http::withOptions(
-                    [
-                        'cert' => storage_path('/app/'.$company->inter_crt_file),
-                        'ssl_key' => storage_path('/app/'.$company->inter_key_file)
-                    ]
-                )->withHeaders([
+                $options = [
+                    'cert' => storage_path('/app/'.$company->inter_crt_file),
+                    'ssl_key' => storage_path('/app/'.$company->inter_key_file),
+                    'curl' => [],
+                ];
+                
+                if ($sslVerify === false) {
+                    $options['verify'] = false;
+                    $options['curl'][CURLOPT_SSL_VERIFYPEER] = false;
+                    $options['curl'][CURLOPT_SSL_VERIFYHOST] = false;
+                } elseif (!empty($caBundle)) {
+                    $options['verify'] = $caBundle;
+                }
+                
+                $response_v2 = Http::withOptions($options)->withHeaders([
                     'Authorization' => 'Bearer ' . $access_token
                 ])->get($url_v2);
                         
@@ -176,10 +201,22 @@ class StatusInterCron extends Command
 
                     $certPath = storage_path('/app/'.$company->inter_crt_file);
                     $keyPath = storage_path('/app/'.$company->inter_key_file);
-                    $response = Http::withOptions([
+                    
+                    $options = [
                         'cert' => $certPath,
-                        'ssl_key' => $keyPath
-                    ])->withHeaders([
+                        'ssl_key' => $keyPath,
+                        'curl' => [],
+                    ];
+                    
+                    if ($sslVerify === false) {
+                        $options['verify'] = false;
+                        $options['curl'][CURLOPT_SSL_VERIFYPEER] = false;
+                        $options['curl'][CURLOPT_SSL_VERIFYHOST] = false;
+                    } elseif (!empty($caBundle)) {
+                        $options['verify'] = $caBundle;
+                    }
+                    
+                    $response = Http::withOptions($options)->withHeaders([
                         'Authorization' => 'Bearer ' . $access_token
                     ])->get($url);
 
@@ -224,10 +261,22 @@ class StatusInterCron extends Command
 
             $certPath = storage_path('/app/'.$company->inter_crt_file);
             $keyPath = storage_path('/app/'.$company->inter_key_file);
-            $response = Http::withOptions([
+            
+            $options = [
                 'cert' => $certPath,
-                'ssl_key' => $keyPath
-            ])->withHeaders([
+                'ssl_key' => $keyPath,
+                'curl' => [],
+            ];
+            
+            if ($sslVerify === false) {
+                $options['verify'] = false;
+                $options['curl'][CURLOPT_SSL_VERIFYPEER] = false;
+                $options['curl'][CURLOPT_SSL_VERIFYHOST] = false;
+            } elseif (!empty($caBundle)) {
+                $options['verify'] = $caBundle;
+            }
+            
+            $response = Http::withOptions($options)->withHeaders([
                 'Authorization' => 'Bearer ' . $access_token
             ])->get($url);
 
@@ -280,10 +329,21 @@ class StatusInterCron extends Command
             $url = rtrim($company->inter_host, '/').'/pix/v2/cobv/'.$transaction_id;
             
             try {
-                $response = Http::withOptions([
+                $options = [
                     'cert' => $certPath,
-                    'ssl_key' => $keyPath
-                ])->withHeaders([
+                    'ssl_key' => $keyPath,
+                    'curl' => [],
+                ];
+                
+                if ($sslVerify === false) {
+                    $options['verify'] = false;
+                    $options['curl'][CURLOPT_SSL_VERIFYPEER] = false;
+                    $options['curl'][CURLOPT_SSL_VERIFYHOST] = false;
+                } elseif (!empty($caBundle)) {
+                    $options['verify'] = $caBundle;
+                }
+                
+                $response = Http::withOptions($options)->withHeaders([
                     'Authorization' => 'Bearer ' . $access_token
                 ])->get($url);
 

@@ -176,4 +176,68 @@ class Company extends Model
             ->whereIn('role', ['admin', 'owner'])
             ->exists();
     }
+
+    /**
+     * Retorna informações sobre a validade do certificado Inter
+     */
+    public function getInterCertificateInfo()
+    {
+        if (!$this->inter_crt_file || !file_exists(storage_path('/app/' . $this->inter_crt_file))) {
+            return [
+                'exists' => false,
+                'valid' => false,
+                'expires_at' => null,
+                'days_until_expiration' => null,
+                'expired' => false,
+                'expires_soon' => false,
+            ];
+        }
+
+        $certData = openssl_x509_parse(file_get_contents(storage_path('/app/' . $this->inter_crt_file)));
+        
+        if (!$certData || !isset($certData['validTo_time_t'])) {
+            return [
+                'exists' => true,
+                'valid' => false,
+                'expires_at' => null,
+                'days_until_expiration' => null,
+                'expired' => false,
+                'expires_soon' => false,
+            ];
+        }
+
+        $expiresAt = $certData['validTo_time_t'];
+        $now = time();
+        $daysUntilExpiration = floor(($expiresAt - $now) / 86400);
+        $expired = $expiresAt < $now;
+        $expiresSoon = $daysUntilExpiration <= 30 && $daysUntilExpiration >= 0;
+
+        return [
+            'exists' => true,
+            'valid' => !$expired,
+            'expires_at' => $expiresAt,
+            'expires_at_formatted' => date('d/m/Y', $expiresAt),
+            'days_until_expiration' => $daysUntilExpiration,
+            'expired' => $expired,
+            'expires_soon' => $expiresSoon,
+        ];
+    }
+
+    /**
+     * Verifica se o certificado Inter está expirado
+     */
+    public function isInterCertificateExpired()
+    {
+        $info = $this->getInterCertificateInfo();
+        return $info['expired'];
+    }
+
+    /**
+     * Verifica se o certificado Inter expira em breve (30 dias)
+     */
+    public function interCertificateExpiresSoon()
+    {
+        $info = $this->getInterCertificateInfo();
+        return $info['expires_soon'];
+    }
 }

@@ -162,6 +162,26 @@
                         <div class="integration-status {{ $company->inter_client_id ? 'configured' : '' }}">
                             {{ $company->inter_client_id ? '✓ Configurado' : 'Não configurado' }}
                         </div>
+                        @if($certInfo['exists'])
+                            <div class="mt-2" style="font-size: 0.75rem; line-height: 1.3;">
+                                @if($certInfo['expired'])
+                                    <div class="text-danger">
+                                        <i class="fas fa-exclamation-triangle"></i> Certificado EXPIRADO<br>
+                                        <small>{{ $certInfo['expires_at_formatted'] }}</small>
+                                    </div>
+                                @elseif($certInfo['expires_soon'])
+                                    <div class="text-warning">
+                                        <i class="fas fa-clock"></i> Expira em {{ $certInfo['days_until_expiration'] }} dias<br>
+                                        <small>{{ $certInfo['expires_at_formatted'] }}</small>
+                                    </div>
+                                @else
+                                    <div class="text-muted">
+                                        <i class="fas fa-certificate"></i> Válido até<br>
+                                        <small>{{ $certInfo['expires_at_formatted'] }}</small>
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
                     </div>
                 </div>
 
@@ -364,6 +384,30 @@
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">
+                    {{-- Avisos sobre o certificado --}}
+                    @if($certInfo['exists'])
+                        @if($certInfo['expired'])
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-triangle"></i> 
+                                <strong>Certificado EXPIRADO!</strong><br>
+                                O certificado Inter expirou em <strong>{{ $certInfo['expires_at_formatted'] }}</strong>. 
+                                Faça upload de um novo certificado para continuar usando a integração.
+                            </div>
+                        @elseif($certInfo['expires_soon'])
+                            <div class="alert alert-warning">
+                                <i class="fas fa-clock"></i> 
+                                <strong>Atenção: Certificado expira em breve!</strong><br>
+                                O certificado Inter irá expirar em <strong>{{ $certInfo['days_until_expiration'] }} dias</strong> ({{ $certInfo['expires_at_formatted'] }}). 
+                                Renove o certificado para evitar interrupções no serviço.
+                            </div>
+                        @else
+                            <div class="alert alert-info">
+                                <i class="fas fa-certificate"></i> 
+                                <strong>Certificado válido até {{ $certInfo['expires_at_formatted'] }}</strong><br>
+                                <small class="text-muted">Faltam {{ $certInfo['days_until_expiration'] }} dias para expiração</small>
+                            </div>
+                        @endif
+                    @endif
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">

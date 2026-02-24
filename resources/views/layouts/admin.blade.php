@@ -88,6 +88,29 @@
                     </option>
                 @endforeach
             </select>
+            
+            {{-- Avisos de certificados --}}
+            @if(isset($certificatesWarnings) && count($certificatesWarnings) > 0)
+              <div class="mt-2">
+                @foreach($certificatesWarnings as $warning)
+                  @if($warning['cert_info']['expired'])
+                    <div class="alert alert-danger alert-dismissible fade show p-2 mb-1" style="font-size: 0.75rem;">
+                      <button type="button" class="close p-1" data-dismiss="alert" style="font-size: 1rem; line-height: 1;">&times;</button>
+                      <i class="fas fa-exclamation-triangle"></i> 
+                      <strong>{{ $warning['company']->name }}</strong><br>
+                      Certificado Inter <strong>EXPIRADO</strong> em {{ $warning['cert_info']['expires_at_formatted'] }}
+                    </div>
+                  @elseif($warning['cert_info']['expires_soon'])
+                    <div class="alert alert-warning alert-dismissible fade show p-2 mb-1" style="font-size: 0.75rem;">
+                      <button type="button" class="close p-1" data-dismiss="alert" style="font-size: 1rem; line-height: 1;">&times;</button>
+                      <i class="fas fa-clock"></i> 
+                      <strong>{{ $warning['company']->name }}</strong><br>
+                      Certificado Inter expira em <strong>{{ $warning['cert_info']['days_until_expiration'] }} dias</strong> ({{ $warning['cert_info']['expires_at_formatted'] }})
+                    </div>
+                  @endif
+                @endforeach
+              </div>
+            @endif
           </div>
           @else
           <div class="px-3 pb-3 mb-3 text-center">
@@ -95,6 +118,29 @@
                 <i class="fas fa-building"></i> 
                 {{ auth()->user()->currentCompany->name ?? 'Sem empresa' }}
             </small>
+            
+            {{-- Avisos de certificados --}}
+            @if(isset($certificatesWarnings) && count($certificatesWarnings) > 0)
+              <div class="mt-2">
+                @foreach($certificatesWarnings as $warning)
+                  @if($warning['cert_info']['expired'])
+                    <div class="alert alert-danger alert-dismissible fade show p-2 mb-1" style="font-size: 0.75rem;">
+                      <button type="button" class="close p-1" data-dismiss="alert" style="font-size: 1rem; line-height: 1;">&times;</button>
+                      <i class="fas fa-exclamation-triangle"></i> 
+                      <strong>{{ $warning['company']->name }}</strong><br>
+                      Certificado Inter <strong>EXPIRADO</strong> em {{ $warning['cert_info']['expires_at_formatted'] }}
+                    </div>
+                  @elseif($warning['cert_info']['expires_soon'])
+                    <div class="alert alert-warning alert-dismissible fade show p-2 mb-1" style="font-size: 0.75rem;">
+                      <button type="button" class="close p-1" data-dismiss="alert" style="font-size: 1rem; line-height: 1;">&times;</button>
+                      <i class="fas fa-clock"></i> 
+                      <strong>{{ $warning['company']->name }}</strong><br>
+                      Certificado Inter expira em <strong>{{ $warning['cert_info']['days_until_expiration'] }} dias</strong> ({{ $warning['cert_info']['expires_at_formatted'] }})
+                    </div>
+                  @endif
+                @endforeach
+              </div>
+            @endif
           </div>
           @endif
 

@@ -113,6 +113,241 @@ class Invoice extends Model
         return $query->where('status', 'Pago');
     }
 
+    /**
+     * Monta as opções HTTP para requisições ao Banco Inter.
+     */
+    private static function buildInterHttpOptions(Company $company): array
+    {
+        $certPath = storage_path('/app/'.$company->inter_crt_file);
+        $keyPath = storage_path('/app/'.$company->inter_key_file);
+        $sslVerify = env('INTER_SSL_VERIFY', true);
+        $caBundle = env('INTER_CA_BUNDLE', '');
+
+        $httpOptions = [
+            'cert' => $certPath,
+            'ssl_key' => $keyPath,
+            'curl' => [],
+        ];
+
+        if ($sslVerify === false) {
+            $httpOptions['verify'] = false;
+            $httpOptions['curl'][CURLOPT_SSL_VERIFYPEER] = false;
+            $httpOptions['curl'][CURLOPT_SSL_VERIFYHOST] = false;
+        } elseif (!empty($caBundle)) {
+            $httpOptions['verify'] = $caBundle;
+        }
+
+        return $httpOptions;
+    }
+
+    /**
+     * Renova o access token OAuth do Banco Inter.
+     */
+    private static function refreshInterAccessToken(Company $company, array $httpOptions): array
+    {
+        $response = Http::withOptions($httpOptions)->asForm()->post(
+            rtrim($company->inter_host, '/').'/oauth/v2/token',
+            [
+                'client_id' => $company->inter_client_id,
+                'client_secret' => $company->inter_client_secret,
+                'scope' => $company->inter_scope ?? 'boleto-cobranca.read boleto-cobranca.write',
+                'grant_type' => 'client_credentials',
+            ]
+        );
+
+        if (!$response->successful()) {
+            return [
+                'success' => false,
+                'message' => 'Não foi possível autenticar no Banco Inter. Verifique client_id, client_secret e certificado.',
+            ];
+        }
+
+        $access_token = json_decode($response->body())->access_token ?? null;
+
+        if (empty($access_token)) {
+            return ['success' => false, 'message' => 'Banco Inter não retornou token de acesso.'];
+        }
+
+        Company::where('id', $company->id)->update(['access_token_inter' => $access_token]);
+        $company->access_token_inter = $access_token;
+
+        return ['success' => true, 'token' => $access_token];
+    }
+
+    /**
+     * Executa GET na API do Inter, renovando o token automaticamente em caso de 401.
+     */
+    private static function interApiGet(Company $company, string $url, array $httpOptions, bool $retryOnUnauthorized = true)
+    {
+        $access_token = $company->access_token_inter;
+
+        if (empty($access_token)) {
+            $refresh = self::refreshInterAccessToken($company, $httpOptions);
+            if (!$refresh['success']) {
+                return null;
+            }
+            $access_token = $refresh['token'];
+        }
+
+        $response = Http::withOptions($httpOptions)->withHeaders([
+            'Authorization' => 'Bearer '.$access_token,
+        ])->get($url);
+
+        if ($retryOnUnauthorized && $response->status() === 401) {
+            $refresh = self::refreshInterAccessToken($company, $httpOptions);
+            if (!$refresh['success']) {
+                return $response;
+            }
+
+            return Http::withOptions($httpOptions)->withHeaders([
+                'Authorization' => 'Bearer '.$refresh['token'],
+            ])->get($url);
+        }
+
+        return $response;
+    }
+
+    /**
+     * Consulta o status de pagamento no Banco Inter e atualiza a fatura se necessário.
+     */
+    public static function syncInterPaymentStatus(self $invoice, bool $notify = true): array
+    {
+        $company = $invoice->company;
+
+        if (!$company || $company->status !== 'Ativo') {
+            return ['success' => false, 'message' => 'Empresa inativa ou não encontrada.'];
+        }
+
+        $certPath = storage_path('/app/'.$company->inter_crt_file);
+        $keyPath = storage_path('/app/'.$company->inter_key_file);
+
+        if (empty($company->inter_host) || empty($company->inter_client_id) || empty($company->inter_client_secret)
+            || empty($company->inter_crt_file) || empty($company->inter_key_file)
+            || !file_exists($certPath) || !file_exists($keyPath)) {
+            return ['success' => false, 'message' => 'Credenciais ou certificados do Banco Inter não configurados.'];
+        }
+
+        $certData = openssl_x509_parse(file_get_contents($certPath));
+        if ($certData && isset($certData['validTo_time_t']) && $certData['validTo_time_t'] < time()) {
+            return ['success' => false, 'message' => 'Certificado do Banco Inter expirado.'];
+        }
+
+        $httpOptions = self::buildInterHttpOptions($company);
+
+        $transaction_id = trim((string) $invoice->transaction_id);
+        if ($transaction_id === '') {
+            return ['success' => false, 'message' => 'Fatura sem identificador de transação.'];
+        }
+
+        $transaction_id_clean = preg_replace('/[^a-zA-Z0-9\-]/', '', $transaction_id);
+        $gatewayStatus = null;
+
+        if ($invoice->payment_method === 'Boleto') {
+            $isUuid = (strpos($transaction_id_clean, '-') !== false);
+
+            if (!$isUuid && is_numeric($transaction_id_clean)) {
+                $nossoNumero = $transaction_id_clean;
+                $dataVencimento = $invoice->date_due ?? Carbon::now()->format('Y-m-d');
+                $dataInicial = Carbon::parse($dataVencimento)->subDays(30)->format('Y-m-d');
+                $dataFinal = Carbon::parse($dataVencimento)->addDays(30)->format('Y-m-d');
+                $url_v2 = rtrim($company->inter_host, '/').'/cobranca/v2/boletos?dataInicial='.$dataInicial.'&dataFinal='.$dataFinal.'&nossoNumero='.$nossoNumero.'&itensPorPagina=100';
+
+                $response_v2 = self::interApiGet($company, $url_v2, $httpOptions);
+
+                if ($response_v2 === null) {
+                    return ['success' => false, 'message' => 'Não foi possível autenticar no Banco Inter.'];
+                }
+
+                if (!$response_v2->successful()) {
+                    return ['success' => false, 'message' => 'Erro ao consultar status no Banco Inter (HTTP '.$response_v2->status().').'];
+                }
+
+                $boletos = json_decode($response_v2->body(), true)['content'] ?? [];
+                $boleto_encontrado = null;
+
+                foreach ($boletos as $boleto) {
+                    if (isset($boleto['nossoNumero']) && $boleto['nossoNumero'] == $nossoNumero) {
+                        $boleto_encontrado = $boleto;
+                        break;
+                    }
+                }
+
+                if (!$boleto_encontrado) {
+                    return ['success' => true, 'updated' => false, 'gateway_status' => null, 'message' => 'Boleto não encontrado no Banco Inter.'];
+                }
+
+                $gatewayStatus = $boleto_encontrado['situacao'] ?? null;
+            } else {
+                $url = rtrim($company->inter_host, '/').'/cobranca/v3/cobrancas/'.$transaction_id_clean;
+
+                $response = self::interApiGet($company, $url, $httpOptions);
+
+                if ($response === null) {
+                    return ['success' => false, 'message' => 'Não foi possível autenticar no Banco Inter.'];
+                }
+
+                if (!$response->successful()) {
+                    return ['success' => false, 'message' => 'Erro ao consultar status no Banco Inter (HTTP '.$response->status().').'];
+                }
+
+                $gatewayStatus = json_decode($response->body())->cobranca->situacao ?? null;
+            }
+        } elseif (in_array($invoice->payment_method, ['BoletoPix', 'Pix'], true)) {
+            if ($invoice->payment_method === 'Pix') {
+                $url = rtrim($company->inter_host, '/').'/pix/v2/cobv/'.$transaction_id_clean;
+            } else {
+                $url = rtrim($company->inter_host, '/').'/cobranca/v3/cobrancas/'.$transaction_id_clean;
+            }
+
+            $response = self::interApiGet($company, $url, $httpOptions);
+
+            if ($response === null) {
+                return ['success' => false, 'message' => 'Não foi possível autenticar no Banco Inter.'];
+            }
+
+            if (!$response->successful()) {
+                return ['success' => false, 'message' => 'Erro ao consultar status no Banco Inter (HTTP '.$response->status().').'];
+            }
+
+            $responseData = json_decode($response->body());
+            $gatewayStatus = $invoice->payment_method === 'Pix'
+                ? ($responseData->status ?? null)
+                : ($responseData->cobranca->situacao ?? null);
+        } else {
+            return ['success' => false, 'message' => 'Método de pagamento não suportado para consulta no Inter.'];
+        }
+
+        $paidStatuses = $invoice->payment_method === 'Pix'
+            ? ['CONCLUIDA']
+            : ['PAGO', 'RECEBIDO'];
+
+        if (in_array($gatewayStatus, $paidStatuses, true)) {
+            self::where('id', $invoice->id)->update([
+                'status' => 'Pago',
+                'date_payment' => $invoice->date_payment ?? Carbon::now(),
+            ]);
+
+            if ($notify) {
+                InvoiceNotification::Email($invoice->id);
+                InvoiceNotification::Whatsapp($invoice->id);
+            }
+
+            return [
+                'success' => true,
+                'updated' => true,
+                'gateway_status' => $gatewayStatus,
+                'message' => 'Status atualizado para Pago.',
+            ];
+        }
+
+        return [
+            'success' => true,
+            'updated' => false,
+            'gateway_status' => $gatewayStatus,
+            'message' => 'Status consultado. Situação no gateway: '.($gatewayStatus ?? 'desconhecida').'.',
+        ];
+    }
+
     public static function generateBilletPH($invoice_id){
 
         if (!Storage::disk('public')->exists('boletos')) {

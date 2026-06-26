@@ -42,6 +42,7 @@ class sendInvoice implements ShouldQueue
     {
 
         $newInvoice = DB::table('invoices')->insertGetId([
+            'company_id'            => $this->vInvoice->company_id ?? null,
             'user_id'               => $this->vInvoice->user_id,
             'customer_service_id'   => $this->vInvoice->id,
             'description'           => $this->vInvoice->description,
@@ -62,16 +63,15 @@ class sendInvoice implements ShouldQueue
         'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp','customers.notification_email','customers.type',
         'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement',
         'customers.district','customers.city','customers.state','customers.cep','invoices.gateway_payment','invoices.payment_method',
-        'services.id as service_id','services.name as service_name','invoices.price','users.access_token_mp','users.company as user_company',
-        'users.whatsapp as user_whatsapp','users.image as user_image', 'users.telephone as user_telephone', 'users.email as user_email','users.send_generate_invoice',
-        'users.api_access_token_whatsapp','users.token_paghiper','users.key_paghiper','invoices.image_url_pix','invoices.pix_digitable',
-        'invoices.qrcode_pix_base64','invoices.billet_digitable','invoices.billet_base64','invoices.billet_url','users.inter_chave_pix',
-        'users.inter_host','users.inter_client_id','users.inter_client_secret','users.inter_scope','users.inter_crt_file','users.inter_key_file','users.inter_crt_file_webhook',
+        'services.id as service_id','services.name as service_name','invoices.price','companies.access_token_mp','companies.name as user_company',
+        'companies.whatsapp as user_whatsapp','companies.logo as user_image', 'companies.phone as user_telephone', 'companies.email as user_email','companies.send_generate_invoice',
+        'companies.api_token_whatsapp as api_access_token_whatsapp','invoices.image_url_pix','invoices.pix_digitable',
+        'invoices.qrcode_pix_base64','invoices.billet_digitable','invoices.billet_base64','invoices.billet_url',
         DB::raw("DATEDIFF (invoices.date_due,invoices.date_invoice) as days_due_date"))
         ->join('customer_services','invoices.customer_service_id','customer_services.id')
         ->join('customers','customer_services.customer_id','customers.id')
         ->join('services','customer_services.service_id','services.id')
-        ->join('users','users.id','invoices.user_id')
+        ->join('companies','companies.id','invoices.company_id')
         ->where('invoices.id',$newInvoice)
         ->where('invoices.user_id',$this->vInvoice->user_id)
         ->first();
@@ -79,7 +79,7 @@ class sendInvoice implements ShouldQueue
         if($invoice->payment_method == 'Pix'){
             if($invoice->gateway_payment == 'Pag Hiper'){
                 try {
-                $generatePixPH = Invoice::generatePixPH($invoice);
+                $generatePixPH = Invoice::generatePixPH($invoice->id);
                 if($generatePixPH['status'] == 'reject'){
                     \Log::info($generatePixPH['message']);
                 }
@@ -133,7 +133,7 @@ class sendInvoice implements ShouldQueue
 
             } elseif($invoice->gateway_payment == 'Intermedium'){
                 try {
-                $generatePixIntermedium = Invoice::generatePixIntermedium($invoice);
+                $generatePixIntermedium = Invoice::generatePixIntermedium($invoice->id);
                 if($generatePixIntermedium['status'] == 'reject'){
                     // $msgInterPix = '';
                     // foreach($generatePixIntermedium['message'] as $messageInterPix){
@@ -174,7 +174,7 @@ class sendInvoice implements ShouldQueue
 
             if($invoice->gateway_payment == 'Pag Hiper'){
                 try {
-                $generateBilletPH = Invoice::generateBilletPH($invoice);
+                $generateBilletPH = Invoice::generateBilletPH($invoice->id);
                 if($generateBilletPH['status'] == 'reject'){
                     \Log::info($generateBilletPH['message']);
                 }
@@ -222,16 +222,15 @@ class sendInvoice implements ShouldQueue
     'customers.email','customers.email2','customers.phone','customers.whatsapp','customers.name','customers.notification_whatsapp','customers.notification_email','customers.type',
     'customers.company','customers.document','customers.phone','customers.address','customers.number','customers.complement',
     'customers.district','customers.city','customers.state','customers.cep','invoices.gateway_payment','invoices.payment_method',
-    'services.id as service_id','services.name as service_name','invoices.price','users.access_token_mp','users.company as user_company',
-    'users.whatsapp as user_whatsapp','users.image as user_image', 'users.telephone as user_telephone', 'users.email as user_email','users.send_generate_invoice',
-    'users.api_access_token_whatsapp','users.token_paghiper','users.key_paghiper','invoices.image_url_pix','invoices.pix_digitable',
-    'invoices.qrcode_pix_base64','invoices.billet_digitable','invoices.billet_base64','invoices.billet_url','users.inter_chave_pix',
-    'users.inter_host','users.inter_client_id','users.inter_client_secret','users.inter_scope','users.inter_crt_file','users.inter_key_file','users.inter_crt_file_webhook',
+    'services.id as service_id','services.name as service_name','invoices.price','companies.access_token_mp','companies.name as user_company',
+    'companies.whatsapp as user_whatsapp','companies.logo as user_image', 'companies.phone as user_telephone', 'companies.email as user_email','companies.send_generate_invoice',
+    'companies.api_token_whatsapp as api_access_token_whatsapp','invoices.image_url_pix','invoices.pix_digitable',
+    'invoices.qrcode_pix_base64','invoices.billet_digitable','invoices.billet_base64','invoices.billet_url',
     DB::raw("DATEDIFF (invoices.date_due,invoices.date_invoice) as days_due_date"))
     ->join('customer_services','invoices.customer_service_id','customer_services.id')
     ->join('customers','customer_services.customer_id','customers.id')
     ->join('services','customer_services.service_id','services.id')
-    ->join('users','users.id','invoices.user_id')
+    ->join('companies','companies.id','invoices.company_id')
     ->where('invoices.id',$invoice['id'])
     ->where('invoices.user_id',$invoice['user_id'])
     ->first();

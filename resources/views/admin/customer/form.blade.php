@@ -898,6 +898,7 @@ function loadInvoices(){
                 html += `<td>
                     ${item.status == 'Pendente' || item.status == 'Erro' || item.status == 'Estabelecimento' ? '<a href="#" data-original-title="Editar fatura" id="btn-modal-invoice" data-type="edit-invoice" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-secondary btn-xs"><i class="far fa-edit"></i></a> ' : ''}
                     ${item.status == 'Erro' ? '<a href="#" data-original-title="Erros" id="btn-modal-error" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-danger btn-xs"><i class="fas fa-exclamation-triangle"></i></a> ' : ''}
+                    ${(item.status == 'Pendente' || item.status == 'Processamento') && ['Inter','Intermedium','Pag Hiper'].includes(item.gateway_payment) ? '<a href="#" data-original-title="Consultar status" id="btn-invoice-status" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-success btn-xs"><i class="fas fa-sync-alt"></i></a> ' : ''}
                     ${item.status != 'Erro' ? '<a href="#" data-original-title="Notificações" id="btn-modal-notifications" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-info btn-xs" style="background-color: #06b8f7; border-color: #06b8f7;"><i class="fa fa-info"></i></a> ' : ''}
                     ${item.status == 'Pendente' || item.status == 'Erro' || item.status == 'Estabelecimento' ? '<a href="#" data-original-title="Cancelar Fatura" id="btn-delete-invoice" data-invoice="'+item.id+'" data-tt="tooltip" class="btn btn-danger btn-xs"><i class="fas fa-undo-alt"></i></a> ' : ''}
                     ${item.status == 'Pendente' ? '<a href="'+`${item.payment_method == "Pix" ? item.image_url_pix : item.billet_url}`+'" target="_blank" data-original-title="Baixar Fatura" data-tt="tooltip" class="btn btn-primary btn-xs"><i class="fas fa-download"></i></a>' : ''}
@@ -993,14 +994,29 @@ $(document).on("click", "#btn-modal-notifications", function() {
 });
 
 $(document).on('click', '#btn-invoice-status', function(e) {
+    e.preventDefault();
     var invoice_id = $(this).data('invoice');
-    Swal.fire({ title: 'Deseja atualizar o status da fatura?', text: "Se o status do Gateway for diferente do sistema, o cliente será notificado!", icon: 'question', showCancelButton: true, cancelButtonText: 'Cancelar', confirmButtonColor: '#3085d6', cancelButtonColor: '#d33', confirmButtonText: 'Sim, atualizar!' }).then((result) => {
+    var $btn = $(this);
+    Swal.fire({ title: 'Deseja consultar o status da fatura?', text: "O status será verificado no gateway de pagamento.", icon: 'question', showCancelButton: true, cancelButtonText: 'Cancelar', confirmButtonColor: '#3085d6', cancelButtonColor: '#d33', confirmButtonText: 'Sim, consultar!' }).then((result) => {
         if (result.value) {
+            $btn.prop('disabled', true);
             $.ajax({
                 url: "{{url('admin/invoices-check-status')}}"+'/'+invoice_id,
                 method: 'GET',
-                success: function(){ loadInvoices(); },
-                error: function(xhr) { Swal.fire({ text: xhr.responseJSON, icon: xhr.status === 422 ? 'warning' : 'error', showClass: { popup: 'animate__animated animate__wobble' } }); }
+                success: function(response){
+                    Swal.fire({
+                        text: response.message || 'Status consultado com sucesso.',
+                        icon: response.updated ? 'success' : 'info',
+                        confirmButtonColor: "#007bff"
+                    });
+                    loadInvoices();
+                },
+                error: function(xhr) {
+                    var msg = xhr.responseJSON;
+                    if (typeof msg === 'object' && msg !== null && msg.message) { msg = msg.message; }
+                    Swal.fire({ text: msg || 'Erro ao consultar status.', icon: xhr.status === 422 ? 'warning' : 'error', showClass: { popup: 'animate__animated animate__wobble' } });
+                },
+                complete: function() { $btn.prop('disabled', false); }
             });
         }
     });

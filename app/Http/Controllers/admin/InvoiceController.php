@@ -961,34 +961,50 @@ if(isset($data['send_invoice_whatsapp'])){
 
     public function checkStatus($invoice_id){
 
-        $checkInvoice = Invoice::forUserCompanies()
-                        ->select('invoices.id','invoices.transaction_id','users.token_paghiper','users.key_paghiper','invoices.payment_method','invoices.gateway_payment')
-                        ->join('users','users.id','invoices.user_id')
-                        ->where('invoices.id',$invoice_id)
+        $invoice = Invoice::forUserCompanies()
+                        ->with('company')
+                        ->where('invoices.id', $invoice_id)
                         ->where(function($q) {
                             $q->where('invoices.status','Pendente')->orWhere('invoices.status','Processamento');
                         })
                         ->first();
 
+        if($invoice == null){
+            return response()->json('Fatura não encontrada ou status não permite consulta.', 422);
+        }
 
+        if(in_array($invoice->gateway_payment, ['Inter', 'Intermedium'], true)){
+            $result = Invoice::syncInterPaymentStatus($invoice);
 
-    if($checkInvoice != null){
-        if($checkInvoice->gateway_payment == 'Pag Hiper'){
-            $url = '';
-            if($checkInvoice->payment_method == 'Pix'){
-                $url = 'https://pix.paghiper.com/invoice/status/';
-            }else{
-                $url = 'https://api.paghiper.com/transaction/status/';
+            if(!$result['success']){
+                return response()->json($result['message'], 422);
             }
 
+            return response()->json([
+                'updated' => $result['updated'] ?? false,
+                'message' => $result['message'],
+                'gateway_status' => $result['gateway_status'] ?? null,
+            ], 200);
+        }
+
+        if($invoice->gateway_payment == 'Pag Hiper'){
+            $company = $invoice->company;
+
+            if(!$company || !$company->token_paghiper || !$company->key_paghiper){
+                return response()->json('Credenciais PagHiper não configuradas para esta empresa.', 422);
+            }
+
+            $url = $invoice->payment_method == 'Pix'
+                ? 'https://pix.paghiper.com/invoice/status/'
+                : 'https://api.paghiper.com/transaction/status/';
 
             $response = Http::withHeaders([
                 'accept' => 'application/json',
                 'content-type' => 'application/json',
             ])->post($url,[
-                'token'             => $checkInvoice->token_paghiper,
-                'apiKey'            => $checkInvoice->key_paghiper,
-                'transaction_id'    => $checkInvoice->transaction_id,
+                'token'             => $company->token_paghiper,
+                'apiKey'            => $company->key_paghiper,
+                'transaction_id'    => $invoice->transaction_id,
             ]);
 
             $result = $response->getBody();
@@ -998,45 +1014,34 @@ if(isset($data['send_invoice_whatsapp'])){
 
 
             if($result->status == 'completed' || $result->status == 'paid'){
-                Invoice::forUserCompanies()->where('id',$checkInvoice->id)->update([
+                Invoice::forUserCompanies()->where('id',$invoice->id)->update([
                     'status'       =>   'Pago',
                     'date_payment' =>   isset($result->status_date) ? date('d/m/Y', strtotime($result->status_date)) : Carbon::now(),
                     'updated_at'   =>   Carbon::now()
                 ]);
-                if($checkInvoice->notification_email == 's'){
-                    InvoiceNotification::Email($invoice_id);
-                }
-                if($checkInvoice->notification_whatsapp == 's'){
-                    InvoiceNotification::Whatsapp($invoice_id);
-                }
+                InvoiceNotification::Email($invoice_id);
+                InvoiceNotification::Whatsapp($invoice_id);
             }
 
             if($result->status == 'canceled' || $result->status == 'refunded'){
-                Invoice::forUserCompanies()->where('id',$checkInvoice->id)->update([
+                Invoice::forUserCompanies()->where('id',$invoice->id)->update([
                     'status'       =>   'Cancelado',
                     'date_payment' =>   Null,
                     'updated_at'   =>   Carbon::now()
                 ]);
-                if($checkInvoice->notification_email == 's'){
-                    InvoiceNotification::Email($invoice_id);
-                }
-                if($checkInvoice->notification_whatsapp == 's'){
-                    InvoiceNotification::Whatsapp($invoice_id);
-                }
+                InvoiceNotification::Email($invoice_id);
+                InvoiceNotification::Whatsapp($invoice_id);
             }
 
+            return response()->json([
+                'updated' => in_array($result->status, ['completed', 'paid', 'canceled', 'refunded'], true),
+                'message' => 'Status consultado no Pag Hiper.',
+                'gateway_status' => $result->status ?? null,
+            ], 200);
+        }
 
-
-            }
-            //Fim paghiper
-
+        return response()->json('Gateway de pagamento não suporta consulta de status.', 422);
     }
-
-
-
-    return response()->json(true, 200);
-
-}
 
 
 public function loadInvoices(){

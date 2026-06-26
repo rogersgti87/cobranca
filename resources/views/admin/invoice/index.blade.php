@@ -777,30 +777,40 @@ Swal.fire({
 
 
 $(document).on('click', '#btn-invoice-status', function(e) {
+    e.preventDefault();
     var invoice_id = $(this).data('invoice');
+    var $btn = $(this);
 
     Swal.fire({
-        title: 'Deseja atualizar o status da fatura?',
-        text: "Se o status do Gateway de pagamento for diferente do sistema, o cliente será notificado sobre a mudança do status!",
+        title: 'Deseja consultar o status da fatura?',
+        text: "O status será verificado no gateway de pagamento.",
         icon: 'question',
         showCancelButton: true,
         cancelButtonText: 'Cancelar',
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'Sim, atualizar!'
+        confirmButtonText: 'Sim, consultar!'
     }).then((result) => {
         if (result.value) {
+            $btn.prop('disabled', true);
             $.ajax({
                 url: "{{url('admin/invoices-check-status')}}"+'/'+invoice_id,
                 method: 'GET',
-                success:function(data){
+                success:function(response){
+                    Swal.fire({
+                        text: response.message || 'Status consultado com sucesso.',
+                        icon: response.updated ? 'success' : 'info',
+                        confirmButtonColor: '#3085d6'
+                    });
                     loadInvoices();
                 },
                 error:function (xhr) {
+                    var msg = xhr.responseJSON;
+                    if (typeof msg === 'object' && msg !== null && msg.message) { msg = msg.message; }
 
                     if(xhr.status === 422){
                         Swal.fire({
-                            text: xhr.responseJSON,
+                            text: msg || 'Não foi possível consultar o status.',
                             icon: 'warning',
                             showClass: {
                                 popup: 'animate__animated animate__wobble'
@@ -808,16 +818,15 @@ $(document).on('click', '#btn-invoice-status', function(e) {
                         });
                     } else{
                         Swal.fire({
-                            text: xhr.responseJSON,
+                            text: msg || 'Erro ao consultar status.',
                             icon: 'error',
                             showClass: {
                                 popup: 'animate__animated animate__wobble'
                             }
                         });
                     }
-
-
-                }
+                },
+                complete: function() { $btn.prop('disabled', false); }
             });
 
         }
@@ -1136,6 +1145,11 @@ $(document).on('click', '#btn-invoice-status', function(e) {
                 // Ver Erros (apenas para Erro)
                 if(item.status == 'Erro'){
                     actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Erros" id="btn-modal-error" data-invoice="' + item.id + '" data-placement="left" data-tt="tooltip" style="color: #1F2937; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'rgba(6, 184, 247, 0.1)\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-exclamation-triangle" style="margin-right: 8px; color: #DC2626;"></i> Ver Erros</a>');
+                }
+
+                // Consultar Status (Pendente/Processamento com gateway integrado)
+                if((item.status == 'Pendente' || item.status == 'Processamento') && ['Inter','Intermedium','Pag Hiper'].includes(item.gateway_payment)){
+                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Consultar status" id="btn-invoice-status" data-invoice="' + item.id + '" data-placement="left" data-tt="tooltip" style="color: #1F2937; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'rgba(6, 184, 247, 0.1)\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-sync-alt" style="margin-right: 8px; color: #22C55E;"></i> Consultar Status</a>');
                 }
 
                 // Notificações (para todos exceto Erro)

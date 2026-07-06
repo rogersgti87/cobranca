@@ -193,6 +193,7 @@
                                     <th style="width: 50px;"></th>
                                     <th> #</th>
                                     <th> Cliente</th>
+                                    <th> CNPJ</th>
                                     <th> Data</th>
                                     <th> Vencimento</th>
                                     <th> Valor</th>
@@ -1126,6 +1127,7 @@ $(document).on('click', '#btn-invoice-status', function(e) {
                 html += '<td><button class="btn btn-sm btn-link" style="color: #06b8f7; padding: 0; border: none; background: transparent;" onclick="event.stopPropagation(); $(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');"><i class="fas fa-chevron-down" id="icon-' + item.id + '"></i></button></td>';
                 html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer;">' + item.id + '</td>';
                 html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer;">' + item.customer_name + '</td>';
+                html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer;">' + (item.customer_document || '-') + '</td>';
                 html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer;">' + moment(item.date_invoice).format('DD/MM/YYYY') + '</td>';
                 html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer;">' + moment(item.date_due).format('DD/MM/YYYY') + '</td>';
                 html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer; color: #06b8f7; font-weight: 600;">' + item.price + '</td>';
@@ -1186,7 +1188,7 @@ $(document).on('click', '#btn-invoice-status', function(e) {
 
                 // Linha de collapse com informações adicionais
                 html += '<tr>';
-                html += '<td colspan="8" class="hiddenRow">';
+                html += '<td colspan="9" class="hiddenRow">';
                 html += '<div class="collapse" id="collapse-invoice-' + item.id + '">';
                 html += '<div class="card card-body" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); margin: 10px 0;">';
                 html += '<div class="row">';

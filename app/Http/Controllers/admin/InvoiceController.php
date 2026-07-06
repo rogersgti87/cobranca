@@ -1052,7 +1052,7 @@ public function loadInvoices(){
     $query = Invoice::whereIn('invoices.company_id', $companyIds);
 
 
-    $fields = "invoices.id as id,invoices.description,invoices.payment_method,invoices.price,invoices.date_invoice,customers.id as customer_id, customers.name as customer_name,
+    $fields = "invoices.id as id,invoices.description,invoices.payment_method,invoices.price,invoices.date_invoice,customers.id as customer_id, customers.name as customer_name, customers.document as customer_document,
             invoices.date_due,invoices.date_payment,invoices.status,invoices.gateway_payment,invoices.payment_method,invoices.billet_url,invoices.image_url_pix,invoices.updated_at";
 
     $query->join('customer_services','customer_services.id','invoices.customer_service_id')

@@ -308,7 +308,7 @@
                         <select class="form-control modern-select" name="field" id="filter-field">
                             <option value="name" {{ request()->field == 'name' ? 'selected' : '' }}>Nome</option>
                             <option value="email" {{ request()->field == 'email' ? 'selected' : '' }}>Email</option>
-                            <option value="document" {{ request()->field == 'document' ? 'selected' : '' }}>Documento</option>
+                            <option value="document" {{ request()->field == 'document' ? 'selected' : '' }}>CNPJ</option>
                             <option value="phone" {{ request()->field == 'phone' ? 'selected' : '' }}>Telefone</option>
                             <option value="status" {{ request()->field == 'status' ? 'selected' : '' }}>Status</option>
                         </select>
@@ -350,7 +350,7 @@
                             <th style="width: 80px;">Foto</th>
                             <th><a href="#" class="sort-link" data-column="name">Nome <i class="fas fa-sort"></i></a></th>
                             <th><a href="#" class="sort-link" data-column="email">Email <i class="fas fa-sort"></i></a></th>
-                            <th><a href="#" class="sort-link" data-column="document">Documento <i class="fas fa-sort"></i></a></th>
+                            <th><a href="#" class="sort-link" data-column="document">CNPJ <i class="fas fa-sort"></i></a></th>
                             <th style="width: 120px;"><a href="#" class="sort-link" data-column="status">Status <i class="fas fa-sort"></i></a></th>
                             <th style="width: 150px;" class="text-center">Ações</th>
                         </tr>

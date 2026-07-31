@@ -305,48 +305,11 @@
 <script src="{{ url('assets/front/js/wow.js') }}"></script>
 <script src="{{ url('assets/front/js/script.js') }}"></script>
 
-<!--Google Map APi Key-->
-<script src="http://maps.google.com/maps/api/js?key="></script>
-<script src="{{ url('assets/front/js/map-script.js') }}"></script>
-<!--End Google Map APi-->
+
 
 <!-- Select2 -->
 <script src="{{url('assets/admin/plugins/select2/js/select2.full.min.js')}}"></script>
 <script src="{{url('assets/admin/plugins/select2/js/i18n/pt-BR.js')}}"></script>
-
-<script>
-
-    $('#locale-comprar,#locale-alugar,#locale-temporada').select2({
-                theme: 'bootstrap4',
-                placeholder: "Bairro...",
-                allowClear: true,
-                //minimumInputLength: 2,
-                language: 'pt-BR',
-                ajax: {
-                    url: '{{url("admin/locales/getlocales")}}',
-                    dataType: 'json',
-
-                    data: function(params){
-                        return {
-                            locale: params.term,
-                        }
-                    },
-
-                    processResults: function (data) {
-                        return {
-                            results:  data.map(function (locale) {
-                                return {
-                                    text: locale.name,
-                                    id: locale.id
-                                };
-                            })
-                        };
-                    },
-                    cache: true
-                }
-
-            });
-</script>
 
 <script>
     $(window).scroll(function() {

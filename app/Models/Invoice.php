@@ -254,17 +254,10 @@ class Invoice extends Model
             return false;
         }
 
-        $cobranca = $result->cobranca ?? $result;
-
-        if (!empty($cobranca->boleto->linhaDigitavel ?? null)) {
-            return true;
-        }
-
-        if (!empty($cobranca->pix->pixCopiaECola ?? null)) {
-            return true;
-        }
-
-        return false;
+        // A API v3 retorna boleto/pix no nível raiz (irmãos de "cobranca"),
+        // e em alguns casos também aninhados em cobranca.
+        return self::extractInterLinhaDigitavel($result) !== ''
+            || !empty(self::extractInterPixCopiaECola($result));
     }
 
     private static function interCobrancaIsProcessing($result): bool
@@ -570,18 +563,21 @@ class Invoice extends Model
         $dataVencimentoFormatada = self::resolveInterDueDate($invoice);
         $options = self::interCertOptions($company);
 
-        $response_generate = Http::withOptions($options)->withHeaders([
-            'Authorization' => 'Bearer '.$access_token,
-        ])->post(rtrim($company->inter_host, '/').'/cobranca/v3/cobrancas', [
+        // BolePix v3 unificado (Boleto e BoletoPix): mesma API com boleto + Pix.
+        // Doc Inter: formasRecebimento default ["BOLETO","PIX"] (PIX só se houver chave registrada).
+        $formasRecebimento = ['BOLETO', 'PIX'];
+
+        $payload = [
             'seuNumero' => (string) $invoice->id,
-            'valorNominal' => $invoice->price,
+            'valorNominal' => (float) $invoice->price,
             'dataVencimento' => $dataVencimentoFormatada,
             'numDiasAgenda' => 60,
+            'formasRecebimento' => $formasRecebimento,
             'pagador' => [
-                'cpfCnpj' => $customer->document,
+                'cpfCnpj' => preg_replace('/\D/', '', (string) $customer->document),
                 'nome' => $customer->name,
                 'email' => $customer->email,
-                'telefone' => substr($customer->whatsapp, 2),
+                'telefone' => substr(preg_replace('/\D/', '', (string) $customer->whatsapp), 2),
                 'cep' => removeEspeciais($customer->cep),
                 'numero' => $customer->number,
                 'complemento' => $customer->complement,
@@ -589,14 +585,25 @@ class Invoice extends Model
                 'cidade' => $customer->city,
                 'uf' => $customer->state,
                 'endereco' => $customer->address,
-                'ddd' => substr($customer->whatsapp, 0, 2),
+                'ddd' => substr(preg_replace('/\D/', '', (string) $customer->whatsapp), 0, 2),
                 'tipoPessoa' => $customer->type == 'Física' ? 'FISICA' : 'JURIDICA',
             ],
             'multa' => [
                 'codigo' => 'PERCENTUAL',
                 'taxa' => 1,
             ],
+        ];
+
+        \Log::info('Emitindo cobrança Inter v3'.$logContext, [
+            'invoice_id' => $invoice_id,
+            'formasRecebimento' => $formasRecebimento,
+            'dataVencimento' => $dataVencimentoFormatada,
         ]);
+
+        $response_generate = Http::withOptions($options)->withHeaders([
+            'Authorization' => 'Bearer '.$access_token,
+            'Content-Type' => 'application/json',
+        ])->post(rtrim($company->inter_host, '/').'/cobranca/v3/cobrancas', $payload);
 
         if (!$response_generate->successful()) {
             $result_generate = $response_generate->json();
@@ -697,30 +704,41 @@ class Invoice extends Model
         $storageFolder = $invoice->payment_method === 'BoletoPix' ? 'boletopix' : 'boletos';
         $includePix = $invoice->payment_method === 'BoletoPix';
 
-        $result_get = self::fetchInterCobrancaDetails($company, $access_token, $codigoSolicitacao, $logContext, 10, 3);
+        $result_get = self::fetchInterCobrancaDetails($company, $access_token, $codigoSolicitacao, $logContext, 5, 2);
         if ($result_get === null) {
             return ['success' => false, 'completed' => false, 'message' => 'Erro ao consultar cobrança no Inter.'];
         }
 
-        if (self::interCobrancaIsProcessing($result_get) && !self::interCobrancaHasPaymentData($result_get)) {
+        $hasPaymentData = self::interCobrancaHasPaymentData($result_get);
+
+        if (self::interCobrancaIsProcessing($result_get) && !$hasPaymentData) {
             return ['success' => true, 'completed' => false, 'message' => 'Cobrança ainda em processamento no Inter.'];
         }
 
         $pdfBase64 = null;
         if (empty($invoice->billet_url)) {
-            $response_pdf = self::fetchInterCobrancaPdf($company, $access_token, $codigoSolicitacao, $logContext, 10, 3);
+            // Tenta PDF; se Inter ainda não liberou, salva linha digitável/Pix mesmo assim.
+            $response_pdf = self::fetchInterCobrancaPdf($company, $access_token, $codigoSolicitacao, $logContext, 5, 2);
             if ($response_pdf && $response_pdf->successful()) {
                 $pdfBase64 = json_decode($response_pdf->getBody())->pdf ?? null;
             }
         }
 
-        $invoiceStatus = !empty($pdfBase64) || self::interCobrancaHasPaymentData($result_get) ? 'Pendente' : 'Processamento';
+        // Com dados de pagamento disponíveis, libera a fatura mesmo sem PDF (retry do PDF no cron).
+        $invoiceStatus = ($hasPaymentData || !empty($pdfBase64) || !empty($invoice->billet_url))
+            ? 'Pendente'
+            : 'Processamento';
+
         self::persistInterCobrancaInvoice($invoice_id, $invoice, $codigoSolicitacao, $result_get, $pdfBase64, $storageFolder, $includePix, $invoiceStatus);
 
         return [
             'success' => true,
-            'completed' => $invoiceStatus === 'Pendente',
-            'message' => $invoiceStatus === 'Pendente' ? 'Cobrança concluída.' : 'Cobrança parcialmente concluída, aguardando PDF.',
+            'completed' => $invoiceStatus === 'Pendente' && (!empty($pdfBase64) || !empty($invoice->billet_url)),
+            'message' => !empty($pdfBase64) || !empty($invoice->billet_url)
+                ? 'Cobrança concluída com PDF.'
+                : ($hasPaymentData
+                    ? 'Cobrança liberada com linha digitável/Pix; PDF ainda será baixado.'
+                    : 'Cobrança parcialmente concluída, aguardando dados do Inter.'),
         ];
     }
 

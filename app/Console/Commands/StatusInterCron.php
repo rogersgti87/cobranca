@@ -22,11 +22,20 @@ class StatusInterCron extends Command
     $limite_por_execucao = 50;
     $metodosAtivos = ['Boleto', 'BoletoPix'];
 
-    $processingInvoices = Invoice::where('status', 'Processamento')
-        ->whereIn('gateway_payment', ['Inter', 'Intermedium'])
+    // Processamento + Pendente sem PDF (Inter libera PDF depois dos dados boleto/pix).
+    $processingInvoices = Invoice::whereIn('gateway_payment', ['Inter', 'Intermedium'])
         ->whereIn('payment_method', $metodosAtivos)
         ->whereNotNull('company_id')
         ->whereNotNull('transaction_id')
+        ->where(function ($query) {
+            $query->where('status', 'Processamento')
+                ->orWhere(function ($q) {
+                    $q->where('status', 'Pendente')
+                        ->where(function ($inner) {
+                            $inner->whereNull('billet_url')->orWhere('billet_url', '');
+                        });
+                });
+        })
         ->whereHas('company', function ($query) {
             $query->where('status', 'Ativo');
         })
@@ -35,11 +44,15 @@ class StatusInterCron extends Command
         ->limit(10)
         ->get();
 
+    $this->info('Concluindo '.$processingInvoices->count().' cobrança(s) Inter (PDF/dados)...');
+
     foreach ($processingInvoices as $invoice) {
         $result = Invoice::completeInterCobrancaProcessing($invoice->id);
 
         if (!$result['success']) {
             \Log::warning('StatusInterCron - Conclusão cobrança - Invoice ID: '.$invoice->id.' - '.($result['message'] ?? 'Erro desconhecido'));
+        } else {
+            $this->info('Invoice '.$invoice->id.': '.($result['message'] ?? 'ok'));
         }
 
         usleep(500000);

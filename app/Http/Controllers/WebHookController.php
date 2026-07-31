@@ -202,143 +202,84 @@ class WebHookController extends Controller
 
 
 
-  //Intermedium
+  //Intermedium - Cobrança unificada BolePix v3
 
-  public function intermediumBillet(Request $request) {
+  private function processIntermediumCobrancaWebhook(Request $request, string $gatewayLabel)
+  {
     $data = $request->all();
 
     LogGatewayPayment::create([
-        'gateway'   => 'Intermedium Boleto',
-        'log'       =>  json_encode($data)
+        'gateway'   => $gatewayLabel,
+        'log'       => json_encode($data),
     ]);
 
-    // Suporte para V3 (API Nova) e V2 (compatibilidade)
-    if(isset($data[0]['codigoSolicitacao'])){
-        // Estrutura V3
-        $seuNumero      = $data[0]['seuNumero'];
-        $codigoCobranca = $data[0]['codigoSolicitacao'];
-        $status         = $data[0]['situacao'];
-
-        $result = Invoice::where('id',$seuNumero)->where('transaction_id',$codigoCobranca)
-        ->where('invoices.status','Pendente')
-        ->orwhere('invoices.status','Processamento')
-        ->first();
-    } else {
-        // Estrutura V2 (compatibilidade)
-        $seuNumero      = $data[0]['seuNumero'];
-        $nossoNumero    = $data[0]['nossoNumero'];
-        $status         = $data[0]['situacao'];
-
-        $result = Invoice::where('id',$seuNumero)->where('transaction_id',$nossoNumero)
-        ->where('invoices.status','Pendente')
-        ->orwhere('invoices.status','Processamento')
-        ->first();
+    $payload = $data[0] ?? null;
+    if (!$payload || !is_array($payload)) {
+        return;
     }
 
-    if($result != null){
+    $seuNumero = $payload['seuNumero'] ?? null;
+    $codigoCobranca = $payload['codigoSolicitacao'] ?? ($payload['nossoNumero'] ?? null);
+    $status = $payload['situacao'] ?? null;
 
-        // V3 usa 'RECEBIDO', V2 usa 'PAGO'
-        if($status == 'RECEBIDO' || $status == 'PAGO'){
-            Invoice::where('id',$seuNumero)->update([
-                'status'       =>   'Pago',
-                'date_payment' =>   Carbon::now(),
-                'updated_at'   =>   Carbon::now()
-            ]);
-            InvoiceNotification::Email($seuNumero);
+    if (empty($seuNumero) || empty($codigoCobranca) || empty($status)) {
+        return;
+    }
 
-             if(date('l') != 'Sunday'){
+    $result = Invoice::where('id', $seuNumero)
+        ->where('transaction_id', $codigoCobranca)
+        ->where(function ($query) {
+            $query->where('status', 'Pendente')
+                  ->orWhere('status', 'Processamento');
+        })
+        ->first();
 
+    if ($result === null) {
+        return;
+    }
+
+    if (in_array($status, ['RECEBIDO', 'PAGO'], true)) {
+        Invoice::where('id', $seuNumero)->update([
+            'status'       => 'Pago',
+            'date_payment' => Carbon::now(),
+            'updated_at'   => Carbon::now(),
+        ]);
+        InvoiceNotification::Email($seuNumero);
+
+        if (date('l') != 'Sunday') {
             $now = Carbon::now();
             $start = Carbon::createFromTimeString('08:00');
             $end = Carbon::createFromTimeString('19:00');
 
             if ($now->between($start, $end)) {
-            InvoiceNotification::Whatsapp($seuNumero);
+                InvoiceNotification::Whatsapp($seuNumero);
             }
-             }
         }
-
-        if($status == 'CANCELADO'){
-            Invoice::where('id',$seuNumero)->update([
-                'status'       =>   'Cancelado',
-                'date_payment' =>   Null,
-                'updated_at'   =>   Carbon::now()
-            ]);
-            //InvoiceNotification::Email($result->id);
-            //InvoiceNotification::Whatsapp($result->id);
-        }
-
-        if($status == 'EXPIRADO'){
-            Invoice::where('id',$seuNumero)->update([
-                'status'       =>   'Expirado',
-                'date_payment' =>   Null,
-                'updated_at'   =>   Carbon::now()
-            ]);
-        }
-
     }
 
+    if ($status === 'CANCELADO') {
+        Invoice::where('id', $seuNumero)->update([
+            'status'       => 'Cancelado',
+            'date_payment' => null,
+            'updated_at'   => Carbon::now(),
+        ]);
+    }
+
+    if ($status === 'EXPIRADO') {
+        Invoice::where('id', $seuNumero)->update([
+            'status'       => 'Expirado',
+            'date_payment' => null,
+            'updated_at'   => Carbon::now(),
+        ]);
+    }
   }
 
+  public function intermediumBillet(Request $request) {
+    $this->processIntermediumCobrancaWebhook($request, 'Intermedium Cobrança v3');
+  }
 
   public function intermediumBilletPix(Request $request) {
-    $data = $request->all();
-    LogGatewayPayment::create([
-        'gateway'   => 'Intermedium Boleto Pix',
-        'log'       =>  json_encode($data)
-    ]);
-
-    $seuNumero      = $data[0]['seuNumero'];
-    $codigoCobranca = $data[0]['codigoSolicitacao'];
-    $status         = $data[0]['situacao'];
-
-    $result = Invoice::where('id',$seuNumero)->where('transaction_id',$codigoCobranca)
-    ->where('invoices.status','Pendente')
-    ->orwhere('invoices.status','Processamento')
-    ->first();
-
-    if($result != null){
-
-        if($status == 'RECEBIDO'){
-            Invoice::where('id',$seuNumero)->update([
-                'status'       =>   'Pago',
-                'date_payment' =>   Carbon::now(),
-                'updated_at'   =>   Carbon::now()
-            ]);
-            InvoiceNotification::Email($result->id);
-
-             if(date('l') != 'Sunday'){
-
-            $now = Carbon::now();
-            $start = Carbon::createFromTimeString('08:00');
-            $end = Carbon::createFromTimeString('19:00');
-
-            if ($now->between($start, $end)) {
-            InvoiceNotification::Whatsapp($result->id);
-            }
-             }
-        }
-
-        if($status == 'CANCELADO'){
-            Invoice::where('id',$seuNumero)->update([
-                'status'       =>   'Cancelado',
-                'date_payment' =>   Null,
-                'updated_at'   =>   Carbon::now()
-            ]);
-            //InvoiceNotification::Email($result->id);
-            //InvoiceNotification::Whatsapp($result->id);
-        }
-
-        if($status == 'EXPIRADO'){
-            Invoice::where('id',$seuNumero)->update([
-                'status'       =>   'Expirado',
-                'date_payment' =>   Null,
-                'updated_at'   =>   Carbon::now()
-            ]);
-        }
-
-    }
-
+    $this->processIntermediumCobrancaWebhook($request, 'Intermedium Cobrança v3 (BoletoPix)');
   }
 
   public function intermediumPix(Request $request) {
@@ -360,8 +301,10 @@ class WebHookController extends Controller
 
 
     $result = Invoice::where('transaction_id',$txid)
-    ->where('invoices.status','Pendente')
-    ->orwhere('invoices.status','Processamento')
+    ->where(function ($query) {
+        $query->where('status', 'Pendente')
+              ->orWhere('status', 'Processamento');
+    })
     ->first();
 
     if($result != null){

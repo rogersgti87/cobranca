@@ -248,38 +248,183 @@ class Invoice extends Model
         ];
     }
 
-    private static function fetchInterCobrancaDetails($company, $access_token, $codigoSolicitacao, string $logContext = '')
+    private static function interCobrancaHasPaymentData($result): bool
     {
-        $url = $company->inter_host.'cobranca/v3/cobrancas/'.$codigoSolicitacao;
-        $options = self::interCertOptions($company);
-        $headers = ['Authorization' => 'Bearer '.$access_token];
+        if (!$result) {
+            return false;
+        }
 
-        $response = Http::withOptions($options)->withHeaders($headers)->get($url);
-        if (!$response->successful()) {
-            \Log::error('Erro ao obter detalhes do boleto'.$logContext.': '.$response->body());
+        $cobranca = $result->cobranca ?? $result;
 
+        if (!empty($cobranca->boleto->linhaDigitavel ?? null)) {
+            return true;
+        }
+
+        if (!empty($cobranca->pix->pixCopiaECola ?? null)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static function interCobrancaIsProcessing($result): bool
+    {
+        $situacao = $result->cobranca->situacao ?? null;
+
+        return $situacao === 'EM_PROCESSAMENTO';
+    }
+
+    private static function extractInterLinhaDigitavel($result): string
+    {
+        if (!$result) {
+            return '';
+        }
+
+        $paths = [
+            $result->cobranca->boleto->linhaDigitavel ?? null,
+            $result->boleto->linhaDigitavel ?? null,
+            $result->cobranca->linhaDigitavel ?? null,
+            $result->linhaDigitavel ?? null,
+        ];
+
+        foreach ($paths as $value) {
+            if (!empty($value)) {
+                return (string) $value;
+            }
+        }
+
+        return '';
+    }
+
+    private static function extractInterPixCopiaECola($result): ?string
+    {
+        if (!$result) {
             return null;
         }
 
-        $result = json_decode($response->body());
-        $situacao = $result->cobranca->situacao ?? null;
+        $paths = [
+            $result->cobranca->pix->pixCopiaECola ?? null,
+            $result->pix->pixCopiaECola ?? null,
+            $result->cobranca->pixCopiaECola ?? null,
+            $result->pixCopiaECola ?? null,
+        ];
 
-        if ($situacao === 'EM_PROCESSAMENTO') {
-            for ($attempt = 1; $attempt <= 15; $attempt++) {
-                sleep(2);
+        foreach ($paths as $value) {
+            if (!empty($value)) {
+                return (string) $value;
+            }
+        }
 
-                $response = Http::withOptions($options)->withHeaders($headers)->get($url);
-                if (!$response->successful()) {
-                    break;
-                }
+        return null;
+    }
 
-                $result = json_decode($response->body());
-                $situacao = $result->cobranca->situacao ?? null;
+    private static function validateInterCredentials($company, string $title = 'Erro ao gerar cobrança'): ?array
+    {
+        if (empty($company->access_token_inter)) {
+            return ['status' => 'reject', 'title' => $title, 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Access token inválido!']]];
+        }
+        if (empty($company->inter_host)) {
+            return ['status' => 'reject', 'title' => $title, 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'HOST banco inter não cadastrado!']]];
+        }
+        if (empty($company->inter_client_id)) {
+            return ['status' => 'reject', 'title' => $title, 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'CLIENT ID banco inter não cadastrado!']]];
+        }
+        if (empty($company->inter_client_secret)) {
+            return ['status' => 'reject', 'title' => $title, 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'CLIENT SECRET banco inter não cadastrado!']]];
+        }
+        if (empty($company->inter_crt_file) || !file_exists(storage_path('/app/'.$company->inter_crt_file))) {
+            return ['status' => 'reject', 'title' => $title, 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado CRT banco inter não cadastrado ou inexistente!']]];
+        }
+        if (empty($company->inter_key_file) || !file_exists(storage_path('/app/'.$company->inter_key_file))) {
+            return ['status' => 'reject', 'title' => $title, 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado KEY banco inter não cadastrado ou inexistente!']]];
+        }
 
-                if ($situacao !== 'EM_PROCESSAMENTO') {
+        return null;
+    }
+
+    private static function ensureInterAccessToken($company): array
+    {
+        $access_token = $company->access_token_inter;
+        $options = self::interCertOptions($company);
+
+        $check = Http::withOptions($options)->withHeaders([
+            'Authorization' => 'Bearer '.$access_token,
+        ])->get(rtrim($company->inter_host, '/').'/cobranca/v3/cobrancas?dataInicial=2023-01-01&dataFinal=2023-01-01');
+
+        if (!$check->unauthorized()) {
+            return ['success' => true, 'token' => $access_token];
+        }
+
+        $response = Http::withOptions($options)->asForm()->post(rtrim($company->inter_host, '/').'/oauth/v2/token', [
+            'client_id' => $company->inter_client_id,
+            'client_secret' => $company->inter_client_secret,
+            'scope' => $company->inter_scope,
+            'grant_type' => 'client_credentials',
+        ]);
+
+        if (!$response->successful()) {
+            return ['success' => false, 'message' => 'Access token expirado ou inválido!'];
+        }
+
+        $access_token = json_decode($response->body())->access_token ?? null;
+        if (empty($access_token)) {
+            return ['success' => false, 'message' => 'Banco Inter não retornou token de acesso.'];
+        }
+
+        Company::where('id', $company->id)->update(['access_token_inter' => $access_token]);
+        $company->access_token_inter = $access_token;
+
+        return ['success' => true, 'token' => $access_token];
+    }
+
+    private static function resolveInterDueDate($invoice): string
+    {
+        $dataVencimento = Carbon::parse($invoice->date_due);
+        $dataAtual = Carbon::now();
+
+        if ($dataVencimento->lt($dataAtual)) {
+            $dataVencimento = $dataAtual->copy();
+
+            if ($dataVencimento->isSaturday()) {
+                $dataVencimento->addDays(2);
+            } elseif ($dataVencimento->isSunday()) {
+                $dataVencimento->addDay();
+            }
+
+            \Log::warning("Data de vencimento ajustada para invoice ID: {$invoice->id} ({$invoice->payment_method}). Data original: {$invoice->date_due}, Nova data: {$dataVencimento->format('Y-m-d')}");
+        }
+
+        return $dataVencimento->format('Y-m-d');
+    }
+
+    private static function fetchInterCobrancaDetails($company, $access_token, $codigoSolicitacao, string $logContext = '', int $maxAttempts = 30, int $sleepSeconds = 3)
+    {
+        $url = rtrim($company->inter_host, '/').'/cobranca/v3/cobrancas/'.$codigoSolicitacao;
+        $options = self::interCertOptions($company);
+        $headers = ['Authorization' => 'Bearer '.$access_token];
+        $result = null;
+
+        for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+            $response = Http::withOptions($options)->withHeaders($headers)->get($url);
+            if (!$response->successful()) {
+                \Log::error('Erro ao obter detalhes da cobrança Inter'.$logContext.' (tentativa '.$attempt.'): '.$response->body());
+
+                return null;
+            }
+
+            $result = json_decode($response->body());
+
+            if (!self::interCobrancaIsProcessing($result) || self::interCobrancaHasPaymentData($result)) {
+                if ($attempt > 1) {
+                    $situacao = $result->cobranca->situacao ?? 'desconhecida';
                     \Log::info('Cobrança Inter pronta'.$logContext.' após '.$attempt.' tentativa(s). Situação: '.$situacao);
-                    break;
                 }
+                break;
+            }
+
+            if ($attempt < $maxAttempts) {
+                \Log::info('Cobrança Inter em processamento'.$logContext.', tentativa '.$attempt.'/'.$maxAttempts);
+                sleep($sleepSeconds);
             }
         }
 
@@ -288,14 +433,14 @@ class Invoice extends Model
         return $result;
     }
 
-    private static function fetchInterCobrancaPdf($company, $access_token, $codigoSolicitacao, string $logContext = '')
+    private static function fetchInterCobrancaPdf($company, $access_token, $codigoSolicitacao, string $logContext = '', int $maxAttempts = 20, int $sleepSeconds = 3)
     {
-        $url = $company->inter_host.'cobranca/v3/cobrancas/'.$codigoSolicitacao.'/pdf';
+        $url = rtrim($company->inter_host, '/').'/cobranca/v3/cobrancas/'.$codigoSolicitacao.'/pdf';
         $options = self::interCertOptions($company);
         $headers = ['Authorization' => 'Bearer '.$access_token];
         $response = null;
 
-        for ($attempt = 1; $attempt <= 15; $attempt++) {
+        for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
             $response = Http::withOptions($options)->withHeaders($headers)->get($url);
 
             if ($response->successful()) {
@@ -303,18 +448,251 @@ class Invoice extends Model
             }
 
             $body = $response->body();
-            if ($response->status() === 400 && str_contains($body, 'processamento')) {
-                \Log::info('PDF Inter ainda em processamento'.$logContext.', tentativa '.$attempt.'/15');
-                sleep(2);
+            if ($response->status() === 400 && str_contains(strtolower($body), 'processamento')) {
+                \Log::info('PDF Inter ainda em processamento'.$logContext.', tentativa '.$attempt.'/'.$maxAttempts);
+                sleep($sleepSeconds);
                 continue;
             }
 
-            \Log::error('Erro ao gerar PDF do boleto'.$logContext.': '.$body);
+            \Log::error('Erro ao gerar PDF da cobrança Inter'.$logContext.': '.$body);
 
             return $response;
         }
 
         return $response;
+    }
+
+    private static function generateInterPixQrCode($invoice, string $pixCopiaECola): array
+    {
+        if (!Storage::disk('public')->exists('pix')) {
+            Storage::disk('public')->makeDirectory('pix');
+        }
+
+        $filePath = storage_path('app/public/pix/'.$invoice->user_id.'_'.$invoice->id.'.png');
+        QrCode::format('png')->size(220)->generate($pixCopiaECola, $filePath);
+        $image_pix = env('APP_URL').Storage::url('pix/'.$invoice->user_id.'_'.$invoice->id.'.png');
+
+        return [
+            'image_url_pix' => $image_pix,
+            'qrcode_pix_base64' => base64_encode(file_get_contents($filePath)),
+        ];
+    }
+
+    private static function persistInterCobrancaInvoice(
+        int $invoice_id,
+        $invoice,
+        string $codigoSolicitacao,
+        $result,
+        ?string $pdfBase64,
+        string $storageFolder,
+        bool $includePix,
+        string $invoiceStatus = 'Pendente'
+    ): void {
+        $update = [
+            'status' => $invoiceStatus,
+            'msg_erro' => null,
+            'transaction_id' => $codigoSolicitacao,
+            'billet_digitable' => self::extractInterLinhaDigitavel($result),
+        ];
+
+        if (!empty($pdfBase64)) {
+            Storage::disk('public')->put($storageFolder.'/'.$invoice->user_id.'_'.$invoice->id.'.pdf', base64_decode($pdfBase64));
+            $update['billet_url'] = env('APP_URL').Storage::url($storageFolder.'/'.$invoice->user_id.'_'.$invoice->id.'.pdf');
+            $update['billet_base64'] = $pdfBase64;
+        }
+
+        if ($includePix) {
+            $pixCopiaECola = self::extractInterPixCopiaECola($result);
+            if (!empty($pixCopiaECola)) {
+                $pixQr = self::generateInterPixQrCode($invoice, $pixCopiaECola);
+                $update['pix_digitable'] = $pixCopiaECola;
+                $update['image_url_pix'] = $pixQr['image_url_pix'];
+                $update['qrcode_pix_base64'] = $pixQr['qrcode_pix_base64'];
+            }
+        }
+
+        self::where('id', $invoice_id)->update($update);
+    }
+
+    /**
+     * Emite cobrança unificada BolePix v3 (boleto + QR Code Pix) no Banco Inter.
+     * Usado tanto para payment_method Boleto quanto BoletoPix.
+     */
+    public static function generateInterCobrancaV3($invoice_id): array
+    {
+        $invoice = self::with(['customerService.customer', 'company'])->find($invoice_id);
+        if (!$invoice) {
+            return ['status' => 'reject', 'title' => 'Erro ao gerar cobrança', 'message' => [['razao' => 'Fatura não encontrada', 'propriedade' => 'invoice_id']]];
+        }
+
+        $customer = $invoice->customerService->customer;
+        $company = $invoice->company;
+        $title = $invoice->payment_method === 'BoletoPix' ? 'Erro ao gerar BoletoPix' : 'Erro ao gerar Boleto';
+        $storageFolder = $invoice->payment_method === 'BoletoPix' ? 'boletopix' : 'boletos';
+        $includePix = $invoice->payment_method === 'BoletoPix';
+        $logContext = $includePix ? ' (BoletoPix)' : '';
+
+        if (!Storage::disk('public')->exists($storageFolder)) {
+            Storage::disk('public')->makeDirectory($storageFolder);
+        }
+
+        $credentialError = self::validateInterCredentials($company, $title);
+        if ($credentialError !== null) {
+            return $credentialError;
+        }
+
+        $tokenResult = self::ensureInterAccessToken($company);
+        if (!$tokenResult['success']) {
+            return ['status' => 'reject', 'title' => $title, 'message' => [['razao' => 'Não autorizado', 'propriedade' => $tokenResult['message']]]];
+        }
+
+        $access_token = $tokenResult['token'];
+        $dataVencimentoFormatada = self::resolveInterDueDate($invoice);
+        $options = self::interCertOptions($company);
+
+        $response_generate = Http::withOptions($options)->withHeaders([
+            'Authorization' => 'Bearer '.$access_token,
+        ])->post(rtrim($company->inter_host, '/').'/cobranca/v3/cobrancas', [
+            'seuNumero' => (string) $invoice->id,
+            'valorNominal' => $invoice->price,
+            'dataVencimento' => $dataVencimentoFormatada,
+            'numDiasAgenda' => 60,
+            'pagador' => [
+                'cpfCnpj' => $customer->document,
+                'nome' => $customer->name,
+                'email' => $customer->email,
+                'telefone' => substr($customer->whatsapp, 2),
+                'cep' => removeEspeciais($customer->cep),
+                'numero' => $customer->number,
+                'complemento' => $customer->complement,
+                'bairro' => $customer->district,
+                'cidade' => $customer->city,
+                'uf' => $customer->state,
+                'endereco' => $customer->address,
+                'ddd' => substr($customer->whatsapp, 0, 2),
+                'tipoPessoa' => $customer->type == 'Física' ? 'FISICA' : 'JURIDICA',
+            ],
+            'multa' => [
+                'codigo' => 'PERCENTUAL',
+                'taxa' => 1,
+            ],
+        ]);
+
+        if (!$response_generate->successful()) {
+            $result_generate = $response_generate->json();
+
+            return [
+                'status' => 'reject',
+                'title' => $result_generate['title'] ?? $title,
+                'message' => $result_generate['violacoes'] ?? [['razao' => 'Erro na API Inter', 'propriedade' => 'cobranca/v3/cobrancas']],
+            ];
+        }
+
+        $result_generate = json_decode($response_generate->body());
+        if (empty($result_generate->codigoSolicitacao)) {
+            \Log::error('Erro ao gerar cobrança Inter: codigoSolicitacao não retornado para invoice ID: '.$invoice_id);
+
+            return ['status' => 'reject', 'title' => $title, 'message' => [['razao' => 'codigoSolicitacao não retornado pela API', 'propriedade' => 'Erro ao gerar cobrança intermedium!']]];
+        }
+
+        $codigoSolicitacao = trim((string) $result_generate->codigoSolicitacao);
+        $result_get = self::fetchInterCobrancaDetails($company, $access_token, $codigoSolicitacao, $logContext);
+
+        if ($result_get === null) {
+            return ['status' => 'reject', 'title' => $title, 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Erro ao obter detalhes da cobrança intermedium!']]];
+        }
+
+        if (self::interCobrancaIsProcessing($result_get) && !self::interCobrancaHasPaymentData($result_get)) {
+            self::where('id', $invoice_id)->update([
+                'status' => 'Processamento',
+                'msg_erro' => null,
+                'transaction_id' => $codigoSolicitacao,
+            ]);
+
+            \Log::warning('Cobrança Inter ainda em processamento'.$logContext.' para invoice ID: '.$invoice_id.'. Será concluída pelo cron.');
+
+            return [
+                'status' => 'success',
+                'title' => 'OK',
+                'message' => [['razao' => 'OK', 'propriedade' => 'Cobrança em processamento no Inter']],
+                'invoice_status' => 'Processamento',
+                'invoice_updated' => true,
+            ];
+        }
+
+        $response_pdf = self::fetchInterCobrancaPdf($company, $access_token, $codigoSolicitacao, $logContext);
+        $pdfBase64 = null;
+
+        if ($response_pdf && $response_pdf->successful()) {
+            $pdfBase64 = json_decode($response_pdf->getBody())->pdf ?? null;
+        } elseif ($response_pdf) {
+            \Log::warning('PDF indisponível'.$logContext.' para invoice ID: '.$invoice_id.'. Salvando cobrança sem PDF.');
+        }
+
+        $invoiceStatus = !empty($pdfBase64) || self::interCobrancaHasPaymentData($result_get) ? 'Pendente' : 'Processamento';
+        self::persistInterCobrancaInvoice($invoice_id, $invoice, $codigoSolicitacao, $result_get, $pdfBase64, $storageFolder, $includePix, $invoiceStatus);
+
+        return [
+            'status' => 'success',
+            'title' => 'OK',
+            'message' => [['razao' => 'OK', 'propriedade' => 'OK']],
+            'invoice_status' => $invoiceStatus,
+            'invoice_updated' => true,
+        ];
+    }
+
+    /**
+     * Conclui faturas Inter em Processamento (PDF/Pix ainda não disponíveis na emissão).
+     */
+    public static function completeInterCobrancaProcessing($invoice_id): array
+    {
+        $invoice = self::with(['customerService.customer', 'company'])->find($invoice_id);
+        if (!$invoice || empty($invoice->transaction_id)) {
+            return ['success' => false, 'completed' => false, 'message' => 'Fatura não encontrada ou sem transaction_id.'];
+        }
+
+        $company = $invoice->company;
+        $credentialError = self::validateInterCredentials($company, 'Erro ao concluir cobrança');
+        if ($credentialError !== null) {
+            return ['success' => false, 'completed' => false, 'message' => self::formatInterErrorMessages($credentialError['message'])];
+        }
+
+        $tokenResult = self::ensureInterAccessToken($company);
+        if (!$tokenResult['success']) {
+            return ['success' => false, 'completed' => false, 'message' => $tokenResult['message']];
+        }
+
+        $access_token = $tokenResult['token'];
+        $codigoSolicitacao = trim((string) $invoice->transaction_id);
+        $logContext = $invoice->payment_method === 'BoletoPix' ? ' (BoletoPix)' : '';
+        $storageFolder = $invoice->payment_method === 'BoletoPix' ? 'boletopix' : 'boletos';
+        $includePix = $invoice->payment_method === 'BoletoPix';
+
+        $result_get = self::fetchInterCobrancaDetails($company, $access_token, $codigoSolicitacao, $logContext, 10, 3);
+        if ($result_get === null) {
+            return ['success' => false, 'completed' => false, 'message' => 'Erro ao consultar cobrança no Inter.'];
+        }
+
+        if (self::interCobrancaIsProcessing($result_get) && !self::interCobrancaHasPaymentData($result_get)) {
+            return ['success' => true, 'completed' => false, 'message' => 'Cobrança ainda em processamento no Inter.'];
+        }
+
+        $pdfBase64 = null;
+        if (empty($invoice->billet_url)) {
+            $response_pdf = self::fetchInterCobrancaPdf($company, $access_token, $codigoSolicitacao, $logContext, 10, 3);
+            if ($response_pdf && $response_pdf->successful()) {
+                $pdfBase64 = json_decode($response_pdf->getBody())->pdf ?? null;
+            }
+        }
+
+        $invoiceStatus = !empty($pdfBase64) || self::interCobrancaHasPaymentData($result_get) ? 'Pendente' : 'Processamento';
+        self::persistInterCobrancaInvoice($invoice_id, $invoice, $codigoSolicitacao, $result_get, $pdfBase64, $storageFolder, $includePix, $invoiceStatus);
+
+        return [
+            'success' => true,
+            'completed' => $invoiceStatus === 'Pendente',
+            'message' => $invoiceStatus === 'Pendente' ? 'Cobrança concluída.' : 'Cobrança parcialmente concluída, aguardando PDF.',
+        ];
     }
 
     /**
@@ -352,10 +730,10 @@ class Invoice extends Model
         $transaction_id_clean = preg_replace('/[^a-zA-Z0-9\-]/', '', $transaction_id);
         $gatewayStatus = null;
 
-        if ($invoice->payment_method === 'Boleto') {
-            $isUuid = (strpos($transaction_id_clean, '-') !== false);
+        if (in_array($invoice->payment_method, ['Boleto', 'BoletoPix'], true)) {
+            $isUuid = str_contains($transaction_id_clean, '-');
 
-            if (!$isUuid && is_numeric($transaction_id_clean)) {
+            if (!$isUuid && is_numeric($transaction_id_clean) && $invoice->payment_method === 'Boleto') {
                 $nossoNumero = $transaction_id_clean;
                 $dataVencimento = $invoice->date_due ?? Carbon::now()->format('Y-m-d');
                 $dataInicial = Carbon::parse($dataVencimento)->subDays(30)->format('Y-m-d');
@@ -369,6 +747,10 @@ class Invoice extends Model
                 }
 
                 if (!$response_v2->successful()) {
+                    if ($response_v2->status() === 404) {
+                        return ['success' => true, 'updated' => false, 'gateway_status' => null, 'message' => 'Cobrança não encontrada no Banco Inter (legado v2).'];
+                    }
+
                     return ['success' => false, 'message' => 'Erro ao consultar status no Banco Inter (HTTP '.$response_v2->status().').'];
                 }
 
@@ -397,17 +779,22 @@ class Invoice extends Model
                 }
 
                 if (!$response->successful()) {
+                    if ($response->status() === 404) {
+                        return ['success' => true, 'updated' => false, 'gateway_status' => null, 'message' => 'Cobrança não encontrada no Banco Inter.'];
+                    }
+
                     return ['success' => false, 'message' => 'Erro ao consultar status no Banco Inter (HTTP '.$response->status().').'];
                 }
 
-                $gatewayStatus = json_decode($response->body())->cobranca->situacao ?? null;
+                $responseData = json_decode($response->body());
+                $gatewayStatus = $responseData->cobranca->situacao ?? null;
+
+                if ($gatewayStatus === 'EM_PROCESSAMENTO' && in_array($invoice->status, ['Processamento', 'Gerando'], true)) {
+                    self::completeInterCobrancaProcessing($invoice->id);
+                }
             }
-        } elseif (in_array($invoice->payment_method, ['BoletoPix', 'Pix'], true)) {
-            if ($invoice->payment_method === 'Pix') {
-                $url = rtrim($company->inter_host, '/').'/pix/v2/cobv/'.$transaction_id_clean;
-            } else {
-                $url = rtrim($company->inter_host, '/').'/cobranca/v3/cobrancas/'.$transaction_id_clean;
-            }
+        } elseif ($invoice->payment_method === 'Pix') {
+            $url = rtrim($company->inter_host, '/').'/pix/v2/cobv/'.$transaction_id_clean;
 
             $response = self::interApiGet($company, $url, $httpOptions);
 
@@ -416,13 +803,15 @@ class Invoice extends Model
             }
 
             if (!$response->successful()) {
+                if ($response->status() === 404) {
+                    return ['success' => true, 'updated' => false, 'gateway_status' => null, 'message' => 'Pix não encontrado no Banco Inter.'];
+                }
+
                 return ['success' => false, 'message' => 'Erro ao consultar status no Banco Inter (HTTP '.$response->status().').'];
             }
 
             $responseData = json_decode($response->body());
-            $gatewayStatus = $invoice->payment_method === 'Pix'
-                ? ($responseData->status ?? null)
-                : ($responseData->cobranca->situacao ?? null);
+            $gatewayStatus = $responseData->status ?? null;
         } else {
             return ['success' => false, 'message' => 'Método de pagamento não suportado para consulta no Inter.'];
         }
@@ -934,403 +1323,11 @@ class Invoice extends Model
 
 
         public static function generateBilletIntermedium($invoice_id){
-
-            if (!Storage::disk('public')->exists('boletos')) {
-                Storage::disk('public')->makeDirectory('boletos');
-            }
-
-            $invoice = Invoice::with(['customerService.customer', 'company'])->find($invoice_id);
-
-            $customer = $invoice->customerService->customer;
-            $company = $invoice->company;
-
-            $access_token = $company->access_token_inter;
-
-            if($access_token == null){
-                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Access token inválido!']]];
-            }
-            if($company->inter_host == ''){
-                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'HOST banco inter não cadastrado!']]];
-            }
-            if($company->inter_client_id == ''){
-                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'CLIENT ID banco inter não cadastrado!']]];
-            }
-            if($company->inter_client_secret == ''){
-                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'CLIENT SECRET banco inter não cadastrado!']]];
-            }
-            if($company->inter_crt_file == ''){
-                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado CRT banco inter não cadastrado!']]];
-            }
-            if(!file_exists(storage_path('/app/'.$company->inter_crt_file))){
-                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado CRT banco inter não existe!']]];
-            }
-            if($company->inter_key_file == ''){
-                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado KEY banco inter não cadastrado!']]];
-            }
-            if(!file_exists(storage_path('/app/'.$company->inter_key_file))){
-                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado KEY banco inter não existe!']]];
-            }
-
-            $check_access_token = Http::withOptions(
-                [
-                'cert' => storage_path('/app/'.$company->inter_crt_file),
-                'ssl_key' => storage_path('/app/'.$company->inter_key_file)
-                ]
-                )->withHeaders([
-                'Authorization' => 'Bearer ' . $access_token
-            ])->get('https://cdpj.partners.bancointer.com.br/cobranca/v3/cobrancas?dataInicial=2023-01-01&dataFinal=2023-01-01');
-
-            if ($check_access_token->unauthorized()) {
-                $response = Http::withOptions([
-                    'cert' => storage_path('/app/'.$company->inter_crt_file),
-                    'ssl_key' => storage_path('/app/'.$company->inter_key_file),
-                ])->asForm()->post($company->inter_host.'oauth/v2/token', [
-                    'client_id' => $company->inter_client_id,
-                    'client_secret' => $company->inter_client_secret,
-                    'scope' => $company->inter_scope,
-                    'grant_type' => 'client_credentials',
-                ]);
-
-                if ($response->successful()) {
-                    $responseBody = $response->body();
-                    $access_token = json_decode($responseBody)->access_token;
-                    \App\Models\Company::where('id',$company->id)->update([
-                        'access_token_inter' => $access_token
-                    ]);
-
-                    $company->refresh();
-                }else{
-                    return ['status' => 'reject', 'title' => 'Erro ao gerar Boleto', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Access token Expirado ou inválido!']]];
-                }
-            }
-
-
-            $date_multa = Carbon::parse($invoice->date_due)->addDays(1);
-            if(date('l') == 'Saturday' || date('l') == 'Sábado'){
-                $date_multa = Carbon::parse($invoice->date_due)->addDays(2);
-            }
-
-            // Validar e corrigir data de vencimento
-            $dataVencimento = Carbon::parse($invoice->date_due);
-            $dataAtual = Carbon::now();
-
-            // Se a data de vencimento for menor que a data atual, ajustar para hoje
-            if($dataVencimento->lt($dataAtual)){
-                $dataVencimento = $dataAtual->copy();
-
-                // Se for sábado, ajustar para segunda-feira
-                if($dataVencimento->isSaturday()){
-                    $dataVencimento->addDays(2);
-                }
-                // Se for domingo, ajustar para segunda-feira
-                elseif($dataVencimento->isSunday()){
-                    $dataVencimento->addDay();
-                }
-
-                \Log::warning("Data de vencimento ajustada para invoice ID: {$invoice_id}. Data original: {$invoice->date_due}, Nova data: {$dataVencimento->format('Y-m-d')}");
-            }
-
-            // Garantir formato Y-m-d
-            $dataVencimentoFormatada = $dataVencimento->format('Y-m-d');
-
-            $response_generate_billet = Http::withOptions([
-                'cert' => storage_path('/app/'.$company->inter_crt_file),
-                'ssl_key' => storage_path('/app/'.$company->inter_key_file),
-                ])->withHeaders([
-                'Authorization' => 'Bearer ' . $access_token
-              ])->post($company->inter_host.'cobranca/v3/cobrancas',[
-                "seuNumero"=> $invoice->id,
-                "valorNominal"=> $invoice->price,
-                "dataVencimento"=> $dataVencimentoFormatada,
-                "numDiasAgenda"=> 60,
-                "pagador"=> [
-                  "cpfCnpj"=> $customer->document,
-                  "nome"=> $customer->name,
-                  "email"=> $customer->email,
-                  "telefone"=> substr($customer->whatsapp,2),
-                  "cep"=> removeEspeciais($customer->cep),
-                  "numero"=> $customer->number,
-                  "complemento"=> $customer->complement,
-                  "bairro"=> $customer->district,
-                  "cidade"=> $customer->city,
-                  "uf"=> $customer->state,
-                  "endereco"=> $customer->address,
-                  "ddd"=> substr($customer->whatsapp,0,2),
-                  "tipoPessoa"=> $customer->type == 'Física' ? 'FISICA' : 'JURIDICA'
-                ],
-                "multa"=> [
-                "codigo"=> "PERCENTUAL",
-                "taxa"=> 1
-              ]
-              ]);
-
-            if ($response_generate_billet->successful()) {
-
-                $result_generate_billet = json_decode($response_generate_billet->body());
-
-                // Valida se codigoSolicitacao foi retornado
-                if(empty($result_generate_billet->codigoSolicitacao)){
-                    \Log::error('Erro ao gerar boleto: codigoSolicitacao não retornado para invoice ID: '.$invoice_id);
-                    return ['status' => 'reject', 'title' => 'Erro ao gerar Boleto', 'message' => [['razao' => 'codigoSolicitacao não retornado pela API', 'propriedade' => 'Erro ao gerar boleto intermedium!']]];
-                }
-
-                $codigoSolicitacao = trim((string) $result_generate_billet->codigoSolicitacao);
-
-                $result_get_billet = self::fetchInterCobrancaDetails($company, $access_token, $codigoSolicitacao);
-                if ($result_get_billet === null) {
-                    return ['status' => 'reject', 'title' => 'Erro ao gerar Boleto', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Erro ao obter codigo boleto intermedium!']]];
-                }
-
-                $response_pdf_billet = self::fetchInterCobrancaPdf($company, $access_token, $codigoSolicitacao);
-
-                if ($response_pdf_billet && $response_pdf_billet->successful()) {
-
-                    $responseBodyPdf = $response_pdf_billet->getBody();
-                    $pdf = json_decode($responseBodyPdf)->pdf;
-
-                    //\File::put(public_path(). '/boleto/' . $invoice->user_id.'_'.$invoice->id.'.pdf', base64_decode($pdf));
-                    //$billet_pdf   = 'https://cobrancasegura.com.br/boleto/'.$invoice->user_id.'_'.$invoice->id.'.pdf';
-
-                    Storage::disk('public')->put('boletos/' .  $invoice->user_id.'_'.$invoice->id.'.pdf', base64_decode($pdf));
-                    $billet_pdf = env('APP_URL').Storage::url('boletos/' .$invoice->user_id.'_'.$invoice->id.'.pdf');
-
-                    // Tenta obter linhaDigitavel de diferentes estruturas possíveis
-                    $linhaDigitavel = null;
-                    if(isset($result_get_billet->cobranca->boleto->linhaDigitavel)){
-                        $linhaDigitavel = $result_get_billet->cobranca->boleto->linhaDigitavel;
-                    } elseif(isset($result_get_billet->boleto->linhaDigitavel)){
-                        $linhaDigitavel = $result_get_billet->boleto->linhaDigitavel;
-                    } elseif(isset($result_get_billet->cobranca->linhaDigitavel)){
-                        $linhaDigitavel = $result_get_billet->cobranca->linhaDigitavel;
-                    } elseif(isset($result_get_billet->linhaDigitavel)){
-                        $linhaDigitavel = $result_get_billet->linhaDigitavel;
-                    } else {
-                        \Log::warning('linhaDigitavel não encontrada na resposta para invoice ID: '.$invoice_id);
-                        // Pode ser que a linha digitável não esteja disponível ainda, mas o boleto foi criado
-                        $linhaDigitavel = '';
-                    }
-
-                    Invoice::where('id',$invoice_id)->update([
-                        'status'            =>  'Pendente',
-                        'msg_erro'          =>  null,
-                        'transaction_id'    =>  $codigoSolicitacao,
-                        'billet_url'        =>  $billet_pdf,
-                        'billet_base64'     =>  $pdf,
-                        'billet_digitable'  =>  $linhaDigitavel
-                    ]);
-                    return ['status' => 'success', 'title' => 'OK', 'message' => [['razao' => 'OK', 'propriedade' => 'OK']]];
-
-                }else{
-                    $error_response = json_decode($response_pdf_billet->body());
-                    \Log::error('Erro ao gerar PDF do boleto: '.$response_pdf_billet->body());
-                    return ['status' => 'reject', 'title' => isset($error_response->title) ? $error_response->title : 'Erro ao gerar PDF', 'message' => isset($error_response->violacoes) ? $error_response->violacoes : [['razao' => 'Erro ao gerar pdf pagamento intermedium', 'propriedade' => 'PDF']]];
-                }
-
-
-            }else{
-                $result_generate_billet = $response_generate_billet->json();
-                return ['status' => 'reject', 'title' => $result_generate_billet['title'], 'message' => $result_generate_billet['violacoes']];
-            }
-
-
+            return self::generateInterCobrancaV3($invoice_id);
         }
 
-
-
         public static function generateBilletPixIntermedium($invoice_id){
-
-            if (!Storage::disk('public')->exists('boletopix')) {
-                Storage::disk('public')->makeDirectory('boletopix');
-            }
-
-            $invoice = Invoice::with(['customerService.customer', 'company'])->find($invoice_id);
-
-            $customer = $invoice->customerService->customer;
-            $company = $invoice->company;
-
-            $access_token = $company->access_token_inter;
-
-            if($access_token == null){
-                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Access token inválido!']]];
-            }
-            if($company->inter_host == ''){
-                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'HOST banco inter não cadastrado!']]];
-            }
-            if($company->inter_client_id == ''){
-                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'CLIENT ID banco inter não cadastrado!']]];
-            }
-            if($company->inter_client_secret == ''){
-                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'CLIENT SECRET banco inter não cadastrado!']]];
-            }
-            if($company->inter_crt_file == ''){
-                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado CRT banco inter não cadastrado!']]];
-            }
-            if(!file_exists(storage_path('/app/'.$company->inter_crt_file))){
-                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado CRT banco inter não existe!']]];
-            }
-            if($company->inter_key_file == ''){
-                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado KEY banco inter não cadastrado!']]];
-            }
-            if(!file_exists(storage_path('/app/'.$company->inter_key_file))){
-                return ['status' => 'reject', 'title' => 'Erro ao gerar PIX', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Certificado KEY banco inter não existe!']]];
-            }
-
-            $check_access_token = Http::withOptions(
-                [
-                'cert' => storage_path('/app/'.$company->inter_crt_file),
-                'ssl_key' => storage_path('/app/'.$company->inter_key_file)
-                ]
-                )->withHeaders([
-                'Authorization' => 'Bearer ' . $access_token
-            ])->get('https://cdpj.partners.bancointer.com.br/cobranca/v3/cobrancas?dataInicial=2023-01-01&dataFinal=2023-01-01');
-
-            if ($check_access_token->unauthorized()) {
-                $response = Http::withOptions([
-                    'cert' => storage_path('/app/'.$company->inter_crt_file),
-                    'ssl_key' => storage_path('/app/'.$company->inter_key_file),
-                ])->asForm()->post($company->inter_host.'oauth/v2/token', [
-                    'client_id' => $company->inter_client_id,
-                    'client_secret' => $company->inter_client_secret,
-                    'scope' => $company->inter_scope,
-                    'grant_type' => 'client_credentials',
-                ]);
-
-                if ($response->successful()) {
-                    $responseBody = $response->body();
-                    $access_token = json_decode($responseBody)->access_token;
-                    \App\Models\Company::where('id',$company->id)->update([
-                        'access_token_inter' => $access_token
-                    ]);
-
-                    $company->refresh();
-                }else{
-                    return ['status' => 'reject', 'title' => 'Erro ao gerar BoletoPix', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Access token Expirado ou inválido!']]];
-                }
-            }
-
-            // Validar e corrigir data de vencimento
-            $dataVencimento = Carbon::parse($invoice->date_due);
-            $dataAtual = Carbon::now();
-
-            // Se a data de vencimento for menor que a data atual, ajustar para hoje
-            if($dataVencimento->lt($dataAtual)){
-                $dataVencimento = $dataAtual->copy();
-
-                // Se for sábado, ajustar para segunda-feira
-                if($dataVencimento->isSaturday()){
-                    $dataVencimento->addDays(2);
-                }
-                // Se for domingo, ajustar para segunda-feira
-                elseif($dataVencimento->isSunday()){
-                    $dataVencimento->addDay();
-                }
-
-                \Log::warning("Data de vencimento ajustada para invoice ID: {$invoice_id} (BoletoPix). Data original: {$invoice->date_due}, Nova data: {$dataVencimento->format('Y-m-d')}");
-            }
-
-            // Garantir formato Y-m-d
-            $dataVencimentoFormatada = $dataVencimento->format('Y-m-d');
-
-            $response_generate_billet = Http::withOptions([
-                'cert' => storage_path('/app/'.$company->inter_crt_file),
-                'ssl_key' => storage_path('/app/'.$company->inter_key_file),
-                ])->withHeaders([
-                'Authorization' => 'Bearer ' . $access_token
-              ])->post($company->inter_host.'cobranca/v3/cobrancas',[
-                "seuNumero"=> $invoice->id,
-                "valorNominal"=> $invoice->price,
-                "dataVencimento"=> $dataVencimentoFormatada,
-                "numDiasAgenda"=> 60,
-                "pagador"=> [
-                  "cpfCnpj"=> $customer->document,
-                  "nome"=> $customer->name,
-                  "email"=> $customer->email,
-                  "telefone"=> substr($customer->whatsapp,2),
-                  "cep"=> removeEspeciais($customer->cep),
-                  "numero"=> $customer->number,
-                  "complemento"=> $customer->complement,
-                  "bairro"=> $customer->district,
-                  "cidade"=> $customer->city,
-                  "uf"=> $customer->state,
-                  "endereco"=> $customer->address,
-                  "ddd"=> substr($customer->whatsapp,0,2),
-                  "tipoPessoa"=> $customer->type == 'Física' ? 'FISICA' : 'JURIDICA'
-                ],
-                "multa"=> [
-                "codigo"=> "PERCENTUAL",
-                "taxa"=> 1
-              ]
-              ]);
-
-            if ($response_generate_billet->successful()) {
-
-                $result_generate_billet = json_decode($response_generate_billet->body());
-
-                // Valida se codigoSolicitacao foi retornado
-                if(empty($result_generate_billet->codigoSolicitacao)){
-                    \Log::error('Erro ao gerar boletopix: codigoSolicitacao não retornado para invoice ID: '.$invoice_id);
-                    return ['status' => 'reject', 'title' => 'Erro ao gerar BoletoPix', 'message' => [['razao' => 'codigoSolicitacao não retornado pela API', 'propriedade' => 'Erro ao gerar boletopix intermedium!']]];
-                }
-
-                $codigoSolicitacao = trim((string) $result_generate_billet->codigoSolicitacao);
-
-                $result_get_billet = self::fetchInterCobrancaDetails($company, $access_token, $codigoSolicitacao, ' (BoletoPix)');
-                if ($result_get_billet === null) {
-                    return ['status' => 'reject', 'title' => 'Erro ao gerar BoletoPix', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Erro ao obter codigo boletopix intermedium!']]];
-                }
-
-                $response_pdf_billet = self::fetchInterCobrancaPdf($company, $access_token, $codigoSolicitacao, ' (BoletoPix)');
-
-                if ($response_pdf_billet && $response_pdf_billet->successful()) {
-
-                    $responseBodyPdf = $response_pdf_billet->getBody();
-                    $pdf = json_decode($responseBodyPdf)->pdf;
-
-                    //\File::put(public_path(). '/boletopix/' . $invoice->user_id.'_'.$invoice->id.'.pdf', base64_decode($pdf));
-                    //$billet_pdf   = 'https://cobrancasegura.com.br/boletopix/'.$invoice->user_id.'_'.$invoice->id.'.pdf';
-
-                    Storage::disk('public')->put('boletopix/' .  $invoice->user_id.'_'.$invoice->id.'.pdf', base64_decode($pdf));
-                    $billet_pdf = env('APP_URL').Storage::url('boletopix/' .$invoice->user_id.'_'.$invoice->id.'.pdf');
-
-                    // Tenta obter linhaDigitavel de diferentes estruturas possíveis
-                    $linhaDigitavel = null;
-                    if(isset($result_get_billet->cobranca->boleto->linhaDigitavel)){
-                        $linhaDigitavel = $result_get_billet->cobranca->boleto->linhaDigitavel;
-                    } elseif(isset($result_get_billet->boleto->linhaDigitavel)){
-                        $linhaDigitavel = $result_get_billet->boleto->linhaDigitavel;
-                    } elseif(isset($result_get_billet->cobranca->linhaDigitavel)){
-                        $linhaDigitavel = $result_get_billet->cobranca->linhaDigitavel;
-                    } elseif(isset($result_get_billet->linhaDigitavel)){
-                        $linhaDigitavel = $result_get_billet->linhaDigitavel;
-                    } else {
-                        \Log::warning('linhaDigitavel não encontrada na resposta (BoletoPix) para invoice ID: '.$invoice_id);
-                        // Pode ser que a linha digitável não esteja disponível ainda, mas o boleto foi criado
-                        $linhaDigitavel = '';
-                    }
-
-                    Invoice::where('id',$invoice_id)->update([
-                        'status'            =>  'Pendente',
-                        'msg_erro'          =>  null,
-                        'transaction_id'    =>  $codigoSolicitacao,
-                        'billet_url'        =>  $billet_pdf,
-                        'billet_base64'     =>  $pdf,
-                        'billet_digitable'  =>  $linhaDigitavel
-                    ]);
-                    return ['status' => 'success', 'title' => 'OK', 'message' => [['razao' => 'OK', 'propriedade' => 'OK']]];
-
-                }else{
-                    $error_response = json_decode($response_pdf_billet->body());
-                    \Log::error('Erro ao gerar PDF do boletopix: '.$response_pdf_billet->body());
-                    return ['status' => 'reject', 'title' => isset($error_response->title) ? $error_response->title : 'Erro ao gerar PDF', 'message' => isset($error_response->violacoes) ? $error_response->violacoes : [['razao' => 'Erro ao gerar pdf pagamento intermedium', 'propriedade' => 'PDF']]];
-                }
-
-
-            }else{
-                $result_generate_billet = $response_generate_billet->json();
-                return ['status' => 'reject', 'title' => $result_generate_billet['title'], 'message' => $result_generate_billet['violacoes']];
-            }
-
-
+            return self::generateInterCobrancaV3($invoice_id);
         }
 
 
@@ -1419,104 +1416,18 @@ class Invoice extends Model
 
             if ($response_cancel_billet->successful()) {
                 return 'success';
-            }else{
-                \Log::info('Erro ao cancelar pagamento intermedium: '.$response_cancel_billet->json());
             }
+
+            \Log::info('Erro ao cancelar pagamento intermedium: '.$response_cancel_billet->body());
+
+            return 'error';
 
         }
 
 
-            public static function cancelBilletPixIntermedium($user_id, $transaction_id){
-
-                $invoice = Invoice::where('transaction_id', $transaction_id)->first();
-
-                if(!$invoice){
-                    return response()->json('Fatura não encontrada!', 404);
-                }
-
-                $company = Company::find($invoice->company_id);
-
-                if(!$company){
-                    return response()->json('Empresa não encontrada!', 404);
-                }
-
-                $access_token = $company->access_token_inter;
-
-            if($company->inter_host == '' || $company->inter_host == null){
-                return response()->json('HOST banco inter não cadastrado!', 422);
-            }
-            if($company->inter_client_id == '' || $company->inter_client_id == null){
-                return response()->json('CLIENT ID banco inter não cadastrado!', 422);
-            }
-            if($company->inter_client_secret == '' || $company->inter_client_secret == null){
-                return response()->json('CLIENT SECRET banco inter não cadastrado!', 422);
-            }
-            if($company->inter_crt_file == '' || $company->inter_crt_file == null){
-                return response()->json('Certificado CRT banco inter não cadastrado!', 422);
-            }
-            if(!file_exists(storage_path('/app/'.$company->inter_crt_file))){
-                return response()->json('Certificado CRT banco inter não existe!', 422);
-            }
-            if($company->inter_key_file == '' || $company->inter_key_file == null){
-                return response()->json('Certificado KEY banco inter não cadastrado!', 422);
-            }
-            if(!file_exists(storage_path('/app/'.$company->inter_key_file))){
-                return response()->json('Certificado KEY banco inter não existe!', 422);
-            }
-
-            $check_access_token = Http::withOptions(
-                [
-                'cert' => storage_path('/app/'.$company->inter_crt_file),
-                'ssl_key' => storage_path('/app/'.$company->inter_key_file)
-                ]
-                )->withHeaders([
-                'Authorization' => 'Bearer ' . $access_token
-            ])->get('https://cdpj.partners.bancointer.com.br/cobranca/v3/cobrancas?dataInicial=2023-01-01&dataFinal=2023-01-01');
-
-            if ($check_access_token->unauthorized()) {
-                $response = Http::withOptions([
-                    'cert' => storage_path('/app/'.$company->inter_crt_file),
-                    'ssl_key' => storage_path('/app/'.$company->inter_key_file),
-                ])->asForm()->post($company->inter_host.'oauth/v2/token', [
-                    'client_id' => $company->inter_client_id,
-                    'client_secret' => $company->inter_client_secret,
-                    'scope' => $company->inter_scope,
-                    'grant_type' => 'client_credentials',
-                ]);
-
-                if ($response->successful()) {
-                    $responseBody = $response->body();
-                    $access_token = json_decode($responseBody)->access_token;
-                    Company::where('id',$company->id)->update([
-                        'access_token_inter' => $access_token
-                    ]);
-
-                    $company = Company::find($company->id);
-                }else{
-                    return response()->json('Verifique suas credenciais, erro ao autenticar!', 422);
-                }
-            }
-
-
-                $response_cancel_billet = Http::withOptions([
-                    'cert' => storage_path('/app/'.$company->inter_crt_file),
-                    'ssl_key' => storage_path('/app/'.$company->inter_key_file),
-                ])->withHeaders([
-                    'Authorization' => 'Bearer ' . $access_token
-
-                ])->post($company->inter_host.'cobranca/v3/cobrancas/'.$transaction_id.'/cancelar',[
-                    "motivoCancelamento" => "ACERTOS"
-                ]);
-
-                if ($response_cancel_billet->successful()) {
-                    return 'success';
-                }else{
-                    \Log::info('Erro ao cancelar pagamento intermedium: '.$response_cancel_billet->json());
-                }
-
-                }
-
-
+        public static function cancelBilletPixIntermedium($user_id, $transaction_id){
+            return self::cancelBilletIntermedium($user_id, $transaction_id);
+        }
 
 
         public static function cancelPixIntermedium($user_id, $transaction_id){

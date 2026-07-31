@@ -115,9 +115,8 @@ foreach($invoices as $invoice){
             $generateBilletIntermedium = Invoice::generateBilletIntermedium($invoice['id']);
             if($generateBilletIntermedium['status'] == 'reject'){
                 Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => json_encode($generateBilletIntermedium['message'])]);
-            }else{
-                \Log::info('Boleto Inter - Invoice: '. $invoice['id'].' - Atualizado para Pendente.');
-                Invoice::where('id',$invoice['id'])->update(['status' => 'Pendente']);
+            }elseif(empty($generateBilletIntermedium['invoice_updated'])){
+                Invoice::where('id',$invoice['id'])->update(['status' => $generateBilletIntermedium['invoice_status'] ?? 'Pendente']);
             }
 
         }
@@ -145,8 +144,8 @@ if($invoice['gateway_payment'] == 'Intermedium'){
     $generateBilletIntermedium = Invoice::generateBilletPixIntermedium($invoice['id']);
     if($generateBilletIntermedium['status'] == 'reject'){
         Invoice::where('id',$invoice['id'])->update(['status' => 'Erro','msg_erro' => json_encode($generateBilletIntermedium['message'])]);
-    }else{
-        Invoice::where('id',$invoice['id'])->update(['status' => 'Pendente']);
+    }elseif(empty($generateBilletIntermedium['invoice_updated'])){
+        Invoice::where('id',$invoice['id'])->update(['status' => $generateBilletIntermedium['invoice_status'] ?? 'Pendente']);
     }
 
 }

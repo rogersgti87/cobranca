@@ -20,9 +20,30 @@ class StatusInterCron extends Command
   public function handle()
   {
     $limite_por_execucao = 50;
-
-    // Para desabilitar a consulta de PIX, remova 'Pix' do array abaixo
     $metodosAtivos = ['Boleto', 'BoletoPix'];
+
+    $processingInvoices = Invoice::where('status', 'Processamento')
+        ->whereIn('gateway_payment', ['Inter', 'Intermedium'])
+        ->whereIn('payment_method', $metodosAtivos)
+        ->whereNotNull('company_id')
+        ->whereNotNull('transaction_id')
+        ->whereHas('company', function ($query) {
+            $query->where('status', 'Ativo');
+        })
+        ->with('company')
+        ->orderBy('updated_at', 'asc')
+        ->limit(10)
+        ->get();
+
+    foreach ($processingInvoices as $invoice) {
+        $result = Invoice::completeInterCobrancaProcessing($invoice->id);
+
+        if (!$result['success']) {
+            \Log::warning('StatusInterCron - Conclusão cobrança - Invoice ID: '.$invoice->id.' - '.($result['message'] ?? 'Erro desconhecido'));
+        }
+
+        usleep(500000);
+    }
 
     $invoices = Invoice::where('status', 'Pendente')
         ->whereIn('gateway_payment', ['Inter', 'Intermedium'])
@@ -37,7 +58,7 @@ class StatusInterCron extends Command
         ->limit($limite_por_execucao)
         ->get();
 
-    $this->info('Processando '.$invoices->count().' faturas (Métodos: '.implode(', ', $metodosAtivos).')...');
+    $this->info('Processando '.$invoices->count().' faturas pendentes (Métodos: '.implode(', ', $metodosAtivos).')...');
 
     $contador = 0;
     foreach ($invoices as $invoice) {

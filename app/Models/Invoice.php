@@ -240,6 +240,83 @@ class Invoice extends Model
         return implode(', ', $parts);
     }
 
+    private static function interCertOptions($company): array
+    {
+        return [
+            'cert' => storage_path('/app/'.$company->inter_crt_file),
+            'ssl_key' => storage_path('/app/'.$company->inter_key_file),
+        ];
+    }
+
+    private static function fetchInterCobrancaDetails($company, $access_token, $codigoSolicitacao, string $logContext = '')
+    {
+        $url = $company->inter_host.'cobranca/v3/cobrancas/'.$codigoSolicitacao;
+        $options = self::interCertOptions($company);
+        $headers = ['Authorization' => 'Bearer '.$access_token];
+
+        $response = Http::withOptions($options)->withHeaders($headers)->get($url);
+        if (!$response->successful()) {
+            \Log::error('Erro ao obter detalhes do boleto'.$logContext.': '.$response->body());
+
+            return null;
+        }
+
+        $result = json_decode($response->body());
+        $situacao = $result->cobranca->situacao ?? null;
+
+        if ($situacao === 'EM_PROCESSAMENTO') {
+            for ($attempt = 1; $attempt <= 15; $attempt++) {
+                sleep(2);
+
+                $response = Http::withOptions($options)->withHeaders($headers)->get($url);
+                if (!$response->successful()) {
+                    break;
+                }
+
+                $result = json_decode($response->body());
+                $situacao = $result->cobranca->situacao ?? null;
+
+                if ($situacao !== 'EM_PROCESSAMENTO') {
+                    \Log::info('Cobrança Inter pronta'.$logContext.' após '.$attempt.' tentativa(s). Situação: '.$situacao);
+                    break;
+                }
+            }
+        }
+
+        \Log::info('Estrutura resposta get_billet'.$logContext.': '.json_encode($result));
+
+        return $result;
+    }
+
+    private static function fetchInterCobrancaPdf($company, $access_token, $codigoSolicitacao, string $logContext = '')
+    {
+        $url = $company->inter_host.'cobranca/v3/cobrancas/'.$codigoSolicitacao.'/pdf';
+        $options = self::interCertOptions($company);
+        $headers = ['Authorization' => 'Bearer '.$access_token];
+        $response = null;
+
+        for ($attempt = 1; $attempt <= 15; $attempt++) {
+            $response = Http::withOptions($options)->withHeaders($headers)->get($url);
+
+            if ($response->successful()) {
+                return $response;
+            }
+
+            $body = $response->body();
+            if ($response->status() === 400 && str_contains($body, 'processamento')) {
+                \Log::info('PDF Inter ainda em processamento'.$logContext.', tentativa '.$attempt.'/15');
+                sleep(2);
+                continue;
+            }
+
+            \Log::error('Erro ao gerar PDF do boleto'.$logContext.': '.$body);
+
+            return $response;
+        }
+
+        return $response;
+    }
+
     /**
      * Consulta o status de pagamento no Banco Inter e atualiza a fatura se necessário.
      */
@@ -999,30 +1076,14 @@ class Invoice extends Model
 
                 $codigoSolicitacao = trim((string) $result_generate_billet->codigoSolicitacao);
 
-                // V3 API: Need to get the cobranca details to retrieve boleto information
-                $response_get_billet = Http::retry(3, 100)->withOptions([
-                    'cert' => storage_path('/app/'.$company->inter_crt_file),
-                    'ssl_key' => storage_path('/app/'.$company->inter_key_file),
-                ])->withHeaders([
-                    'Authorization' => 'Bearer ' . $access_token,
-                ])->get($company->inter_host.'cobranca/v3/cobrancas/'.$codigoSolicitacao);
-
-                if ($response_get_billet->successful()) {
-                    $result_get_billet = json_decode($response_get_billet->body());
-                    \Log::info('Estrutura resposta get_billet: '.json_encode($result_get_billet));
-                } else {
-                    \Log::error('Erro ao obter detalhes do boleto: '.$response_get_billet->body());
+                $result_get_billet = self::fetchInterCobrancaDetails($company, $access_token, $codigoSolicitacao);
+                if ($result_get_billet === null) {
                     return ['status' => 'reject', 'title' => 'Erro ao gerar Boleto', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Erro ao obter codigo boleto intermedium!']]];
                 }
 
-                $response_pdf_billet = Http::retry(3, 100)->withOptions([
-                    'cert' => storage_path('/app/'.$company->inter_crt_file),
-                    'ssl_key' => storage_path('/app/'.$company->inter_key_file),
-                ])->withHeaders([
-                    'Authorization' => 'Bearer ' . $access_token,
-                ])->get($company->inter_host.'cobranca/v3/cobrancas/'.$codigoSolicitacao.'/pdf');
+                $response_pdf_billet = self::fetchInterCobrancaPdf($company, $access_token, $codigoSolicitacao);
 
-                if ($response_pdf_billet->successful()) {
+                if ($response_pdf_billet && $response_pdf_billet->successful()) {
 
                     $responseBodyPdf = $response_pdf_billet->getBody();
                     $pdf = json_decode($responseBodyPdf)->pdf;
@@ -1213,29 +1274,14 @@ class Invoice extends Model
 
                 $codigoSolicitacao = trim((string) $result_generate_billet->codigoSolicitacao);
 
-                $response_get_billet = Http::retry(3, 100)->withOptions([
-                    'cert' => storage_path('/app/'.$company->inter_crt_file),
-                    'ssl_key' => storage_path('/app/'.$company->inter_key_file),
-                ])->withHeaders([
-                    'Authorization' => 'Bearer ' . $access_token,
-                ])->get($company->inter_host.'cobranca/v3/cobrancas/'.$codigoSolicitacao);
-
-                if ($response_get_billet->successful()) {
-                    $result_get_billet = json_decode($response_get_billet->body());
-                    \Log::info('Estrutura resposta get_billet (BoletoPix): '.json_encode($result_get_billet));
-                }else{
-                    \Log::error('Erro ao obter detalhes do boletopix: '.$response_get_billet->body());
+                $result_get_billet = self::fetchInterCobrancaDetails($company, $access_token, $codigoSolicitacao, ' (BoletoPix)');
+                if ($result_get_billet === null) {
                     return ['status' => 'reject', 'title' => 'Erro ao gerar BoletoPix', 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Erro ao obter codigo boletopix intermedium!']]];
                 }
 
-                $response_pdf_billet = Http::retry(3, 100)->withOptions([
-                    'cert' => storage_path('/app/'.$company->inter_crt_file),
-                    'ssl_key' => storage_path('/app/'.$company->inter_key_file),
-                ])->withHeaders([
-                    'Authorization' => 'Bearer ' . $access_token,
-                ])->get($company->inter_host.'cobranca/v3/cobrancas/'.$codigoSolicitacao.'/pdf');
+                $response_pdf_billet = self::fetchInterCobrancaPdf($company, $access_token, $codigoSolicitacao, ' (BoletoPix)');
 
-                if ($response_pdf_billet->successful()) {
+                if ($response_pdf_billet && $response_pdf_billet->successful()) {
 
                     $responseBodyPdf = $response_pdf_billet->getBody();
                     $pdf = json_decode($responseBodyPdf)->pdf;

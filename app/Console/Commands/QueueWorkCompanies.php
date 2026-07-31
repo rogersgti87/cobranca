@@ -9,9 +9,12 @@ use Illuminate\Support\Facades\Log;
 class QueueWorkCompanies extends Command
 {
     protected $signature = 'queue:work-companies
+                            {connection? : Conexão da fila}
+                            {--name=default : Nome do worker}
                             {--sleep=3 : Segundos de espera quando não houver jobs}
                             {--tries=3 : Tentativas por job}
                             {--max-time=0 : Tempo máximo de execução do worker (0 = ilimitado)}
+                            {--max-jobs=0 : Jobs processados antes de reiniciar o worker (0 = ilimitado)}
                             {--memory=128 : Limite de memória em MB}
                             {--timeout=60 : Tempo máximo por job em segundos}
                             {--rest=0 : Pausa entre jobs em segundos}
@@ -30,6 +33,7 @@ class QueueWorkCompanies extends Command
 
         $params = [
             '--queue' => implode(',', $queues),
+            '--name' => $this->option('name'),
             '--sleep' => $this->option('sleep'),
             '--tries' => $this->option('tries'),
             '--memory' => $this->option('memory'),
@@ -41,8 +45,16 @@ class QueueWorkCompanies extends Command
             $params['--max-time'] = $this->option('max-time');
         }
 
+        if ((int) $this->option('max-jobs') > 0) {
+            $params['--max-jobs'] = $this->option('max-jobs');
+        }
+
         if ($this->option('force')) {
             $params['--force'] = true;
+        }
+
+        if ($connection = $this->argument('connection')) {
+            $params['connection'] = $connection;
         }
 
         return $this->call('queue:work', $params);

@@ -208,6 +208,39 @@ class Invoice extends Model
     }
 
     /**
+     * Formata mensagens de erro retornadas pela API do Banco Inter.
+     * Nem todos os erros incluem a chave "valor" (ex.: certificado ausente).
+     */
+    public static function formatInterErrorMessages($messages): string
+    {
+        if (!is_array($messages)) {
+            return (string) $messages;
+        }
+
+        $parts = [];
+
+        foreach ($messages as $message) {
+            if (!is_array($message)) {
+                $parts[] = (string) $message;
+                continue;
+            }
+
+            $line = trim(
+                ($message['razao'] ?? '') .
+                (isset($message['propriedade']) ? ' - ' . $message['propriedade'] : '') .
+                (isset($message['valor']) ? ' - ' . $message['valor'] : ''),
+                ' -'
+            );
+
+            if ($line !== '') {
+                $parts[] = $line;
+            }
+        }
+
+        return implode(', ', $parts);
+    }
+
+    /**
      * Consulta o status de pagamento no Banco Inter e atualiza a fatura se necessário.
      */
     public static function syncInterPaymentStatus(self $invoice, bool $notify = true): array

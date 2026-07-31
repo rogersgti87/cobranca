@@ -212,10 +212,7 @@ class CustomerServiceController extends Controller
                         if($generateBilletIntermedium['status'] == 'reject'){
                             //CustomerService::where('id',$model->id)->delete();
                             Invoice::where('id',$newInvoice['id'])->delete();
-                            $msgInterBillet = '';
-                            foreach($generateBilletIntermedium['message'] as $messageInterBillet){
-                                $msgInterBillet .= $messageInterBillet['razao'].' - '.$messageInterBillet['propriedade'].' - '.$messageInterBillet['valor'].',';
-                            }
+                            $msgInterBillet = Invoice::formatInterErrorMessages($generateBilletIntermedium['message']);
 
                             return response()->json($generateBilletIntermedium['title'].': '.$msgInterBillet, 422);
                         }
@@ -444,10 +441,7 @@ class CustomerServiceController extends Controller
                         if($generateBilletIntermedium['status'] == 'reject'){
                             //CustomerService::where('id',$model->id)->delete();
                             Invoice::where('id',$newInvoice['id'])->delete();
-                            $msgInterBillet = '';
-                            foreach($generateBilletIntermedium['message'] as $messageInterBillet){
-                                $msgInterBillet .= $messageInterBillet['razao'].' - '.$messageInterBillet['propriedade'].' - '.$messageInterBillet['valor'].',';
-                            }
+                            $msgInterBillet = Invoice::formatInterErrorMessages($generateBilletIntermedium['message']);
 
                             return response()->json($generateBilletIntermedium['title'].': '.$msgInterBillet, 422);
                         }

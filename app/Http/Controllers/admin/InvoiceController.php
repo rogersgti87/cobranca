@@ -215,10 +215,7 @@ class InvoiceController extends Controller
                         $generateBilletIntermedium = Invoice::generateBilletIntermedium($newInvoice['id']);
                         if($generateBilletIntermedium['status'] == 'reject'){
                             Invoice::where('id',$newInvoice['id'])->delete();
-                            $msgInterBillet = '';
-                            foreach($generateBilletIntermedium['message'] as $messageInterBillet){
-                                $msgInterBillet .= $messageInterBillet['razao'].' - '.$messageInterBillet['propriedade'].' - '.$messageInterBillet['valor'].',';
-                            }
+                            $msgInterBillet = Invoice::formatInterErrorMessages($generateBilletIntermedium['message']);
                             return response()->json($generateBilletIntermedium['title'].': '.$msgInterBillet, 422);
                         }
                     }elseif($newInvoice['gateway_payment'] == 'Asaas'){
@@ -379,10 +376,7 @@ class InvoiceController extends Controller
 
                     $generateBilletIntermedium = Invoice::generateBilletIntermedium($model['id']);
                     if($generateBilletIntermedium['status'] == 'reject'){
-                        $msgInterBillet = '';
-                        foreach($generateBilletIntermedium['message'] as $messageInterBillet){
-                            $msgInterBillet .= $messageInterBillet['razao'].' - '.$messageInterBillet['propriedade'].' - '.$messageInterBillet['valor'].',';
-                        }
+                        $msgInterBillet = Invoice::formatInterErrorMessages($generateBilletIntermedium['message']);
 
                         return response()->json($generateBilletIntermedium['title'].': '.$msgInterBillet, 422);
                     }
@@ -406,10 +400,7 @@ class InvoiceController extends Controller
 
                 $generateBilletIntermedium = Invoice::generateBilletPixIntermedium($model['id']);
                 if($generateBilletIntermedium['status'] == 'reject'){
-                    $msgInterBillet = '';
-                    foreach($generateBilletIntermedium['message'] as $messageInterBillet){
-                        $msgInterBillet .= $messageInterBillet['razao'].' - '.$messageInterBillet['propriedade'].' - '.$messageInterBillet['valor'].',';
-                    }
+                    $msgInterBillet = Invoice::formatInterErrorMessages($generateBilletIntermedium['message']);
 
                     return response()->json($generateBilletIntermedium['title'].': '.$msgInterBillet, 422);
                 }
@@ -680,10 +671,7 @@ if($model->gateway_payment == 'Estabelecimento' && $model->payment_method == 'Pi
 
                         $generateBilletIntermedium = Invoice::generateBilletIntermedium($model['id']);
                         if($generateBilletIntermedium['status'] == 'reject'){
-                            $msgInterBillet = '';
-                            foreach($generateBilletIntermedium['message'] as $messageInterBillet){
-                                $msgInterBillet .= $messageInterBillet['razao'].' - '.$messageInterBillet['propriedade'].' - '.$messageInterBillet['valor'].',';
-                            }
+                            $msgInterBillet = Invoice::formatInterErrorMessages($generateBilletIntermedium['message']);
 
                             return response()->json($generateBilletIntermedium['title'].': '.$msgInterBillet, 422);
                         }

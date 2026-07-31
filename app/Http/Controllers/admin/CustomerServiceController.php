@@ -154,19 +154,13 @@ class CustomerServiceController extends Controller
                         }
 
                     }
-                    elseif($newInvoice['gateway_payment'] == 'Intermedium'){
-                        $generatePixIntermedium = Invoice::generatePixIntermedium($newInvoice['id']);
-                        if($generatePixIntermedium['status'] == 'reject'){
-                            //CustomerService::where('id',$model->id)->delete();
-                            Invoice::where('id',$newInvoice['id'])->delete();
-                            $msgInterPix = '';
-                            foreach($generatePixIntermedium['message'] as $messageInterPix){
-                                $msgInterPix .= $messageInterPix['razao'].' - '.$messageInterPix['propriedade'].',';
-                            }
-
-                            return response()->json($generatePixIntermedium['title'].': '.$msgInterPix, 422);
-                        }
-
+                    elseif($newInvoice['gateway_payment'] == 'Intermedium' || $newInvoice['gateway_payment'] == 'Inter'){
+                        Invoice::queueInterGeneration(
+                            $newInvoice['id'],
+                            isset($data['send_invoice_email']),
+                            isset($data['send_invoice_whatsapp'])
+                        );
+                        return response()->json('Fatura salva! A cobrança Inter está sendo gerada em segundo plano.', 200);
                     }
                     elseif($model['gateway_payment'] == 'Asaas'){
                         $generatePixAsaas = Invoice::generatePixAsaas($newInvoice['id']);
@@ -206,17 +200,13 @@ class CustomerServiceController extends Controller
                         }
 
                     }
-                    elseif($newInvoice['gateway_payment'] == 'Intermedium'){
-
-                        $generateBilletIntermedium = Invoice::generateBilletIntermedium($newInvoice['id']);
-                        if($generateBilletIntermedium['status'] == 'reject'){
-                            //CustomerService::where('id',$model->id)->delete();
-                            Invoice::where('id',$newInvoice['id'])->delete();
-                            $msgInterBillet = Invoice::formatInterErrorMessages($generateBilletIntermedium['message']);
-
-                            return response()->json($generateBilletIntermedium['title'].': '.$msgInterBillet, 422);
-                        }
-
+                    elseif($newInvoice['gateway_payment'] == 'Intermedium' || $newInvoice['gateway_payment'] == 'Inter'){
+                        Invoice::queueInterGeneration(
+                            $newInvoice['id'],
+                            isset($data['send_invoice_email']),
+                            isset($data['send_invoice_whatsapp'])
+                        );
+                        return response()->json('Fatura salva! A cobrança Inter está sendo gerada em segundo plano.', 200);
                     }
 
                     elseif($model['gateway_payment'] == 'Asaas'){
@@ -237,20 +227,13 @@ class CustomerServiceController extends Controller
 
             elseif($newInvoice['payment_method'] == 'BoletoPix'){
 
-            if($newInvoice['gateway_payment'] == 'Intermedium'){
-
-                $generateBilletIntermedium = Invoice::generateBilletPixIntermedium($newInvoice['id']);
-                if($generateBilletIntermedium['status'] == 'reject'){
-                    CustomerService::where('id',$model->id)->delete();
-                    Invoice::where('id',$newInvoice['id'])->delete();
-                    $msgInterBillet = '';
-                    foreach($generateBilletIntermedium['message'] as $messageInterBillet){
-                        $msgInterBillet .= $messageInterBillet['razao'].' - '.$messageInterBillet['propriedade'];
-                    }
-
-                    return response()->json($generateBilletIntermedium['title'].': '.$msgInterBillet, 422);
-                }
-
+            if($newInvoice['gateway_payment'] == 'Intermedium' || $newInvoice['gateway_payment'] == 'Inter'){
+                Invoice::queueInterGeneration(
+                    $newInvoice['id'],
+                    isset($data['send_invoice_email']),
+                    isset($data['send_invoice_whatsapp'])
+                );
+                return response()->json('Fatura salva! A cobrança Inter está sendo gerada em segundo plano.', 200);
             }
             elseif($model['gateway_payment'] == 'Estabelecimento'){
                 Invoice::where('id',$newInvoice['id'])->update(['status' => 'Estabelecimento']);
@@ -380,19 +363,13 @@ class CustomerServiceController extends Controller
                         }
 
                     }
-                    elseif($newInvoice['gateway_payment'] == 'Intermedium'){
-                        $generatePixIntermedium = Invoice::generatePixIntermedium($newInvoice['id']);
-                        if($generatePixIntermedium['status'] == 'reject'){
-                            //CustomerService::where('id',$model->id)->delete();
-                            Invoice::where('id',$newInvoice['id'])->delete();
-                            $msgInterPix = '';
-                            foreach($generatePixIntermedium['message'] as $messageInterPix){
-                                $msgInterPix .= $messageInterPix['razao'].' - '.$messageInterPix['propriedade'].',';
-                            }
-
-                            return response()->json($generatePixIntermedium['title'].': '.$msgInterPix, 422);
-                        }
-
+                    elseif($newInvoice['gateway_payment'] == 'Intermedium' || $newInvoice['gateway_payment'] == 'Inter'){
+                        Invoice::queueInterGeneration(
+                            $newInvoice['id'],
+                            isset($data['send_invoice_email']),
+                            isset($data['send_invoice_whatsapp'])
+                        );
+                        return response()->json('Fatura salva! A cobrança Inter está sendo gerada em segundo plano.', 200);
                     }
                     elseif($newInvoice['gateway_payment'] == 'Asaas'){
                         $generatePixAsaas = Invoice::generatePixAsaas($newInvoice['id']);
@@ -435,16 +412,13 @@ class CustomerServiceController extends Controller
                         }
 
                     }
-                    elseif($newInvoice['gateway_payment'] == 'Intermedium'){
-
-                        $generateBilletIntermedium = Invoice::generateBilletIntermedium($newInvoice['id']);
-                        if($generateBilletIntermedium['status'] == 'reject'){
-                            //CustomerService::where('id',$model->id)->delete();
-                            Invoice::where('id',$newInvoice['id'])->delete();
-                            $msgInterBillet = Invoice::formatInterErrorMessages($generateBilletIntermedium['message']);
-
-                            return response()->json($generateBilletIntermedium['title'].': '.$msgInterBillet, 422);
-                        }
+                    elseif($newInvoice['gateway_payment'] == 'Intermedium' || $newInvoice['gateway_payment'] == 'Inter'){
+                        Invoice::queueInterGeneration(
+                            $newInvoice['id'],
+                            isset($data['send_invoice_email']),
+                            isset($data['send_invoice_whatsapp'])
+                        );
+                        return response()->json('Fatura salva! A cobrança Inter está sendo gerada em segundo plano.', 200);
                     }
                     elseif($newInvoice['gateway_payment'] == 'Asaas'){
                         $generateBilletAsaas = Invoice::generateBilletAsaas($newInvoice['id']);
@@ -463,20 +437,13 @@ class CustomerServiceController extends Controller
 
             elseif($newInvoice['payment_method'] == 'BoletoPix'){
 
-            if($newInvoice['gateway_payment'] == 'Intermedium'){
-
-                $generateBilletIntermedium = Invoice::generateBilletPixIntermedium($newInvoice['id']);
-                if($generateBilletIntermedium['status'] == 'reject'){
-                    //CustomerService::where('id',$model->id)->delete();
-                    Invoice::where('id',$newInvoice['id'])->delete();
-                    $msgInterBillet = '';
-                    foreach($generateBilletIntermedium['message'] as $messageInterBillet){
-                        $msgInterBillet .= $messageInterBillet['razao'].' - '.$messageInterBillet['propriedade'];
-                    }
-
-                    return response()->json($generateBilletIntermedium['title'].': '.$msgInterBillet, 422);
-                }
-
+            if($newInvoice['gateway_payment'] == 'Intermedium' || $newInvoice['gateway_payment'] == 'Inter'){
+                Invoice::queueInterGeneration(
+                    $newInvoice['id'],
+                    isset($data['send_invoice_email']),
+                    isset($data['send_invoice_whatsapp'])
+                );
+                return response()->json('Fatura salva! A cobrança Inter está sendo gerada em segundo plano.', 200);
             }
             elseif($model['gateway_payment'] == 'Estabelecimento'){
                 Invoice::where('id',$newInvoice['id'])->update(['status' => 'Estabelecimento']);

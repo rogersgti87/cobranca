@@ -536,6 +536,26 @@ class Invoice extends Model
             Storage::disk('public')->makeDirectory($storageFolder);
         }
 
+        // Se já existe cobrança no Inter, só conclui PDF/Pix (evita duplicar emissão).
+        if (!empty($invoice->transaction_id)) {
+            $complete = self::completeInterCobrancaProcessing($invoice_id);
+            if ($complete['success'] ?? false) {
+                return [
+                    'status' => 'success',
+                    'title' => 'OK',
+                    'message' => [['razao' => 'OK', 'propriedade' => $complete['message'] ?? 'OK']],
+                    'invoice_status' => ($complete['completed'] ?? false) ? 'Pendente' : 'Processamento',
+                    'invoice_updated' => true,
+                ];
+            }
+
+            return [
+                'status' => 'reject',
+                'title' => $title,
+                'message' => [['razao' => $complete['message'] ?? 'Erro ao concluir cobrança', 'propriedade' => 'completeInterCobrancaProcessing']],
+            ];
+        }
+
         $credentialError = self::validateInterCredentials($company, $title);
         if ($credentialError !== null) {
             return $credentialError;
@@ -596,19 +616,28 @@ class Invoice extends Model
         }
 
         $codigoSolicitacao = trim((string) $result_generate->codigoSolicitacao);
-        $result_get = self::fetchInterCobrancaDetails($company, $access_token, $codigoSolicitacao, $logContext);
+
+        // Salva o codigo já na emissão para não perder se o worker cair.
+        self::where('id', $invoice_id)->update([
+            'transaction_id' => $codigoSolicitacao,
+            'status' => 'Processamento',
+            'msg_erro' => null,
+        ]);
+
+        // Poll curto: o restante fica para StatusInterCron / completeInterCobrancaProcessing.
+        $result_get = self::fetchInterCobrancaDetails($company, $access_token, $codigoSolicitacao, $logContext, 10, 2);
 
         if ($result_get === null) {
-            return ['status' => 'reject', 'title' => $title, 'message' => [['razao' => 'Não autorizado', 'propriedade' => 'Erro ao obter detalhes da cobrança intermedium!']]];
+            return [
+                'status' => 'success',
+                'title' => 'OK',
+                'message' => [['razao' => 'OK', 'propriedade' => 'Cobrança emitida; detalhes serão concluídos em background']],
+                'invoice_status' => 'Processamento',
+                'invoice_updated' => true,
+            ];
         }
 
         if (self::interCobrancaIsProcessing($result_get) && !self::interCobrancaHasPaymentData($result_get)) {
-            self::where('id', $invoice_id)->update([
-                'status' => 'Processamento',
-                'msg_erro' => null,
-                'transaction_id' => $codigoSolicitacao,
-            ]);
-
             \Log::warning('Cobrança Inter ainda em processamento'.$logContext.' para invoice ID: '.$invoice_id.'. Será concluída pelo cron.');
 
             return [
@@ -620,7 +649,7 @@ class Invoice extends Model
             ];
         }
 
-        $response_pdf = self::fetchInterCobrancaPdf($company, $access_token, $codigoSolicitacao, $logContext);
+        $response_pdf = self::fetchInterCobrancaPdf($company, $access_token, $codigoSolicitacao, $logContext, 8, 2);
         $pdfBase64 = null;
 
         if ($response_pdf && $response_pdf->successful()) {
@@ -1332,100 +1361,128 @@ class Invoice extends Model
 
 
 
-        public static function cancelBilletIntermedium($user_id, $transaction_id){
+        /**
+         * Agenda geração Inter em background (fila + cron como fallback via status Gerando).
+         */
+        public static function queueInterGeneration(int $invoiceId, bool $sendEmail = false, bool $sendWhatsapp = false): void
+        {
+            $invoice = self::find($invoiceId);
+            if (!$invoice) {
+                return;
+            }
 
-            $invoice = Invoice::where('transaction_id', $transaction_id)->first();
+            self::where('id', $invoiceId)->update([
+                'status' => 'Gerando',
+                'msg_erro' => null,
+            ]);
 
-            if(!$invoice){
-                return response()->json('Fatura não encontrada!', 404);
+            $queue = $invoice->company_id ? 'company_'.$invoice->company_id : 'default';
+
+            // afterResponse libera a tela imediatamente; em produção a fila company_* processa o job.
+            \App\Jobs\GenerateInterInvoiceJob::dispatch($invoiceId, $sendEmail, $sendWhatsapp)
+                ->onQueue($queue)
+                ->afterResponse();
+        }
+
+        public static function isInterBackgroundMethod(?string $gateway, ?string $paymentMethod): bool
+        {
+            return in_array($gateway, ['Inter', 'Intermedium'], true)
+                && in_array($paymentMethod, ['Boleto', 'BoletoPix', 'Pix'], true);
+        }
+
+        public static function cancelBilletIntermedium($user_id, $transaction_id)
+        {
+            $invoice = self::where('transaction_id', $transaction_id)->first();
+            if (!$invoice) {
+                return ['status' => 'error', 'message' => 'Fatura não encontrada!'];
             }
 
             $company = Company::find($invoice->company_id);
-
-            if(!$company){
-                return response()->json('Empresa não encontrada!', 404);
+            if (!$company) {
+                return ['status' => 'error', 'message' => 'Empresa não encontrada!'];
             }
 
-            $access_token = $company->access_token_inter;
-
-            if($company->inter_host == '' || $company->inter_host == null){
-                return response()->json('HOST banco inter não cadastrado!', 422);
-            }
-            if($company->inter_client_id == '' || $company->inter_client_id == null){
-                return response()->json('CLIENT ID banco inter não cadastrado!', 422);
-            }
-            if($company->inter_client_secret == '' || $company->inter_client_secret == null){
-                return response()->json('CLIENT SECRET banco inter não cadastrado!', 422);
-            }
-            if($company->inter_crt_file == '' || $company->inter_crt_file == null){
-                return response()->json('Certificado CRT banco inter não cadastrado!', 422);
-            }
-            if(!file_exists(storage_path('/app/'.$company->inter_crt_file))){
-                return response()->json('Certificado CRT banco inter não existe!', 422);
-            }
-            if($company->inter_key_file == '' || $company->inter_key_file == null){
-                return response()->json('Certificado KEY banco inter não cadastrado!', 422);
-            }
-            if(!file_exists(storage_path('/app/'.$company->inter_key_file))){
-                return response()->json('Certificado KEY banco inter não existe!', 422);
+            $credentialError = self::validateInterCredentials($company, 'Erro ao cancelar cobrança');
+            if ($credentialError !== null) {
+                return ['status' => 'error', 'message' => self::formatInterErrorMessages($credentialError['message'])];
             }
 
-            $check_access_token = Http::withOptions(
-                [
-                'cert' => storage_path('/app/'.$company->inter_crt_file),
-                'ssl_key' => storage_path('/app/'.$company->inter_key_file)
-                ]
-                )->withHeaders([
-                'Authorization' => 'Bearer ' . $access_token
-            ])->get('https://cdpj.partners.bancointer.com.br/cobranca/v3/cobrancas?dataInicial=2023-01-01&dataFinal=2023-01-01');
+            $tokenResult = self::ensureInterAccessToken($company);
+            if (!$tokenResult['success']) {
+                return ['status' => 'error', 'message' => $tokenResult['message']];
+            }
 
-            if ($check_access_token->unauthorized()) {
-                $response = Http::withOptions([
-                    'cert' => storage_path('/app/'.$company->inter_crt_file),
-                    'ssl_key' => storage_path('/app/'.$company->inter_key_file),
-                ])->asForm()->post($company->inter_host.'oauth/v2/token', [
-                    'client_id' => $company->inter_client_id,
-                    'client_secret' => $company->inter_client_secret,
-                    'scope' => $company->inter_scope,
-                    'grant_type' => 'client_credentials',
-                ]);
+            $access_token = $tokenResult['token'];
+            $options = self::interCertOptions($company);
+            $headers = ['Authorization' => 'Bearer '.$access_token];
+            $base = rtrim($company->inter_host, '/');
+            $detailUrl = $base.'/cobranca/v3/cobrancas/'.$transaction_id;
+            $cancelUrl = $detailUrl.'/cancelar';
 
-                if ($response->successful()) {
-                    $responseBody = $response->body();
-                    $access_token = json_decode($responseBody)->access_token;
-                    Company::where('id',$company->id)->update([
-                        'access_token_inter' => $access_token
-                    ]);
+            $detail = Http::withOptions($options)->withHeaders($headers)->get($detailUrl);
+            if ($detail->status() === 404) {
+                return ['status' => 'success', 'message' => 'Cobrança não encontrada no Inter; cancelamento local permitido.'];
+            }
 
-                    $company = Company::find($company->id);
-                }else{
-                    return response()->json('Verifique suas credenciais, erro ao autenticar!', 422);
+            if ($detail->successful()) {
+                $situacao = json_decode($detail->body())->cobranca->situacao ?? null;
+                if (in_array($situacao, ['CANCELADO', 'CANCELADA', 'EXPIRADO'], true)) {
+                    return ['status' => 'success', 'message' => 'Cobrança já cancelada/expirada no Inter.'];
+                }
+
+                // Inter não cancela enquanto EM_PROCESSAMENTO — aguarda ficar pronta.
+                if ($situacao === 'EM_PROCESSAMENTO') {
+                    for ($attempt = 1; $attempt <= 10; $attempt++) {
+                        sleep(3);
+                        $detail = Http::withOptions($options)->withHeaders($headers)->get($detailUrl);
+                        if (!$detail->successful()) {
+                            break;
+                        }
+                        $situacao = json_decode($detail->body())->cobranca->situacao ?? null;
+                        if ($situacao !== 'EM_PROCESSAMENTO') {
+                            \Log::info("Cancelamento Inter: cobrança saiu de EM_PROCESSAMENTO após {$attempt} tentativa(s). Situação: {$situacao}");
+                            break;
+                        }
+                    }
+
+                    if (in_array($situacao, ['CANCELADO', 'CANCELADA', 'EXPIRADO'], true)) {
+                        return ['status' => 'success', 'message' => 'Cobrança já cancelada/expirada no Inter.'];
+                    }
+
+                    if ($situacao === 'EM_PROCESSAMENTO') {
+                        return [
+                            'status' => 'error',
+                            'message' => 'A cobrança ainda está em processamento no Banco Inter e não pode ser cancelada agora. Aguarde alguns minutos e tente novamente.',
+                        ];
+                    }
                 }
             }
 
-
-            $response_cancel_billet = Http::withOptions([
-                'cert' => storage_path('/app/'.$company->inter_crt_file),
-                'ssl_key' => storage_path('/app/'.$company->inter_key_file),
-            ])->withHeaders([
-                'Authorization' => 'Bearer ' . $access_token
-
-            ])->post($company->inter_host.'cobranca/v3/cobrancas/'.$transaction_id.'/cancelar',[
-                "motivoCancelamento" => "ACERTOS"
+            $response_cancel = Http::withOptions($options)->withHeaders($headers)->post($cancelUrl, [
+                'motivoCancelamento' => 'ACERTOS',
             ]);
 
-            if ($response_cancel_billet->successful()) {
-                return 'success';
+            if ($response_cancel->successful()) {
+                return ['status' => 'success', 'message' => 'Cobrança cancelada no Inter.'];
             }
 
-            \Log::info('Erro ao cancelar pagamento intermedium: '.$response_cancel_billet->body());
+            $body = $response_cancel->json();
+            $detailMsg = $body['detail'] ?? $response_cancel->body();
+            \Log::info('Erro ao cancelar pagamento intermedium: '.$response_cancel->body());
 
-            return 'error';
+            // Se o Inter diz que já está cancelada, trata como sucesso.
+            if (is_string($detailMsg) && (str_contains(mb_strtolower($detailMsg), 'cancelad') || str_contains(mb_strtolower($detailMsg), 'já se encontra'))) {
+                return ['status' => 'success', 'message' => $detailMsg];
+            }
 
+            return [
+                'status' => 'error',
+                'message' => is_string($detailMsg) ? $detailMsg : 'Não foi possível cancelar a cobrança no Banco Inter.',
+            ];
         }
 
-
-        public static function cancelBilletPixIntermedium($user_id, $transaction_id){
+        public static function cancelBilletPixIntermedium($user_id, $transaction_id)
+        {
             return self::cancelBilletIntermedium($user_id, $transaction_id);
         }
 

@@ -16,7 +16,7 @@ class QueueWorkCompanies extends Command
                             {--max-time=0 : Tempo máximo de execução do worker (0 = ilimitado)}
                             {--max-jobs=0 : Jobs processados antes de reiniciar o worker (0 = ilimitado)}
                             {--memory=128 : Limite de memória em MB}
-                            {--timeout=60 : Tempo máximo por job em segundos}
+                            {--timeout=180 : Tempo máximo por job em segundos}
                             {--rest=0 : Pausa entre jobs em segundos}
                             {--force : Forçar execução em produção}';
 

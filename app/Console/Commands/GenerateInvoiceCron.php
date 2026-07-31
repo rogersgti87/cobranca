@@ -31,7 +31,8 @@ class GenerateInvoiceCron extends Command
 $invoices = Invoice::with(['customerService.customer', 'company'])
     ->where('status', 'Gerando')
     ->whereNotNull('company_id')
-    ->limit(1)
+    ->orderBy('id', 'asc')
+    ->limit(3)
     ->get();
 
 if($invoices != null){
@@ -155,7 +156,9 @@ elseif($invoice['gateway_payment'] == 'Estabelecimento'){
 
 }
 
-   if($invoice['send_generate_invoice'] == 'Sim'){
+   $invoice->refresh();
+   $sendGenerate = $invoice->company->send_generate_invoice ?? null;
+   if($sendGenerate == 'Sim' && $invoice->status == 'Pendente'){
         InvoiceNotification::Email($invoice['id']);
 
         if(date('l') != 'Sunday'){

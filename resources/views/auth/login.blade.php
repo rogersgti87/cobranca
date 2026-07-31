@@ -79,7 +79,7 @@
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    background: linear-gradient(135deg, #e5f7fd 0%, #f3f4f6 50%, #ffffff 100%);
+    background: transparent;
     padding: 0 15px 15px 15px;
     overflow-y: auto;
 }
@@ -92,11 +92,11 @@
 }
 
 .form-container {
-    background: #ffffff;
+    background: #1A1A20;
     border-radius: 20px;
     padding: 30px;
-    box-shadow: 0 20px 60px rgba(6, 184, 247, 0.15), 0 8px 24px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(6, 184, 247, 0.1);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(212, 175, 55, 0.25);
+    border: 1px solid rgba(212, 175, 55, 0.25);
 }
 
 .logo-modern {
@@ -110,17 +110,17 @@
     justify-content: center;
     width: 140px;
     height: 90px;
-    background: #ffffff;
+    background: #121216;
     border-radius: 16px;
     margin-bottom: 16px;
-    border: 2px solid #e2e8f0;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 2px solid rgba(212, 175, 55, 0.2);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
 }
 
 .logo-background:hover {
-    border-color: #06b8f7;
-    box-shadow: 0 6px 20px rgba(6, 184, 247, 0.15);
+    border-color: #D4AF37;
+    box-shadow: 0 6px 24px rgba(212, 175, 55, 0.2);
 }
 
 .logo-background img {
@@ -132,13 +132,13 @@
 .welcome-text {
     font-size: 24px;
     font-weight: 700;
-    color: #333333;
+    color: #F0F0F2;
     margin: 0 0 6px 0;
 }
 
 .subtitle-text {
     font-size: 14px;
-    color: #666666;
+    color: #9898A4;
     margin: 0;
 }
 
@@ -150,7 +150,7 @@
     display: block;
     font-size: 13px;
     font-weight: 600;
-    color: #333333;
+    color: #9898A4;
     margin-bottom: 6px;
 }
 
@@ -158,35 +158,35 @@
     width: 100%;
     padding: 12px 14px;
     font-size: 14px;
-    border: 2px solid #e2e8f0;
+    border: 2px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
     transition: all 0.3s ease;
-    background: #f7fafc;
-    color: #333333;
+    background: #16161A;
+    color: #F0F0F2;
     box-sizing: border-box;
 }
 
 .form-input-modern:focus {
     outline: none;
-    border-color: #06b8f7;
-    background: #ffffff;
-    box-shadow: 0 0 0 3px rgba(6, 184, 247, 0.1);
+    border-color: #D4AF37;
+    background: #16161A;
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
 }
 
 .form-input-modern::placeholder {
-    color: #a0aec0;
+    color: #6B6B78;
 }
 
 .form-input-modern.is-invalid {
-    border-color: #fc8181;
-    background: #fff5f5;
+    border-color: #F87171;
+    background: rgba(248, 113, 113, 0.08);
 }
 
 .error-message {
     display: block;
     margin-top: 6px;
     font-size: 12px;
-    color: #e53e3e;
+    color: #FCA5A5;
 }
 
 .login-btn-modern {
@@ -194,8 +194,8 @@
     padding: 14px;
     font-size: 15px;
     font-weight: 600;
-    color: #ffffff;
-    background: linear-gradient(135deg, #06b8f7 0%, #05a0d6 100%);
+    color: #0A0A0C;
+    background: linear-gradient(135deg, #B8960C 0%, #D4AF37 100%);
     border: none;
     border-radius: 12px;
     cursor: pointer;
@@ -205,13 +205,14 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    box-shadow: 0 4px 16px rgba(6, 184, 247, 0.4);
+    box-shadow: 0 4px 16px rgba(212, 175, 55, 0.3);
 }
 
 .login-btn-modern:hover {
-    background: linear-gradient(135deg, #05a0d6 0%, #0489b8 100%);
+    background: linear-gradient(135deg, #D4AF37 0%, #F0C14B 100%);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(6, 184, 247, 0.5);
+    box-shadow: 0 6px 24px rgba(212, 175, 55, 0.4);
+    color: #0A0A0C;
 }
 
 .login-btn-modern:active {
@@ -224,7 +225,7 @@
 }
 
 .forgot-link {
-    color: #06b8f7;
+    color: #D4AF37;
     text-decoration: none;
     font-size: 13px;
     font-weight: 500;
@@ -232,7 +233,7 @@
 }
 
 .forgot-link:hover {
-    color: #05a0d6;
+    color: #F0C14B;
     text-decoration: underline;
 }
 
@@ -240,23 +241,14 @@
     .form-container {
         padding: 24px 20px;
     }
-    
+
     .logo-background {
         width: 120px;
         height: 75px;
     }
-    
-    .logo-background img {
-        max-width: 100px;
-        max-height: 55px;
-    }
-    
+
     .welcome-text {
         font-size: 20px;
-    }
-    
-    .subtitle-text {
-        font-size: 13px;
     }
 }
 
@@ -264,37 +256,13 @@
     .form-container {
         padding: 24px;
     }
-    
+
     .logo-modern {
         margin-bottom: 20px;
     }
-    
-    .logo-background {
-        width: 120px;
-        height: 75px;
-        margin-bottom: 12px;
-    }
-    
-    .logo-background img {
-        max-width: 100px;
-        max-height: 55px;
-    }
-    
-    .welcome-text {
-        font-size: 20px;
-        margin-bottom: 4px;
-    }
-    
-    .subtitle-text {
-        font-size: 13px;
-    }
-    
+
     .form-group-modern {
         margin-bottom: 14px;
-    }
-    
-    .forgot-password {
-        margin-top: 14px;
     }
 }
 </style>

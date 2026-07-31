@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 
@@ -9,12 +9,12 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0" style="color: #333333; font-weight: 600;">{{ $title }}</h1>
+            <h1 class="m-0" style="color: #F0F0F2; font-weight: 600;">{{ $title }}</h1>
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right" style="background-color: transparent; padding: 0;">
-              <li class="breadcrumb-item"><a href="{{url('admin')}}" style="color: #333333; text-decoration: none; opacity: 0.7;">Home</a></li>
-              <li class="breadcrumb-item active" style="color: #333333; opacity: 0.7;">{{ $title }}</li>
+              <li class="breadcrumb-item"><a href="{{url('admin')}}" style="color: #F0F0F2; text-decoration: none; opacity: 0.7;">Home</a></li>
+              <li class="breadcrumb-item active" style="color: #F0F0F2; opacity: 0.7;">{{ $title }}</li>
             </ol>
           </div><!-- /.col -->
         </div><!-- /.row -->
@@ -29,15 +29,15 @@
 
           <!-- Navegação de Mês -->
           <div class="col-md-12 mb-4">
-            <div style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <div style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
               <div class="d-flex justify-content-between align-items-center">
-                <button type="button" id="btn-prev-month" class="btn" style="background-color: #06b8f7; color: #FFFFFF !important; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600;">
+                <button type="button" id="btn-prev-month" class="btn" style="background-color: #D4AF37; color: #FFFFFF !important; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600;">
                   <i class="fas fa-chevron-left"></i> Mês Anterior
                 </button>
                 <div class="text-center">
-                  <h3 id="current-month" style="color: #333333; font-weight: 600; margin: 0; font-size: 24px;"></h3>
+                  <h3 id="current-month" style="color: #F0F0F2; font-weight: 600; margin: 0; font-size: 24px;"></h3>
                 </div>
-                <button type="button" id="btn-next-month" class="btn" style="background-color: #06b8f7; color: #FFFFFF !important; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600;">
+                <button type="button" id="btn-next-month" class="btn" style="background-color: #D4AF37; color: #FFFFFF !important; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600;">
                   Próximo Mês <i class="fas fa-chevron-right"></i>
                 </button>
               </div>
@@ -46,10 +46,10 @@
 
           <!-- Cards de Resumo -->
           <div class="col-md-4 col-6 mb-3">
-            <div style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <div style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                  <p style="color: #333333; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Total Receitas</p>
+                  <p style="color: #F0F0F2; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Total Receitas</p>
                   <h5 id="total-receitas" style="color: #6ccb48; font-size: 24px; font-weight: 600; margin: 5px 0 0 0;">R$0,00</h5>
                 </div>
                 <div style="width: 48px; height: 48px; background-color: rgba(108,203,72,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
@@ -60,25 +60,25 @@
           </div>
 
           <div class="col-md-4 col-6 mb-3">
-            <div style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <div style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                  <p style="color: #333333; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Total Despesas</p>
-                  <h5 id="total-despesas" style="color: #06b8f7; font-size: 24px; font-weight: 600; margin: 5px 0 0 0;">R$0,00</h5>
+                  <p style="color: #F0F0F2; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Total Despesas</p>
+                  <h5 id="total-despesas" style="color: #D4AF37; font-size: 24px; font-weight: 600; margin: 5px 0 0 0;">R$0,00</h5>
                 </div>
-                <div style="width: 48px; height: 48px; background-color: rgba(6,184,247,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                  <i class="fas fa-arrow-down" style="color: #06b8f7; font-size: 20px;"></i>
+                <div style="width: 48px; height: 48px; background-color: rgba(212, 175, 55,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                  <i class="fas fa-arrow-down" style="color: #D4AF37; font-size: 20px;"></i>
                 </div>
               </div>
             </div>
           </div>
 
           <div class="col-md-4 col-12 mb-3">
-            <div style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <div style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                  <p style="color: #333333; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Saldo</p>
-                  <h5 id="saldo" style="color: #333333; font-size: 24px; font-weight: 600; margin: 5px 0 0 0;">R$0,00</h5>
+                  <p style="color: #F0F0F2; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Saldo</p>
+                  <h5 id="saldo" style="color: #F0F0F2; font-size: 24px; font-weight: 600; margin: 5px 0 0 0;">R$0,00</h5>
                 </div>
                 <div style="width: 48px; height: 48px; background-color: rgba(254,201,17,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
                   <i class="fas fa-balance-scale" style="color: #fec911; font-size: 20px;"></i>
@@ -89,8 +89,8 @@
 
           <!-- Gráfico -->
           <div class="col-md-12 mb-4">
-            <div style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-              <h5 style="color: #333333; font-weight: 600; margin-bottom: 20px;">
+            <div style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+              <h5 style="color: #F0F0F2; font-weight: 600; margin-bottom: 20px;">
                 <i class="fas fa-chart-line"></i> Receitas e Despesas por Dia do Mês
               </h5>
               <div style="position: relative; height: 400px;">
@@ -112,27 +112,27 @@
 @section('styles')
 <style>
     body {
-        background-color: #FFFFFF !important;
+        background-color: #1A1A20 !important;
     }
 
     .content-wrapper {
-        background-color: #FFFFFF !important;
+        background-color: #1A1A20 !important;
     }
 
     .content-header {
-        background-color: #FFFFFF !important;
+        background-color: #1A1A20 !important;
     }
 
     .content {
-        background-color: #FFFFFF !important;
+        background-color: #1A1A20 !important;
     }
 
     #btn-prev-month:hover,
     #btn-next-month:hover {
-        background-color: #06b8f7 !important;
+        background-color: #D4AF37 !important;
         opacity: 0.9;
         transform: translateY(-1px);
-        box-shadow: 0 4px 6px rgba(6, 184, 247, 0.3);
+        box-shadow: 0 4px 6px rgba(212, 175, 55, 0.3);
     }
 
     /* Responsividade Mobile */
@@ -259,8 +259,8 @@ function loadChart() {
                         {
                             label: 'Despesas',
                             data: data.despesas,
-                            backgroundColor: 'rgba(6, 184, 247, 0.8)',
-                            borderColor: '#06b8f7',
+                            backgroundColor: 'rgba(212, 175, 55, 0.8)',
+                            borderColor: '#D4AF37',
                             borderWidth: 2,
                             borderRadius: 4
                         }
@@ -283,7 +283,7 @@ function loadChart() {
                             }
                         },
                         tooltip: {
-                            backgroundColor: '#FFFFFF',
+                            backgroundColor: 'transparent',
                             titleColor: '#333333',
                             bodyColor: '#333333',
                             borderColor: 'rgba(0,0,0,0.1)',

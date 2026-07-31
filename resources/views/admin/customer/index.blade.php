@@ -1,22 +1,24 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 
 <style>
 /* Estilos modernos para o index */
 .modern-header {
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    background: transparent;
+    border: 1px solid rgba(212, 175, 55, 0.35);
     border-radius: 15px;
     padding: 25px;
     margin-bottom: 25px;
-    color: #fff;
-    box-shadow: 0 10px 30px rgba(0, 123, 255, 0.3);
+    color: #F0F0F2;
+    box-shadow: none;
 }
 
 .modern-header h1 {
     margin: 0;
     font-weight: 700;
     font-size: 28px;
+    color: #D4AF37;
 }
 
 .header-actions {
@@ -26,7 +28,7 @@
 }
 
 .modern-filter-card {
-    background: #fff;
+    background: #1A1A20;
     border-radius: 15px;
     padding: 20px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.05);
@@ -44,7 +46,7 @@
 
 .filter-title i {
     margin-right: 8px;
-    color: #007bff;
+    color: #D4AF37;
 }
 
 .modern-input {
@@ -57,7 +59,7 @@
 }
 
 .modern-input:focus {
-    border-color: #007bff;
+    border-color: #D4AF37;
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
@@ -67,13 +69,13 @@
     padding: 10px 15px;
     font-size: 14px;
     height: 42px;
-    background: #fff url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%23007bff' d='M2 0L0 2h4zm0 5L0 3h4z'/%3E%3C/svg%3E") no-repeat right 0.75rem center;
+    background: #1A1A20 url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%23D4AF37' d='M2 0L0 2h4zm0 5L0 3h4z'/%3E%3C/svg%3E") no-repeat right 0.75rem center;
     background-size: 8px 10px;
     appearance: none;
 }
 
 .modern-table-card {
-    background: #fff;
+    background: #1A1A20;
     border-radius: 15px;
     padding: 0;
     box-shadow: 0 5px 20px rgba(0,0,0,0.05);
@@ -127,7 +129,7 @@
     width: 45px;
     height: 45px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    background: linear-gradient(135deg, #D4AF37 0%, #B8960C 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -162,35 +164,48 @@
     font-size: 13px;
     font-weight: 600;
     transition: all 0.3s ease;
-    border: none;
+    background: transparent;
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    color: #D4AF37;
+}
+
+.btn-action-modern:hover {
+    background: rgba(212, 175, 55, 0.1);
+    border-color: #D4AF37;
+    color: #F0C14B;
+    transform: translateY(-1px);
+    box-shadow: none;
 }
 
 .btn-edit {
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-    color: #fff;
+    background: transparent;
+    color: #D4AF37;
 }
 
 .btn-edit:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
-    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: none;
+    color: #F0C14B;
 }
 
 .btn-delete-modern {
-    background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
-    color: #fff;
+    background: transparent;
+    border-color: rgba(248, 113, 113, 0.45);
+    color: #F87171;
     margin-left: 8px;
 }
 
 .btn-delete-modern:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(245, 101, 101, 0.3);
-    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: none;
+    background: rgba(248, 113, 113, 0.1);
+    border-color: #F87171;
+    color: #FCA5A5;
 }
 
 .btn-new {
-    background: #fff;
-    color: #007bff;
+    background: #1A1A20;
+    color: #D4AF37;
     padding: 12px 24px;
     border-radius: 10px;
     font-weight: 600;
@@ -202,7 +217,7 @@
 .btn-new:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-    color: #007bff;
+    color: #D4AF37;
 }
 
 .empty-state {
@@ -239,7 +254,7 @@
     width: 50px;
     height: 50px;
     border: 4px solid #e2e8f0;
-    border-top-color: #007bff;
+    border-top-color: #D4AF37;
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
@@ -465,7 +480,7 @@ $(document).ready(function() {
                     icon: 'error',
                     title: 'Erro ao filtrar',
                     text: 'Tente novamente',
-                    confirmButtonColor: '#007bff'
+                    confirmButtonColor: '#D4AF37'
                 });
             }
         });
@@ -548,7 +563,7 @@ $(document).ready(function() {
             Swal.fire({
                 icon: 'warning',
                 title: 'Nenhum cliente selecionado',
-                confirmButtonColor: '#007bff'
+                confirmButtonColor: '#D4AF37'
             });
             return;
         }
@@ -575,7 +590,7 @@ $(document).ready(function() {
                         Swal.fire({
                             icon: 'success',
                             title: 'Clientes removidos!',
-                            confirmButtonColor: '#007bff'
+                            confirmButtonColor: '#D4AF37'
                         }).then(() => {
                             location.reload();
                         });
@@ -585,7 +600,7 @@ $(document).ready(function() {
                             icon: 'error',
                             title: 'Erro',
                             text: xhr.responseJSON || 'Erro ao deletar',
-                            confirmButtonColor: '#007bff'
+                            confirmButtonColor: '#D4AF37'
                         });
                     }
                 });

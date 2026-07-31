@@ -85,7 +85,7 @@
                 <style>
 
                     pre {
-                       background-color: ghostwhite;
+                       background-color: #1A1A20;
                        border: 1px solid silver;
                        padding: 10px 20px;
                        margin: 20px;

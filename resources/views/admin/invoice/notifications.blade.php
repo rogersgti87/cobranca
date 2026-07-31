@@ -1,4 +1,4 @@
-<style>
+﻿<style>
     table.dataTable th {
       font-size: 12px;
     }
@@ -16,7 +16,7 @@
       height: 350px;
       top: 50%;
       margin-top: -200px;
-      background: #FFF;
+      background: #1A1A20;
       border: 3px solid #333;
       z-index: 20;
       font-size:12px;
@@ -41,7 +41,7 @@
       left: 0;
       bottom: 0;
       right: 0;
-      background: #FFF;
+      background: #1A1A20;
       z-index: -1;
     }
     .overflow{

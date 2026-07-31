@@ -1,11 +1,11 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 
 <style>
 /* Estilos modernos - Cliente */
 .profile-card {
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    background: linear-gradient(135deg, #D4AF37 0%, #B8960C 100%);
     border-radius: 15px;
     padding: 30px;
     text-align: center;
@@ -30,7 +30,7 @@
     position: absolute;
     bottom: 5px;
     right: 5px;
-    background: #fff;
+    background: #1A1A20;
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -41,7 +41,7 @@
 }
 
 .photo-overlay i {
-    color: #007bff;
+    color: #D4AF37;
     font-size: 18px;
 }
 
@@ -58,7 +58,7 @@
     width: 150px;
     height: 150px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    background: linear-gradient(135deg, #D4AF37 0%, #B8960C 100%);
     border: 5px solid #fff;
     box-shadow: 0 5px 20px rgba(0,0,0,0.2);
     display: flex;
@@ -103,7 +103,7 @@
 }
 
 .modern-card {
-    background: #fff;
+    background: #1A1A20;
     border-radius: 15px;
     padding: 25px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.05);
@@ -124,7 +124,7 @@
 
 .section-title i {
     margin-right: 10px;
-    color: #007bff;
+    color: #D4AF37;
     font-size: 18px;
 }
 
@@ -144,12 +144,12 @@
 }
 
 .form-control:focus {
-    border-color: #007bff;
+    border-color: #D4AF37;
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
 .save-button {
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    background: linear-gradient(135deg, #D4AF37 0%, #B8960C 100%);
     border: none;
     border-radius: 10px;
     padding: 12px 30px;
@@ -180,7 +180,7 @@
 
 /* Estilos para Swal e checkboxes */
 .custom-swal { font-family: Arial, sans-serif; color: #333; font-size: 12px; }
-.custom-swal .swal2-title { font-size: 24px; color: #007bff; }
+.custom-swal .swal2-title { font-size: 24px; color: #D4AF37; }
 .custom-swal .swal2-content { font-size: 14px; }
 .checkbox-container { display: inline-flex; align-items: center; margin-right: 20px; }
 .checkbox-container input[type="checkbox"] { width: 20px; height: 20px; }
@@ -704,7 +704,7 @@ $(document).on('click', '#btn-salvar', function(e) {
             var message = url_act == 'add' ? data.data : data;
             Swal.fire({
                 width: 400,
-                title: "<h5 style='color:#007bff'>" + message + "</h5>",
+                title: "<h5 style='color:#D4AF37'>" + message + "</h5>",
                 icon: 'success',
                 showConfirmButton: false,
                 showClass: { popup: 'animate__animated animate__backInUp' },
@@ -716,9 +716,9 @@ $(document).on('click', '#btn-salvar', function(e) {
         },
         error: function(xhr) {
             if(xhr.status === 422){
-                Swal.fire({ text: xhr.responseJSON, width: 300, icon: 'warning', confirmButtonColor: "#007bff", showClass: { popup: 'animate__animated animate__wobble' } });
+                Swal.fire({ text: xhr.responseJSON, width: 300, icon: 'warning', confirmButtonColor: "#D4AF37", showClass: { popup: 'animate__animated animate__wobble' } });
             } else {
-                Swal.fire({ text: xhr.responseJSON, width: 300, icon: 'error', confirmButtonColor: "#007bff", showClass: { popup: 'animate__animated animate__wobble' } });
+                Swal.fire({ text: xhr.responseJSON, width: 300, icon: 'error', confirmButtonColor: "#D4AF37", showClass: { popup: 'animate__animated animate__wobble' } });
             }
         }
     });
@@ -764,7 +764,7 @@ $(document).on('click', '#btn-save-customer-service', function(e) {
         method: method,
         success: function(data){
             $("#btn-save-customer-service").attr("disabled", false).html('<i class="fa fa-check"></i> Salvar');
-            Swal.fire({ width: 350, title: "<h5 style='color:#007bff'>" + data + "</h5>", icon: 'success', showConfirmButton: true, showClass: { popup: 'animate__animated animate__backInUp' }, allowOutsideClick: false }).then((result) => {
+            Swal.fire({ width: 350, title: "<h5 style='color:#D4AF37'>" + data + "</h5>", icon: 'success', showConfirmButton: true, showClass: { popup: 'animate__animated animate__backInUp' }, allowOutsideClick: false }).then((result) => {
                 $('#modalCustomerService').modal('hide');
                 loadCustomerServices();
                 loadInvoices();
@@ -772,7 +772,7 @@ $(document).on('click', '#btn-save-customer-service', function(e) {
         },
         error: function(xhr) {
             $("#btn-save-customer-service").attr("disabled", false).html('<i class="fa fa-check"></i> Salvar');
-            Swal.fire({ text: xhr.responseJSON, width: 300, icon: xhr.status === 422 ? 'warning' : 'error', confirmButtonColor: "#007bff", showClass: { popup: 'animate__animated animate__wobble' } });
+            Swal.fire({ text: xhr.responseJSON, width: 300, icon: xhr.status === 422 ? 'warning' : 'error', confirmButtonColor: "#D4AF37", showClass: { popup: 'animate__animated animate__wobble' } });
         }
     });
 });
@@ -863,14 +863,14 @@ $(document).on('click', '#btn-save-invoice', function(e) {
         contentType: false,
         success: function(data){
             $("#btn-save-invoice").attr("disabled", false).html('<i class="fa fa-check"></i> Salvar');
-            Swal.fire({ width: 350, title: "<h5 style='color:#007bff'>" + data + "</h5>", icon: 'success', showConfirmButton: true, showClass: { popup: 'animate__animated animate__backInUp' }, allowOutsideClick: false }).then(() => {
+            Swal.fire({ width: 350, title: "<h5 style='color:#D4AF37'>" + data + "</h5>", icon: 'success', showConfirmButton: true, showClass: { popup: 'animate__animated animate__backInUp' }, allowOutsideClick: false }).then(() => {
                 $('#modalInvoice').modal('hide');
                 loadInvoices();
             });
         },
         error: function(xhr) {
             $("#btn-save-invoice").attr("disabled", false).html('<i class="fa fa-check"></i> Salvar');
-            Swal.fire({ text: xhr.responseJSON, width: 300, icon: xhr.status === 422 ? 'warning' : 'error', confirmButtonColor: "#007bff", showClass: { popup: 'animate__animated animate__wobble' } });
+            Swal.fire({ text: xhr.responseJSON, width: 300, icon: xhr.status === 422 ? 'warning' : 'error', confirmButtonColor: "#D4AF37", showClass: { popup: 'animate__animated animate__wobble' } });
         }
     });
 });
@@ -899,7 +899,7 @@ function loadInvoices(){
                     ${item.status == 'Pendente' || item.status == 'Erro' || item.status == 'Estabelecimento' ? '<a href="#" data-original-title="Editar fatura" id="btn-modal-invoice" data-type="edit-invoice" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-secondary btn-xs"><i class="far fa-edit"></i></a> ' : ''}
                     ${item.status == 'Erro' ? '<a href="#" data-original-title="Erros" id="btn-modal-error" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-danger btn-xs"><i class="fas fa-exclamation-triangle"></i></a> ' : ''}
                     ${(item.status == 'Pendente' || item.status == 'Processamento') && ['Inter','Intermedium','Pag Hiper'].includes(item.gateway_payment) ? '<a href="#" data-original-title="Consultar status" id="btn-invoice-status" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-success btn-xs"><i class="fas fa-sync-alt"></i></a> ' : ''}
-                    ${item.status != 'Erro' ? '<a href="#" data-original-title="Notificações" id="btn-modal-notifications" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-info btn-xs" style="background-color: #06b8f7; border-color: #06b8f7;"><i class="fa fa-info"></i></a> ' : ''}
+                    ${item.status != 'Erro' ? '<a href="#" data-original-title="Notificações" id="btn-modal-notifications" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-info btn-xs" style="background-color: #D4AF37; border-color: #D4AF37;"><i class="fa fa-info"></i></a> ' : ''}
                     ${item.status == 'Pendente' || item.status == 'Erro' || item.status == 'Estabelecimento' ? '<a href="#" data-original-title="Cancelar Fatura" id="btn-delete-invoice" data-invoice="'+item.id+'" data-tt="tooltip" class="btn btn-danger btn-xs"><i class="fas fa-undo-alt"></i></a> ' : ''}
                     ${item.status == 'Pendente' ? '<a href="'+`${item.payment_method == "Pix" ? item.image_url_pix : item.billet_url}`+'" target="_blank" data-original-title="Baixar Fatura" data-tt="tooltip" class="btn btn-primary btn-xs"><i class="fas fa-download"></i></a>' : ''}
                 </td>`;
@@ -928,7 +928,7 @@ $(document).on('click', '#btn-delete-invoice', function(e) {
         Swal.fire({ 
             text: 'ID da fatura não encontrado!', 
             icon: 'error',
-            confirmButtonColor: "#007bff"
+            confirmButtonColor: "#D4AF37"
         });
         return;
     }
@@ -963,7 +963,7 @@ $(document).on('click', '#btn-delete-invoice', function(e) {
                         title: 'Sucesso!',
                         text: 'Fatura cancelada com sucesso',
                         icon: 'success',
-                        confirmButtonColor: "#007bff"
+                        confirmButtonColor: "#D4AF37"
                     });
                     loadInvoices(); 
                 },
@@ -973,7 +973,7 @@ $(document).on('click', '#btn-delete-invoice', function(e) {
                         title: 'Erro!',
                         text: errorMsg, 
                         icon: xhr.status === 422 ? 'warning' : 'error',
-                        confirmButtonColor: "#007bff",
+                        confirmButtonColor: "#D4AF37",
                         showClass: { popup: 'animate__animated animate__wobble' } 
                     }); 
                 }
@@ -1007,7 +1007,7 @@ $(document).on('click', '#btn-invoice-status', function(e) {
                     Swal.fire({
                         text: response.message || 'Status consultado com sucesso.',
                         icon: response.updated ? 'success' : 'info',
-                        confirmButtonColor: "#007bff"
+                        confirmButtonColor: "#D4AF37"
                     });
                     loadInvoices();
                 },

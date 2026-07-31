@@ -7,8 +7,8 @@
     margin:1px;
 }
 .thcolor{
-    background: #FFFFFF;
-    color:#FFBD59;
+    background: #121216 !important;
+    color: #D4AF37 !important;
 }
 .containerchekbox {
     display: block;
@@ -19,7 +19,6 @@
     font-size: 12px;
   }
 
-  /* Esconder o checkbox padrão */
 .containerchekbox input {
     position: absolute;
     opacity: 0;
@@ -28,30 +27,26 @@
     width: 0;
   }
 
-  /* Criar o checkbox customizado */
   .checkmark {
     position: absolute;
     top: 0;
     left: 0;
     height: 20px;
     width: 20px;
-    background-color: #FFFFFF;
-    border-radius: 2px;
-    border:1px solid #FFBD59;
-    padding:5px;
+    background-color: #16161A;
+    border-radius: 4px;
+    border: 1px solid #D4AF37;
+    padding: 5px;
   }
 
-  /* Adicionar uma cor de fundo cinza ao passar o mouse */
   .containerchekbox:hover input ~ .checkmark {
-    background-color: #F5F5DC;
+    background-color: rgba(212, 175, 55, 0.12);
   }
 
-  /* Quando o checkbox é clicado, adicionar um fundo rosa */
   .containerchekbox input:checked ~ .checkmark {
-    background-color: #FFBD59;
+    background-color: #D4AF37;
   }
 
-  /* Criar o ícone de check, escondido quando não estiver selecionado */
   .containerchekbox .checkmark:after {
     content: "";
     position: absolute;
@@ -60,33 +55,30 @@
     top: 4px;
     width: 5px;
     height: 10px;
-    border: solid white;
+    border: solid #0A0A0C;
     border-width: 0 3px 3px 0;
-    -webkit-transform: rotate(45deg);
-    -ms-transform: rotate(45deg);
     transform: rotate(45deg);
   }
 
-  /* Exibir o ícone quando selecionado */
   .containerchekbox input:checked ~ .checkmark:after {
     display: block;
   }
 
   fieldset {
-    border: 1px dotted #FFBD59 !important;
+    border: 1px dotted rgba(212, 175, 55, 0.4) !important;
     margin: 0;
     margin-bottom: 30px;
     min-width: 0;
     padding: 20px 15px;
     position: relative;
-    border-radius: 4px;
-    background-color: #FFFFFF;
+    border-radius: 12px;
+    background-color: #121216;
     width: 100%;
     transition: 0.3s all ease;
   }
 
   fieldset:hover {
-    border-color: #FFBD59 !important;
+    border-color: #D4AF37 !important;
   }
 
   legend {
@@ -96,44 +88,44 @@
     margin-right: 0px;
     min-width: 5%;
     width: auto;
-    border: 1px solid #FFBD59;
+    border: 1px solid rgba(212, 175, 55, 0.4);
     border-radius: 5px;
-    padding: 2px 10px 2px 10px;
-    background-color: #F5F5DC;
-    color: #FFBD59;
+    padding: 2px 10px;
+    background-color: #1A1A20;
+    color: #D4AF37;
     position: absolute;
-    top:-15px;
+    top: -15px;
   }
 
 input:focus{
-    border: 1px solid #FFBD59 !important;
-    color:#1F2937 !important;
+    border: 1px solid #D4AF37 !important;
+    color: #F0F0F2 !important;
     font-weight: 600 !important;
 }
 
 .custom-select {
-    background-color: #FFFFFF !important;
+    background-color: #16161A !important;
     background-image: none !important;
-    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
     font-weight: 600 !important;
-    color:#1F2937 !important;
+    color: #F0F0F2 !important;
   }
 
 .custom-select:focus{
-    background-color: #FFFFFF !important;
+    background-color: #16161A !important;
     background-image: none !important;
-    border: 1px solid #FFBD59 !important;
-    color:#1F2937 !important;
+    border: 1px solid #D4AF37 !important;
+    color: #F0F0F2 !important;
 }
 
 .custom-select:hover {
-    background-color: #FFFFFF !important;
+    background-color: #16161A !important;
     background-image: none !important;
 }
 
 .custom-select option {
-    background-color: #FFFFFF !important;
-    color: #1F2937 !important;
+    background-color: #1A1A20 !important;
+    color: #F0F0F2 !important;
 }
 
 .tbodyCustom td{
@@ -152,29 +144,15 @@ input:focus{
   padding:4px;
   border-radius:5px;
   font-weight:600;
-  background-color: #FFBD59 !important;
-  color: #1F2937 !important;
+  background-color: rgba(212, 175, 55, 0.2) !important;
+  color: #F0C14B !important;
 }
 
-/* Garantir que o main-footer tenha largura completa e se ajuste à sidebar */
 .wrapper .main-footer {
   width: 100% !important;
   box-sizing: border-box !important;
 }
 
-/* Ajustar margem do footer para corresponder ao content-wrapper quando sidebar está aberta */
-.sidebar-mini:not(.sidebar-collapse) .wrapper .main-footer {
-  margin-left: 250px !important;
-  width: calc(100% - 250px) !important;
-}
-
-/* Ajustar margem do footer quando a sidebar estiver colapsada */
-.sidebar-mini.sidebar-collapse .wrapper .main-footer {
-  margin-left: 4.6rem !important;
-  width: calc(100% - 4.6rem) !important;
-}
-
-/* Em telas pequenas, remover margem */
 @media (max-width: 767.98px) {
   .wrapper .main-footer {
     margin-left: 0 !important;

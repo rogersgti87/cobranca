@@ -1,9 +1,9 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 <style>
     .integration-card {
-        background: white;
+        background: #1A1A20;
         border-radius: 15px;
         padding: 30px;
         text-align: center;
@@ -16,7 +16,7 @@
     .integration-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 8px 24px rgba(0,123,255,0.2);
-        border-color: #007bff;
+        border-color: #D4AF37;
     }
     .integration-card.configured {
         border-color: #28a745;
@@ -28,7 +28,7 @@
     .integration-icon {
         font-size: 3.5rem;
         margin-bottom: 15px;
-        color: #007bff;
+        color: #D4AF37;
     }
     .integration-title {
         font-size: 1.2rem;
@@ -58,7 +58,7 @@
         font-size: 2rem;
     }
     .modal-header {
-        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        background: linear-gradient(135deg, #D4AF37 0%, #B8960C 100%);
         color: white;
         border-radius: 10px 10px 0 0;
     }
@@ -587,7 +587,7 @@
                             <div class="alert alert-info">
                                 <i class="fas fa-mobile-alt"></i> <strong>Escaneie o QR Code com seu WhatsApp</strong>
                             </div>
-                            <img id="qrcodeImage" src="" alt="QR Code" class="img-fluid" style="max-width: 300px; border: 3px solid #007bff; border-radius: 10px; padding: 10px; background: white;">
+                            <img id="qrcodeImage" src="" alt="QR Code" class="img-fluid" style="max-width: 300px; border: 3px solid #D4AF37; border-radius: 10px; padding: 10px; background: #1A1A20;">
                         </div>
                     </div>
 

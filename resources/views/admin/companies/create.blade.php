@@ -1,11 +1,11 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 
 <style>
 /* Estilos modernos - Empresas */
 .profile-card {
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    background: linear-gradient(135deg, #D4AF37 0%, #B8960C 100%);
     border-radius: 15px;
     padding: 30px;
     text-align: center;
@@ -39,7 +39,7 @@
     width: 150px;
     height: 150px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    background: linear-gradient(135deg, #D4AF37 0%, #B8960C 100%);
     border: 5px solid #fff;
     box-shadow: 0 5px 20px rgba(0,0,0,0.2);
     display: flex;
@@ -56,7 +56,7 @@
     position: absolute;
     bottom: 5px;
     right: 5px;
-    background: #fff;
+    background: #1A1A20;
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -67,7 +67,7 @@
 }
 
 .logo-overlay i {
-    color: #007bff;
+    color: #D4AF37;
     font-size: 18px;
 }
 
@@ -85,7 +85,7 @@
 }
 
 .modern-card {
-    background: #fff;
+    background: #1A1A20;
     border-radius: 15px;
     padding: 25px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.05);
@@ -106,7 +106,7 @@
 
 .section-title i {
     margin-right: 10px;
-    color: #007bff;
+    color: #D4AF37;
     font-size: 18px;
 }
 
@@ -126,12 +126,12 @@
 }
 
 .form-control:focus {
-    border-color: #007bff;
+    border-color: #D4AF37;
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
 .save-button {
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    background: linear-gradient(135deg, #D4AF37 0%, #B8960C 100%);
     border: none;
     border-radius: 10px;
     padding: 12px 30px;

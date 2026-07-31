@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 
@@ -9,12 +9,12 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0" style="color: #333333; font-weight: 600;">{{ $title }}</h1>
+            <h1 class="m-0" style="color: #F0F0F2; font-weight: 600;">{{ $title }}</h1>
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right" style="background-color: transparent; padding: 0;">
-              <li class="breadcrumb-item"><a href="{{url('admin')}}" style="color: #333333; text-decoration: none; opacity: 0.7;">Home</a></li>
-              <li class="breadcrumb-item active" style="color: #333333; opacity: 0.7;">{{ $title }}</li>
+              <li class="breadcrumb-item"><a href="{{url('admin')}}" style="color: #F0F0F2; text-decoration: none; opacity: 0.7;">Home</a></li>
+              <li class="breadcrumb-item active" style="color: #F0F0F2; opacity: 0.7;">{{ $title }}</li>
             </ol>
           </div><!-- /.col -->
         </div><!-- /.row -->
@@ -28,27 +28,27 @@
         <!-- Widgets de Resumo -->
         <div class="row mb-3 mb-md-4">
             <div class="col-md-2 col-6 mb-2 mb-md-3">
-                <div class="widget-card" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div class="widget-card" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div style="flex: 1; min-width: 0;">
-                            <p class="widget-label" style="color: #333333; font-size: 11px; margin: 0; font-weight: 500; opacity: 0.7;">Total</p>
-                            <h5 id="total_payables_curerency" class="widget-value" style="color: #333333; font-size: 16px; font-weight: 600; margin: 3px 0 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">R$0,00</h5>
-                            <p id="total_payables" class="widget-count" style="color: #333333; font-size: 10px; margin: 2px 0 0 0; opacity: 0.6;">0 contas</p>
+                            <p class="widget-label" style="color: #F0F0F2; font-size: 11px; margin: 0; font-weight: 500; opacity: 0.7;">Total</p>
+                            <h5 id="total_payables_curerency" class="widget-value" style="color: #F0F0F2; font-size: 16px; font-weight: 600; margin: 3px 0 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">R$0,00</h5>
+                            <p id="total_payables" class="widget-count" style="color: #F0F0F2; font-size: 10px; margin: 2px 0 0 0; opacity: 0.6;">0 contas</p>
                         </div>
                         <div class="widget-icon" style="width: 36px; height: 36px; background-color: rgba(255,189,89,0.2); border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 8px;">
-                            <i class="fas fa-receipt" style="color: #06b8f7; font-size: 16px;"></i>
+                            <i class="fas fa-receipt" style="color: #D4AF37; font-size: 16px;"></i>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="col-md-2 col-6 mb-2 mb-md-3">
-                <div class="widget-card" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div class="widget-card" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div style="flex: 1; min-width: 0;">
-                            <p class="widget-label" style="color: #333333; font-size: 11px; margin: 0; font-weight: 500; opacity: 0.7;">Pendentes</p>
+                            <p class="widget-label" style="color: #F0F0F2; font-size: 11px; margin: 0; font-weight: 500; opacity: 0.7;">Pendentes</p>
                             <h5 id="pendent_payables_curerency" class="widget-value" style="color: #fec911; font-size: 16px; font-weight: 600; margin: 3px 0 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">R$0,00</h5>
-                            <p id="total_pendent" class="widget-count" style="color: #333333; font-size: 10px; margin: 2px 0 0 0; opacity: 0.6;">0 contas</p>
+                            <p id="total_pendent" class="widget-count" style="color: #F0F0F2; font-size: 10px; margin: 2px 0 0 0; opacity: 0.6;">0 contas</p>
                         </div>
                         <div class="widget-icon" style="width: 36px; height: 36px; background-color: rgba(255,189,89,0.2); border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 8px;">
                             <i class="far fa-hourglass" style="color: #fec911; font-size: 16px;"></i>
@@ -58,12 +58,12 @@
             </div>
 
             <div class="col-md-2 col-6 mb-2 mb-md-3">
-                <div class="widget-card" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div class="widget-card" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div style="flex: 1; min-width: 0;">
-                            <p class="widget-label" style="color: #333333; font-size: 11px; margin: 0; font-weight: 500; opacity: 0.7;">Pagas</p>
+                            <p class="widget-label" style="color: #F0F0F2; font-size: 11px; margin: 0; font-weight: 500; opacity: 0.7;">Pagas</p>
                             <h5 id="pay_payables_curerency" class="widget-value" style="color: #6ccb48; font-size: 16px; font-weight: 600; margin: 3px 0 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">R$0,00</h5>
-                            <p id="total_pay" class="widget-count" style="color: #333333; font-size: 10px; margin: 2px 0 0 0; opacity: 0.6;">0 contas</p>
+                            <p id="total_pay" class="widget-count" style="color: #F0F0F2; font-size: 10px; margin: 2px 0 0 0; opacity: 0.6;">0 contas</p>
                         </div>
                         <div class="widget-icon" style="width: 36px; height: 36px; background-color: rgba(34,197,94,0.2); border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 8px;">
                             <i class="fas fa-check-circle" style="color: #6ccb48; font-size: 16px;"></i>
@@ -73,42 +73,42 @@
             </div>
 
             <div class="col-md-2 col-6 mb-2 mb-md-3">
-                <div class="widget-card" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div class="widget-card" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div style="flex: 1; min-width: 0;">
-                            <p class="widget-label" style="color: #333333; font-size: 11px; margin: 0; font-weight: 500; opacity: 0.7;">Fixas</p>
-                            <h5 id="fixed_payables_curerency" class="widget-value" style="color: #333333; font-size: 16px; font-weight: 600; margin: 3px 0 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">R$0,00</h5>
-                            <p id="total_fixed" class="widget-count" style="color: #333333; font-size: 10px; margin: 2px 0 0 0; opacity: 0.6;">0 contas</p>
+                            <p class="widget-label" style="color: #F0F0F2; font-size: 11px; margin: 0; font-weight: 500; opacity: 0.7;">Fixas</p>
+                            <h5 id="fixed_payables_curerency" class="widget-value" style="color: #F0F0F2; font-size: 16px; font-weight: 600; margin: 3px 0 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">R$0,00</h5>
+                            <p id="total_fixed" class="widget-count" style="color: #F0F0F2; font-size: 10px; margin: 2px 0 0 0; opacity: 0.6;">0 contas</p>
                         </div>
                         <div class="widget-icon" style="width: 36px; height: 36px; background-color: rgba(255,189,89,0.2); border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 8px;">
-                            <i class="fas fa-calendar-alt" style="color: #06b8f7; font-size: 16px;"></i>
+                            <i class="fas fa-calendar-alt" style="color: #D4AF37; font-size: 16px;"></i>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="col-md-2 col-6 mb-2 mb-md-3">
-                <div class="widget-card" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div class="widget-card" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div style="flex: 1; min-width: 0;">
-                            <p class="widget-label" style="color: #333333; font-size: 11px; margin: 0; font-weight: 500; opacity: 0.7;">Recorrentes</p>
-                            <h5 id="recurring_payables_curerency" class="widget-value" style="color: #333333; font-size: 16px; font-weight: 600; margin: 3px 0 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">R$0,00</h5>
-                            <p id="total_recurring" class="widget-count" style="color: #333333; font-size: 10px; margin: 2px 0 0 0; opacity: 0.6;">0 contas</p>
+                            <p class="widget-label" style="color: #F0F0F2; font-size: 11px; margin: 0; font-weight: 500; opacity: 0.7;">Recorrentes</p>
+                            <h5 id="recurring_payables_curerency" class="widget-value" style="color: #F0F0F2; font-size: 16px; font-weight: 600; margin: 3px 0 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">R$0,00</h5>
+                            <p id="total_recurring" class="widget-count" style="color: #F0F0F2; font-size: 10px; margin: 2px 0 0 0; opacity: 0.6;">0 contas</p>
                         </div>
                         <div class="widget-icon" style="width: 36px; height: 36px; background-color: rgba(255,189,89,0.2); border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 8px;">
-                            <i class="fas fa-sync-alt" style="color: #06b8f7; font-size: 16px;"></i>
+                            <i class="fas fa-sync-alt" style="color: #D4AF37; font-size: 16px;"></i>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="col-md-2 col-6 mb-2 mb-md-3">
-                <div class="widget-card" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div class="widget-card" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div style="flex: 1; min-width: 0;">
-                            <p class="widget-label" style="color: #333333; font-size: 11px; margin: 0; font-weight: 500; opacity: 0.7;">Canceladas</p>
+                            <p class="widget-label" style="color: #F0F0F2; font-size: 11px; margin: 0; font-weight: 500; opacity: 0.7;">Canceladas</p>
                             <h5 id="cancelled_payables_curerency" class="widget-value" style="color: #F87171; font-size: 16px; font-weight: 600; margin: 3px 0 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">R$0,00</h5>
-                            <p id="total_cancelled" class="widget-count" style="color: #333333; font-size: 10px; margin: 2px 0 0 0; opacity: 0.6;">0 contas</p>
+                            <p id="total_cancelled" class="widget-count" style="color: #F0F0F2; font-size: 10px; margin: 2px 0 0 0; opacity: 0.6;">0 contas</p>
                         </div>
                         <div class="widget-icon" style="width: 36px; height: 36px; background-color: rgba(248,113,113,0.2); border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: 8px;">
                             <i class="fas fa-times-circle" style="color: #F87171; font-size: 16px;"></i>
@@ -121,10 +121,10 @@
         <div class="row">
         <!-- Coluna Esquerda: Filtros -->
         <div class="col-lg-3 col-md-12 mb-4">
-            <div style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <div style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                 <!-- Botão para abrir/fechar filtros em mobile -->
                 <div class="d-lg-none mb-3">
-                    <button class="btn btn-block" type="button" data-toggle="collapse" data-target="#filtersCollapse" aria-expanded="false" aria-controls="filtersCollapse" style="background-color: #06b8f7; color: #FFFFFF; border: none; padding: 10px 15px; border-radius: 6px; font-weight: 600; font-size: 14px; display: flex; align-items: center; justify-content: space-between;">
+                    <button class="btn btn-block" type="button" data-toggle="collapse" data-target="#filtersCollapse" aria-expanded="false" aria-controls="filtersCollapse" style="background-color: #D4AF37; color: #FFFFFF; border: none; padding: 10px 15px; border-radius: 6px; font-weight: 600; font-size: 14px; display: flex; align-items: center; justify-content: space-between;">
                         <span style="display: flex; align-items: center; gap: 8px;">
                             <i class="fa fa-filter"></i> Filtros
                         </span>
@@ -133,7 +133,7 @@
                 </div>
 
                 <!-- Título dos filtros (visível apenas em desktop) -->
-                <h5 class="d-none d-lg-block" style="color: #333333; font-weight: 600; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; font-size: 14px;">
+                <h5 class="d-none d-lg-block" style="color: #F0F0F2; font-weight: 600; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; font-size: 14px;">
                     <i class="fa fa-filter"></i> Filtros
                 </h5>
 
@@ -141,15 +141,15 @@
                 <div class="collapse d-lg-block" id="filtersCollapse">
                 <!-- Filtros Rápidos -->
                 <div class="mb-3">
-                    <label style="color: #333333; font-weight: 500; font-size: 12px; margin-bottom: 8px; display: block;">Filtros Rápidos</label>
+                    <label style="color: #F0F0F2; font-weight: 500; font-size: 12px; margin-bottom: 8px; display: block;">Filtros Rápidos</label>
                     <div class="d-flex flex-column" style="gap: 8px;">
-                        <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-current-month" data-filter="current-month" style="background-color: #FFFFFF; color: #333333; border: 2px solid #06b8f7; padding: 10px 12px; border-radius: 6px; font-weight: 500; width: 100%; text-align: left; font-size: 12px; transition: all 0.2s;">
+                        <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-current-month" data-filter="current-month" style="background-color: #1A1A20; color: #F0F0F2; border: 2px solid #D4AF37; padding: 10px 12px; border-radius: 6px; font-weight: 500; width: 100%; text-align: left; font-size: 12px; transition: all 0.2s;">
                             <i class="fa fa-calendar" style="margin-right: 6px;"></i> Mês Atual
                         </button>
-                        <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-next-month" data-filter="next-month" style="background-color: #FFFFFF; color: #333333; border: 1px solid rgba(0,0,0,0.1); padding: 10px 12px; border-radius: 6px; font-weight: 500; width: 100%; text-align: left; font-size: 12px; transition: all 0.2s;">
+                        <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-next-month" data-filter="next-month" style="background-color: #1A1A20; color: #F0F0F2; border: 1px solid rgba(0,0,0,0.1); padding: 10px 12px; border-radius: 6px; font-weight: 500; width: 100%; text-align: left; font-size: 12px; transition: all 0.2s;">
                             <i class="fa fa-calendar-alt" style="margin-right: 6px;"></i> Próximo Mês
                         </button>
-                        <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-all" data-filter="all" style="background-color: #FFFFFF; color: #333333; border: 1px solid rgba(0,0,0,0.1); padding: 10px 12px; border-radius: 6px; font-weight: 500; width: 100%; text-align: left; font-size: 12px; transition: all 0.2s;">
+                        <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-all" data-filter="all" style="background-color: #1A1A20; color: #F0F0F2; border: 1px solid rgba(0,0,0,0.1); padding: 10px 12px; border-radius: 6px; font-weight: 500; width: 100%; text-align: left; font-size: 12px; transition: all 0.2s;">
                             <i class="fa fa-list" style="margin-right: 6px;"></i> Todos
                         </button>
                     </div>
@@ -159,8 +159,8 @@
 
                 <!-- Tipo de Data -->
                 <div class="form-group" style="margin-bottom: 12px;">
-                    <label style="color: #333333; font-weight: 500; font-size: 12px; margin-bottom: 6px; display: block;">Tipo de Data</label>
-                    <select class="form-control" id="filter-type" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #333333; font-size: 12px; height: auto;">
+                    <label style="color: #F0F0F2; font-weight: 500; font-size: 12px; margin-bottom: 6px; display: block;">Tipo de Data</label>
+                    <select class="form-control" id="filter-type" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #F0F0F2; font-size: 12px; height: auto;">
                         <option value="date_due">Data do Vencimento</option>
                         <option value="date_payment">Data do Pagamento</option>
                     </select>
@@ -168,8 +168,8 @@
 
                 <!-- Status -->
                 <div class="form-group" style="margin-bottom: 12px;">
-                    <label style="color: #333333; font-weight: 500; font-size: 12px; margin-bottom: 6px; display: block;">Status</label>
-                    <select class="form-control" id="filter-status" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #333333; font-size: 12px; height: auto;">
+                    <label style="color: #F0F0F2; font-weight: 500; font-size: 12px; margin-bottom: 6px; display: block;">Status</label>
+                    <select class="form-control" id="filter-status" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #F0F0F2; font-size: 12px; height: auto;">
                         <option value="all">Todos</option>
                         <option value="Pendente">Pendente</option>
                         <option value="Pago">Pago</option>
@@ -179,17 +179,17 @@
 
                 <!-- Data inicial -->
                 <div class="form-group" style="margin-bottom: 12px;">
-                    <label style="color: #333333; font-weight: 500; font-size: 12px; margin-bottom: 6px; display: block;">Data inicial</label>
+                    <label style="color: #F0F0F2; font-weight: 500; font-size: 12px; margin-bottom: 6px; display: block;">Data inicial</label>
                     <div style="position: relative;">
-                        <input type="date" autocomplete="off" class="form-control" placeholder="Data inicial" id="filter-date-ini" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #333333; font-size: 12px;">
+                        <input type="date" autocomplete="off" class="form-control" placeholder="Data inicial" id="filter-date-ini" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #F0F0F2; font-size: 12px;">
                     </div>
                 </div>
 
                 <!-- Data final -->
                 <div class="form-group" style="margin-bottom: 12px;">
-                    <label style="color: #333333; font-weight: 500; font-size: 12px; margin-bottom: 6px; display: block;">Data final</label>
+                    <label style="color: #F0F0F2; font-weight: 500; font-size: 12px; margin-bottom: 6px; display: block;">Data final</label>
                     <div style="position: relative;">
-                        <input type="date" autocomplete="off" class="form-control" placeholder="Data Final" id="filter-date-end" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #333333; font-size: 12px;">
+                        <input type="date" autocomplete="off" class="form-control" placeholder="Data Final" id="filter-date-end" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #F0F0F2; font-size: 12px;">
                     </div>
                 </div>
 
@@ -197,10 +197,10 @@
 
                 <!-- Categorias -->
                 <div class="form-group" style="margin-bottom: 12px;">
-                    <fieldset style="border: 1px solid rgba(255,189,89,0.5); border-radius: 6px; padding: 10px; margin: 0; background-color: #FFFFFF; position: relative;">
-                        <legend style="color: #06b8f7; font-size: 12px; font-weight: 600; padding: 0 8px; margin: 0; border: none;">Categorias</legend>
+                    <fieldset style="border: 1px solid rgba(255,189,89,0.5); border-radius: 6px; padding: 10px; margin: 0; background-color: #1A1A20; position: relative;">
+                        <legend style="color: #D4AF37; font-size: 12px; font-weight: 600; padding: 0 8px; margin: 0; border: none;">Categorias</legend>
                         <div class="mb-2" style="margin-bottom: 8px !important;">
-                            <label style="color: #333333; font-weight: 600; font-size: 12px; cursor: pointer; display: flex; align-items: center;">
+                            <label style="color: #F0F0F2; font-weight: 600; font-size: 12px; cursor: pointer; display: flex; align-items: center;">
                                 <input type="checkbox" class="category-checkbox" id="selectAllCategories" style="margin-right: 5px; width: 16px; height: 16px; cursor: pointer;">
                                 Selecionar Todas
                             </label>
@@ -208,7 +208,7 @@
                         <div class="d-flex flex-column categories-list" style="gap: 6px; margin-top: 6px; max-height: 150px; overflow-y: auto;">
                             @if(isset($categories) && count($categories) > 0)
                                 @foreach($categories as $category)
-                                    <label style="color: #333333; font-weight: 400; font-size: 12px; cursor: pointer; display: flex; align-items: center;">
+                                    <label style="color: #F0F0F2; font-weight: 400; font-size: 12px; cursor: pointer; display: flex; align-items: center;">
                                         <input type="checkbox" class="category-checkbox" value="{{ $category->id }}" style="margin-right: 5px; width: 16px; height: 16px; cursor: pointer;">
                                         <span style="display: inline-block; width: 10px; height: 10px; background-color: {{ $category->color }}; border-radius: 2px; margin-right: 5px;"></span>
                                         {{ $category->name }}
@@ -245,8 +245,8 @@
         <div class="col-lg-9 col-md-12">
             <!-- Painel Superior: Gráfico Faturas por Status -->
             <div class="mb-3 mb-md-4">
-                <div class="chart-panel" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                    <h5 class="chart-title" style="color: #333333; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-size: 13px;">
+                <div class="chart-panel" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <h5 class="chart-title" style="color: #F0F0F2; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-size: 13px;">
                         <i class="fas fa-chart-pie"></i> Faturas por Status
                     </h5>
                     <div class="row align-items-center">
@@ -265,19 +265,19 @@
             </div>
 
             <!-- Painel Inferior: Tabela -->
-            <div class="table-panel" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <div class="table-panel" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                 <!-- Botão Nova Conta a Pagar -->
                 <div class="mb-2 mb-md-3 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center" style="gap: 10px;">
-                    <a href="#" data-original-title="Nova Conta a Pagar" id="btn-modal-payable" data-type="add-payable" data-toggle="tooltip" class="btn btn-new-payable" style="background-color: #06b8f7; color: #FFFFFF !important; border: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; transition: all 0.3s; font-size: 12px; white-space: nowrap;">
+                    <a href="#" data-original-title="Nova Conta a Pagar" id="btn-modal-payable" data-type="add-payable" data-toggle="tooltip" class="btn btn-new-payable" style="background-color: #D4AF37; color: #FFFFFF !important; border: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; transition: all 0.3s; font-size: 12px; white-space: nowrap;">
                         <i class="fa fa-plus"></i> <span class="d-none d-sm-inline">Nova Conta a Pagar</span><span class="d-sm-none">Nova</span>
                     </a>
                     <!-- Paginação -->
                     <div id="pagination" class="pagination-mobile d-flex justify-content-end align-items-center flex-wrap" style="gap: 4px;">
-                        <button class="btn btn-sm pagination-btn" onclick="loadPayables(prevPage)" style="background-color: #FFFFFF; color: #333333; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 4px 8px; font-weight: 500; font-size: 11px; min-width: auto;">«</button>
-                        <button class="btn btn-sm pagination-page-btn" onclick="loadPayables(1)" id="page-btn-1" style="background-color: #06b8f7; color: #FFFFFF; border: none; border-radius: 6px; padding: 4px 10px; font-weight: 500; font-size: 11px; min-width: 32px;">1</button>
-                        <button class="btn btn-sm pagination-page-btn" onclick="loadPayables(2)" id="page-btn-2" style="background-color: #FFFFFF; color: #333333; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 4px 10px; font-weight: 500; font-size: 11px; min-width: 32px; display: none;">2</button>
-                        <button class="btn btn-sm pagination-btn" onclick="loadPayables(nextPage)" style="background-color: #FFFFFF; color: #333333; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 4px 8px; font-weight: 500; font-size: 11px;">»</button>
-                        <span id="page-info" class="page-info-mobile" style="color: #333333; font-weight: 500; font-size: 11px; margin-left: 6px; white-space: nowrap;">Página 1 de 1</span>
+                        <button class="btn btn-sm pagination-btn" onclick="loadPayables(prevPage)" style="background-color: #1A1A20; color: #F0F0F2; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 4px 8px; font-weight: 500; font-size: 11px; min-width: auto;">«</button>
+                        <button class="btn btn-sm pagination-page-btn" onclick="loadPayables(1)" id="page-btn-1" style="background-color: #D4AF37; color: #FFFFFF; border: none; border-radius: 6px; padding: 4px 10px; font-weight: 500; font-size: 11px; min-width: 32px;">1</button>
+                        <button class="btn btn-sm pagination-page-btn" onclick="loadPayables(2)" id="page-btn-2" style="background-color: #1A1A20; color: #F0F0F2; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 4px 10px; font-weight: 500; font-size: 11px; min-width: 32px; display: none;">2</button>
+                        <button class="btn btn-sm pagination-btn" onclick="loadPayables(nextPage)" style="background-color: #1A1A20; color: #F0F0F2; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 4px 8px; font-weight: 500; font-size: 11px;">»</button>
+                        <span id="page-info" class="page-info-mobile" style="color: #F0F0F2; font-weight: 500; font-size: 11px; margin-left: 6px; white-space: nowrap;">Página 1 de 1</span>
                     </div>
                 </div>
 
@@ -285,19 +285,19 @@
                     <table class="table table-responsive-custom" style="margin-bottom: 0; width: 100%;">
                         <thead>
                         <tr style="border-bottom: 2px solid rgba(0,0,0,0.1);">
-                            <th class="col-expand" style="color: #333333; font-weight: 600; padding: 10px 8px; border: none; font-size: 12px; width: 40px;"></th>
-                            <th class="col-id" style="color: #333333; font-weight: 600; padding: 10px 8px; border: none; font-size: 12px;">#</th>
-                            <th class="col-supplier" style="color: #333333; font-weight: 600; padding: 10px 8px; border: none; font-size: 12px;">Fornecedor</th>
-                            <th class="col-category" style="color: #333333; font-weight: 600; padding: 10px 8px; border: none; font-size: 12px;">Categoria</th>
-                            <th class="col-date" style="color: #333333; font-weight: 600; padding: 10px 8px; border: none; font-size: 12px;">Data</th>
-                            <th class="col-due" style="color: #333333; font-weight: 600; padding: 10px 8px; border: none; font-size: 12px;">Vencimento</th>
-                            <th class="col-value" style="color: #333333; font-weight: 600; padding: 10px 8px; border: none; font-size: 12px;">Valor</th>
-                            <th class="col-status" style="color: #333333; font-weight: 600; padding: 10px 8px; border: none; font-size: 12px;">Status</th>
-                            <th class="col-actions" style="color: #333333; font-weight: 600; padding: 10px 8px; border: none; font-size: 12px;"></th>
+                            <th class="col-expand" style="color: #F0F0F2; font-weight: 600; padding: 10px 8px; border: none; font-size: 12px; width: 40px;"></th>
+                            <th class="col-id" style="color: #F0F0F2; font-weight: 600; padding: 10px 8px; border: none; font-size: 12px;">#</th>
+                            <th class="col-supplier" style="color: #F0F0F2; font-weight: 600; padding: 10px 8px; border: none; font-size: 12px;">Fornecedor</th>
+                            <th class="col-category" style="color: #F0F0F2; font-weight: 600; padding: 10px 8px; border: none; font-size: 12px;">Categoria</th>
+                            <th class="col-date" style="color: #F0F0F2; font-weight: 600; padding: 10px 8px; border: none; font-size: 12px;">Data</th>
+                            <th class="col-due" style="color: #F0F0F2; font-weight: 600; padding: 10px 8px; border: none; font-size: 12px;">Vencimento</th>
+                            <th class="col-value" style="color: #F0F0F2; font-weight: 600; padding: 10px 8px; border: none; font-size: 12px;">Valor</th>
+                            <th class="col-status" style="color: #F0F0F2; font-weight: 600; padding: 10px 8px; border: none; font-size: 12px;">Status</th>
+                            <th class="col-actions" style="color: #F0F0F2; font-weight: 600; padding: 10px 8px; border: none; font-size: 12px;"></th>
                         </tr>
                         </thead>
 
-                        <tbody id="list-payables" style="background-color: #FFFFFF;">
+                        <tbody id="list-payables" style="background-color: #1A1A20;">
 
                         </tbody>
                     </table>
@@ -324,19 +324,19 @@
 <!-- Modal :: Form Payable -->
 <div class="modal fade" id="modalPayable" tabindex="-1" role="dialog" aria-labelledby="modalPayableLabel" aria-hidden="true">
    <div class="modal-dialog modal-lg">
-        <div class="modal-content" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1);">
+        <div class="modal-content" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1);">
             <form action="" class="form-horizontal" id="form-request-payable">
-                <div class="modal-header" style="background-color: #FFFFFF; border-bottom: 1px solid rgba(0,0,0,0.1);">
-                    <h5 class="modal-title" id="modalPayableLabel" style="color: #06b8f7; font-weight: 600;"></h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #333333;">
-                        <span aria-hidden="true" style="color: #333333;">&times;</span>
+                <div class="modal-header" style="background-color: #1A1A20; border-bottom: 1px solid rgba(0,0,0,0.1);">
+                    <h5 class="modal-title" id="modalPayableLabel" style="color: #D4AF37; font-weight: 600;"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #F0F0F2;">
+                        <span aria-hidden="true" style="color: #F0F0F2;">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body" id="form-content-payable" style="background-color: #FFFFFF;">
+                <div class="modal-body" id="form-content-payable" style="background-color: #1A1A20;">
                     <!-- conteudo -->
                     <!-- conteudo -->
                 </div><!-- modal-body -->
-                <div class="modal-footer" style="background-color: #FFFFFF; border-top: 1px solid rgba(0,0,0,0.1);">
+                <div class="modal-footer" style="background-color: #1A1A20; border-top: 1px solid rgba(0,0,0,0.1);">
                     <button type="button" class="btn" id="btn-save-payable" style="background-color: #6ccb48; color: #FFFFFF; border: none; font-weight: 600;"><i class="fa fa-check"></i> Salvar</button>
                     <button type="button" class="btn" data-dismiss="modal" style="background-color: #F87171; color: #FFFFFF; border: none; font-weight: 600;"><i class="fa fa-times"></i> Cancelar</button>
                 </div>
@@ -351,19 +351,19 @@
   <!-- Modal :: Form Notifications -->
   <div class="modal fade" id="modalNotifications" tabindex="-1" role="dialog" aria-labelledby="modalNotificationsLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1);">
+        <div class="modal-content" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1);">
             <form action="" class="form-horizontal" id="form-request-notifications">
-                <div class="modal-header" style="background-color: #FFFFFF; border-bottom: 1px solid rgba(0,0,0,0.1);">
-                    <h5 class="modal-title" id="modalNotificationsLabel" style="color: #06b8f7; font-weight: 600;"></h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #333333;">
-                        <span aria-hidden="true" style="color: #333333;">&times;</span>
+                <div class="modal-header" style="background-color: #1A1A20; border-bottom: 1px solid rgba(0,0,0,0.1);">
+                    <h5 class="modal-title" id="modalNotificationsLabel" style="color: #D4AF37; font-weight: 600;"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #F0F0F2;">
+                        <span aria-hidden="true" style="color: #F0F0F2;">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body" id="form-content-notifications" style="background-color: #FFFFFF;">
+                <div class="modal-body" id="form-content-notifications" style="background-color: #1A1A20;">
                     <!-- conteudo -->
                     <!-- conteudo -->
                 </div><!-- modal-body -->
-                <div class="modal-footer" style="background-color: #FFFFFF; border-top: 1px solid rgba(0,0,0,0.1);">
+                <div class="modal-footer" style="background-color: #1A1A20; border-top: 1px solid rgba(0,0,0,0.1);">
                     <button type="button" class="btn" data-dismiss="modal" style="background-color: #F87171; color: #FFFFFF; border: none; font-weight: 600;"><i class="fa fa-times"></i> Fechar</button>
                 </div>
             </form>
@@ -375,25 +375,25 @@
    <!-- Modal :: Log -->
    <div class="modal fade" id="modal-error" tabindex="-1" role="dialog" aria-labelledby="modalErrorLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1);">
-            <div class="modal-header" style="background-color: #FFFFFF; border-bottom: 1px solid rgba(0,0,0,0.1);">
-                <h5 class="modal-title" id="modalErrorLabel" style="color: #06b8f7; font-weight: 600;"></h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #333333;">
-                    <span aria-hidden="true" style="color: #333333;">&times;</span>
+        <div class="modal-content" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1);">
+            <div class="modal-header" style="background-color: #1A1A20; border-bottom: 1px solid rgba(0,0,0,0.1);">
+                <h5 class="modal-title" id="modalErrorLabel" style="color: #D4AF37; font-weight: 600;"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #F0F0F2;">
+                    <span aria-hidden="true" style="color: #F0F0F2;">&times;</span>
                 </button>
             </div>
 
             <style>
 
                 pre {
-                   background-color: #FFFFFF;
+                   background-color: #1A1A20;
                    border: 1px solid rgba(0,0,0,0.1);
                    padding: 10px 20px;
                    margin: 20px;
-                   color: #333333;
+                   color: #F0F0F2;
                    }
                 .json-key {
-                   color: #06b8f7;
+                   color: #D4AF37;
                    }
                 .json-value {
                    color: #6ccb48;
@@ -404,7 +404,7 @@
 
                 </style>
 
-            <div class="modal-body" id="modal-content-error" style="background-color: #FFFFFF; color: #333333;">
+            <div class="modal-body" id="modal-content-error" style="background-color: #1A1A20; color: #F0F0F2;">
 
                 <!-- conteudo -->
                 <!-- conteudo -->
@@ -419,19 +419,19 @@
 <style>
     /* Estilos para Contas a Pagar */
     body {
-        background-color: #FFFFFF !important;
+        background-color: #1A1A20 !important;
     }
 
     .content-wrapper {
-        background-color: #FFFFFF !important;
+        background-color: #1A1A20 !important;
     }
 
     .content-header {
-        background-color: #FFFFFF !important;
+        background-color: #1A1A20 !important;
     }
 
     .content {
-        background-color: #FFFFFF !important;
+        background-color: #1A1A20 !important;
     }
 
     .modal-backdrop {
@@ -442,17 +442,17 @@
     .modal-header,
     .modal-body,
     .modal-footer {
-        background-color: #FFFFFF !important;
+        background-color: #1A1A20 !important;
     }
 
     .main-footer {
-        background-color: #FFFFFF !important;
+        background-color: #1A1A20 !important;
     }
 
     #btn-modal-payable:hover {
-        background-color: #06b8f7 !important;
+        background-color: #D4AF37 !important;
         transform: translateY(-1px);
-        box-shadow: 0 4px 6px rgba(6, 184, 247, 0.3);
+        box-shadow: 0 4px 6px rgba(212, 175, 55, 0.3);
     }
 
     /* Estilo para ícone do collapse */
@@ -470,7 +470,7 @@
     }
 
     .dropdown-item:hover {
-        background-color: #FFFFFF !important;
+        background-color: #1A1A20 !important;
     }
 
     .dropdown-toggle::after {
@@ -551,9 +551,9 @@
 
 
     #pagination button:hover:not(:disabled) {
-        background-color: #06b8f7 !important;
-        border-color: #06b8f7 !important;
-        color: #333333 !important;
+        background-color: #D4AF37 !important;
+        border-color: #D4AF37 !important;
+        color: #F0F0F2 !important;
     }
 
     #pagination button:disabled {
@@ -562,76 +562,76 @@
     }
 
     .form-control:focus {
-        border-color: #06b8f7 !important;
+        border-color: #D4AF37 !important;
         box-shadow: 0 0 0 3px rgba(255, 189, 89, 0.2) !important;
         outline: none;
-        background-color: #FFFFFF !important;
-        color: #333333 !important;
+        background-color: #1A1A20 !important;
+        color: #F0F0F2 !important;
     }
 
     select.form-control:focus,
     input.form-control:focus {
-        border-color: #06b8f7 !important;
+        border-color: #D4AF37 !important;
         box-shadow: 0 0 0 3px rgba(255, 189, 89, 0.2) !important;
         outline: none;
-        background-color: #FFFFFF !important;
-        color: #333333 !important;
+        background-color: #1A1A20 !important;
+        color: #F0F0F2 !important;
     }
 
     select.form-control,
     input.form-control {
-        background-color: #FFFFFF !important;
-        color: #333333 !important;
+        background-color: #1A1A20 !important;
+        color: #F0F0F2 !important;
     }
 
     select.form-control option {
-        background-color: #FFFFFF !important;
-        color: #333333 !important;
+        background-color: #1A1A20 !important;
+        color: #F0F0F2 !important;
     }
 
     select.form-control option:checked {
-        background-color: #FFFFFF !important;
-        color: #333333 !important;
+        background-color: #1A1A20 !important;
+        color: #F0F0F2 !important;
     }
 
     /* Força a cor escura em todos os estados do select */
     select {
-        color: #333333 !important;
+        color: #F0F0F2 !important;
     }
 
     select:focus {
-        color: #333333 !important;
+        color: #F0F0F2 !important;
     }
 
     select option {
-        color: #333333 !important;
+        color: #F0F0F2 !important;
     }
 
     select option:checked {
-        color: #333333 !important;
+        color: #F0F0F2 !important;
     }
 
     /* Estilos para checkboxes de status e tipo */
     .status-checkbox,
     .type-checkbox,
     .category-checkbox {
-        accent-color: #06b8f7;
+        accent-color: #D4AF37;
         cursor: pointer;
     }
 
     .status-checkbox:checked,
     .type-checkbox:checked,
     .category-checkbox:checked {
-        background-color: #06b8f7;
+        background-color: #D4AF37;
     }
 
     /* Botões de filtro rápido */
     #btn-filter-current-month:hover,
     #btn-filter-next-month:hover,
     #btn-filter-all:hover {
-        background-color: #06b8f7 !important;
-        color: #333333 !important;
-        border-color: #06b8f7 !important;
+        background-color: #D4AF37 !important;
+        color: #F0F0F2 !important;
+        border-color: #D4AF37 !important;
     }
 
     /* Gap para flexbox */
@@ -649,7 +649,7 @@
     }
 
     legend {
-        background-color: #FFFFFF !important;
+        background-color: #1A1A20 !important;
     }
 
     @media (max-width: 768px) {
@@ -1127,7 +1127,7 @@ Swal.fire({
                     $("#btn-save-payable").html('<i class="fa fa-check"></i> Salvar');
                     var showClassObj = {};
                     showClassObj.popup = 'animate__animated animate__backInUp';
-                    var titleHtml = "<h5 style='color:#06b8f7'>" + data + "</h5>";
+                    var titleHtml = "<h5 style='color:#D4AF37'>" + data + "</h5>";
                     Swal.fire({
                         width: 350,
                         title: titleHtml,
@@ -1282,39 +1282,39 @@ Swal.fire({
                 var actionsMenuItems = [];
 
                 if(item.status == 'Pendente') {
-                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Editar conta" id="btn-modal-payable" data-type="edit-payable" data-payable="'+item.id+'" data-placement="left" data-tt="tooltip" style="color: #333333; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#FFFFFF\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="far fa-edit" style="margin-right: 8px; color: #06b8f7;"></i> Editar</a>');
-                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Cancelar Conta" id="btn-delete-payable" data-placement="left" data-payable="'+item.id+'" data-tt="tooltip" style="color: #333333; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#FFFFFF\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-times" style="margin-right: 8px; color: #F87171;"></i> Cancelar</a>');
+                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Editar conta" id="btn-modal-payable" data-type="edit-payable" data-payable="'+item.id+'" data-placement="left" data-tt="tooltip" style="color: #F0F0F2; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#FFFFFF\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="far fa-edit" style="margin-right: 8px; color: #D4AF37;"></i> Editar</a>');
+                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Cancelar Conta" id="btn-delete-payable" data-placement="left" data-payable="'+item.id+'" data-tt="tooltip" style="color: #F0F0F2; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#FFFFFF\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-times" style="margin-right: 8px; color: #F87171;"></i> Cancelar</a>');
                 }
 
                 if(item.status == 'Pago') {
-                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Editar Tipo de Conta" id="btn-modal-payable" data-type="edit-payable" data-payable="'+item.id+'" data-placement="left" data-tt="tooltip" style="color: #333333; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#FFFFFF\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="far fa-edit" style="margin-right: 8px; color: #06b8f7;"></i> Editar Tipo de Conta</a>');
-                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Estornar Pagamento" id="btn-reverse-payable" data-payable="'+item.id+'" data-placement="left" data-tt="tooltip" style="color: #333333; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#FFFFFF\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-undo" style="margin-right: 8px; color: #fec911;"></i> Estornar</a>');
-                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Ver Histórico de Estornos" id="btn-view-reversals" data-payable="'+item.id+'" data-placement="left" data-tt="tooltip" style="color: #333333; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#FFFFFF\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-history" style="margin-right: 8px; color: #06b8f7;"></i> Histórico de Estornos</a>');
+                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Editar Tipo de Conta" id="btn-modal-payable" data-type="edit-payable" data-payable="'+item.id+'" data-placement="left" data-tt="tooltip" style="color: #F0F0F2; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#FFFFFF\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="far fa-edit" style="margin-right: 8px; color: #D4AF37;"></i> Editar Tipo de Conta</a>');
+                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Estornar Pagamento" id="btn-reverse-payable" data-payable="'+item.id+'" data-placement="left" data-tt="tooltip" style="color: #F0F0F2; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#FFFFFF\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-undo" style="margin-right: 8px; color: #fec911;"></i> Estornar</a>');
+                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Ver Histórico de Estornos" id="btn-view-reversals" data-payable="'+item.id+'" data-placement="left" data-tt="tooltip" style="color: #F0F0F2; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#FFFFFF\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-history" style="margin-right: 8px; color: #D4AF37;"></i> Histórico de Estornos</a>');
                 }
 
                 if(item.type == 'Recorrente' && (!item.recurrence_end || item.recurrence_end == null || item.recurrence_end == '') && item.status == 'Pendente') {
-                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Parar Recorrência" id="btn-stop-recurrence" data-payable="'+item.id+'" data-placement="left" data-tt="tooltip" style="color: #333333; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#FFFFFF\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-stop-circle" style="margin-right: 8px; color: #fec911;"></i> Parar Recorrência</a>');
+                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Parar Recorrência" id="btn-stop-recurrence" data-payable="'+item.id+'" data-placement="left" data-tt="tooltip" style="color: #F0F0F2; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#FFFFFF\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-stop-circle" style="margin-right: 8px; color: #fec911;"></i> Parar Recorrência</a>');
                 }
-                var categoryColor = item.category_color || '#06b8f7';
+                var categoryColor = item.category_color || '#D4AF37';
                 var categoryBadge = item.category_name ? '<span style="background-color: rgba('+parseInt(categoryColor.slice(1,3),16)+','+parseInt(categoryColor.slice(3,5),16)+','+parseInt(categoryColor.slice(5,7),16)+',0.2); color: '+categoryColor+'; padding: 3px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; display: inline-flex; align-items: center; gap: 4px;"><span style="display: inline-block; width: 6px; height: 6px; background-color: '+categoryColor+'; border-radius: 50%;"></span>'+item.category_name+'</span>' : '<span style="color: #6B7280; font-size: 11px;">-</span>';
 
                 var collapseId = 'collapse-'+item.id;
                 var dateCreated = item.created_at ? moment(item.created_at).format('DD/MM/YYYY') : '-';
                 html += '<tr style="border-bottom: 1px solid rgba(0,0,0,0.1); transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'#F9F9F9\'" onmouseout="this.style.backgroundColor=\'#FFFFFF\'">';
                 html += '<td class="col-expand" style="padding: 10px 8px; text-align: center;">';
-                html += '<button class="btn btn-sm" type="button" data-toggle="collapse" data-target="#'+collapseId+'" aria-expanded="false" aria-controls="'+collapseId+'" style="background-color: transparent; border: none; color: #333333; padding: 2px 4px; cursor: pointer; font-size: 11px;">';
+                html += '<button class="btn btn-sm" type="button" data-toggle="collapse" data-target="#'+collapseId+'" aria-expanded="false" aria-controls="'+collapseId+'" style="background-color: transparent; border: none; color: #F0F0F2; padding: 2px 4px; cursor: pointer; font-size: 11px;">';
                 html += '<i class="fa fa-chevron-down" id="icon-'+collapseId+'"></i>';
                 html += '</button>';
                 html += '</td>';
-                html += '<td class="col-id" style="padding: 10px 8px; color: #333333; font-size: 12px;">'+item.id+installmentText+'</td>';
-                html += '<td class="col-supplier" style="padding: 10px 8px; color: #333333; font-size: 12px; font-weight: 500;">'+item.supplier_name+'</td>';
+                html += '<td class="col-id" style="padding: 10px 8px; color: #F0F0F2; font-size: 12px;">'+item.id+installmentText+'</td>';
+                html += '<td class="col-supplier" style="padding: 10px 8px; color: #F0F0F2; font-size: 12px; font-weight: 500;">'+item.supplier_name+'</td>';
                 html += '<td class="col-category" style="padding: 10px 8px;">'+categoryBadge+'</td>';
-                html += '<td class="col-date" style="padding: 10px 8px; color: #333333; font-size: 12px;">'+dateCreated+'</td>';
-                html += '<td class="col-due" style="padding: 10px 8px; color: #333333; font-size: 12px;">'+moment(item.date_due).format('DD/MM/YYYY')+'</td>';
+                html += '<td class="col-date" style="padding: 10px 8px; color: #F0F0F2; font-size: 12px;">'+dateCreated+'</td>';
+                html += '<td class="col-due" style="padding: 10px 8px; color: #F0F0F2; font-size: 12px;">'+moment(item.date_due).format('DD/MM/YYYY')+'</td>';
                 var priceOptions = {};
                 priceOptions.minimumFractionDigits = 2;
                 var priceFormatted = parseFloat(item.price).toLocaleString('pt-br', priceOptions);
-                html += '<td class="col-value" style="padding: 10px 8px; color: #06b8f7; font-size: 12px; font-weight: 600;">R$ '+priceFormatted+'</td>';
+                html += '<td class="col-value" style="padding: 10px 8px; color: #D4AF37; font-size: 12px; font-weight: 600;">R$ '+priceFormatted+'</td>';
                 html += '<td class="col-status" style="padding: 10px 8px;"><span style="background-color: '+statusBadgeBg+'; color: '+statusBadgeColor+'; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 500;">'+item.status+'</span></td>';
 
                 // Criar dropdown de ações
@@ -1322,25 +1322,25 @@ Swal.fire({
                 html += '<td class="col-actions" style="padding: 8px 6px; text-align: center;">';
                 if(actionsMenuItems.length > 0) {
                     html += '<div class="dropdown" style="position: relative; display: inline-block;">';
-                    html += '<button class="btn btn-sm" type="button" id="'+actionsMenuId+'" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background-color: transparent; border: none; color: #333333; padding: 4px 8px; cursor: pointer; font-size: 14px;">';
+                    html += '<button class="btn btn-sm" type="button" id="'+actionsMenuId+'" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background-color: transparent; border: none; color: #F0F0F2; padding: 4px 8px; cursor: pointer; font-size: 14px;">';
                     html += '<i class="fa fa-ellipsis-v"></i>';
                     html += '</button>';
-                    html += '<div class="dropdown-menu dropdown-menu-right" aria-labelledby="'+actionsMenuId+'" style="min-width: 180px; padding: 5px 0; background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">';
+                    html += '<div class="dropdown-menu dropdown-menu-right" aria-labelledby="'+actionsMenuId+'" style="min-width: 180px; padding: 5px 0; background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">';
                     html += actionsMenuItems.join('');
                     html += '</div>';
                     html += '</div>';
                 }
                 html += '</td>';
                 html += '</tr>';
-                html += '<tr class="collapse" id="'+collapseId+'" style="background-color: #FFFFFF;">';
+                html += '<tr class="collapse" id="'+collapseId+'" style="background-color: #1A1A20;">';
                 html += '<td colspan="9" style="padding: 12px; border-bottom: 1px solid rgba(0,0,0,0.1);">';
-                html += '<div style="background-color: #FFFFFF; border-radius: 8px; padding: 12px;">';
-                html += '<h6 style="color: #333333; font-weight: 600; margin-bottom: 8px; font-size: 13px;">Descrição:</h6>';
-                html += '<p style="color: #333333; font-size: 12px; margin-bottom: 12px;">'+(item.description || '-')+'</p>';
+                html += '<div style="background-color: #1A1A20; border-radius: 8px; padding: 12px;">';
+                html += '<h6 style="color: #F0F0F2; font-weight: 600; margin-bottom: 8px; font-size: 13px;">Descrição:</h6>';
+                html += '<p style="color: #F0F0F2; font-size: 12px; margin-bottom: 12px;">'+(item.description || '-')+'</p>';
                 html += '<div class="row" style="margin-top: 8px;">';
-                html += '<div class="col-md-6" style="margin-bottom: 8px;"><strong style="color: #333333; font-size: 12px;">Fornecedor:</strong> <span style="color: #333333; font-size: 12px;">'+item.supplier_name+'</span></div>';
-                html += '<div class="col-md-6" style="margin-bottom: 8px;"><strong style="color: #333333; font-size: 12px;">Forma de Pagamento:</strong> <span style="color: #333333; font-size: 12px;">'+(item.payment_method || '-')+'</span></div>';
-                html += '<div class="col-md-6" style="margin-bottom: 8px;"><strong style="color: #333333; font-size: 12px;">Pago em:</strong> <span style="color: #333333; font-size: 12px;">'+datePayment+'</span></div>';
+                html += '<div class="col-md-6" style="margin-bottom: 8px;"><strong style="color: #F0F0F2; font-size: 12px;">Fornecedor:</strong> <span style="color: #F0F0F2; font-size: 12px;">'+item.supplier_name+'</span></div>';
+                html += '<div class="col-md-6" style="margin-bottom: 8px;"><strong style="color: #F0F0F2; font-size: 12px;">Forma de Pagamento:</strong> <span style="color: #F0F0F2; font-size: 12px;">'+(item.payment_method || '-')+'</span></div>';
+                html += '<div class="col-md-6" style="margin-bottom: 8px;"><strong style="color: #F0F0F2; font-size: 12px;">Pago em:</strong> <span style="color: #F0F0F2; font-size: 12px;">'+datePayment+'</span></div>';
                 html += '</div>';
                 html += '</div>';
                 html += '</td>';
@@ -1348,7 +1348,7 @@ Swal.fire({
             });
             }else{
                 var colspan = window.innerWidth < 768 ? 7 : 9;
-                html += '<tr><td style="text-align:center; padding: 40px; color: #333333; font-size: 14px;" colspan="'+colspan+'">Nenhuma conta encontrada</td></tr>';
+                html += '<tr><td style="text-align:center; padding: 40px; color: #F0F0F2; font-size: 14px;" colspan="'+colspan+'">Nenhuma conta encontrada</td></tr>';
             }
 
             $('#list-payables').append(html);
@@ -1387,7 +1387,7 @@ Swal.fire({
                 var btn = document.getElementById('page-btn-' + i);
                 if(btn) {
                     if(i === currentPage) {
-                        btn.style.backgroundColor = '#06b8f7';
+                        btn.style.backgroundColor = '#D4AF37';
                         btn.style.color = '#FFFFFF';
                         btn.style.border = 'none';
                     } else {
@@ -1497,7 +1497,7 @@ Swal.fire({
         if (!dateIni || !dateEnd) {
             // Se não há datas, destacar "Todos"
             var btnAll = document.getElementById('btn-filter-all');
-            btnAll.style.border = '2px solid #06b8f7';
+            btnAll.style.border = '2px solid #D4AF37';
             btnAll.style.borderWidth = '2px';
             return;
         }
@@ -1510,11 +1510,11 @@ Swal.fire({
 
         if (dateIni === currentMonthFirst && dateEnd === currentMonthLast) {
             var btnCurrent = document.getElementById('btn-filter-current-month');
-            btnCurrent.style.border = '2px solid #06b8f7';
+            btnCurrent.style.border = '2px solid #D4AF37';
             btnCurrent.style.borderWidth = '2px';
         } else if (dateIni === nextMonthFirst && dateEnd === nextMonthLast) {
             var btnNext = document.getElementById('btn-filter-next-month');
-            btnNext.style.border = '2px solid #06b8f7';
+            btnNext.style.border = '2px solid #D4AF37';
             btnNext.style.borderWidth = '2px';
         }
     }
@@ -1591,19 +1591,19 @@ Swal.fire({
 <!-- Modal para confirmação de exclusão -->
 <div class="modal fade" id="modalConfirmDelete" tabindex="-1" role="dialog" aria-labelledby="modalConfirmDeleteLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
-        <div class="modal-content" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1);">
-            <div class="modal-header" style="background-color: #FFFFFF; border-bottom: 1px solid rgba(0,0,0,0.1);">
-                <h5 class="modal-title" id="modalConfirmDeleteLabel" style="color: #06b8f7; font-weight: 600;">
+        <div class="modal-content" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1);">
+            <div class="modal-header" style="background-color: #1A1A20; border-bottom: 1px solid rgba(0,0,0,0.1);">
+                <h5 class="modal-title" id="modalConfirmDeleteLabel" style="color: #D4AF37; font-weight: 600;">
                     <i class="fas fa-exclamation-triangle"></i> Confirmar Cancelamento
                 </h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #333333;">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #F0F0F2;">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body" style="color: #333333;">
+            <div class="modal-body" style="color: #F0F0F2;">
                 <p id="confirmDeleteMessage" style="margin-bottom: 0;"></p>
             </div>
-            <div class="modal-footer" style="background-color: #FFFFFF; border-top: 1px solid rgba(0,0,0,0.1);">
+            <div class="modal-footer" style="background-color: #1A1A20; border-top: 1px solid rgba(0,0,0,0.1);">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal" style="background-color: #6B7280; border-color: #6B7280; color: #FFFFFF;">
                     <i class="fas fa-times"></i> Cancelar
                 </button>
@@ -1618,16 +1618,16 @@ Swal.fire({
 <!-- Modal para histórico de estornos -->
 <div class="modal fade" id="modalViewReversals" tabindex="-1" role="dialog" aria-labelledby="modalViewReversalsLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1);">
-            <div class="modal-header" style="background-color: #FFFFFF; border-bottom: 1px solid rgba(0,0,0,0.1);">
-                <h5 class="modal-title" id="modalViewReversalsLabel" style="color: #06b8f7; font-weight: 600;">
+        <div class="modal-content" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1);">
+            <div class="modal-header" style="background-color: #1A1A20; border-bottom: 1px solid rgba(0,0,0,0.1);">
+                <h5 class="modal-title" id="modalViewReversalsLabel" style="color: #D4AF37; font-weight: 600;">
                     <i class="fas fa-history"></i> Histórico de Estornos
                 </h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #333333;">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #F0F0F2;">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body" style="color: #333333;">
+            <div class="modal-body" style="color: #F0F0F2;">
                 <div id="reversalsList" style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
                     <!-- Lista de estornos será inserida aqui via JavaScript -->
                 </div>
@@ -1648,7 +1648,7 @@ Swal.fire({
                     }
                 </style>
             </div>
-            <div class="modal-footer" style="background-color: #FFFFFF; border-top: 1px solid rgba(0,0,0,0.1);">
+            <div class="modal-footer" style="background-color: #1A1A20; border-top: 1px solid rgba(0,0,0,0.1);">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal" style="background-color: #6B7280; border-color: #6B7280; color: #FFFFFF;">
                     <i class="fas fa-times"></i> Fechar
                 </button>
@@ -1660,20 +1660,20 @@ Swal.fire({
 <!-- Modal para exclusão de parcelas -->
 <div class="modal fade" id="modalDeleteInstallments" tabindex="-1" role="dialog" aria-labelledby="modalDeleteInstallmentsLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1);">
-            <div class="modal-header" style="background-color: #FFFFFF; border-bottom: 1px solid rgba(0,0,0,0.1);">
-                <h5 class="modal-title" id="modalDeleteInstallmentsLabel" style="color: #06b8f7; font-weight: 600;">
+        <div class="modal-content" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1);">
+            <div class="modal-header" style="background-color: #1A1A20; border-bottom: 1px solid rgba(0,0,0,0.1);">
+                <h5 class="modal-title" id="modalDeleteInstallmentsLabel" style="color: #D4AF37; font-weight: 600;">
                     <i class="fas fa-exclamation-triangle"></i> Selecionar Parcelas para Cancelar
                 </h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #333333;">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #F0F0F2;">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body" style="color: #333333;">
+            <div class="modal-body" style="color: #F0F0F2;">
                 <p style="margin-bottom: 20px;">Selecione quais parcelas deseja cancelar:</p>
                 <div class="form-check mb-3">
-                    <input class="form-check-input" type="checkbox" id="selectAllInstallments" style="background-color: #FFFFFF; border-color: #06b8f7;">
-                    <label class="form-check-label" for="selectAllInstallments" style="color: #333333; font-weight: 600;">
+                    <input class="form-check-input" type="checkbox" id="selectAllInstallments" style="background-color: #1A1A20; border-color: #D4AF37;">
+                    <label class="form-check-label" for="selectAllInstallments" style="color: #F0F0F2; font-weight: 600;">
                         Selecionar Todas
                     </label>
                 </div>
@@ -1696,11 +1696,11 @@ Swal.fire({
                         background: #9CA3AF;
                     }
                     .list-group-item:hover {
-                        background-color: #FFFFFF !important;
+                        background-color: #1A1A20 !important;
                     }
                 </style>
             </div>
-            <div class="modal-footer" style="background-color: #FFFFFF; border-top: 1px solid rgba(0,0,0,0.1);">
+            <div class="modal-footer" style="background-color: #1A1A20; border-top: 1px solid rgba(0,0,0,0.1);">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal" style="background-color: #6B7280; border-color: #6B7280; color: #FFFFFF;">
                     <i class="fas fa-times"></i> Cancelar
                 </button>
@@ -1788,10 +1788,10 @@ Swal.fire({
                 ? '<span class="badge badge-secondary" style="background-color: #6B7280;">Cancelado</span>'
                 : '<span class="badge badge-warning" style="background-color: #F59E0B;">Pendente</span>';
 
-            html += '<div class="list-group-item" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); margin-bottom: 10px; border-radius: 6px;">';
+            html += '<div class="list-group-item" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); margin-bottom: 10px; border-radius: 6px;">';
             html += '<div class="form-check">';
-            html += '<input class="form-check-input installment-checkbox" type="checkbox" value="' + inst.id + '" id="installment_' + inst.id + '" ' + (inst.status == 'Cancelado' ? 'disabled' : '') + ' style="background-color: #FFFFFF; border-color: #06b8f7;">';
-            html += '<label class="form-check-label" for="installment_' + inst.id + '" style="color: #333333; width: 100%; cursor: pointer;">';
+            html += '<input class="form-check-input installment-checkbox" type="checkbox" value="' + inst.id + '" id="installment_' + inst.id + '" ' + (inst.status == 'Cancelado' ? 'disabled' : '') + ' style="background-color: #1A1A20; border-color: #D4AF37;">';
+            html += '<label class="form-check-label" for="installment_' + inst.id + '" style="color: #F0F0F2; width: 100%; cursor: pointer;">';
             html += '<div class="d-flex justify-content-between align-items-center">';
             html += '<div>';
             html += '<strong>' + inst.description + '</strong><br>';
@@ -1927,7 +1927,7 @@ Swal.fire({
         var payableId = $(this).data('payable');
 
         // Mostrar modal de confirmação com campo para motivo
-        var confirmMsg = 'Deseja estornar o pagamento desta conta?<br><br><small style="color: #6B7280;">A conta será alterada para "Pendente" e poderá ser paga novamente. O histórico do estorno será mantido.</small><br><br><label for="reversalReason" style="color: #333333; display: block; margin-top: 15px; margin-bottom: 5px;">Motivo do estorno (opcional):</label><textarea id="reversalReason" class="form-control" rows="3" placeholder="Ex: Pagamento registrado por engano, valor incorreto, etc." style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #333333; width: 100%; resize: vertical;"></textarea>';
+        var confirmMsg = 'Deseja estornar o pagamento desta conta?<br><br><small style="color: #6B7280;">A conta será alterada para "Pendente" e poderá ser paga novamente. O histórico do estorno será mantido.</small><br><br><label for="reversalReason" style="color: #F0F0F2; display: block; margin-top: 15px; margin-bottom: 5px;">Motivo do estorno (opcional):</label><textarea id="reversalReason" class="form-control" rows="3" placeholder="Ex: Pagamento registrado por engano, valor incorreto, etc." style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #F0F0F2; width: 100%; resize: vertical;"></textarea>';
 
         $('#confirmDeleteMessage').html(confirmMsg);
         $('#modalConfirmDelete').modal('show');
@@ -2017,13 +2017,13 @@ Swal.fire({
                 } else {
                     var html = '<div class="list-group">';
                     data.forEach(function(reversal) {
-                        html += '<div class="list-group-item" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); margin-bottom: 10px; border-radius: 6px;">';
+                        html += '<div class="list-group-item" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); margin-bottom: 10px; border-radius: 6px;">';
                         html += '<div class="d-flex justify-content-between align-items-start">';
                         html += '<div style="flex: 1;">';
                         html += '<strong style="color: #fec911;">Estorno realizado em ' + reversal.reversed_at + '</strong><br>';
                         html += '<small style="color: #6B7280;">Por: ' + reversal.user_name + '</small>';
                         if(reversal.reversal_reason) {
-                            html += '<p style="color: #333333; margin-top: 8px; margin-bottom: 0;">' + reversal.reversal_reason + '</p>';
+                            html += '<p style="color: #F0F0F2; margin-top: 8px; margin-bottom: 0;">' + reversal.reversal_reason + '</p>';
                         }
                         html += '</div>';
                         html += '<span style="background-color: rgba(254,201,17,0.2); color: #fec911; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500;">Estorno #' + reversal.id + '</span>';
@@ -2120,7 +2120,7 @@ function updateStatusChart(statusData) {
             });
             legendHtml += '<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">';
             legendHtml += '<div style="width: 16px; height: 16px; background-color: ' + colors[index] + '; border-radius: 4px;"></div>';
-            legendHtml += '<span style="color: #1F2937; font-size: 12px; font-weight: 500;">' + label + ' - ' + formattedValue + '</span>';
+            legendHtml += '<span style="color: #F0F0F2; font-size: 12px; font-weight: 500;">' + label + ' - ' + formattedValue + '</span>';
             legendHtml += '</div>';
         });
         legendContainer.innerHTML = legendHtml;

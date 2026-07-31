@@ -1,0 +1,364 @@
+/* ============================================
+   THEME OVERRIDES — elimina branco/azul remanescente
+   Carregar por último no layout admin
+   ============================================ */
+
+/* ---- AdminLTE / Bootstrap azul → dourado ---- */
+.bg-primary,
+.btn-info,
+.badge-info,
+.callout-info,
+.alert-primary,
+a.bg-primary,
+.sidebar-light-primary .nav-sidebar > .nav-item > .nav-link.active {
+  background-color: var(--gold) !important;
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold)) !important;
+  color: #0A0A0C !important;
+  border-color: var(--gold) !important;
+}
+
+.text-primary,
+.text-info {
+  color: var(--gold) !important;
+}
+
+.border-primary {
+  border-color: var(--gold) !important;
+}
+
+.btn-info:hover,
+.btn-info:focus,
+.bg-primary:hover {
+  background: linear-gradient(135deg, var(--gold), var(--gold-light)) !important;
+  color: #0A0A0C !important;
+}
+
+.page-item.active .page-link {
+  background-color: var(--gold) !important;
+  border-color: var(--gold) !important;
+  color: #0A0A0C !important;
+}
+
+.page-link {
+  background-color: var(--bg-surface) !important;
+  border-color: var(--border-subtle) !important;
+  color: var(--text-secondary) !important;
+}
+
+.page-link:hover {
+  background-color: var(--gold-muted) !important;
+  color: var(--gold-light) !important;
+}
+
+/* ---- Select2 Bootstrap4 ---- */
+.select2-container--bootstrap4 .select2-selection {
+  background-color: var(--bg-input) !important;
+  border-color: var(--border-subtle) !important;
+  color: var(--text-primary) !important;
+}
+
+.select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered {
+  color: var(--text-primary) !important;
+}
+
+.select2-container--bootstrap4 .select2-dropdown {
+  background-color: var(--bg-surface) !important;
+  border-color: var(--border-gold) !important;
+}
+
+.select2-container--bootstrap4 .select2-results__option--highlighted,
+.select2-container--bootstrap4 .select2-results__option--highlighted[aria-selected] {
+  background-color: var(--gold-muted) !important;
+  color: var(--gold-light) !important;
+}
+
+/* ---- Datepicker ---- */
+.datepicker {
+  background-color: var(--bg-surface) !important;
+  border-color: var(--border-gold) !important;
+  color: var(--text-primary) !important;
+}
+
+.datepicker table tr td,
+.datepicker table tr th {
+  color: var(--text-primary) !important;
+}
+
+.datepicker table tr td.active,
+.datepicker table tr td.active:hover,
+.datepicker table tr td span.active {
+  background: var(--gold) !important;
+  color: #0A0A0C !important;
+}
+
+.datepicker table tr td.day:hover,
+.datepicker table tr td.focused {
+  background: var(--gold-muted) !important;
+}
+
+/* ---- DataTables ---- */
+table.dataTable {
+  background-color: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
+}
+
+table.dataTable thead th,
+table.dataTable thead td {
+  background-color: var(--bg-elevated) !important;
+  color: var(--gold) !important;
+  border-color: var(--border-subtle) !important;
+}
+
+table.dataTable tbody tr {
+  background-color: var(--bg-surface) !important;
+}
+
+table.dataTable tbody tr:nth-child(even) {
+  background-color: var(--bg-elevated) !important;
+}
+
+table.dataTable tbody td {
+  color: var(--text-primary) !important;
+  border-color: var(--border-subtle) !important;
+}
+
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate {
+  color: var(--text-secondary) !important;
+}
+
+/* ---- Dropzone ---- */
+.dropzone {
+  background: var(--bg-input) !important;
+  border-color: var(--border-gold) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* ---- Cards / painéis com fundo branco inline ---- */
+.content-wrapper [style*="background-color: #FFFFFF"],
+.content-wrapper [style*="background-color:#FFFFFF"],
+.content-wrapper [style*="background-color: #fff"],
+.content-wrapper [style*="background-color:#fff"],
+.content-wrapper [style*="background: #fff"],
+.content-wrapper [style*="background: #FFFFFF"],
+.content-wrapper [style*="background:#FFFFFF"],
+.content-wrapper [style*="background: white"] {
+  background-color: var(--bg-surface) !important;
+  border-color: var(--border-subtle) !important;
+  color: var(--text-primary) !important;
+}
+
+.content-wrapper [style*="background: linear-gradient(135deg, #ffffff"],
+.content-wrapper [style*="background: linear-gradient(135deg, #FFFFFF"] {
+  background: var(--bg-surface) !important;
+}
+
+/* ---- Texto escuro inline → claro ---- */
+.content-wrapper [style*="color: #1F2937"],
+.content-wrapper [style*="color:#1F2937"],
+.content-wrapper [style*="color: #333"],
+.content-wrapper [style*="color:#333333"],
+.content-wrapper [style*="color: #333333"] {
+  color: var(--text-primary) !important;
+}
+
+/* ---- Azul inline → dourado ---- */
+.content-wrapper [style*="color: #06b8f7"],
+.content-wrapper [style*="color:#06b8f7"],
+.content-wrapper [style*="color: #007bff"],
+.content-wrapper [style*="color:#007bff"] {
+  color: var(--gold) !important;
+}
+
+.content-wrapper [style*="background-color: #06b8f7"],
+.content-wrapper [style*="background-color:#06b8f7"],
+.content-wrapper [style*="background: linear-gradient(135deg, #06b8f7"],
+.content-wrapper [style*="background: linear-gradient(135deg, #007bff"],
+.content-wrapper [style*="background-color: #007bff"] {
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold)) !important;
+  background-color: var(--gold) !important;
+  color: #0A0A0C !important;
+  border-color: var(--gold) !important;
+}
+
+.content-wrapper [style*="border-color: #06b8f7"],
+.content-wrapper [style*="border: 1px solid rgba(6,184,247"],
+.content-wrapper [style*="border: 2px solid #06b8f7"],
+.content-wrapper [style*="border-color: #007bff"] {
+  border-color: var(--border-gold) !important;
+}
+
+.content-wrapper [style*="accent-color: #06b8f7"] {
+  accent-color: var(--gold) !important;
+}
+
+.content-wrapper legend[style*="color: #06b8f7"],
+.content-wrapper legend[style*="#007bff"] {
+  color: var(--gold) !important;
+}
+
+.content-wrapper fieldset[style*="rgba(6,184,247"] {
+  border-color: var(--border-gold) !important;
+  background-color: var(--bg-elevated) !important;
+}
+
+/* ---- Botões de filtro ---- */
+.content-wrapper .filter-quick-btn {
+  background-color: var(--bg-input) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-subtle) !important;
+}
+
+.content-wrapper .filter-quick-btn:hover,
+body .content-wrapper .filter-quick-btn:hover {
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold)) !important;
+  color: #0A0A0C !important;
+  border-color: var(--gold) !important;
+}
+
+/* ---- Stat cards (widgets) ---- */
+.content-wrapper .widget-card,
+.content-wrapper .stat-card,
+.content-wrapper .summary-card {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-subtle) !important;
+}
+
+/* ---- Modais e dropdowns ---- */
+.content-wrapper .dropdown-menu[style*="background-color: #FFFFFF"],
+.content-wrapper .dropdown-menu[style*="#FFFFFF"] {
+  background-color: var(--bg-surface) !important;
+  border-color: var(--border-gold) !important;
+}
+
+.content-wrapper .dropdown-item[style*="color: #333"] {
+  color: var(--text-primary) !important;
+}
+
+.content-wrapper .dropdown-item:hover {
+  background-color: var(--gold-muted) !important;
+  color: var(--gold-light) !important;
+}
+
+/* ---- Links btn-link azuis ---- */
+.content-wrapper .btn-link[style*="color: #06b8f7"],
+.content-wrapper a.btn-link {
+  color: var(--gold) !important;
+}
+
+/* ---- Integrações / cards especiais ---- */
+.integration-card,
+.company-card,
+.whatsapp-card {
+  background: var(--bg-surface) !important;
+  border-color: var(--border-subtle) !important;
+}
+
+/* ---- Paginação custom ---- */
+.pagination-custom .page-link,
+.page-link-custom {
+  background: var(--bg-surface) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* ---- Input readonly com fundo claro ---- */
+.form-control[style*="background-color: #d4edda"],
+.form-control[style*="background-color: #f8d7da"],
+.form-control[style*="background-color: #fff3cd"] {
+  opacity: 0.95;
+}
+
+/* ---- QR Code container ---- */
+#qrcodeImage {
+  border-color: var(--gold) !important;
+  background: var(--bg-surface) !important;
+}
+
+/* ============================================
+   MODERN HEADER & ACTION BUTTONS — outline
+   ============================================ */
+.modern-header {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 1px solid rgba(212, 175, 55, 0.35) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: none !important;
+  color: var(--text-primary) !important;
+}
+
+.modern-header h1 {
+  color: var(--gold) !important;
+}
+
+.modern-header p,
+.modern-header .subtitle,
+.modern-header small {
+  color: var(--text-secondary) !important;
+}
+
+.btn-action-modern {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 1px solid rgba(212, 175, 55, 0.4) !important;
+  color: var(--gold) !important;
+  box-shadow: none !important;
+}
+
+.btn-action-modern.btn-edit,
+.btn-action-modern.btn-select,
+.btn-action-modern.btn-integrations {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 1px solid rgba(212, 175, 55, 0.4) !important;
+  color: var(--gold) !important;
+}
+
+.btn-action-modern.btn-select {
+  border-color: rgba(34, 197, 94, 0.45) !important;
+  color: #4ADE80 !important;
+}
+
+.btn-action-modern.btn-integrations {
+  border-color: rgba(212, 175, 55, 0.5) !important;
+  color: var(--gold-light) !important;
+}
+
+.btn-action-modern.btn-delete-modern {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 1px solid rgba(248, 113, 113, 0.45) !important;
+  color: #F87171 !important;
+}
+
+.btn-action-modern:hover,
+.btn-action-modern.btn-edit:hover,
+.btn-action-modern.btn-integrations:hover {
+  background: rgba(212, 175, 55, 0.1) !important;
+  border-color: var(--gold) !important;
+  color: var(--gold-light) !important;
+  box-shadow: none !important;
+  transform: translateY(-1px);
+}
+
+.btn-action-modern.btn-select:hover {
+  background: rgba(34, 197, 94, 0.1) !important;
+  border-color: #22C55E !important;
+  color: #4ADE80 !important;
+  box-shadow: none !important;
+}
+
+.btn-action-modern.btn-delete-modern:hover {
+  background: rgba(248, 113, 113, 0.1) !important;
+  border-color: #F87171 !important;
+  color: #FCA5A5 !important;
+  box-shadow: none !important;
+}
+
+/* Variantes sem btn-action-modern na mesma regra */
+.btn-edit.btn-action-modern,
+a.btn-edit.btn-action-modern {
+  background: transparent !important;
+  color: var(--gold) !important;
+}

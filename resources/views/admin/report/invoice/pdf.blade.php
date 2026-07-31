@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -16,13 +16,13 @@
         body {
             font-family: 'DejaVu Sans', Arial, sans-serif;
             font-size: 10px;
-            color: #1F2937;
+            color: #F0F0F2;
             line-height: 1.4;
         }
         
         .header {
             background: linear-gradient(135deg, #FFBD59 0%, #FFA500 100%);
-            color: #1F2937;
+            color: #F0F0F2;
             padding: 20px;
             margin-bottom: 20px;
             border-radius: 8px;
@@ -51,7 +51,7 @@
             font-size: 14px;
             font-weight: bold;
             margin-bottom: 10px;
-            color: #1F2937;
+            color: #F0F0F2;
         }
         
         .info-row {
@@ -69,7 +69,7 @@
         }
         
         .total-card {
-            background-color: #FFFFFF;
+            background-color: #1A1A20;
             border: 1px solid rgba(0,0,0,0.1);
             border-radius: 6px;
             padding: 12px;
@@ -86,7 +86,7 @@
         .total-card .value {
             font-size: 16px;
             font-weight: bold;
-            color: #1F2937;
+            color: #F0F0F2;
         }
         
         .total-card.pendente .value {
@@ -105,11 +105,11 @@
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
-            background-color: #FFFFFF;
+            background-color: #1A1A20;
         }
         
         .table thead {
-            background-color: #1F2937;
+            background-color: #F0F0F2;
             color: #FFFFFF;
         }
         
@@ -295,7 +295,7 @@
             @endif
         </tbody>
         <tfoot>
-            <tr style="background-color: #1F2937; color: #FFFFFF; font-weight: bold;">
+            <tr style="background-color: #F0F0F2; color: #FFFFFF; font-weight: bold;">
                 <td colspan="6" class="text-right" style="padding: 10px;">TOTAL GERAL:</td>
                 <td class="text-right" style="padding: 10px;">R$ {{ number_format($totals['total'], 2, ',', '.') }}</td>
                 <td colspan="2"></td>
@@ -329,7 +329,7 @@
                     logging: false,
                     windowWidth: document.body.scrollWidth,
                     windowHeight: document.body.scrollHeight,
-                    backgroundColor: '#FFFFFF'
+                    backgroundColor: 'transparent'
                 }).then(function(canvas) {
                     const imgData = canvas.toDataURL('image/png');
                     const imgWidth = 297; // A4 width in mm (landscape)

@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 
@@ -30,12 +30,12 @@
         <div class="col-md-12 mb-4">
          <div class="row">
               <div class="col-md-3 col-6 mb-3">
-                <div style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
-                            <p style="color: #1F2937; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Total</p>
-                            <h5 id="total_invoices_curerency" style="color: #1F2937; font-size: 20px; font-weight: 600; margin: 5px 0 0 0;">R$0,00</h5>
-                            <p id="total_invoices" style="color: #1F2937; font-size: 12px; margin: 5px 0 0 0; opacity: 0.6;">0 faturas</p>
+                            <p style="color: #F0F0F2; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Total</p>
+                            <h5 id="total_invoices_curerency" style="color: #F0F0F2; font-size: 20px; font-weight: 600; margin: 5px 0 0 0;">R$0,00</h5>
+                            <p id="total_invoices" style="color: #F0F0F2; font-size: 12px; margin: 5px 0 0 0; opacity: 0.6;">0 faturas</p>
                         </div>
                         <div style="width: 48px; height: 48px; background-color: rgba(59,130,246,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
                             <i class="fas fa-receipt" style="color: #3B82F6; font-size: 20px;"></i>
@@ -45,27 +45,27 @@
             </div>
 
             <div class="col-md-3 col-6 mb-3">
-                <div style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
-                            <p style="color: #1F2937; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Pendentes</p>
-                            <h5 id="pendent_invoices_curerency" style="color: #06b8f7; font-size: 20px; font-weight: 600; margin: 5px 0 0 0;">R$0,00</h5>
-                            <p id="total_pendent" style="color: #1F2937; font-size: 12px; margin: 5px 0 0 0; opacity: 0.6;">0 faturas</p>
+                            <p style="color: #F0F0F2; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Pendentes</p>
+                            <h5 id="pendent_invoices_curerency" style="color: #D4AF37; font-size: 20px; font-weight: 600; margin: 5px 0 0 0;">R$0,00</h5>
+                            <p id="total_pendent" style="color: #F0F0F2; font-size: 12px; margin: 5px 0 0 0; opacity: 0.6;">0 faturas</p>
                         </div>
-                        <div style="width: 48px; height: 48px; background-color: rgba(6,184,247,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                            <i class="far fa-hourglass" style="color: #06b8f7; font-size: 20px;"></i>
+                        <div style="width: 48px; height: 48px; background-color: rgba(212, 175, 55,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                            <i class="far fa-hourglass" style="color: #D4AF37; font-size: 20px;"></i>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="col-md-3 col-6 mb-3">
-                <div style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
-                            <p style="color: #1F2937; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Pagas</p>
+                            <p style="color: #F0F0F2; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Pagas</p>
                             <h5 id="pay_invoices_curerency" style="color: #22C55E; font-size: 20px; font-weight: 600; margin: 5px 0 0 0;">R$0,00</h5>
-                            <p id="total_pay" style="color: #1F2937; font-size: 12px; margin: 5px 0 0 0; opacity: 0.6;">0 faturas</p>
+                            <p id="total_pay" style="color: #F0F0F2; font-size: 12px; margin: 5px 0 0 0; opacity: 0.6;">0 faturas</p>
                         </div>
                         <div style="width: 48px; height: 48px; background-color: rgba(34,197,94,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
                             <i class="fas fa-check-circle" style="color: #22C55E; font-size: 20px;"></i>
@@ -75,12 +75,12 @@
             </div>
 
             <div class="col-md-3 col-6 mb-3">
-                <div style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
-                            <p style="color: #1F2937; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Canceladas</p>
+                            <p style="color: #F0F0F2; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Canceladas</p>
                             <h5 id="cancelled_invoices_curerency" style="color: #F87171; font-size: 20px; font-weight: 600; margin: 5px 0 0 0;">R$0,00</h5>
-                            <p id="total_cancelled" style="color: #1F2937; font-size: 12px; margin: 5px 0 0 0; opacity: 0.6;">0 faturas</p>
+                            <p id="total_cancelled" style="color: #F0F0F2; font-size: 12px; margin: 5px 0 0 0; opacity: 0.6;">0 faturas</p>
                         </div>
                         <div style="width: 48px; height: 48px; background-color: rgba(248,113,113,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
                             <i class="fas fa-times-circle" style="color: #F87171; font-size: 20px;"></i>
@@ -98,22 +98,22 @@
             <div class="row">
                 <!-- Sidebar de Filtros -->
                 <div class="col-lg-3 col-md-4 mb-4">
-                    <div style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: sticky; top: 20px;">
-                        <h5 style="color: #1F2937; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                    <div style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: sticky; top: 20px;">
+                        <h5 style="color: #F0F0F2; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
                             <i class="fa fa-filter"></i> Filtros
                         </h5>
 
                         <!-- Filtros Rápidos -->
                         <div class="mb-4">
-                            <label style="color: #1F2937; font-weight: 500; font-size: 14px; margin-bottom: 10px; display: block;">Filtros Rápidos</label>
+                            <label style="color: #F0F0F2; font-weight: 500; font-size: 14px; margin-bottom: 10px; display: block;">Filtros Rápidos</label>
                             <div class="d-flex flex-column" style="gap: 8px;">
-                                <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-current-month" data-filter="current-month" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); padding: 10px 16px; border-radius: 6px; font-weight: 500; width: 100%; text-align: left;">
+                                <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-current-month" data-filter="current-month" style="background-color: #1A1A20; color: #F0F0F2; border: 1px solid rgba(0,0,0,0.1); padding: 10px 16px; border-radius: 6px; font-weight: 500; width: 100%; text-align: left;">
                                     <i class="fa fa-calendar"></i> Mês Atual
                                 </button>
-                                <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-next-month" data-filter="next-month" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); padding: 10px 16px; border-radius: 6px; font-weight: 500; width: 100%; text-align: left;">
+                                <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-next-month" data-filter="next-month" style="background-color: #1A1A20; color: #F0F0F2; border: 1px solid rgba(0,0,0,0.1); padding: 10px 16px; border-radius: 6px; font-weight: 500; width: 100%; text-align: left;">
                                     <i class="fa fa-calendar-alt"></i> Próximo Mês
                                 </button>
-                                <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-all" data-filter="all" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); padding: 10px 16px; border-radius: 6px; font-weight: 500; width: 100%; text-align: left;">
+                                <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-all" data-filter="all" style="background-color: #1A1A20; color: #F0F0F2; border: 1px solid rgba(0,0,0,0.1); padding: 10px 16px; border-radius: 6px; font-weight: 500; width: 100%; text-align: left;">
                                     <i class="fa fa-list"></i> Todos
                                 </button>
                             </div>
@@ -123,16 +123,16 @@
 
                         <!-- Filtros Detalhados -->
                         <div class="form-group">
-                            <label style="color: #1F2937; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Tipo de Data</label>
-                            <select class="form-control" id="filter-type" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #1F2937;">
+                            <label style="color: #F0F0F2; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Tipo de Data</label>
+                            <select class="form-control" id="filter-type" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #F0F0F2;">
                                 <option value="date_due">Data do Vencimento</option>
                                 <option value="date_invoice">Data da Fatura</option>
                             </select>
                         </div>
 
                         <div class="form-group">
-                            <label style="color: #1F2937; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Status</label>
-                            <select class="form-control" id="filter-status" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #1F2937;">
+                            <label style="color: #F0F0F2; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Status</label>
+                            <select class="form-control" id="filter-status" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #F0F0F2;">
                                 <option value="">Todos</option>
                                 <option value="Pendente">Pendente</option>
                                 <option value="Estabelecimento">Estabelecimento</option>
@@ -143,13 +143,13 @@
                         </div>
 
                         <div class="form-group">
-                            <label style="color: #1F2937; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Data inicial</label>
-                            <input type="date" autocomplete="off" class="form-control" placeholder="Data inicial" id="filter-date-ini" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #1F2937;" value="{{date('Y-m-d',strtotime('first day of this month'))}}">
+                            <label style="color: #F0F0F2; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Data inicial</label>
+                            <input type="date" autocomplete="off" class="form-control" placeholder="Data inicial" id="filter-date-ini" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #F0F0F2;" value="{{date('Y-m-d',strtotime('first day of this month'))}}">
                         </div>
 
                         <div class="form-group">
-                            <label style="color: #1F2937; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Data final</label>
-                            <input type="date" autocomplete="off" class="form-control" placeholder="Data Final" id="filter-date-end" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #1F2937;" value="{{date('Y-m-d',strtotime('last day of this month'))}}">
+                            <label style="color: #F0F0F2; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Data final</label>
+                            <input type="date" autocomplete="off" class="form-control" placeholder="Data Final" id="filter-date-end" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #F0F0F2;" value="{{date('Y-m-d',strtotime('last day of this month'))}}">
                         </div>
                     </div>
                 </div>
@@ -158,8 +158,8 @@
                 <div class="col-lg-9 col-md-8">
                     <!-- Gráfico -->
                     <div class="mb-4">
-                        <div style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                            <h5 style="color: #1F2937; font-weight: 600; margin-bottom: 15px; font-size: 16px;">
+                        <div style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                            <h5 style="color: #F0F0F2; font-weight: 600; margin-bottom: 15px; font-size: 16px;">
                                 <i class="fas fa-chart-pie"></i> Faturas por Status
                             </h5>
                             <div style="position: relative; height: 200px;">
@@ -172,7 +172,7 @@
                     <div class="card-box">
                         <div class="row d-flex justify-content-between align-items-center mb-3">
                             <div class="col-auto">
-                                <button type="button" class="btn btn-primary btn-new-invoice-sidebar" id="btn-modal-new-invoice" style="border-radius: 8px; background: linear-gradient(135deg, #06b8f7 0%, #05a0d6 100%); border: none; box-shadow: 0 2px 8px rgba(6, 184, 247, 0.3); font-weight: 500; padding: 8px 16px; font-size: 14px;">
+                                <button type="button" class="btn btn-primary btn-new-invoice-sidebar" id="btn-modal-new-invoice" style="border-radius: 8px; background: linear-gradient(135deg, #D4AF37 0%, #B8960C 100%); border: none; box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3); font-weight: 500; padding: 8px 16px; font-size: 14px;">
                                     <i class="fas fa-plus"></i> Nova Conta a Receber
                                 </button>
                             </div>
@@ -303,8 +303,8 @@
 
 .btn-new-invoice-sidebar:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(6, 184, 247, 0.4) !important;
-    background: linear-gradient(135deg, #05a0d6 0%, #0489b8 100%) !important;
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4) !important;
+    background: linear-gradient(135deg, #B8960C 0%, #0489b8 100%) !important;
 }
 
 .btn-new-invoice-sidebar:active {
@@ -338,7 +338,7 @@
             <style>
 
                 pre {
-                   background-color: #FFFFFF;
+                   background-color: #1A1A20;
                    border: 1px solid rgba(0,0,0,0.1);
                    padding: 10px 20px;
                    margin: 20px;
@@ -420,7 +420,7 @@
     }
 
     .accordion-toggle:hover {
-        background-color: rgba(6, 184, 247, 0.05) !important;
+        background-color: rgba(212, 175, 55, 0.05) !important;
     }
 
     .hiddenRow {
@@ -458,9 +458,9 @@
 
     /* Estilo para os botões de filtro rápido no sidebar */
     .filter-quick-btn:hover {
-        background-color: #06b8f7 !important;
+        background-color: #D4AF37 !important;
         color: #FFFFFF !important;
-        border-color: #06b8f7 !important;
+        border-color: #D4AF37 !important;
     }
 
     /* Estilos para dropdown de ações */
@@ -473,7 +473,7 @@
     }
 
     .dropdown-item:hover {
-        background-color: #FFFFFF !important;
+        background-color: rgba(212, 175, 55, 0.12) !important;
     }
 
     .dropdown-toggle::after {
@@ -486,7 +486,7 @@
     .table tbody tr,
     .table tbody td,
     .table tbody tr td {
-        background-color: #FFFFFF !important;
+        background-color: #1A1A20 !important;
     }
 
     .table-striped,
@@ -496,18 +496,18 @@
     .table-striped tbody tr:nth-of-type(even),
     .table-striped tbody tr:nth-of-type(odd) td,
     .table-striped tbody tr:nth-of-type(even) td {
-        background-color: #FFFFFF !important;
+        background-color: #1A1A20 !important;
     }
 
     .table-hover tbody tr:hover,
     .table-hover tbody tr:hover td {
-        background-color: rgba(6, 184, 247, 0.05) !important;
+        background-color: rgba(212, 175, 55, 0.05) !important;
     }
 
     .tbodyCustom,
     .tbodyCustom tr,
     .tbodyCustom tr td {
-        background-color: #FFFFFF !important;
+        background-color: #1A1A20 !important;
     }
 
     /* Garantir fundo branco no collapse */
@@ -517,7 +517,7 @@
     div[class*="collapse"] .card-body,
     div[id*="collapse"] .card,
     div[id*="collapse"] .card-body {
-        background-color: #FFFFFF !important;
+        background-color: #1A1A20 !important;
     }
 </style>
 @endsection
@@ -928,7 +928,7 @@ $(document).on('click', '#btn-invoice-status', function(e) {
                 $("#btn-save-invoice").html('<i class="fa fa-check"></i> Salvar');
                 Swal.fire({
                     width:350,
-                    title: "<h5 style='color:#007bff'>" + data + "</h5>",
+                    title: "<h5 style='color:#D4AF37'>" + data + "</h5>",
                     icon: 'success',
                     showConfirmButton: true,
                     showClass: {
@@ -948,8 +948,8 @@ $(document).on('click', '#btn-invoice-status', function(e) {
                        text: xhr.responseJSON,
                        width:300,
                        icon: 'warning',
-                       color: '#007bff',
-                       confirmButtonColor: "#007bff",
+                       color: '#D4AF37',
+                       confirmButtonColor: "#D4AF37",
                        showClass: {
                           popup: 'animate__animated animate__wobble'
                        }
@@ -959,8 +959,8 @@ $(document).on('click', '#btn-invoice-status', function(e) {
                        text: xhr.responseJSON,
                        width:300,
                        icon: 'error',
-                       color: '#007bff',
-                       confirmButtonColor: "#007bff",
+                       color: '#D4AF37',
+                       confirmButtonColor: "#D4AF37",
                        showClass: {
                           popup: 'animate__animated animate__wobble'
                        }
@@ -1124,50 +1124,50 @@ $(document).on('click', '#btn-invoice-status', function(e) {
                 var paymentMethod = item.gateway_payment ? item.gateway_payment + ' (' + item.payment_method + ')' : item.payment_method || '-';
 
                 html += '<tr class="accordion-toggle">';
-                html += '<td><button class="btn btn-sm btn-link" style="color: #06b8f7; padding: 0; border: none; background: transparent;" onclick="event.stopPropagation(); $(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');"><i class="fas fa-chevron-down" id="icon-' + item.id + '"></i></button></td>';
+                html += '<td><button class="btn btn-sm btn-link" style="color: #D4AF37; padding: 0; border: none; background: transparent;" onclick="event.stopPropagation(); $(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');"><i class="fas fa-chevron-down" id="icon-' + item.id + '"></i></button></td>';
                 html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer;">' + item.id + '</td>';
                 html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer;">' + item.customer_name + '</td>';
                 html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer;">' + (item.customer_document || '-') + '</td>';
                 html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer;">' + moment(item.date_invoice).format('DD/MM/YYYY') + '</td>';
                 html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer;">' + moment(item.date_due).format('DD/MM/YYYY') + '</td>';
-                html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer; color: #06b8f7; font-weight: 600;">' + item.price + '</td>';
+                html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer; color: #D4AF37; font-weight: 600;">' + item.price + '</td>';
                 html += '<td onclick="$(\'#collapse-invoice-' + item.id + '\').collapse(\'toggle\');" style="cursor: pointer;"><span class="badge ' + statusBadgeClass + '">' + item.status + '</span></td>';
 
                 // Criar itens do dropdown de ações
                 var actionsMenuItems = [];
 
                 // Editar Cliente (sempre disponível)
-                actionsMenuItems.push('<a href="{{ url('admin/customers/form?act=edit&id=')}}' + item.customer_id + '" class="dropdown-item" data-original-title="Editar cliente" id="btn-edit-customer" data-placement="left" data-tt="tooltip" style="color: #1F2937; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'rgba(6, 184, 247, 0.1)\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-user" style="margin-right: 8px; color: #1E293B;"></i> Editar Cliente</a>');
+                actionsMenuItems.push('<a href="{{ url('admin/customers/form?act=edit&id=')}}' + item.customer_id + '" class="dropdown-item" data-original-title="Editar cliente" id="btn-edit-customer" data-placement="left" data-tt="tooltip" style="color: #F0F0F2; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'rgba(212, 175, 55, 0.1)\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-user" style="margin-right: 8px; color: #1E293B;"></i> Editar Cliente</a>');
 
                 // Editar Fatura (apenas para Pendente, Erro ou Estabelecimento)
                 if(item.status == 'Pendente' || item.status == 'Erro' || item.status == 'Estabelecimento'){
-                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Editar fatura" id="btn-modal-invoice" data-type="edit-invoice" data-invoice="' + item.id + '" data-placement="left" data-tt="tooltip" style="color: #1F2937; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'rgba(6, 184, 247, 0.1)\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="far fa-edit" style="margin-right: 8px; color: #1E293B;"></i> Editar Fatura</a>');
+                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Editar fatura" id="btn-modal-invoice" data-type="edit-invoice" data-invoice="' + item.id + '" data-placement="left" data-tt="tooltip" style="color: #F0F0F2; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'rgba(212, 175, 55, 0.1)\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="far fa-edit" style="margin-right: 8px; color: #1E293B;"></i> Editar Fatura</a>');
                 }
 
                 // Ver Erros (apenas para Erro)
                 if(item.status == 'Erro'){
-                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Erros" id="btn-modal-error" data-invoice="' + item.id + '" data-placement="left" data-tt="tooltip" style="color: #1F2937; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'rgba(6, 184, 247, 0.1)\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-exclamation-triangle" style="margin-right: 8px; color: #DC2626;"></i> Ver Erros</a>');
+                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Erros" id="btn-modal-error" data-invoice="' + item.id + '" data-placement="left" data-tt="tooltip" style="color: #F0F0F2; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'rgba(212, 175, 55, 0.1)\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-exclamation-triangle" style="margin-right: 8px; color: #DC2626;"></i> Ver Erros</a>');
                 }
 
                 // Consultar Status (Pendente/Processamento com gateway integrado)
                 if((item.status == 'Pendente' || item.status == 'Processamento') && ['Inter','Intermedium','Pag Hiper'].includes(item.gateway_payment)){
-                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Consultar status" id="btn-invoice-status" data-invoice="' + item.id + '" data-placement="left" data-tt="tooltip" style="color: #1F2937; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'rgba(6, 184, 247, 0.1)\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-sync-alt" style="margin-right: 8px; color: #22C55E;"></i> Consultar Status</a>');
+                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Consultar status" id="btn-invoice-status" data-invoice="' + item.id + '" data-placement="left" data-tt="tooltip" style="color: #F0F0F2; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'rgba(212, 175, 55, 0.1)\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-sync-alt" style="margin-right: 8px; color: #22C55E;"></i> Consultar Status</a>');
                 }
 
                 // Notificações (para todos exceto Erro)
                 if(item.status != 'Erro'){
-                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Notificações" id="btn-modal-notifications" data-invoice="' + item.id + '" data-placement="left" data-tt="tooltip" style="color: #333333; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'rgba(6, 184, 247, 0.1)\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fa fa-info" style="margin-right: 8px; color: #06b8f7;"></i> Notificações</a>');
+                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Notificações" id="btn-modal-notifications" data-invoice="' + item.id + '" data-placement="left" data-tt="tooltip" style="color: #F0F0F2; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'rgba(212, 175, 55, 0.1)\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fa fa-info" style="margin-right: 8px; color: #D4AF37;"></i> Notificações</a>');
                 }
 
                 // Cancelar Fatura (apenas para Pendente, Erro ou Estabelecimento)
                 if(item.status == 'Pendente' || item.status == 'Erro' || item.status == 'Estabelecimento'){
-                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Cancelar Fatura" id="btn-delete-invoice" data-placement="left" data-invoice="' + item.id + '" data-tt="tooltip" style="color: #1F2937; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'rgba(6, 184, 247, 0.1)\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-undo-alt" style="margin-right: 8px; color: #F87171;"></i> Cancelar Fatura</a>');
+                    actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Cancelar Fatura" id="btn-delete-invoice" data-placement="left" data-invoice="' + item.id + '" data-tt="tooltip" style="color: #F0F0F2; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'rgba(212, 175, 55, 0.1)\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-undo-alt" style="margin-right: 8px; color: #F87171;"></i> Cancelar Fatura</a>');
                 }
 
                 // Baixar Fatura (apenas para Pendente)
                 if(item.status == 'Pendente'){
                     var downloadUrl = item.payment_method == "Pix" ? item.image_url_pix : item.billet_url;
-                    actionsMenuItems.push('<a href="' + downloadUrl + '" target="_blank" class="dropdown-item" data-original-title="Baixar Fatura" id="btn-download-invoice" data-placement="left" data-tt="tooltip" style="color: #333333; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'rgba(6, 184, 247, 0.1)\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-download" style="margin-right: 8px; color: #06b8f7;"></i> Baixar Fatura</a>');
+                    actionsMenuItems.push('<a href="' + downloadUrl + '" target="_blank" class="dropdown-item" data-original-title="Baixar Fatura" id="btn-download-invoice" data-placement="left" data-tt="tooltip" style="color: #F0F0F2; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'rgba(212, 175, 55, 0.1)\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-download" style="margin-right: 8px; color: #D4AF37;"></i> Baixar Fatura</a>');
                 }
 
                 // Criar dropdown de ações
@@ -1175,10 +1175,10 @@ $(document).on('click', '#btn-invoice-status', function(e) {
                 html += '<td style="text-align: center;">';
                 if(actionsMenuItems.length > 0) {
                     html += '<div class="dropdown" style="position: relative; display: inline-block;">';
-                    html += '<button class="btn btn-sm" type="button" id="'+actionsMenuId+'" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background-color: transparent; border: none; color: #1F2937; padding: 4px 8px; cursor: pointer; font-size: 14px;">';
+                    html += '<button class="btn btn-sm" type="button" id="'+actionsMenuId+'" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="background-color: transparent; border: none; color: #F0F0F2; padding: 4px 8px; cursor: pointer; font-size: 14px;">';
                     html += '<i class="fa fa-ellipsis-v"></i>';
                     html += '</button>';
-                    html += '<div class="dropdown-menu dropdown-menu-right" aria-labelledby="'+actionsMenuId+'" style="min-width: 180px; padding: 5px 0; background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">';
+                    html += '<div class="dropdown-menu dropdown-menu-right" aria-labelledby="'+actionsMenuId+'" style="min-width: 180px; padding: 5px 0; background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">';
                     html += actionsMenuItems.join('');
                     html += '</div>';
                     html += '</div>';
@@ -1190,19 +1190,19 @@ $(document).on('click', '#btn-invoice-status', function(e) {
                 html += '<tr>';
                 html += '<td colspan="9" class="hiddenRow">';
                 html += '<div class="collapse" id="collapse-invoice-' + item.id + '">';
-                html += '<div class="card card-body" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); margin: 10px 0;">';
+                html += '<div class="card card-body" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); margin: 10px 0;">';
                 html += '<div class="row">';
                 html += '<div class="col-md-6 col-sm-12 mb-3">';
-                html += '<strong style="color: #06b8f7;">Descrição:</strong><br>';
-                html += '<span style="color: #333333;">' + (item.description || '-') + '</span>';
+                html += '<strong style="color: #D4AF37;">Descrição:</strong><br>';
+                html += '<span style="color: #F0F0F2;">' + (item.description || '-') + '</span>';
                 html += '</div>';
                 html += '<div class="col-md-3 col-sm-6 mb-3">';
-                html += '<strong style="color: #06b8f7;">Pago em:</strong><br>';
-                html += '<span style="color: #333333;">' + datePayment + '</span>';
+                html += '<strong style="color: #D4AF37;">Pago em:</strong><br>';
+                html += '<span style="color: #F0F0F2;">' + datePayment + '</span>';
                 html += '</div>';
                 html += '<div class="col-md-3 col-sm-6 mb-3">';
-                html += '<strong style="color: #06b8f7;">Forma de Pagamento:</strong><br>';
-                html += '<span style="color: #333333;">' + paymentMethod + '</span>';
+                html += '<strong style="color: #D4AF37;">Forma de Pagamento:</strong><br>';
+                html += '<span style="color: #F0F0F2;">' + paymentMethod + '</span>';
                 html += '</div>';
                 html += '</div>';
                 html += '</div>';
@@ -1254,7 +1254,7 @@ $(document).on('click', '#btn-invoice-status', function(e) {
 
         if (!dateIni || !dateEnd) {
             // Se não há datas, destacar "Todos"
-            document.getElementById('btn-filter-all').style.border = '2px solid #06b8f7';
+            document.getElementById('btn-filter-all').style.border = '2px solid #D4AF37';
             document.getElementById('btn-filter-all').style.borderWidth = '2px';
             return;
         }
@@ -1266,10 +1266,10 @@ $(document).on('click', '#btn-invoice-status', function(e) {
         const nextMonthLast = new Date(now.getFullYear(), now.getMonth() + 2, 0).toISOString().split('T')[0];
 
         if (dateIni === currentMonthFirst && dateEnd === currentMonthLast) {
-            document.getElementById('btn-filter-current-month').style.border = '2px solid #06b8f7';
+            document.getElementById('btn-filter-current-month').style.border = '2px solid #D4AF37';
             document.getElementById('btn-filter-current-month').style.borderWidth = '2px';
         } else if (dateIni === nextMonthFirst && dateEnd === nextMonthLast) {
-            document.getElementById('btn-filter-next-month').style.border = '2px solid #06b8f7';
+            document.getElementById('btn-filter-next-month').style.border = '2px solid #D4AF37';
             document.getElementById('btn-filter-next-month').style.borderWidth = '2px';
         }
     }
@@ -1364,7 +1364,7 @@ function updateStatusChart(statusData) {
 
     // Mapear cores para cada status
     const statusColors = {
-        'Pendente': '#06b8f7',
+        'Pendente': '#D4AF37',
         'Pago': '#6ccb48',
         'Cancelado': '#F87171',
         'Erro': '#DC2626',
@@ -1486,7 +1486,7 @@ $(document).on('click', '#btn-save-new-invoice', function(e) {
             $("#btn-save-new-invoice").attr("disabled", false).html('<i class="fa fa-check"></i> Salvar');
             Swal.fire({
                 width: 350,
-                title: "<h5 style='color:#007bff'>" + response.message + "</h5>",
+                title: "<h5 style='color:#D4AF37'>" + response.message + "</h5>",
                 icon: 'success',
                 showConfirmButton: true,
                 showClass: { popup: 'animate__animated animate__backInUp' },
@@ -1502,7 +1502,7 @@ $(document).on('click', '#btn-save-new-invoice', function(e) {
                 text: xhr.responseJSON,
                 width: 300,
                 icon: xhr.status === 422 ? 'warning' : 'error',
-                confirmButtonColor: "#007bff",
+                confirmButtonColor: "#D4AF37",
                 showClass: { popup: 'animate__animated animate__wobble' }
             });
         }

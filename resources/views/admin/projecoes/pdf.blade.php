@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -16,12 +16,12 @@
         body {
             font-family: 'DejaVu Sans', Arial, sans-serif;
             font-size: 10px;
-            color: #1F2937;
+            color: #F0F0F2;
             line-height: 1.4;
         }
 
         .header {
-            background: linear-gradient(135deg, #06b8f7 0%, #0284c7 100%);
+            background: linear-gradient(135deg, #D4AF37 0%, #0284c7 100%);
             color: #FFFFFF;
             padding: 20px;
             margin-bottom: 20px;
@@ -44,14 +44,14 @@
             padding: 15px;
             background-color: #F0F9FF;
             border-radius: 6px;
-            border: 1px solid rgba(6,184,247,0.3);
+            border: 1px solid rgba(212, 175, 55,0.3);
         }
 
         .info-section h2 {
             font-size: 14px;
             font-weight: bold;
             margin-bottom: 10px;
-            color: #1F2937;
+            color: #F0F0F2;
         }
 
         .info-row {
@@ -69,7 +69,7 @@
         }
 
         .total-card {
-            background-color: #FFFFFF;
+            background-color: #1A1A20;
             border: 1px solid rgba(0,0,0,0.1);
             border-radius: 6px;
             padding: 12px;
@@ -86,11 +86,11 @@
         .total-card .value {
             font-size: 16px;
             font-weight: bold;
-            color: #1F2937;
+            color: #F0F0F2;
         }
 
         .total-card.projecoes .value {
-            color: #06b8f7;
+            color: #D4AF37;
         }
 
         .total-card.media .value {
@@ -101,11 +101,11 @@
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
-            background-color: #FFFFFF;
+            background-color: #1A1A20;
         }
 
         .table thead {
-            background-color: #1F2937;
+            background-color: #F0F0F2;
             color: #FFFFFF;
         }
 
@@ -263,7 +263,7 @@
             @endif
         </tbody>
         <tfoot>
-            <tr style="background-color: #1F2937; color: #FFFFFF; font-weight: bold;">
+            <tr style="background-color: #F0F0F2; color: #FFFFFF; font-weight: bold;">
                 <td colspan="6" class="text-right" style="padding: 10px;">TOTAL GERAL:</td>
                 <td class="text-right" style="padding: 10px;">R$ {{ number_format($totalAmount, 2, ',', '.') }}</td>
                 <td style="padding: 10px;">{{ count($projections) }} projeções</td>
@@ -272,7 +272,7 @@
     </table>
 
     @if(count($monthlyTotals) > 0)
-    <h2 style="font-size: 14px; font-weight: bold; margin: 20px 0 10px 0; color: #1F2937;">Total por Mês</h2>
+    <h2 style="font-size: 14px; font-weight: bold; margin: 20px 0 10px 0; color: #F0F0F2;">Total por Mês</h2>
     <table class="table">
         <thead>
             <tr>

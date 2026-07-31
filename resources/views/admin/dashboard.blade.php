@@ -33,8 +33,8 @@
               <div class="dashboard-card-body">
                 <div class="dashboard-stats-grid">
                   <div class="dashboard-stat-item">
-                    <div class="stat-icon" style="background: rgba(6,184,247,0.1);">
-                      <i class="fas fa-users" style="color: #06b8f7;"></i>
+                    <div class="stat-icon" style="background: rgba(212,175,55,0.12);">
+                      <i class="fas fa-users" style="color: #D4AF37;"></i>
                     </div>
                     <div class="stat-content">
                       <span class="stat-value">{{ $total_customers }}</span>
@@ -60,8 +60,8 @@
                     </div>
                   </div>
                   <div class="dashboard-stat-item">
-                    <div class="stat-icon" style="background: rgba(6,184,247,0.1);">
-                      <i class="fas fa-spinner" style="color: #06b8f7;"></i>
+                    <div class="stat-icon" style="background: rgba(212,175,55,0.12);">
+                      <i class="fas fa-spinner" style="color: #F0C14B;"></i>
                     </div>
                     <div class="stat-content">
                       <span class="stat-value">{{ $invoice->proccessing }}</span>
@@ -78,8 +78,8 @@
                     </div>
                   </div>
                   <div class="dashboard-stat-item">
-                    <div class="stat-icon" style="background: rgba(6,184,247,0.2);">
-                      <i class="fas fa-list" style="color: #06b8f7;"></i>
+                    <div class="stat-icon" style="background: rgba(212,175,55,0.15);">
+                      <i class="fas fa-list" style="color: #D4AF37;"></i>
                     </div>
                     <div class="stat-content">
                       <span class="stat-value">{{ $invoice->total }}</span>
@@ -88,7 +88,7 @@
                   </div>
                 </div>
                 <!-- Alertas de Faturas - Compactos -->
-                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(0,0,0,0.1);">
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(212,175,55,0.15);">
                   <div class="dashboard-alerts-compact">
                     <div class="alert-item-compact alert-danger">
                       <i class="fas fa-calendar-times"></i>
@@ -128,8 +128,8 @@
               <div class="dashboard-card-body">
                 <div class="dashboard-stats-grid">
                   <div class="dashboard-stat-item">
-                    <div class="stat-icon" style="background: rgba(6,184,247,0.1);">
-                      <i class="fas fa-receipt" style="color: #06b8f7;"></i>
+                    <div class="stat-icon" style="background: rgba(212,175,55,0.12);">
+                      <i class="fas fa-receipt" style="color: #D4AF37;"></i>
                     </div>
                     <div class="stat-content">
                       <span class="stat-value">{{ $payable->total ?? 0 }}</span>
@@ -183,7 +183,7 @@
                   </div>
                 </div>
                 <!-- Alertas de Contas a Pagar - Compactos -->
-                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(0,0,0,0.1);">
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(212,175,55,0.15);">
                   <div class="dashboard-alerts-compact">
                     <div class="alert-item-compact alert-danger">
                       <i class="fas fa-calendar-times"></i>
@@ -446,8 +446,8 @@
                             {
                                 label: 'Despesas',
                                 data: data.year.despesas,
-                                backgroundColor: 'rgba(6, 184, 247, 0.8)',
-                                borderColor: '#06b8f7',
+                                backgroundColor: 'rgba(212, 175, 55, 0.8)',
+                                borderColor: '#D4AF37',
                                 borderWidth: 2,
                             }
                         ],
@@ -455,7 +455,7 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        backgroundColor: '#FFFFFF',
+                        backgroundColor: 'transparent',
                         animation: {
                             duration: 1000,
                             easing: 'easeOutBounce'
@@ -490,7 +490,7 @@
                             y: {
                                 beginAtZero: true,
                                 grid: {
-                                    color: 'rgba(0, 0, 0, 0.05)'
+                                    color: 'rgba(255, 255, 255, 0.06)'
                                 },
                                 ticks: {
                                     callback: function(value) {
@@ -503,7 +503,7 @@
                             },
                             x: {
                                 grid: {
-                                    color: 'rgba(0, 0, 0, 0.05)'
+                                    color: 'rgba(255, 255, 255, 0.06)'
                                 }
                             }
                         },
@@ -539,11 +539,11 @@
                             data: [data.month.receitas, data.month.despesas],
                             backgroundColor: [
                                 'rgba(108, 203, 72, 0.8)',
-                                'rgba(6, 184, 247, 0.8)'
+                                'rgba(212, 175, 55, 0.8)'
                             ],
                             borderColor: [
                                 '#6ccb48',
-                                '#06b8f7'
+                                '#D4AF37'
                             ],
                             borderWidth: 2,
                         }],
@@ -551,7 +551,7 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        backgroundColor: '#FFFFFF',
+                        backgroundColor: 'transparent',
                         animation: {
                             duration: 1000,
                             easing: 'easeOutBounce'
@@ -577,7 +577,7 @@
                             y: {
                                 beginAtZero: true,
                                 grid: {
-                                    color: 'rgba(0, 0, 0, 0.05)'
+                                    color: 'rgba(255, 255, 255, 0.06)'
                                 },
                                 ticks: {
                                     callback: function(value) {
@@ -590,7 +590,7 @@
                             },
                             x: {
                                 grid: {
-                                    color: 'rgba(0, 0, 0, 0.05)'
+                                    color: 'rgba(255, 255, 255, 0.06)'
                                 }
                             }
                         },
@@ -815,44 +815,45 @@
     </script>
 
     <style>
-        /* Dashboard Moderno - Estilos Compactos */
+        /* Dashboard — Dark Gold Theme */
         .dashboard-card-modern {
-            background: #FFFFFF;
-            border: 1px solid rgba(0,0,0,0.1);
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            background: #1A1A20;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.4);
             transition: all 0.3s ease;
             overflow: hidden;
         }
 
         .dashboard-card-modern:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.4), 0 4px 20px rgba(212,175,55,0.12);
             transform: translateY(-2px);
         }
 
         .dashboard-card-header {
-            background: #FFFFFF;
+            background: #121216;
             padding: 12px 16px;
-            border-bottom: 1px solid rgba(0,0,0,0.1);
+            border-bottom: 1px solid rgba(212,175,55,0.15);
         }
 
         .dashboard-card-title {
             margin: 0;
             font-size: 14px;
             font-weight: 600;
-            color: #333333;
+            color: #F0F0F2;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
         .dashboard-card-title i {
-            color: #06b8f7;
+            color: #D4AF37;
             font-size: 16px;
         }
 
         .dashboard-card-body {
             padding: 16px;
+            background: #1A1A20;
         }
 
         .dashboard-stats-grid {
@@ -866,13 +867,15 @@
             align-items: center;
             gap: 10px;
             padding: 10px;
-            background: #F9F9F9;
-            border-radius: 8px;
+            background: #121216;
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 10px;
             transition: all 0.2s ease;
         }
 
         .dashboard-stat-item:hover {
-            background: rgba(6, 184, 247, 0.05);
+            background: rgba(212,175,55,0.08);
+            border-color: rgba(212,175,55,0.2);
             transform: translateY(-2px);
         }
 
@@ -904,19 +907,18 @@
         .stat-value {
             font-size: 18px;
             font-weight: 700;
-            color: #333333;
+            color: #F0F0F2;
             line-height: 1.2;
         }
 
         .stat-label {
             font-size: 11px;
-            color: #6B7280;
+            color: #6B6B78;
             font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        /* Alertas Compactos - Dentro dos Cards */
         .dashboard-alerts-compact {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -928,7 +930,7 @@
             align-items: center;
             gap: 8px;
             padding: 8px;
-            border-radius: 6px;
+            border-radius: 8px;
             transition: all 0.2s ease;
         }
 
@@ -956,7 +958,7 @@
 
         .alert-label-compact {
             font-size: 10px;
-            color: #6B7280;
+            color: #6B6B78;
             font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.3px;
@@ -965,12 +967,13 @@
         .alert-value-compact {
             font-size: 16px;
             font-weight: 700;
-            color: #333333;
+            color: #F0F0F2;
             line-height: 1.2;
         }
 
         .alert-item-compact.alert-danger {
-            background: rgba(239, 68, 68, 0.08);
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
         }
 
         .alert-item-compact.alert-danger i {
@@ -979,61 +982,29 @@
         }
 
         .alert-item-compact.alert-warning {
-            background: rgba(254, 201, 17, 0.08);
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.2);
         }
 
         .alert-item-compact.alert-warning i {
-            background: rgba(254, 201, 17, 0.2);
-            color: #fec911;
+            background: rgba(212, 175, 55, 0.2);
+            color: #D4AF37;
         }
 
         .alert-item-compact.alert-info {
-            background: rgba(6, 184, 247, 0.08);
+            background: rgba(212, 175, 55, 0.08);
+            border: 1px solid rgba(212, 175, 55, 0.15);
         }
 
         .alert-item-compact.alert-info i {
-            background: rgba(6, 184, 247, 0.2);
-            color: #06b8f7;
-        }
-
-        /* Cards de Gráficos */
-        .card {
-            border: 1px solid rgba(0,0,0,0.1);
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-        }
-
-        .card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        .card-header {
-            background: #FFFFFF;
-            border-bottom: 1px solid rgba(0,0,0,0.1);
-            border-radius: 12px 12px 0 0;
-        }
-
-        .card-header h3 {
-            color: #333333;
-            font-size: 14px;
-            font-weight: 600;
+            background: rgba(212, 175, 55, 0.15);
+            color: #F0C14B;
         }
 
         .card-header h3 i {
-            color: #06b8f7;
+            color: #D4AF37;
         }
 
-        /* Gráficos com fundo branco */
-        canvas {
-            background-color: #FFFFFF !important;
-        }
-
-        .card-body {
-            background-color: #FFFFFF !important;
-        }
-
-        /* Responsivo */
         @media (max-width: 992px) {
             .dashboard-stats-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -1055,13 +1026,6 @@
             }
             .dashboard-alerts-compact {
                 grid-template-columns: 1fr;
-            }
-            .form-control-sm {
-                font-size: 0.75rem;
-                padding: 0.25rem 0.5rem;
-            }
-            .card-header .d-flex {
-                flex-wrap: wrap;
             }
         }
     </style>

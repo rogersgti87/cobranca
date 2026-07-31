@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 @php
@@ -6,12 +6,12 @@
 @endphp
 
 <style>
-    .card-modern { border-left: 4px solid #007bff; box-shadow: 0 2px 12px rgba(0,123,255,0.15); }
-    .card-header-modern { background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: #fff; font-weight: 600; }
-    .logo-preview-area { min-height: 180px; border: 2px dashed #007bff; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: #f8f9fc; }
-    .logo-placeholder { color: #007bff; font-size: 4rem; opacity: 0.5; }
-    .btn-primary-modern { background: #007bff; border-color: #007bff; }
-    .btn-primary-modern:hover { background: #0056b3; border-color: #0056b3; }
+    .card-modern { border-left: 4px solid #D4AF37; box-shadow: 0 2px 12px rgba(0,123,255,0.15); }
+    .card-header-modern { background: linear-gradient(135deg, #D4AF37 0%, #B8960C 100%); color: #fff; font-weight: 600; }
+    .logo-preview-area { min-height: 180px; border: 2px dashed #D4AF37; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: #f8f9fc; }
+    .logo-placeholder { color: #D4AF37; font-size: 4rem; opacity: 0.5; }
+    .btn-primary-modern { background: #D4AF37; border-color: #D4AF37; }
+    .btn-primary-modern:hover { background: #B8960C; border-color: #B8960C; }
 </style>
 
 <div class="content-wrapper">

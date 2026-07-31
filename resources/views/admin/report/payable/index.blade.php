@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 
@@ -9,13 +9,13 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0" style="color: #1F2937; font-weight: 600;">{{ $title }}</h1>
+            <h1 class="m-0" style="color: #F0F0F2; font-weight: 600;">{{ $title }}</h1>
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right" style="background-color: transparent; padding: 0;">
-              <li class="breadcrumb-item"><a href="{{url('admin')}}" style="color: #1F2937; text-decoration: none; opacity: 0.7;">Home</a></li>
-              <li class="breadcrumb-item"><a href="#" style="color: #1F2937; text-decoration: none; opacity: 0.7;">Relatórios</a></li>
-              <li class="breadcrumb-item active" style="color: #1F2937; opacity: 0.7;">Contas a pagar</li>
+              <li class="breadcrumb-item"><a href="{{url('admin')}}" style="color: #F0F0F2; text-decoration: none; opacity: 0.7;">Home</a></li>
+              <li class="breadcrumb-item"><a href="#" style="color: #F0F0F2; text-decoration: none; opacity: 0.7;">Relatórios</a></li>
+              <li class="breadcrumb-item active" style="color: #F0F0F2; opacity: 0.7;">Contas a pagar</li>
             </ol>
           </div><!-- /.col -->
         </div><!-- /.row -->
@@ -31,42 +31,42 @@
         <div class="col-md-12 mb-4">
          <div class="row">
               <div class="col-md-3 col-6 mb-3">
-                <div style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
-                            <p style="color: #1F2937; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Total</p>
-                            <h5 id="total_currency" style="color: #1F2937; font-size: 20px; font-weight: 600; margin: 5px 0 0 0;">R$0,00</h5>
-                            <p id="total_count" style="color: #1F2937; font-size: 12px; margin: 5px 0 0 0; opacity: 0.6;">0 contas</p>
+                            <p style="color: #F0F0F2; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Total</p>
+                            <h5 id="total_currency" style="color: #F0F0F2; font-size: 20px; font-weight: 600; margin: 5px 0 0 0;">R$0,00</h5>
+                            <p id="total_count" style="color: #F0F0F2; font-size: 12px; margin: 5px 0 0 0; opacity: 0.6;">0 contas</p>
                         </div>
-                        <div style="width: 48px; height: 48px; background-color: rgba(6,184,247,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-receipt" style="color: #06b8f7; font-size: 20px;"></i>
+                        <div style="width: 48px; height: 48px; background-color: rgba(212, 175, 55,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-receipt" style="color: #D4AF37; font-size: 20px;"></i>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="col-md-3 col-6 mb-3">
-                <div style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
-                            <p style="color: #1F2937; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Pendentes</p>
-                            <h5 id="pendente_currency" style="color: #06b8f7; font-size: 20px; font-weight: 600; margin: 5px 0 0 0;">R$0,00</h5>
-                            <p id="pendente_count" style="color: #1F2937; font-size: 12px; margin: 5px 0 0 0; opacity: 0.6;">0 contas</p>
+                            <p style="color: #F0F0F2; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Pendentes</p>
+                            <h5 id="pendente_currency" style="color: #D4AF37; font-size: 20px; font-weight: 600; margin: 5px 0 0 0;">R$0,00</h5>
+                            <p id="pendente_count" style="color: #F0F0F2; font-size: 12px; margin: 5px 0 0 0; opacity: 0.6;">0 contas</p>
                         </div>
-                        <div style="width: 48px; height: 48px; background-color: rgba(6,184,247,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                            <i class="far fa-hourglass" style="color: #06b8f7; font-size: 20px;"></i>
+                        <div style="width: 48px; height: 48px; background-color: rgba(212, 175, 55,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                            <i class="far fa-hourglass" style="color: #D4AF37; font-size: 20px;"></i>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="col-md-3 col-6 mb-3">
-                <div style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
-                            <p style="color: #1F2937; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Pagas</p>
+                            <p style="color: #F0F0F2; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Pagas</p>
                             <h5 id="pago_currency" style="color: #22C55E; font-size: 20px; font-weight: 600; margin: 5px 0 0 0;">R$0,00</h5>
-                            <p id="pago_count" style="color: #1F2937; font-size: 12px; margin: 5px 0 0 0; opacity: 0.6;">0 contas</p>
+                            <p id="pago_count" style="color: #F0F0F2; font-size: 12px; margin: 5px 0 0 0; opacity: 0.6;">0 contas</p>
                         </div>
                         <div style="width: 48px; height: 48px; background-color: rgba(34,197,94,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
                             <i class="fas fa-check-circle" style="color: #22C55E; font-size: 20px;"></i>
@@ -76,12 +76,12 @@
             </div>
 
             <div class="col-md-3 col-6 mb-3">
-                <div style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
-                            <p style="color: #1F2937; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Canceladas</p>
+                            <p style="color: #F0F0F2; font-size: 14px; margin: 0; font-weight: 500; opacity: 0.7;">Canceladas</p>
                             <h5 id="cancelado_currency" style="color: #F87171; font-size: 20px; font-weight: 600; margin: 5px 0 0 0;">R$0,00</h5>
-                            <p id="cancelado_count" style="color: #1F2937; font-size: 12px; margin: 5px 0 0 0; opacity: 0.6;">0 contas</p>
+                            <p id="cancelado_count" style="color: #F0F0F2; font-size: 12px; margin: 5px 0 0 0; opacity: 0.6;">0 contas</p>
                         </div>
                         <div style="width: 48px; height: 48px; background-color: rgba(248,113,113,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
                             <i class="fas fa-times-circle" style="color: #F87171; font-size: 20px;"></i>
@@ -97,20 +97,20 @@
         <div class="col-md-12">
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
                 <div class="d-flex align-items-center flex-wrap" style="gap: 10px;">
-                    <button class="btn" type="button" data-toggle="collapse" data-target="#filtersCollapse" aria-expanded="false" aria-controls="filtersCollapse" style="background-color: #06b8f7; color: #FFFFFF !important; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; transition: all 0.3s;">
+                    <button class="btn" type="button" data-toggle="collapse" data-target="#filtersCollapse" aria-expanded="false" aria-controls="filtersCollapse" style="background-color: #D4AF37; color: #FFFFFF !important; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; transition: all 0.3s;">
                         <i class="fa fa-filter"></i> Filtros
                     </button>
                     <div class="d-flex flex-wrap" style="gap: 8px;">
-                        <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-current-month" data-filter="current-month" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); padding: 8px 16px; border-radius: 6px; font-weight: 500;">
+                        <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-current-month" data-filter="current-month" style="background-color: #1A1A20; color: #F0F0F2; border: 1px solid rgba(0,0,0,0.1); padding: 8px 16px; border-radius: 6px; font-weight: 500;">
                             <i class="fa fa-calendar"></i> Mês Atual
                         </button>
-                        <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-last-month" data-filter="last-month" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); padding: 8px 16px; border-radius: 6px; font-weight: 500;">
+                        <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-last-month" data-filter="last-month" style="background-color: #1A1A20; color: #F0F0F2; border: 1px solid rgba(0,0,0,0.1); padding: 8px 16px; border-radius: 6px; font-weight: 500;">
                             <i class="fa fa-calendar-alt"></i> Mês Anterior
                         </button>
-                        <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-current-year" data-filter="current-year" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); padding: 8px 16px; border-radius: 6px; font-weight: 500;">
+                        <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-current-year" data-filter="current-year" style="background-color: #1A1A20; color: #F0F0F2; border: 1px solid rgba(0,0,0,0.1); padding: 8px 16px; border-radius: 6px; font-weight: 500;">
                             <i class="fa fa-calendar-check"></i> Ano Atual
                         </button>
-                        <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-all" data-filter="all" style="background-color: #FFFFFF; color: #1F2937; border: 1px solid rgba(0,0,0,0.1); padding: 8px 16px; border-radius: 6px; font-weight: 500;">
+                        <button class="btn btn-sm filter-quick-btn" type="button" id="btn-filter-all" data-filter="all" style="background-color: #1A1A20; color: #F0F0F2; border: 1px solid rgba(0,0,0,0.1); padding: 8px 16px; border-radius: 6px; font-weight: 500;">
                             <i class="fa fa-list"></i> Todos
                         </button>
                     </div>
@@ -126,41 +126,41 @@
             </div>
 
             <div class="collapse mb-4" id="filtersCollapse">
-                <div class="form-row" style="background-color: #FFFFFF; padding: 20px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1);">
+                <div class="form-row" style="background-color: #1A1A20; padding: 20px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1);">
 
                 <div class="form-group col-md-4 col-6">
-                    <label style="color: #1F2937; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Tipo de Data</label>
-                    <select class="form-control" id="filter-type" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #1F2937;">
+                    <label style="color: #F0F0F2; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Tipo de Data</label>
+                    <select class="form-control" id="filter-type" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #F0F0F2;">
                         <option value="date_due">Data do Vencimento</option>
                         <option value="date_payment">Data do Pagamento</option>
                     </select>
                 </div>
 
                 <div class="form-group col-md-4 col-6">
-                    <label style="color: #1F2937; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Data inicial</label>
-                    <input type="date" autocomplete="off" class="form-control" placeholder="Data inicial" id="filter-date-ini" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #1F2937;">
+                    <label style="color: #F0F0F2; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Data inicial</label>
+                    <input type="date" autocomplete="off" class="form-control" placeholder="Data inicial" id="filter-date-ini" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #F0F0F2;">
                 </div>
 
                 <div class="form-group col-md-4 col-6">
-                    <label style="color: #1F2937; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Data final</label>
-                    <input type="date" autocomplete="off" class="form-control" placeholder="Data Final" id="filter-date-end" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #1F2937;">
+                    <label style="color: #F0F0F2; font-weight: 500; font-size: 14px; margin-bottom: 8px;">Data final</label>
+                    <input type="date" autocomplete="off" class="form-control" placeholder="Data Final" id="filter-date-end" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 6px; padding: 8px 12px; color: #F0F0F2;">
                 </div>
 
                 <div class="form-group col-md-12 mt-3">
                     <div class="row">
                         <div class="col-md-6 col-12">
-                            <fieldset style="border: 1px solid rgba(6,184,247,0.5); border-radius: 8px; padding: 15px; margin: 0; background-color: #FFFFFF; position: relative;">
-                                <legend style="color: #06b8f7; font-size: 14px; font-weight: 600; padding: 0 10px; margin: 0; border: none;">Tipo de Conta</legend>
+                            <fieldset style="border: 1px solid rgba(212, 175, 55,0.5); border-radius: 8px; padding: 15px; margin: 0; background-color: #1A1A20; position: relative;">
+                                <legend style="color: #D4AF37; font-size: 14px; font-weight: 600; padding: 0 10px; margin: 0; border: none;">Tipo de Conta</legend>
                                 <div class="d-flex" style="gap: 20px; margin-top: 10px; flex-wrap: nowrap; overflow-x: auto;">
-                                    <label style="color: #1F2937; font-weight: 400; font-size: 14px; cursor: pointer; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0;">
+                                    <label style="color: #F0F0F2; font-weight: 400; font-size: 14px; cursor: pointer; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0;">
                                         <input type="checkbox" class="type-checkbox" value="Fixa" style="margin-right: 6px; width: 18px; height: 18px; cursor: pointer;">
                                         Fixa
                                     </label>
-                                    <label style="color: #1F2937; font-weight: 400; font-size: 14px; cursor: pointer; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0;">
+                                    <label style="color: #F0F0F2; font-weight: 400; font-size: 14px; cursor: pointer; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0;">
                                         <input type="checkbox" class="type-checkbox" value="Recorrente" style="margin-right: 6px; width: 18px; height: 18px; cursor: pointer;">
                                         Recorrente
                                     </label>
-                                    <label style="color: #1F2937; font-weight: 400; font-size: 14px; cursor: pointer; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0;">
+                                    <label style="color: #F0F0F2; font-weight: 400; font-size: 14px; cursor: pointer; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0;">
                                         <input type="checkbox" class="type-checkbox" value="Parcelada" style="margin-right: 6px; width: 18px; height: 18px; cursor: pointer;">
                                         Parcelada
                                     </label>
@@ -168,18 +168,18 @@
                             </fieldset>
                         </div>
                         <div class="col-md-6 col-12">
-                            <fieldset style="border: 1px solid rgba(6,184,247,0.5); border-radius: 8px; padding: 15px; margin: 0; background-color: #FFFFFF; position: relative;">
-                                <legend style="color: #06b8f7; font-size: 14px; font-weight: 600; padding: 0 10px; margin: 0; border: none;">Status</legend>
+                            <fieldset style="border: 1px solid rgba(212, 175, 55,0.5); border-radius: 8px; padding: 15px; margin: 0; background-color: #1A1A20; position: relative;">
+                                <legend style="color: #D4AF37; font-size: 14px; font-weight: 600; padding: 0 10px; margin: 0; border: none;">Status</legend>
                                 <div class="d-flex" style="gap: 20px; margin-top: 10px; flex-wrap: nowrap; overflow-x: auto;">
-                                    <label style="color: #1F2937; font-weight: 400; font-size: 14px; cursor: pointer; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0;">
+                                    <label style="color: #F0F0F2; font-weight: 400; font-size: 14px; cursor: pointer; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0;">
                                         <input type="checkbox" class="status-checkbox" value="Pendente" style="margin-right: 6px; width: 18px; height: 18px; cursor: pointer;">
                                         Pendente
                                     </label>
-                                    <label style="color: #1F2937; font-weight: 400; font-size: 14px; cursor: pointer; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0;">
+                                    <label style="color: #F0F0F2; font-weight: 400; font-size: 14px; cursor: pointer; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0;">
                                         <input type="checkbox" class="status-checkbox" value="Pago" style="margin-right: 6px; width: 18px; height: 18px; cursor: pointer;">
                                         Pago
                                     </label>
-                                    <label style="color: #1F2937; font-weight: 400; font-size: 14px; cursor: pointer; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0;">
+                                    <label style="color: #F0F0F2; font-weight: 400; font-size: 14px; cursor: pointer; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0;">
                                         <input type="checkbox" class="status-checkbox" value="Cancelado" style="margin-right: 6px; width: 18px; height: 18px; cursor: pointer;">
                                         Cancelado
                                     </label>
@@ -190,10 +190,10 @@
                 </div>
 
                 <div class="form-group col-md-12 mt-3">
-                    <fieldset style="border: 1px solid rgba(6,184,247,0.5); border-radius: 8px; padding: 15px; margin: 0; background-color: #FFFFFF; position: relative;">
-                        <legend style="color: #06b8f7; font-size: 14px; font-weight: 600; padding: 0 10px; margin: 0; border: none;">Categorias</legend>
+                    <fieldset style="border: 1px solid rgba(212, 175, 55,0.5); border-radius: 8px; padding: 15px; margin: 0; background-color: #1A1A20; position: relative;">
+                        <legend style="color: #D4AF37; font-size: 14px; font-weight: 600; padding: 0 10px; margin: 0; border: none;">Categorias</legend>
                         <div class="mb-3" style="margin-bottom: 15px !important;">
-                            <label style="color: #1F2937; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center;">
+                            <label style="color: #F0F0F2; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center;">
                                 <input type="checkbox" class="category-checkbox" id="selectAllCategories" style="margin-right: 6px; width: 18px; height: 18px; cursor: pointer;">
                                 Selecionar Todas
                             </label>
@@ -201,7 +201,7 @@
                         <div class="d-flex" style="gap: 20px; margin-top: 10px; flex-wrap: wrap; overflow-x: auto;">
                             @if(isset($categories) && count($categories) > 0)
                                 @foreach($categories as $category)
-                                    <label style="color: #1F2937; font-weight: 400; font-size: 14px; cursor: pointer; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0;">
+                                    <label style="color: #F0F0F2; font-weight: 400; font-size: 14px; cursor: pointer; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0;">
                                         <input type="checkbox" class="category-checkbox" value="{{ $category->id }}" style="margin-right: 6px; width: 18px; height: 18px; cursor: pointer;">
                                         <span style="display: inline-block; width: 12px; height: 12px; background-color: {{ $category->color }}; border-radius: 2px; margin-right: 6px;"></span>
                                         {{ $category->name }}
@@ -215,10 +215,10 @@
                 </div>
 
                 <div class="form-group col-md-12 mt-3">
-                    <fieldset style="border: 1px solid rgba(6,184,247,0.5); border-radius: 8px; padding: 15px; margin: 0; background-color: #FFFFFF; position: relative;">
-                        <legend style="color: #06b8f7; font-size: 14px; font-weight: 600; padding: 0 10px; margin: 0; border: none;">Fornecedores</legend>
+                    <fieldset style="border: 1px solid rgba(212, 175, 55,0.5); border-radius: 8px; padding: 15px; margin: 0; background-color: #1A1A20; position: relative;">
+                        <legend style="color: #D4AF37; font-size: 14px; font-weight: 600; padding: 0 10px; margin: 0; border: none;">Fornecedores</legend>
                         <div class="mb-3" style="margin-bottom: 15px !important;">
-                            <label style="color: #1F2937; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center;">
+                            <label style="color: #F0F0F2; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center;">
                                 <input type="checkbox" class="supplier-checkbox" id="selectAllSuppliers" style="margin-right: 6px; width: 18px; height: 18px; cursor: pointer;">
                                 Selecionar Todos
                             </label>
@@ -226,7 +226,7 @@
                         <div class="d-flex" style="gap: 20px; margin-top: 10px; flex-wrap: wrap; overflow-x: auto;">
                             @if(isset($suppliers) && count($suppliers) > 0)
                                 @foreach($suppliers as $supplier)
-                                    <label style="color: #1F2937; font-weight: 400; font-size: 14px; cursor: pointer; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0;">
+                                    <label style="color: #F0F0F2; font-weight: 400; font-size: 14px; cursor: pointer; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0;">
                                         <input type="checkbox" class="supplier-checkbox" value="{{ $supplier->id }}" style="margin-right: 6px; width: 18px; height: 18px; cursor: pointer;">
                                         {{ $supplier->name }}
                                     </label>
@@ -242,8 +242,8 @@
         </div>
 
       <div class="col-md-12 mb-4">
-        <div style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-            <h5 style="color: #1F2937; font-weight: 600; margin-bottom: 20px;">
+        <div style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <h5 style="color: #F0F0F2; font-weight: 600; margin-bottom: 20px;">
                 <i class="fas fa-chart-pie"></i> Total por Categorias
             </h5>
             <div style="position: relative; height: 300px;">
@@ -253,28 +253,28 @@
       </div>
 
       <div class="col-md-12">
-        <div style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-            <h5 style="color: #1F2937; font-weight: 600; margin-bottom: 20px;">
+        <div style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <h5 style="color: #F0F0F2; font-weight: 600; margin-bottom: 20px;">
                 <i class="fas fa-list"></i> Detalhamento
             </h5>
             <div class="table-responsive">
                 <table class="table" id="report-table" style="margin-bottom: 0;">
                     <thead>
                     <tr style="border-bottom: 2px solid rgba(0,0,0,0.1);">
-                        <th style="color: #1F2937; font-weight: 600; padding: 12px; border: none; font-size: 14px;">#</th>
-                        <th style="color: #1F2937; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Fornecedor</th>
-                        <th style="color: #1F2937; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Descrição</th>
-                        <th style="color: #1F2937; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Categoria</th>
-                        <th style="color: #1F2937; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Tipo</th>
-                        <th style="color: #1F2937; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Vencimento</th>
-                        <th style="color: #1F2937; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Pago em</th>
-                        <th style="color: #1F2937; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Valor</th>
-                        <th style="color: #1F2937; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Forma de Pagamento</th>
-                        <th style="color: #1F2937; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Status</th>
+                        <th style="color: #F0F0F2; font-weight: 600; padding: 12px; border: none; font-size: 14px;">#</th>
+                        <th style="color: #F0F0F2; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Fornecedor</th>
+                        <th style="color: #F0F0F2; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Descrição</th>
+                        <th style="color: #F0F0F2; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Categoria</th>
+                        <th style="color: #F0F0F2; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Tipo</th>
+                        <th style="color: #F0F0F2; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Vencimento</th>
+                        <th style="color: #F0F0F2; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Pago em</th>
+                        <th style="color: #F0F0F2; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Valor</th>
+                        <th style="color: #F0F0F2; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Forma de Pagamento</th>
+                        <th style="color: #F0F0F2; font-weight: 600; padding: 12px; border: none; font-size: 14px;">Status</th>
                     </tr>
                     </thead>
 
-                    <tbody id="list-report" style="background-color: #FFFFFF;">
+                    <tbody id="list-report" style="background-color: #1A1A20;">
                         <tr>
                             <td colspan="10" class="text-center" style="padding: 40px; color: #6B7280;">
                                 <i class="fas fa-chart-bar" style="font-size: 48px; margin-bottom: 15px; opacity: 0.3;"></i>
@@ -307,17 +307,17 @@
     input[type="checkbox"],
     input[type="checkbox"]:checked,
     input[type="checkbox"]:focus {
-        accent-color: #06b8f7 !important;
+        accent-color: #D4AF37 !important;
         cursor: pointer;
     }
 
     /* Garantir que fieldsets e legendas sejam azuis */
     fieldset {
-        border-color: rgba(6,184,247,0.5) !important;
+        border-color: rgba(212, 175, 55,0.5) !important;
     }
 
     legend {
-        color: #06b8f7 !important;
+        color: #D4AF37 !important;
     }
 
     /* Responsividade Mobile */
@@ -451,7 +451,7 @@ $(document).ready(function() {
         if (!dateIni || !dateEnd) {
             // Se não há datas, destacar "Todos"
             $('#btn-filter-all').css({
-                'border': '2px solid #06b8f7',
+                'border': '2px solid #D4AF37',
                 'borderWidth': '2px'
             });
             return;
@@ -467,17 +467,17 @@ $(document).ready(function() {
 
         if (dateIni === currentMonthFirst && dateEnd === currentMonthLast) {
             $('#btn-filter-current-month').css({
-                'border': '2px solid #06b8f7',
+                'border': '2px solid #D4AF37',
                 'borderWidth': '2px'
             });
         } else if (dateIni === lastMonthFirst && dateEnd === lastMonthLast) {
             $('#btn-filter-last-month').css({
-                'border': '2px solid #06b8f7',
+                'border': '2px solid #D4AF37',
                 'borderWidth': '2px'
             });
         } else if (dateIni === currentYearFirst && dateEnd === currentYearLast) {
             $('#btn-filter-current-year').css({
-                'border': '2px solid #06b8f7',
+                'border': '2px solid #D4AF37',
                 'borderWidth': '2px'
             });
         }
@@ -649,7 +649,7 @@ function displayReport(data, totals) {
     } else {
         data.forEach(function(item, index) {
             const statusClass = item.status === 'Pago' ? 'success' : item.status === 'Pendente' ? 'warning' : 'danger';
-            const statusColor = item.status === 'Pago' ? '#22C55E' : item.status === 'Pendente' ? '#06b8f7' : '#F87171';
+            const statusColor = item.status === 'Pago' ? '#22C55E' : item.status === 'Pendente' ? '#D4AF37' : '#F87171';
 
             html += '<tr>';
             html += '<td style="padding: 12px; border-bottom: 1px solid rgba(0,0,0,0.1);">' + (index + 1) + '</td>';

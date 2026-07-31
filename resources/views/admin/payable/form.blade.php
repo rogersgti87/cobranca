@@ -1,4 +1,4 @@
-    <div class="col-md-12">
+﻿    <div class="col-md-12">
     <div class="form-row">
 
         <div class="col-md-12">
@@ -13,8 +13,8 @@
                 @endphp
 
                 @if($isPaid)
-                <div class="alert alert-info" style="background-color: #E0F2FE; border: 1px solid #06b8f7; color: #1F2937; padding: 12px; border-radius: 6px; margin-bottom: 15px;">
-                    <i class="fas fa-info-circle" style="color: #06b8f7;"></i> <strong>Atenção:</strong> Esta conta está com status "Pago". Os campos Valor, Forma de Pagamento e Data de Pagamento estão bloqueados. Os demais campos podem ser editados.
+                <div class="alert alert-info" style="background-color: #E0F2FE; border: 1px solid #D4AF37; color: #F0F0F2; padding: 12px; border-radius: 6px; margin-bottom: 15px;">
+                    <i class="fas fa-info-circle" style="color: #D4AF37;"></i> <strong>Atenção:</strong> Esta conta está com status "Pago". Os campos Valor, Forma de Pagamento e Data de Pagamento estão bloqueados. Os demais campos podem ser editados.
                 </div>
                 @endif
 
@@ -26,8 +26,8 @@
                 @endif
 
                 <div class="form-group col-md-6 col-sm-12">
-                    <label style="color: #1F2937;">Fornecedor <span class="text-danger">*</span></label>
-                    <select class="form-control custom-select" name="supplier_id" id="supplier_id" required style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); color: #1F2937;">
+                    <label style="color: #F0F0F2;">Fornecedor <span class="text-danger">*</span></label>
+                    <select class="form-control custom-select" name="supplier_id" id="supplier_id" required style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); color: #F0F0F2;">
                         <option value="">Selecione um fornecedor</option>
                         @foreach($suppliers as $supplier)
                             <option {{ isset($data->supplier_id) && $data->supplier_id == $supplier->id ? 'selected' : '' }} value="{{ $supplier->id }}">{{ $supplier->name }}</option>
@@ -36,8 +36,8 @@
                 </div>
 
                 <div class="form-group col-md-6 col-sm-12">
-                    <label style="color: #1F2937;">Categoria <span class="text-danger">*</span></label>
-                    <select class="form-control custom-select" name="category_id" id="category_id" required style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); color: #1F2937;">
+                    <label style="color: #F0F0F2;">Categoria <span class="text-danger">*</span></label>
+                    <select class="form-control custom-select" name="category_id" id="category_id" required style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); color: #F0F0F2;">
                         <option value="">Selecione uma categoria</option>
                         @if(isset($categories) && count($categories) > 0)
                             @foreach($categories as $category)
@@ -48,18 +48,18 @@
                 </div>
 
                 <div class="form-group col-md-12 col-sm-12">
-                    <label style="color: #1F2937;">Descrição <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="description" id="description" autocomplete="off" required value="{{isset($data->description) ? $data->description : ''}}" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); color: #1F2937;">
+                    <label style="color: #F0F0F2;">Descrição <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" name="description" id="description" autocomplete="off" required value="{{isset($data->description) ? $data->description : ''}}" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); color: #F0F0F2;">
                 </div>
 
                 <div class="form-group col-md-4 col-sm-12">
-                    <label style="color: #1F2937;">Valor <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control money" name="price" id="price" autocomplete="off" required {{ $isPaid ? 'disabled' : '' }} value="{{isset($data->price) ? number_format($data->price,2,',','.') : ''}}" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); color: #1F2937;">
+                    <label style="color: #F0F0F2;">Valor <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control money" name="price" id="price" autocomplete="off" required {{ $isPaid ? 'disabled' : '' }} value="{{isset($data->price) ? number_format($data->price,2,',','.') : ''}}" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); color: #F0F0F2;">
                 </div>
 
                 <div class="form-group col-md-4 col-sm-12">
-                    <label style="color: #1F2937;">Tipo de Conta <span class="text-danger">*</span></label>
-                    <select class="form-control custom-select" name="type" id="type" required style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); color: #1F2937;">
+                    <label style="color: #F0F0F2;">Tipo de Conta <span class="text-danger">*</span></label>
+                    <select class="form-control custom-select" name="type" id="type" required style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); color: #F0F0F2;">
                         <option value="">Selecione o tipo</option>
                         <option {{ isset($data->type) && $data->type === 'Fixa' ? 'selected' : '' }} value="Fixa">Fixa</option>
                         <option {{ isset($data->type) && $data->type === 'Recorrente' ? 'selected' : '' }} value="Recorrente">Recorrente</option>
@@ -68,8 +68,8 @@
                 </div>
 
                 <div class="form-group col-md-4 col-sm-12">
-                    <label style="color: #1F2937;">Forma de Pagamento</label>
-                    <select class="form-control custom-select" name="payment_method" id="payment_method" {{ $isPaid ? 'disabled' : '' }} style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); color: #1F2937;">
+                    <label style="color: #F0F0F2;">Forma de Pagamento</label>
+                    <select class="form-control custom-select" name="payment_method" id="payment_method" {{ $isPaid ? 'disabled' : '' }} style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); color: #F0F0F2;">
                         <option value="">Selecione a Forma de Pagamento</option>
                         <option {{ isset($data->payment_method) && $data->payment_method === 'Pix' ? 'selected' : '' }} value="Pix">Pix</option>
                         <option {{ isset($data->payment_method) && $data->payment_method === 'Boleto' ? 'selected' : '' }} value="Boleto">Boleto</option>
@@ -81,26 +81,26 @@
                 </div>
 
                 <div class="form-group col-md-4 col-sm-12">
-                    <label style="color: #1F2937;">Data de vencimento <span class="text-danger">*</span></label>
-                    <input type="date" class="form-control" name="date_due" id="date_due" autocomplete="off" required value="{{isset($data->date_due) ? $data->date_due : ''}}" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); color: #1F2937;">
+                    <label style="color: #F0F0F2;">Data de vencimento <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control" name="date_due" id="date_due" autocomplete="off" required value="{{isset($data->date_due) ? $data->date_due : ''}}" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); color: #F0F0F2;">
                 </div>
 
                 <div class="form-group col-md-4 col-sm-12">
-                    <label style="color: #1F2937;">Data de pagamento</label>
-                    <input type="date" class="form-control" name="date_payment" id="date_payment" autocomplete="off" {{ $isPaid ? 'disabled' : '' }} value="{{isset($data->date_payment) ? $data->date_payment : ''}}" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); color: #1F2937;">
+                    <label style="color: #F0F0F2;">Data de pagamento</label>
+                    <input type="date" class="form-control" name="date_payment" id="date_payment" autocomplete="off" {{ $isPaid ? 'disabled' : '' }} value="{{isset($data->date_payment) ? $data->date_payment : ''}}" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); color: #F0F0F2;">
                 </div>
 
                 <!-- Campos para conta recorrente -->
                 <div class="form-group col-md-12 col-sm-12" id="recurrence-fields" style="display: none;">
                     <div class="card" style="background-color: #F5F5DC; border: 1px solid rgba(0,0,0,0.1);">
-                        <div class="card-header" style="background-color: #FFFFFF; border-bottom: 1px solid rgba(0,0,0,0.1);">
+                        <div class="card-header" style="background-color: #1A1A20; border-bottom: 1px solid rgba(0,0,0,0.1);">
                             <h3 class="card-title" style="color: #FFBD59;">Configurações de Recorrência</h3>
                         </div>
                         <div class="card-body">
                             <div class="form-row">
                                 <div class="form-group col-md-4 col-sm-12">
-                                    <label style="color: #1F2937;">Período de Recorrência</label>
-                                    <select class="form-control custom-select" name="recurrence_period" id="recurrence_period" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); color: #1F2937;">
+                                    <label style="color: #F0F0F2;">Período de Recorrência</label>
+                                    <select class="form-control custom-select" name="recurrence_period" id="recurrence_period" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); color: #F0F0F2;">
                                         <option value="">Selecione o período</option>
                                         <option {{ isset($data->recurrence_period) && $data->recurrence_period === 'Semanal' ? 'selected' : '' }} value="Semanal">Semanal</option>
                                         <option {{ isset($data->recurrence_period) && $data->recurrence_period === 'Quinzenal' ? 'selected' : '' }} value="Quinzenal">Quinzenal</option>
@@ -113,13 +113,13 @@
                                 </div>
 
                                 <div class="form-group col-md-4 col-sm-12">
-                                    <label style="color: #1F2937;">Dia da Recorrência</label>
-                                    <input type="number" class="form-control" name="recurrence_day" id="recurrence_day" min="1" max="31" value="{{isset($data->recurrence_day) ? $data->recurrence_day : ''}}" placeholder="Dia do mês (1-31)" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); color: #1F2937;">
+                                    <label style="color: #F0F0F2;">Dia da Recorrência</label>
+                                    <input type="number" class="form-control" name="recurrence_day" id="recurrence_day" min="1" max="31" value="{{isset($data->recurrence_day) ? $data->recurrence_day : ''}}" placeholder="Dia do mês (1-31)" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); color: #F0F0F2;">
                                 </div>
 
                                 <div class="form-group col-md-4 col-sm-12">
-                                    <label style="color: #1F2937;">Data de Término</label>
-                                    <input type="date" class="form-control" name="recurrence_end" id="recurrence_end" value="{{isset($data->recurrence_end) ? $data->recurrence_end : ''}}" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); color: #1F2937;">
+                                    <label style="color: #F0F0F2;">Data de Término</label>
+                                    <input type="date" class="form-control" name="recurrence_end" id="recurrence_end" value="{{isset($data->recurrence_end) ? $data->recurrence_end : ''}}" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); color: #F0F0F2;">
                                     <small class="form-text" style="color: #6B7280;">
                                         <i class="fas fa-info-circle"></i> Defina uma data para parar a geração automática. Deixe em branco para continuar indefinidamente.
                                     </small>
@@ -132,14 +132,14 @@
                 <!-- Campos para conta parcelada -->
                 <div class="form-group col-md-12 col-sm-12" id="installment-fields" style="display: none;">
                     <div class="card" style="background-color: #F5F5DC; border: 1px solid rgba(0,0,0,0.1);">
-                        <div class="card-header" style="background-color: #FFFFFF; border-bottom: 1px solid rgba(0,0,0,0.1);">
+                        <div class="card-header" style="background-color: #1A1A20; border-bottom: 1px solid rgba(0,0,0,0.1);">
                             <h3 class="card-title" style="color: #FFBD59;">Configurações de Parcelamento</h3>
                         </div>
                         <div class="card-body">
                             <div class="form-row">
                                 <div class="form-group col-md-6 col-sm-12">
-                                    <label style="color: #1F2937;">Número de Parcelas</label>
-                                    <input type="number" class="form-control" name="installments" id="installments" min="2" max="60" value="{{isset($data->installments) ? $data->installments : '1'}}" placeholder="Número de parcelas" style="background-color: #FFFFFF; border: 1px solid rgba(0,0,0,0.1); color: #1F2937;">
+                                    <label style="color: #F0F0F2;">Número de Parcelas</label>
+                                    <input type="number" class="form-control" name="installments" id="installments" min="2" max="60" value="{{isset($data->installments) ? $data->installments : '1'}}" placeholder="Número de parcelas" style="background-color: #1A1A20; border: 1px solid rgba(0,0,0,0.1); color: #F0F0F2;">
                                     <small class="form-text" style="color: #6B7280;">O valor será dividido igualmente entre as parcelas</small>
                                 </div>
                             </div>
@@ -154,7 +154,7 @@
                         <div class="card-body">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="update_future_installments" id="update_future_installments" value="1" style="cursor: pointer;">
-                                <label class="form-check-label" for="update_future_installments" style="color: #1F2937; cursor: pointer;">
+                                <label class="form-check-label" for="update_future_installments" style="color: #F0F0F2; cursor: pointer;">
                                     <strong>Atualizar valor de todas as parcelas futuras</strong>
                                 </label>
                                 <small class="form-text d-block" style="color: #6B7280; margin-top: 5px;">
@@ -180,8 +180,8 @@
         #type,
         #payment_method,
         #recurrence_period {
-            color: #1F2937 !important;
-            background-color: #FFFFFF !important;
+            color: #F0F0F2 !important;
+            background-color: #1A1A20 !important;
             background-image: none !important;
         }
 
@@ -195,8 +195,8 @@
             border-color: #FFBD59 !important;
             box-shadow: 0 0 0 3px rgba(255, 189, 89, 0.2) !important;
             outline: none;
-            background-color: #FFFFFF !important;
-            color: #1F2937 !important;
+            background-color: #1A1A20 !important;
+            color: #F0F0F2 !important;
         }
 
         select.form-control option,
@@ -206,8 +206,8 @@
         #type option,
         #payment_method option,
         #recurrence_period option {
-            background-color: #FFFFFF !important;
-            color: #1F2937 !important;
+            background-color: #1A1A20 !important;
+            color: #F0F0F2 !important;
         }
 
         select.form-control option:checked,
@@ -218,7 +218,7 @@
         #payment_method option:checked,
         #recurrence_period option:checked {
             background-color: #F5F5DC !important;
-            color: #1F2937 !important;
+            color: #F0F0F2 !important;
         }
 
         .form-control:focus,
@@ -227,8 +227,8 @@
             border-color: #FFBD59 !important;
             box-shadow: 0 0 0 3px rgba(255, 189, 89, 0.2) !important;
             outline: none;
-            background-color: #FFFFFF !important;
-            color: #1F2937 !important;
+            background-color: #1A1A20 !important;
+            color: #F0F0F2 !important;
         }
 
         input[type="date"]::-webkit-calendar-picker-indicator {
@@ -241,18 +241,18 @@
 
         /* Força a cor escura e fundo branco em todos os estados do select */
         select {
-            color: #1F2937 !important;
-            background-color: #FFFFFF !important;
+            color: #F0F0F2 !important;
+            background-color: #1A1A20 !important;
         }
 
         select:focus {
-            color: #1F2937 !important;
-            background-color: #FFFFFF !important;
+            color: #F0F0F2 !important;
+            background-color: #1A1A20 !important;
         }
 
         select option {
-            color: #1F2937 !important;
-            background-color: #FFFFFF !important;
+            color: #F0F0F2 !important;
+            background-color: #1A1A20 !important;
         }
     </style>
     <script>

@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
 
@@ -122,7 +122,7 @@
                 success:function(data){
                     Swal.fire({
                         width:350,
-                        title: "<h5 style='color:#007bff'>" + data + "</h5>",
+                        title: "<h5 style='color:#D4AF37'>" + data + "</h5>",
                         icon: 'success',
                         showConfirmButton: false,
                         showClass: {
@@ -142,8 +142,8 @@
                             text: xhr.responseJSON,
                             width:300,
                             icon: 'warning',
-                            color: '#007bff',
-                            confirmButtonColor: "#007bff",
+                            color: '#D4AF37',
+                            confirmButtonColor: "#D4AF37",
                             showClass: {
                                 popup: 'animate__animated animate__wobble'
                             }
@@ -153,8 +153,8 @@
                             text: xhr.responseJSON,
                             width:300,
                             icon: 'error',
-                            color: '#007bff',
-                            confirmButtonColor: "#007bff",
+                            color: '#D4AF37',
+                            confirmButtonColor: "#D4AF37",
                             showClass: {
                                 popup: 'animate__animated animate__wobble'
                             }

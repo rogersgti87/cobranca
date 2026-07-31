@@ -177,7 +177,7 @@ class Invoice extends Model
     /**
      * Executa GET na API do Inter, renovando o token automaticamente em caso de 401.
      */
-    private static function interApiGet(Company $company, string $url, array $httpOptions, bool $retryOnUnauthorized = true)
+    private static function interApiGet(Company $company, string $url, array $httpOptions, bool $retryOnUnauthorized = true, int $timeoutSeconds = 15)
     {
         $access_token = $company->access_token_inter;
 
@@ -189,7 +189,7 @@ class Invoice extends Model
             $access_token = $refresh['token'];
         }
 
-        $response = Http::withOptions($httpOptions)->withHeaders([
+        $response = Http::timeout($timeoutSeconds)->withOptions($httpOptions)->withHeaders([
             'Authorization' => 'Bearer '.$access_token,
         ])->get($url);
 
@@ -199,7 +199,7 @@ class Invoice extends Model
                 return $response;
             }
 
-            return Http::withOptions($httpOptions)->withHeaders([
+            return Http::timeout($timeoutSeconds)->withOptions($httpOptions)->withHeaders([
                 'Authorization' => 'Bearer '.$refresh['token'],
             ])->get($url);
         }
@@ -725,7 +725,10 @@ class Invoice extends Model
     }
 
     /**
-     * Consulta o status de pagamento no Banco Inter e atualiza a fatura se necessário.
+     * Consulta o status de pagamento no Banco Inter (rápido: 1 request, sem polling).
+     * Boleto/BoletoPix: GET /cobranca/v3/cobrancas/{codigoSolicitacao}
+     * Pix puro: GET /pix/v2/cobv/{txid}
+     * Legado: nossoNumero numérico ainda usa cobranca/v2.
      */
     public static function syncInterPaymentStatus(self $invoice, bool $notify = true): array
     {
@@ -744,7 +747,7 @@ class Invoice extends Model
             return ['success' => false, 'message' => 'Credenciais ou certificados do Banco Inter não configurados.'];
         }
 
-        $certData = openssl_x509_parse(file_get_contents($certPath));
+        $certData = @openssl_x509_parse(file_get_contents($certPath));
         if ($certData && isset($certData['validTo_time_t']) && $certData['validTo_time_t'] < time()) {
             return ['success' => false, 'message' => 'Certificado do Banco Inter expirado.'];
         }
@@ -758,11 +761,14 @@ class Invoice extends Model
 
         $transaction_id_clean = preg_replace('/[^a-zA-Z0-9\-]/', '', $transaction_id);
         $gatewayStatus = null;
+        $apiVersion = null;
 
         if (in_array($invoice->payment_method, ['Boleto', 'BoletoPix'], true)) {
-            $isUuid = str_contains($transaction_id_clean, '-');
+            $isUuid = (bool) preg_match('/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/', $transaction_id_clean);
 
+            // Legado: nossoNumero numérico da API v2 antiga.
             if (!$isUuid && is_numeric($transaction_id_clean) && $invoice->payment_method === 'Boleto') {
+                $apiVersion = 'v2';
                 $nossoNumero = $transaction_id_clean;
                 $dataVencimento = $invoice->date_due ?? Carbon::now()->format('Y-m-d');
                 $dataInicial = Carbon::parse($dataVencimento)->subDays(30)->format('Y-m-d');
@@ -799,6 +805,8 @@ class Invoice extends Model
 
                 $gatewayStatus = $boleto_encontrado['situacao'] ?? null;
             } else {
+                // API correta BolePix v3: GET /cobranca/v3/cobrancas/{codigoSolicitacao}
+                $apiVersion = 'v3';
                 $url = rtrim($company->inter_host, '/').'/cobranca/v3/cobrancas/'.$transaction_id_clean;
 
                 $response = self::interApiGet($company, $url, $httpOptions);
@@ -818,11 +826,20 @@ class Invoice extends Model
                 $responseData = json_decode($response->body());
                 $gatewayStatus = $responseData->cobranca->situacao ?? null;
 
-                if ($gatewayStatus === 'EM_PROCESSAMENTO' && in_array($invoice->status, ['Processamento', 'Gerando'], true)) {
-                    self::completeInterCobrancaProcessing($invoice->id);
+                // Não bloqueia a UI com polling: completa PDF/Pix em background se necessário.
+                if (
+                    in_array($gatewayStatus, ['EM_PROCESSAMENTO', 'A_RECEBER'], true)
+                    && in_array($invoice->status, ['Processamento', 'Gerando'], true)
+                    && (empty($invoice->billet_url) || ($invoice->payment_method === 'BoletoPix' && empty($invoice->pix_digitable)))
+                ) {
+                    $queue = $invoice->company_id ? 'company_'.$invoice->company_id : 'default';
+                    \App\Jobs\GenerateInterInvoiceJob::dispatch($invoice->id, false, false)
+                        ->onQueue($queue)
+                        ->afterResponse();
                 }
             }
         } elseif ($invoice->payment_method === 'Pix') {
+            $apiVersion = 'pix/v2';
             $url = rtrim($company->inter_host, '/').'/pix/v2/cobv/'.$transaction_id_clean;
 
             $response = self::interApiGet($company, $url, $httpOptions);
@@ -849,6 +866,10 @@ class Invoice extends Model
             ? ['CONCLUIDA']
             : ['PAGO', 'RECEBIDO'];
 
+        $cancelledStatuses = $invoice->payment_method === 'Pix'
+            ? ['REMOVIDA_PELO_USUARIO_RECEBEDOR', 'REMOVIDA_PELO_PSP']
+            : ['CANCELADO', 'CANCELADA', 'EXPIRADO'];
+
         if (in_array($gatewayStatus, $paidStatuses, true)) {
             self::where('id', $invoice->id)->update([
                 'status' => 'Pago',
@@ -864,7 +885,23 @@ class Invoice extends Model
                 'success' => true,
                 'updated' => true,
                 'gateway_status' => $gatewayStatus,
+                'api_version' => $apiVersion,
                 'message' => 'Status atualizado para Pago.',
+            ];
+        }
+
+        if (in_array($gatewayStatus, $cancelledStatuses, true) && $invoice->status !== 'Cancelado') {
+            self::where('id', $invoice->id)->update([
+                'status' => $gatewayStatus === 'EXPIRADO' ? 'Expirado' : 'Cancelado',
+                'date_payment' => null,
+            ]);
+
+            return [
+                'success' => true,
+                'updated' => true,
+                'gateway_status' => $gatewayStatus,
+                'api_version' => $apiVersion,
+                'message' => 'Status atualizado conforme o Inter: '.$gatewayStatus.'.',
             ];
         }
 
@@ -872,6 +909,7 @@ class Invoice extends Model
             'success' => true,
             'updated' => false,
             'gateway_status' => $gatewayStatus,
+            'api_version' => $apiVersion,
             'message' => 'Status consultado. Situação no gateway: '.($gatewayStatus ?? 'desconhecida').'.',
         ];
     }

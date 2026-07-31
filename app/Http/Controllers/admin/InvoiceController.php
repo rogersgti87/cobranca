@@ -962,6 +962,7 @@ if(isset($data['send_invoice_whatsapp'])){
                 'updated' => $result['updated'] ?? false,
                 'message' => $result['message'],
                 'gateway_status' => $result['gateway_status'] ?? null,
+                'api_version' => $result['api_version'] ?? null,
             ], 200);
         }
 

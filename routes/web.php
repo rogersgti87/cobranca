@@ -16,12 +16,24 @@ use App\Http\Controllers\admin\LogController;
 
 
 use App\Http\Controllers\front\HomeController;
+use App\Http\Controllers\front\PublicInvoiceController;
 // use App\Http\Controllers\front\ContactController;
 
 use App\Http\Controllers\WebHookController;
 
 Route::get('/',[HomeController::class, 'index']);
 // Route::get('/contact',[ContactController::class,'index']);
+
+// Página pública de pagamento da cobrança (token opaco — sem ID sequencial)
+Route::get('/pagar/{token}', [PublicInvoiceController::class, 'show'])
+    ->where('token', '[A-Za-z0-9]{32,64}')
+    ->name('public.invoice.show');
+Route::get('/pagar/{token}/imprimir', [PublicInvoiceController::class, 'print'])
+    ->where('token', '[A-Za-z0-9]{32,64}')
+    ->name('public.invoice.print');
+Route::get('/pagar/{token}/barcode', [PublicInvoiceController::class, 'barcode'])
+    ->where('token', '[A-Za-z0-9]{32,64}')
+    ->name('public.invoice.barcode');
 
 Route::group(['prefix' => 'laravel-filemanager', 'middleware' => ['web', 'auth']], function () {
     \UniSharp\LaravelFilemanager\Lfm::routes();

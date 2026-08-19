@@ -142,6 +142,7 @@ foreach($invoices as $invoice){
             'billet_digitable_line'     => $invoice->billet_digitable,
             'billet_url_slip_base64'    => $invoice->billet_base64,
             'billet_url_slip'           => $invoice->billet_url,
+            'payment_url'               => $invoice->publicUrl(),
             'status_whatsapp'           => $company->api_status_whatsapp,
             'api_session_whatsapp'      => $company->api_session_whatsapp,
             'api_token_whatsapp'        => $company->api_token_whatsapp,
@@ -163,10 +164,7 @@ foreach($invoices as $invoice){
         $whats_status                   = $data['status'];
         $whats_payment_method           = $data['payment_method'];
         $whats_pix_emv                  = $data['pix_emv'];
-        $whats_pix_image                = $data['pix_qrcode_image_url'];
         $whats_billet_digitable_line    = $data['billet_digitable_line'];
-        $whats_billet_url_slip          = $data['billet_url_slip'];
-        $whats_billet_base64            = $data['billet_url_slip_base64'];
 
         $data['text_whatsapp'] = "*MENSAGEM AUTOMÁTICA*\n\n";
         $data['text_whatsapp'] .= "$message_customer\n\n";
@@ -178,6 +176,10 @@ foreach($invoices as $invoice){
         $data['text_whatsapp'] .= "*Forma de pagamento:* $whats_payment_method \n";
         $data['text_whatsapp'] .= "*Total:* R$ $whats_price \n";
         $data['text_whatsapp'] .= "*Status:* $whats_status \n\n";
+        if (!empty($data['payment_url']) && $invoice->status === 'Pendente') {
+            $data['text_whatsapp'] .= "*Pague agora:*\n";
+            $data['text_whatsapp'] .= $data['payment_url'] . "\n\n";
+        }
 
         $response = Http::withHeaders([
             "Content-Type"  => "application/json",
@@ -209,107 +211,7 @@ foreach($invoices as $invoice){
         }
 
 
-        if($data['status'] == 'Pendente') {
-
-            //Enviar imagem qrcode pix
-        if($whats_payment_method == 'Pix'){
-
-            $response = Http::withHeaders([
-                "Content-Type"  => "application/json",
-                'apikey'        => $data['api_token_whatsapp']
-            ])
-            ->post(rtrim(config('options.api_url_evolution'), '/').'/message/sendMedia/'.$data['api_session_whatsapp'],[
-                "number"         => $request->input('remoteJid'),
-                "mediaMessage"   => [
-                    "mediatype"  =>  "image",
-                    "caption"    =>  $whats_pix_emv,
-                    "media"      =>  $whats_pix_image
-                    //"media"      => preg_replace('/[^a-zA-Z0-9\/\+=]/', '', $data['pix_qrcode_base64'])
-                ]
-            ]);
-
-            $result = $response->getBody();
-
-            if ($response->successful()) {
-                //return $response->json();
-            }
-
-            if($response->badRequest()){
-                \Log::info($response->json());
-                return $response->json();
-            }
-
-            if($response->serverError()){
-                \Log::info($response->json());
-                return $response->json();
-            }
-
-        }
-            //Fim imagem qrcode pix
-
-            $data['text_whatsapp_payment'] = '';
-
-        if($whats_payment_method == 'Boleto'){
-            $whats_billet_digitable_line = removeEspeciais($whats_billet_digitable_line);
-
-            $response = Http::withHeaders([
-                "Content-Type"  => "application/json",
-                'apikey'        => $data['api_token_whatsapp']
-            ])
-            ->post(rtrim(config('options.api_url_evolution'), '/').'/message/sendMedia/'.$data['api_session_whatsapp'],[
-                "number"         => $request->input('remoteJid'),
-                "mediaMessage"   => [
-                    "mediatype"  =>  "document",
-                    "caption"    =>  $whats_billet_digitable_line,
-                    "media"      =>  $whats_billet_url_slip,
-                    //"media"      => preg_replace('/[^a-zA-Z0-9\/\+=]/', '', $whats_billet_base64),
-                    "fileName"   => 'Fatura_'.$whats_invoice_id.'.pdf'
-                ]
-            ]);
-        }
-            if($whats_payment_method == 'BoletoPix'){
-                $whats_billet_digitable_line = removeEspeciais($whats_billet_digitable_line);
-
-                $response = Http::withHeaders([
-                    "Content-Type"  => "application/json",
-                    'apikey'        => $data['api_token_whatsapp']
-                ])
-                ->post(rtrim(config('options.api_url_evolution'), '/').'/message/sendMedia/'.$data['api_session_whatsapp'],[
-                    "number"         => $request->input('remoteJid'),
-                    "mediaMessage"   => [
-                        "mediatype"  =>  "document",
-                        "caption"    =>  $whats_billet_digitable_line,
-                        //"media"      =>  config('app.url').'/boletopix/'.$whats_billet_url_slip,
-                        //"media"      => $whats_billet_base64,
-                        //"media"      => preg_replace('/[^a-zA-Z0-9\/\+=]/', '', $whats_billet_base64),
-                        "media"      =>  $whats_billet_url_slip,
-                        "fileName"   => 'Fatura_'.$whats_invoice_id.'.pdf'
-                    ]
-                ]);
-
-            }
-
-            $result = $response->getBody();
-
-            if ($response->successful()) {
-                //return $response->json();
-            }
-
-            if($response->badRequest()){
-                \Log::info('Linha 291');
-                \Log::info($response->json());
-                return $response->json();
-            }
-
-
-            if($response->serverError()){
-                \Log::info('Linha 298');
-                \Log::info($response->json());
-                return $response->json();
-            }
-
-        }
-
+        // Mídia de PIX/boleto removida: o texto já inclui o link da página pública de pagamento.
 
         return response()->json('Fatura enviada com sucesso!',200);
 

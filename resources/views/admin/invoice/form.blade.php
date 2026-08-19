@@ -80,7 +80,11 @@
 
                 @if($data->gateway_payment == 'Estabelecimento')
                     <div class="form-group col-md-8 col-sm-12">
-                        <label>Boleto / <a href="{{$data->billet_url}}" target="_blank">Ver boleto</a></label>
+                        <label>Boleto
+                            @if(!empty($data->public_token))
+                                / <a href="{{ route('public.invoice.show', $data->public_token) }}" target="_blank">Abrir página de pagamento</a>
+                            @endif
+                        </label>
                         <input type="file" class="form-control" name="billet_file" id="billet_file" autocomplete="off" {{ $data->status != 'Pendente' && $data->status != 'Estabelecimento' && $data->status != 'Erro' ? 'disabled' : ''}}>
                     </div>
 

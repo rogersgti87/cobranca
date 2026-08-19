@@ -901,7 +901,7 @@ function loadInvoices(){
                     ${(item.status == 'Pendente' || item.status == 'Processamento') && ['Inter','Intermedium','Pag Hiper'].includes(item.gateway_payment) ? '<a href="#" data-original-title="Consultar status" id="btn-invoice-status" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-success btn-xs"><i class="fas fa-sync-alt"></i></a> ' : ''}
                     ${item.status != 'Erro' ? '<a href="#" data-original-title="Notificações" id="btn-modal-notifications" data-invoice="'+item.id+'" data-placement="left" data-tt="tooltip" class="btn btn-info btn-xs" style="background-color: #D4AF37; border-color: #D4AF37;"><i class="fa fa-info"></i></a> ' : ''}
                     ${item.status == 'Pendente' || item.status == 'Erro' || item.status == 'Estabelecimento' ? '<a href="#" data-original-title="Cancelar Fatura" id="btn-delete-invoice" data-invoice="'+item.id+'" data-tt="tooltip" class="btn btn-danger btn-xs"><i class="fas fa-undo-alt"></i></a> ' : ''}
-                    ${item.status == 'Pendente' ? '<a href="'+`${item.payment_method == "Pix" ? item.image_url_pix : item.billet_url}`+'" target="_blank" data-original-title="Baixar Fatura" data-tt="tooltip" class="btn btn-primary btn-xs"><i class="fas fa-download"></i></a>' : ''}
+                    ${item.status == 'Pendente' && item.public_token ? '<a href="{{ url('/pagar') }}/'+item.public_token+'" target="_blank" data-original-title="Abrir página de pagamento" data-tt="tooltip" class="btn btn-primary btn-xs"><i class="fas fa-external-link-alt"></i></a>' : ''}
                 </td>`;
                 html += '</tr>';
             });

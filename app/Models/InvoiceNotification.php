@@ -143,6 +143,7 @@ class InvoiceNotification extends Model
             'billet_digitable_line'     => $invoice->billet_digitable,
             'billet_url_slip_base64'    => $invoice->billet_base64,
             'billet_url_slip'           => $invoice->billet_url,
+            'payment_url'               => $invoice->publicUrl(),
         ];
 
 
@@ -312,6 +313,7 @@ class InvoiceNotification extends Model
             'billet_digitable_line'     => $invoice->billet_digitable,
             'billet_url_slip_base64'    => $invoice->billet_base64,
             'billet_url_slip'           => $invoice->billet_url,
+            'payment_url'               => $invoice->publicUrl(),
             'status_whatsapp'           => $company->api_status_whatsapp,
             'api_session_whatsapp'      => $company->api_session_whatsapp,
             'api_token_whatsapp'        => $company->api_token_whatsapp,
@@ -348,6 +350,10 @@ class InvoiceNotification extends Model
         $data['text_whatsapp'] .= "*Forma de pagamento:* $whats_payment_method \n";
         $data['text_whatsapp'] .= "*Total:* R$ $whats_price \n";
         $data['text_whatsapp'] .= "*Status:* $whats_status \n\n";
+        if (!empty($data['payment_url']) && $invoice->status === 'Pendente') {
+            $data['text_whatsapp'] .= "*Pague agora pela página de cobrança:*\n";
+            $data['text_whatsapp'] .= $data['payment_url'] . "\n\n";
+        }
 
 
         if($data['notification_whatsapp'] == 's' && $invoice->status != 'Erro'){
@@ -416,179 +422,10 @@ class InvoiceNotification extends Model
         return ['message' => 'Erro ao enviar', 'image' => '', 'file' => ''];
     }
 
-        if($data['status'] == 'Pendente') {
-
-            //Enviar imagem qrcode pix
-        if($whats_payment_method == 'Pix'){
-
-            $response = Http::withHeaders([
-                "Content-Type"  => "application/json",
-                'apikey'        => $data['api_token_whatsapp']
-            ])
-            ->post(rtrim(config('options.api_url_evolution'), '/').'/message/sendMedia/'.$data['api_session_whatsapp'],[
-                "number"         => '55'.$data['customer_whatsapp'],
-                "mediatype"  =>  "image",
-                "mimetype" =>  "image/png",
-                "caption"    =>  $whats_pix_emv,
-                "media"      =>  $whats_pix_image,
-                "fileName"   => 'Fatura_'.$whats_invoice_id.'.png',
-                "linkPreview" => false,
-                //"media"      => preg_replace('/[^a-zA-Z0-9\/\+=]/', '', $data['pix_qrcode_base64'])
-
-            ]);
-
-            $result = $response->getBody();
-
-            if ($response->successful()) {
-
-                $result = $response->json();
-
-                if($result['status'] == 'PENDING'){
-                    $status                  = 'Success';
-                    $status_image            = 'Enviado';
-                    //$whats_message_status    = $result;
-                    //$whats_message           = $result;
-                }else{
-                    $status                  = 'Error';
-                    $status_image            = 'Erro ao enviar';
-                    //$whats_message_status   = $result;
-                    //$whats_message          = $result;
-                }
-            }
-
-            if($response->badRequest()){
-                $status                  = 'Error';
-                $status_image            = 'Erro ao enviar';
-                //$whats_message_status   = $result;
-                //$whats_message          = $result;
-                \Log::info($response->json());
-            }
-
-            if($response->serverError()){
-                $status                  = 'Error';
-                $status_file             = 'Erro ao enviar';
-                //$whats_message_status   = $result;
-                //$whats_message          = $result;
-                \Log::info($response->json());
-            }
-
-
-            DB::table('invoice_notifications')->insert([
-                'company_id'        => $invoice->company_id,
-                'user_id'           => $data['user_id'],
-                'invoice_id'        => $data['invoice'],
-                'type_send'         => 'whatsapp',
-                'date'              => Carbon::now(),
-                'subject'           => $data['title'],
-                'email_id'          => '',
-                'status'            => $status,
-                'message_status'    => null,
-                'message'           => json_encode($response->json()),
-                'created_at'        => Carbon::now(),
-                'updated_at'        => Carbon::now()
-            ]);
-
-        }
-            //Fim imagem qrcode pix
-
-            $data['text_whatsapp_payment'] = '';
-
-        if($whats_payment_method == 'Boleto'){
-            $whats_billet_digitable_line = removeEspeciais($whats_billet_digitable_line);
-
-            $response = Http::withHeaders([
-                "Content-Type"  => "application/json",
-                'apikey'        => $data['api_token_whatsapp']
-            ])
-            ->post(rtrim(config('options.api_url_evolution'), '/').'/message/sendMedia/'.$data['api_session_whatsapp'],[
-                "number"         => '55'.$data['customer_whatsapp'],
-                "mediatype"  =>  "document",
-                "mimetype" =>  "application/pdf",
-                "caption"    =>  $whats_billet_digitable_line,
-                "media"      =>  $whats_billet_url_slip,
-                "fileName"   => 'Fatura_'.$whats_invoice_id.'.pdf',
-                "linkPreview" => false,
-            ]);
-        }
-            if($whats_payment_method == 'BoletoPix'){
-                $whats_billet_digitable_line = removeEspeciais($whats_billet_digitable_line);
-
-                $response = Http::withHeaders([
-                    "Content-Type"  => "application/json",
-                    'apikey'        => $data['api_token_whatsapp']
-                ])
-                ->post(rtrim(config('options.api_url_evolution'), '/').'/message/sendMedia/'.$data['api_session_whatsapp'],[
-                    "number"         => '55'.$data['customer_whatsapp'],
-                    "mediatype"  =>  "document",
-                    "mimetype" =>  "application/pdf",
-                    "caption"    =>  $whats_billet_digitable_line,
-                    "media"      =>  $whats_billet_url_slip,
-                    "fileName"   => 'Fatura_'.$whats_invoice_id.'.pdf',
-                    "linkPreview" => false,
-                ]);
-
-            }
-            $result = $response->getBody();
-
-            if ($response->successful()) {
-
-                $result = $response->json();
-
-                if($result['status'] == 'PENDING'){
-                    $status                  = 'Success';
-                    $status_file             = 'Enviado';
-                    //$whats_message_status    = $result;
-                    //$whats_message           = $result;
-                }else{
-                    $status                   = 'Error';
-                    $status_file           = 'Erro ao enviar';
-                    //$whats_message_status   = $result;
-                    //$whats_message            = $result;
-                }
-            }
-
-            if($response->badRequest()){
-                $status                  = 'Error';
-                $status_file             = 'Erro ao enviar';
-                //$whats_message_status   = $result;
-                //$whats_message          = $result;
-                \Log::info($response->json());
-            }
-
-
-            if($response->serverError()){
-                $status                  = 'Error';
-                $status_file             = 'Erro ao enviar';
-                //$whats_message_status   = $result;
-                //$whats_message          = $result;
-                \Log::info($response->json());
-            }
-
-
-            DB::table('invoice_notifications')->insert([
-                'company_id'        => $invoice->company_id,
-                'user_id'           => $data['user_id'],
-                'invoice_id'        => $data['invoice'],
-                'type_send'         => 'whatsapp',
-                'date'              => Carbon::now(),
-                'subject'           => $data['title'],
-                'email_id'          => '',
-                'status'            => $status,
-                'message_status'    => null,
-                'message'           => json_encode($response->json()),
-                'created_at'        => Carbon::now(),
-                'updated_at'        => Carbon::now()
-            ]);
-
-
-        }
+        // Mídia de PIX/boleto removida: o cliente utiliza a página pública ($payment_url) no texto.
     }
-    //}
 
-    //\Log::info('Linha 430:'. json_encode(['message' => $status_message, 'image' => $status_image, 'file' => $status_file]));
-
-    return ['message' => $status_message, 'image' => $status_image, 'file' => $status_file];
-    //}
+    return ['message' => $status_message, 'image' => $status_image ?? '', 'file' => $status_file ?? ''];
 
     }
 

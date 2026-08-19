@@ -184,21 +184,12 @@ class InvoiceController extends Controller
                             return response()->json($generatePixAsaas['message'], 422);
                         }
                     }elseif($newInvoice['gateway_payment'] == 'Estabelecimento'){
-                        $fileName = $newInvoice->user_id . '_' . $newInvoice['id'];
                         $pixKey = $user->chave_pix;
                         $payload = gerarCodigoPix($pixKey, $newInvoice->price);
-                        
-                        QrCode::format('png')->size(174)->generate($payload, storage_path('app/public'). '/pix/' . $fileName . '.'.'png');
-                        
-                        $image_url_pix = env('APP_URL') . Storage::url('pix/' . $fileName . '.png');
-                        $qrcode_pix_base64 = base64_encode(file_get_contents($image_url_pix));
-                        
+
                         Invoice::where('id',$newInvoice['id'])->update([
                             'status' => 'Pendente',
                             'pix_digitable' => $payload,
-                            'image_url_pix' => $image_url_pix,
-                            'qrcode_pix_base64' => $qrcode_pix_base64,
-                            'status' => 'Pendente'
                         ]);
                     }
                 } elseif($newInvoice['payment_method'] == 'Boleto'){
@@ -571,21 +562,10 @@ class InvoiceController extends Controller
 
 if($model->gateway_payment == 'Estabelecimento' && $model->payment_method == 'Pix'){
 
-
-    $fileName = $model->user_id . '_' . $model->id;
-
-    // Gerar payload do PIX
     $pixKey = $user->chave_pix;
-    //$amount = number_format($model->price, 2, '.', '');
-
-
     $payload = gerarCodigoPix($pixKey, $model->price);
 
-    QrCode::format('png')->size(174)->generate($payload, storage_path('app/public'). '/pix/' . $fileName . '.'.'png');
-    $model->pix_digitable       = $payload;
-    $model->image_url_pix       = env('APP_URL') . Storage::url('pix/' . $fileName . '.png');
-    $model->qrcode_pix_base64   = base64_encode(file_get_contents($model->image_url_pix));
-
+    $model->pix_digitable = $payload;
     $model->status = 'Pendente';
 
 }
@@ -894,7 +874,7 @@ if(isset($data['send_invoice_whatsapp'])){
                 ->join('customer_services','customer_services.id','invoices.customer_service_id')
                 ->join('companies','companies.id','invoices.company_id')
                 ->select('invoices.id as id','invoices.description','invoices.payment_method','invoices.price','invoices.date_invoice',
-                'invoices.date_due','invoices.date_payment','invoices.status','invoices.gateway_payment','invoices.billet_url','invoices.image_url_pix',
+                'invoices.date_due','invoices.date_payment','invoices.status','invoices.gateway_payment','invoices.billet_url','invoices.image_url_pix','invoices.public_token',
                 'companies.id as company_id','companies.name as company_name')
                 ->where('customer_services.customer_id',$customer_id)
                 ->orderby('invoices.id','DESC')
@@ -1032,7 +1012,7 @@ public function loadInvoices(){
 
 
     $fields = "invoices.id as id,invoices.description,invoices.payment_method,invoices.price,invoices.date_invoice,customers.id as customer_id, customers.name as customer_name, customers.document as customer_document,
-            invoices.date_due,invoices.date_payment,invoices.status,invoices.gateway_payment,invoices.payment_method,invoices.billet_url,invoices.image_url_pix,invoices.updated_at";
+            invoices.date_due,invoices.date_payment,invoices.status,invoices.gateway_payment,invoices.payment_method,invoices.billet_url,invoices.image_url_pix,invoices.public_token,invoices.updated_at";
 
     $query->join('customer_services','customer_services.id','invoices.customer_service_id')
             ->join('customers','customers.id','customer_services.customer_id')

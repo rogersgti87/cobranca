@@ -41,7 +41,51 @@ class Invoice extends Model
         'tax_percent',
         'notificated',
         'msg_erro',
+        'public_token',
     ];
+
+    protected static function booted()
+    {
+        static::creating(function (Invoice $invoice) {
+            if (empty($invoice->public_token)) {
+                $invoice->public_token = static::generatePublicToken();
+            }
+        });
+    }
+
+    public static function generatePublicToken(): string
+    {
+        do {
+            $token = Str::random(48);
+        } while (static::where('public_token', $token)->exists());
+
+        return $token;
+    }
+
+    /**
+     * Garante token público e retorna a URL da página de pagamento.
+     */
+    public function publicUrl(): string
+    {
+        if (empty($this->public_token)) {
+            $this->public_token = static::generatePublicToken();
+            if ($this->exists) {
+                $this->saveQuietly();
+            }
+        }
+
+        return route('public.invoice.show', $this->public_token);
+    }
+
+    public function isPixPayment(): bool
+    {
+        return $this->payment_method === 'Pix';
+    }
+
+    public function isBoletoPayment(): bool
+    {
+        return in_array($this->payment_method, ['Boleto', 'BoletoPix'], true);
+    }
 
     /**
      * Empresa a qual a fatura pertence
@@ -457,17 +501,10 @@ class Invoice extends Model
 
     private static function generateInterPixQrCode($invoice, string $pixCopiaECola): array
     {
-        if (!Storage::disk('public')->exists('pix')) {
-            Storage::disk('public')->makeDirectory('pix');
-        }
-
-        $filePath = storage_path('app/public/pix/'.$invoice->user_id.'_'.$invoice->id.'.png');
-        QrCode::format('png')->size(220)->generate($pixCopiaECola, $filePath);
-        $image_pix = env('APP_URL').Storage::url('pix/'.$invoice->user_id.'_'.$invoice->id.'.png');
-
+        // QR Code é gerado dinamicamente na página pública a partir do pix_digitable.
         return [
-            'image_url_pix' => $image_pix,
-            'qrcode_pix_base64' => base64_encode(file_get_contents($filePath)),
+            'image_url_pix' => null,
+            'qrcode_pix_base64' => null,
         ];
     }
 
@@ -488,19 +525,12 @@ class Invoice extends Model
             'billet_digitable' => self::extractInterLinhaDigitavel($result),
         ];
 
-        if (!empty($pdfBase64)) {
-            Storage::disk('public')->put($storageFolder.'/'.$invoice->user_id.'_'.$invoice->id.'.pdf', base64_decode($pdfBase64));
-            $update['billet_url'] = env('APP_URL').Storage::url($storageFolder.'/'.$invoice->user_id.'_'.$invoice->id.'.pdf');
-            $update['billet_base64'] = $pdfBase64;
-        }
+        // Não baixar/salvar PDF do boleto no storage — a página pública usa a linha digitável.
 
         if ($includePix) {
             $pixCopiaECola = self::extractInterPixCopiaECola($result);
             if (!empty($pixCopiaECola)) {
-                $pixQr = self::generateInterPixQrCode($invoice, $pixCopiaECola);
                 $update['pix_digitable'] = $pixCopiaECola;
-                $update['image_url_pix'] = $pixQr['image_url_pix'];
-                $update['qrcode_pix_base64'] = $pixQr['qrcode_pix_base64'];
             }
         }
 
@@ -656,16 +686,10 @@ class Invoice extends Model
             ];
         }
 
-        $response_pdf = self::fetchInterCobrancaPdf($company, $access_token, $codigoSolicitacao, $logContext, 8, 2);
+        $response_pdf = null;
         $pdfBase64 = null;
 
-        if ($response_pdf && $response_pdf->successful()) {
-            $pdfBase64 = json_decode($response_pdf->getBody())->pdf ?? null;
-        } elseif ($response_pdf) {
-            \Log::warning('PDF indisponível'.$logContext.' para invoice ID: '.$invoice_id.'. Salvando cobrança sem PDF.');
-        }
-
-        $invoiceStatus = !empty($pdfBase64) || self::interCobrancaHasPaymentData($result_get) ? 'Pendente' : 'Processamento';
+        $invoiceStatus = self::interCobrancaHasPaymentData($result_get) ? 'Pendente' : 'Processamento';
         self::persistInterCobrancaInvoice($invoice_id, $invoice, $codigoSolicitacao, $result_get, $pdfBase64, $storageFolder, $includePix, $invoiceStatus);
 
         return [
@@ -716,16 +740,9 @@ class Invoice extends Model
         }
 
         $pdfBase64 = null;
-        if (empty($invoice->billet_url)) {
-            // Tenta PDF; se Inter ainda não liberou, salva linha digitável/Pix mesmo assim.
-            $response_pdf = self::fetchInterCobrancaPdf($company, $access_token, $codigoSolicitacao, $logContext, 5, 2);
-            if ($response_pdf && $response_pdf->successful()) {
-                $pdfBase64 = json_decode($response_pdf->getBody())->pdf ?? null;
-            }
-        }
 
-        // Com dados de pagamento disponíveis, libera a fatura mesmo sem PDF (retry do PDF no cron).
-        $invoiceStatus = ($hasPaymentData || !empty($pdfBase64) || !empty($invoice->billet_url))
+        // Libera a fatura com linha digitável/Pix — sem baixar PDF do gateway.
+        $invoiceStatus = $hasPaymentData || !empty($invoice->billet_digitable)
             ? 'Pendente'
             : 'Processamento';
 
@@ -733,12 +750,10 @@ class Invoice extends Model
 
         return [
             'success' => true,
-            'completed' => $invoiceStatus === 'Pendente' && (!empty($pdfBase64) || !empty($invoice->billet_url)),
-            'message' => !empty($pdfBase64) || !empty($invoice->billet_url)
-                ? 'Cobrança concluída com PDF.'
-                : ($hasPaymentData
-                    ? 'Cobrança liberada com linha digitável/Pix; PDF ainda será baixado.'
-                    : 'Cobrança parcialmente concluída, aguardando dados do Inter.'),
+            'completed' => $invoiceStatus === 'Pendente',
+            'message' => $invoiceStatus === 'Pendente'
+                ? 'Cobrança concluída com dados de pagamento.'
+                : 'Cobrança parcialmente concluída, aguardando dados do Inter.',
         ];
     }
 
@@ -932,12 +947,7 @@ class Invoice extends Model
         ];
     }
 
-    public static function generateBilletPH($invoice_id){
-
-        if (!Storage::disk('public')->exists('boletos')) {
-            Storage::disk('public')->makeDirectory('boletos');
-        }
-
+      public static function generateBilletPH($invoice_id){
 
         $invoice = Invoice::with(['customerService.customer', 'company'])->find($invoice_id);
 
@@ -992,19 +1002,10 @@ class Invoice extends Model
 
             if($result->result == 'success'){
 
-            $contents = Http::get($result->bank_slip->url_slip_pdf)->body();
-            Storage::disk('public')->put('boletos/' .  $invoice->user_id.'_'.$invoice->id.'.pdf', $contents);
-            $billet_url = env('APP_URL').Storage::url('boletos/' . $invoice->user_id . '_' . $invoice->id . '.pdf');
-            //\File::put(public_path(). '/boleto/' .  $invoice->user_id.'_'.$invoice->id.'.'.'pdf', $contents);
-            //$billet_pdf   = 'https://cobrancasegura.com.br/boleto/'.$invoice->user_id.'_'.$invoice->id.'.pdf';
-            //$base64_pdf = chunk_split(base64_encode(file_get_contents($billet_pdf)));
-
             Invoice::where('id',$invoice_id)->update([
                 'status'            =>  'Pendente',
                 'msg_erro'          =>  null,
                 'transaction_id'    =>  $result->transaction_id,
-                'billet_url'        =>  $billet_url,
-                //'billet_base64'     =>  $base64_pdf,
                 'billet_digitable'  =>  $result->bank_slip->digitable_line
             ]);
 
@@ -1023,10 +1024,6 @@ class Invoice extends Model
       }
 
       public static function generatePixPH($invoice_id){
-
-        if (!Storage::disk('public')->exists('pix')) {
-            Storage::disk('public')->makeDirectory('pix');
-        }
 
         $invoice = Invoice::with(['customerService.customer', 'company'])->find($invoice_id);
 
@@ -1061,16 +1058,8 @@ class Invoice extends Model
                     'status'            =>  'Pendente',
                     'msg_erro'          =>  null,
                     'transaction_id'    => $result->transaction_id,
-                    'image_url_pix'     => 'https://cobrancasegura.com.br/storage/pix/'.$invoice->user_id.'_'.$invoice->id.'.png',
                     'pix_digitable'     => $result->pix_code->emv,
-                    'qrcode_pix_base64' => $result->pix_code->qrcode_base64,
                 ]);
-
-
-
-                //\File::put(public_path(). '/pix/' . $invoice->user_id.'_'.$invoice->id.'.png', base64_decode($result->pix_code->qrcode_base64));
-                $contents = Http::get($result->pix_code->qrcode_image_url)->body();
-                Storage::disk('public')->put('pix/' .  $invoice->user_id.'_'.$invoice->id.'.png', $contents);
 
                 return ['status' => 'success', 'message' => 'ok'];
             }
@@ -1088,10 +1077,6 @@ class Invoice extends Model
 
 
       public static function generatePixMP($invoice_id){
-
-        if (!Storage::disk('public')->exists('pix')) {
-            Storage::disk('public')->makeDirectory('pix');
-        }
 
         $invoice = Invoice::with(['customerService.customer', 'company'])->find($invoice_id);
 
@@ -1129,16 +1114,9 @@ class Invoice extends Model
                     'status'            =>  'Pendente',
                     'msg_erro'          =>  null,
                     'transaction_id'    => $payment_id,
-                    'image_url_pix'     => 'https://cobrancasegura.com.br/storage/pix/'.$invoice->user_id.'_'.$invoice->id.'.png',
                     'pix_digitable'     => $payment->point_of_interaction->transaction_data->qr_code,
-                    'qrcode_pix_base64' => $payment->point_of_interaction->transaction_data->qr_code_base64,
                 ]);
 
-                //$invoice = Invoice::where('id',$invoice_id)->first();
-
-                //\File::put(public_path(). '/pix/' . $invoice['user_id'].'_'.$invoice['id'].'.'.'png', base64_decode($payment->point_of_interaction->transaction_data->qr_code_base64));
-
-                Storage::disk('public')->put('pix/' .  $invoice->user_id.'_'.$invoice->id.'.png', base64_decode($payment->point_of_interaction->transaction_data->qr_code_base64));
                 return ['status' => 'success', 'message' => 'OK'];
 
             } catch(\Exception $e){
@@ -1152,10 +1130,6 @@ class Invoice extends Model
 
 
       public static function generatePixIntermedium($invoice_id){
-
-        if (!Storage::disk('public')->exists('pix')) {
-            Storage::disk('public')->makeDirectory('pix');
-        }
 
         $invoice = Invoice::with(['customerService.customer', 'company'])->find($invoice_id);
 
@@ -1273,19 +1247,11 @@ class Invoice extends Model
             $result_generate_pix = json_decode(json_encode($result_generate_pix));
 
 
-            QrCode::format('png')->size(220)->generate($result_generate_pix->pixCopiaECola, storage_path('app/public'). '/pix/' . $invoice->user_id.'_'.$invoice->id.'.png');
-            $image_pix = env('APP_URL').Storage::url('pix/'.$invoice->user_id.'_'.$invoice->id.'.png');
-
-            //QrCode::format('png')->size(220)->generate($result_generate_pix->pixCopiaECola, storage_path('public'). '/pix/' . $invoice['user_id'].'_'.$invoice['id'].'.'.'png');
-            //$image_pix   = config()->get('app.url').'/pix/'.$invoice['user_id'].'_'.$invoice['id'].'.png';
-
             Invoice::where('id',$invoice_id)->update([
                 'status'            => 'Pendente',
                 'msg_erro'          =>  null,
                 'transaction_id'    => $result_generate_pix->txid,
-                'image_url_pix'     => $image_pix,
                 'pix_digitable'     => $result_generate_pix->pixCopiaECola,
-                'qrcode_pix_base64' => base64_encode(file_get_contents($image_pix)),
             ]);
 
             return ['status' => 'success', 'title' => 'OK', 'message' => [['razao' => 'OK', 'propriedade' => 'OK']]];
@@ -1637,10 +1603,6 @@ class Invoice extends Model
 
             public static function generateBilletAsaas($invoice_id){
 
-                if (!Storage::disk('public')->exists('boletos')) {
-                    Storage::disk('public')->makeDirectory('boletos');
-                }
-
                 $invoice = Invoice::with(['customerService.customer', 'company'])->find($invoice_id);
 
                 $customer = $invoice->customerService->customer;
@@ -1728,13 +1690,6 @@ class Invoice extends Model
 
                     $result = $response->json();
 
-                    $contents = Http::get($result['bankSlipUrl'])->body();
-                    Storage::disk('public')->put('boletos/' .  $invoice->user_id.'_'.$invoice->id.'.'.'pdf', $contents);
-                    $billet_url = env('APP_URL').Storage::url('boletos/' . $invoice->user_id . '_' . $invoice->id . '.pdf');
-
-                    //$billet_pdf = Storage::disk('public')->get('boletos/' . $invoice->user_id . '_' . $invoice->id . '.pdf');
-                    //$base64_pdf = base64_encode($billet_pdf);
-
                 } else{
                     $result_error = $response->json();
                     return ['status' => 'reject', 'message' => $result_error['errors'][0]['description']];
@@ -1761,8 +1716,6 @@ class Invoice extends Model
                     'status'            =>  'Pendente',
                     'msg_erro'          =>  null,
                     'transaction_id'    =>  $result['id'],
-                    'billet_url'        =>  $billet_url,
-                    //'billet_base64'     =>  $base64_pdf,
                     'billet_digitable'  =>  $billet_digitable
                 ]);
 
@@ -1773,10 +1726,6 @@ class Invoice extends Model
 
 
         public static function generatePixAsaas($invoice_id){
-
-            if (!Storage::disk('public')->exists('pix')) {
-                Storage::disk('public')->makeDirectory('pix');
-            }
 
             $invoice = Invoice::with(['customerService.customer', 'company'])->find($invoice_id);
 
@@ -1860,25 +1809,15 @@ class Invoice extends Model
 
             $pix_data = $pix_qrcode->json();
 
-            if(empty($pix_data['payload']) || empty($pix_data['encodedImage'])){
+            if(empty($pix_data['payload'])){
                 return ['status' => 'reject', 'message' => 'Dados do PIX não retornados pelo Asaas.'];
             }
-
-            $encodedImage = $pix_data['encodedImage'];
-            $imageParts = explode(',', $encodedImage);
-            $imageBase64 = count($imageParts) > 1 ? $imageParts[1] : $imageParts[0];
-            $fileName = $invoice->user_id.'_'.$invoice->id.'.png';
-
-            Storage::disk('public')->put('pix/' .  $fileName, base64_decode($imageBase64));
-            $image_pix = env('APP_URL').Storage::url('pix/' . $fileName);
 
             Invoice::where('id',$invoice_id)->update([
                 'status'            =>  'Pendente',
                 'msg_erro'          =>  null,
                 'transaction_id'    =>  $result['id'],
-                'image_url_pix'     =>  $image_pix,
                 'pix_digitable'     =>  $pix_data['payload'],
-                'qrcode_pix_base64' =>  $imageBase64
             ]);
 
             return ['status' => 'success', 'message' => 'ok'];

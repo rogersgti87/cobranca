@@ -1,111 +1,82 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <title>{{$title}}</title>
     <style>
-
-        table {
-            border: 1px solid #DDD;
+        body { font-family: Arial, Helvetica, sans-serif; color: #0A0A0A; }
+        .btn-pay {
+            display: inline-block;
+            background: #D4AF37;
+            color: #0A0A0A !important;
+            padding: 14px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
         }
-
-        table th,
-        table td {
-            padding: 3px 5px;
-        }
-
-        table th {
-            border-bottom: 1px solid #DDD;
-            border-right: 1px solid #DDD;
-        }
-
-        table td {
-            border-right: 1px solid #DDD;
-        }
-
-        table th:last-child,
-        table td:last-child {
-            border-right: 0;
-        }
+        .muted { color: #666; font-size: 13px; }
     </style>
 </head>
-
 <body>
     <div style="text-align:left;">
-    <h4 style="text-align: left;">Mensagem automática, favor não responder este e-mail.</h4>
-    <br>
+        <h4 style="text-align: left;">Mensagem automática, favor não responder este e-mail.</h4>
+        <br>
 
-        <img src="{{$logo}}" style="max-width:200px;" title="{{$company}}">
+        @if(!empty($logo))
+            <img src="{{$logo}}" style="max-width:200px;" title="{{$company}}">
+        @endif
 
-    <br>
-    <h1>{{$title}}</h1>
-    <p>{{ $message_customer }}</p>
-    <p>{!! $message_notification !!}</p>
+        <br>
+        <h1>{{$title}}</h1>
+        <p>{{ $message_customer }}</p>
+        <p>{!! $message_notification !!}</p>
 
-    <p><b>Serviço(s) Contratado(s):</b></p>
-    <ul>
-
-        <li>{{$service}}</li>
-
-    </ul>
-
-    <p>-----------------------------------------</p>
-
-    <p>
-        <b>Data da Fatura:</b> {{$date_invoice}} <br>
-        <b>Forma de pagamento:</b> {{ $payment_method }} <br>
-        <b>Vencimento:</b> {{$date_due}} <br>
-        <b>Total:</b> R$ {{$price}} <br>
-        <b>Status:</b> {{$status}} <br>
-    </p>
-
-
-    @if($status == 'Pendente')
-
-    @if($payment_method == 'Pix')
-
-        <p style="text-align:left">Se ainda não realizou o pagamento, ainda dá tempo, basta scannear o QrCode a baixo:</p>
-        <p style="text-align:left"><img src="{{$pix_qrcode_image_url}}" alt="QR Code" style="max-width:220px;"></p>
-
-        <p style="text-align:left">Você também pode copiar e colar o código PIX:</p>
-        <p style="text-align:left"><textarea rows="4" cols="60" style="border:1px solid #333;">{{$pix_emv}}</textarea></p>
-
+        <p><b>Serviço(s) Contratado(s):</b></p>
         <ul>
-            <li>O Pix será aprovado em poucos instantes após o pagamento.</li>
+            <li>{{$service}}</li>
         </ul>
 
-    @endif
+        <p>-----------------------------------------</p>
 
-    @if($payment_method == 'Boleto' || $payment_method == 'BoletoPix')
-        <p style="text-align:left">Para gerar o Boleto é só clicar abaixo:</p>
-        <p style="text-align:left"><a href="{{$billet_url_slip}}" target="_blank"><img src="https://s7003039.sendpul.se/image/747991a0e145ac2bbe69f063a9402e69/files/emailservice/userfiles/afdeb61c8175066a32c78dbe45c9569d7003039/rogerti/boleto.png"></a></p>
-        <p style="text-align:left">Código digitável:</p>
-        <p style="text-align:left"><textarea rows="4" cols="60" style="border:1px solid #333;">{{$billet_digitable_line}}</textarea></p>
-    @endif
+        <p>
+            <b>Data da Fatura:</b> {{$date_invoice}} <br>
+            <b>Forma de pagamento:</b> {{ $payment_method }} <br>
+            <b>Vencimento:</b> {{$date_due}} <br>
+            <b>Total:</b> R$ {{$price}} <br>
+            <b>Status:</b> {{$status}} <br>
+        </p>
 
-    <br>
-    <br>
+        @if($status == 'Pendente')
+            @if(!empty($payment_url))
+                <p style="text-align:left;margin:24px 0;">
+                    <a href="{{ $payment_url }}" target="_blank" class="btn-pay">
+                        Abrir página de pagamento
+                    </a>
+                </p>
+                <p class="muted">Ou acesse: <a href="{{ $payment_url }}">{{ $payment_url }}</a></p>
+                <p class="muted">Na página você poderá pagar com {{ $payment_method }}, copiar o código e imprimir a cobrança.</p>
+            @endif
 
-    <p><strong>Obs:</strong> Prezado caso já tenha feito o pagamento, favor desconsiderar este e-mail.</p>
+            <br>
+            <p><strong>Obs:</strong> Prezado caso já tenha feito o pagamento, favor desconsiderar este e-mail.</p>
 
-    @elseif($status == 'Pago')
+        @elseif($status == 'Pago')
+            <p><b>Observação:</b> Este e-mail servirá como recibo para este pagamento.</p>
+            @if(!empty($payment_url))
+                <p class="muted"><a href="{{ $payment_url }}">Ver comprovante da cobrança</a></p>
+            @endif
+        @endif
 
-    <p><b>Observação:</b> Este e-mail servirá como recibo para este pagamento.</p>
+        <p>Qualquer dúvida estamos à disposição. <br>
+            Desejamos um ótimo dia!</p>
 
-    @endif
+        <p>
+            WhatsApp: <a href="https://api.whatsapp.com/send?phone=55{{$user_whatsapp}}" target="_Blank">{{ formatPhone($user_whatsapp)}}</a>
+            || E-mail: <a href="mailto:{{$user_email}}">{{$user_email}}</a>
+        </p>
 
-
-
-    <p>Qualquer dúvida estamos à disposição. <br>
-        Desejamos um ótimo dia!</p>
-
-    <p>WhatsApp: <a href="https://api.whatsapp.com/send?phone=55{{$user_whatsapp}}" target="_Blank">{{ formatPhone($user_whatsapp)}}</a> || E-mail: <a href="mailto:{{$user_email}}">{{$user_email}}</a></p>
-
-    <br>
-
-    <h4 style="text-align: left;">Mensagem automática, favor não responder este e-mail.</h4>
-
-</div>
+        <br>
+        <h4 style="text-align: left;">Mensagem automática, favor não responder este e-mail.</h4>
+        <p class="muted">CobrançaSegura — www.cobrancasegura.com.br</p>
+    </div>
 </body>
-
 </html>

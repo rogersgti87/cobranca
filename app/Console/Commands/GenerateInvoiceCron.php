@@ -79,24 +79,12 @@ foreach($invoices as $invoice){
         }
  elseif($invoice['gateway_payment'] == 'Estabelecimento'){
 
-
-    $fileName = $invoice['user_id'] . '_' . $invoice['id'];
     $pixKey = $invoice['chave_pix'];
     $payload = gerarCodigoPix($pixKey, $invoice['price']);
-
-
-    QrCode::format('png')->size(174)->generate($payload, storage_path('app/public'). '/pix/' . $fileName . '.'.'png');
-
-    $image_url_pix = env('APP_URL') . Storage::url('pix/' . $fileName . '.png');
-    $qrcode_pix_base64 = base64_encode(file_get_contents($image_url_pix));
 
     Invoice::where('id',$invoice['id'])->update([
         'status' => 'Pendente',
         'pix_digitable' => $payload,
-        'image_url_pix' => $image_url_pix,
-        'qrcode_pix_base64' => $qrcode_pix_base64,
-        'status' => 'Pendente'
-
     ]);
 
         }

@@ -1164,10 +1164,10 @@ $(document).on('click', '#btn-invoice-status', function(e) {
                     actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Cancelar Fatura" id="btn-delete-invoice" data-placement="left" data-invoice="' + item.id + '" data-tt="tooltip" style="color: #F0F0F2; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'rgba(212, 175, 55, 0.1)\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-undo-alt" style="margin-right: 8px; color: #F87171;"></i> Cancelar Fatura</a>');
                 }
 
-                // Baixar Fatura (apenas para Pendente)
-                if(item.status == 'Pendente'){
-                    var downloadUrl = item.payment_method == "Pix" ? item.image_url_pix : item.billet_url;
-                    actionsMenuItems.push('<a href="' + downloadUrl + '" target="_blank" class="dropdown-item" data-original-title="Baixar Fatura" id="btn-download-invoice" data-placement="left" data-tt="tooltip" style="color: #F0F0F2; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'rgba(212, 175, 55, 0.1)\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-download" style="margin-right: 8px; color: #D4AF37;"></i> Baixar Fatura</a>');
+                // Abrir página pública de pagamento (apenas para Pendente)
+                if(item.status == 'Pendente' && item.public_token){
+                    var downloadUrl = '{{ url('/pagar') }}/' + item.public_token;
+                    actionsMenuItems.push('<a href="' + downloadUrl + '" target="_blank" class="dropdown-item" data-original-title="Abrir página de pagamento" id="btn-download-invoice" data-placement="left" data-tt="tooltip" style="color: #F0F0F2; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'rgba(212, 175, 55, 0.1)\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-external-link-alt" style="margin-right: 8px; color: #D4AF37;"></i> Abrir página de pagamento</a>');
                 }
 
                 // Criar dropdown de ações

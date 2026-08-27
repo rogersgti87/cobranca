@@ -52,6 +52,7 @@ class sendInvoice implements ShouldQueue
             'date_due'              => $this->vInvoice->date_due,
             'date_payment'          => null,
             'status'                => 'Pendente',
+            'public_token'          => Invoice::generatePublicToken(),
             'created_at'            => $this->vInvoice->created_at,
             'updated_at'            => $this->vInvoice->updated_at
         ]);

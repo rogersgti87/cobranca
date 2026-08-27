@@ -1164,10 +1164,13 @@ $(document).on('click', '#btn-invoice-status', function(e) {
                     actionsMenuItems.push('<a href="#" class="dropdown-item" data-original-title="Cancelar Fatura" id="btn-delete-invoice" data-placement="left" data-invoice="' + item.id + '" data-tt="tooltip" style="color: #F0F0F2; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'rgba(212, 175, 55, 0.1)\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-undo-alt" style="margin-right: 8px; color: #F87171;"></i> Cancelar Fatura</a>');
                 }
 
-                // Abrir página pública de pagamento (apenas para Pendente)
-                if(item.status == 'Pendente' && item.public_token){
-                    var downloadUrl = '{{ url('/pagar') }}/' + item.public_token;
-                    actionsMenuItems.push('<a href="' + downloadUrl + '" target="_blank" class="dropdown-item" data-original-title="Abrir página de pagamento" id="btn-download-invoice" data-placement="left" data-tt="tooltip" style="color: #F0F0F2; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'rgba(212, 175, 55, 0.1)\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-external-link-alt" style="margin-right: 8px; color: #D4AF37;"></i> Abrir página de pagamento</a>');
+                // Página pública / PDF (requer public_token)
+                if(item.public_token){
+                    var paymentUrl = '{{ url('/pagar') }}/' + item.public_token;
+                    if(item.status == 'Pendente'){
+                        actionsMenuItems.push('<a href="' + paymentUrl + '" target="_blank" class="dropdown-item" data-original-title="Abrir página de pagamento" id="btn-download-invoice" data-placement="left" data-tt="tooltip" style="color: #F0F0F2; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'rgba(212, 175, 55, 0.1)\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-external-link-alt" style="margin-right: 8px; color: #D4AF37;"></i> Abrir página de pagamento</a>');
+                    }
+                    actionsMenuItems.push('<a href="' + paymentUrl + '/imprimir" target="_blank" class="dropdown-item" data-original-title="Baixar PDF da fatura" data-placement="left" data-tt="tooltip" style="color: #F0F0F2; padding: 8px 12px; text-decoration: none; display: block; font-size: 12px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor=\'rgba(212, 175, 55, 0.1)\'" onmouseout="this.style.backgroundColor=\'transparent\'"><i class="fas fa-file-pdf" style="margin-right: 8px; color: #D4AF37;"></i> Baixar PDF</a>');
                 }
 
                 // Criar dropdown de ações

@@ -84,6 +84,7 @@ a.id, a.user_id, a.company_id, c.id customer_id, c.name customer,c.email,c.email
                     'date_due'              => $vInvoice->date_due,
                     'date_payment'          => null,
                     'status'                => 'Gerando',
+                    'public_token'          => Invoice::generatePublicToken(),
                     'created_at'            => $vInvoice->created_at,
                     'updated_at'            => $vInvoice->updated_at
                 ]);

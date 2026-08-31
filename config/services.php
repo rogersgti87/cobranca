@@ -31,4 +31,9 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'integreai' => [
+        'url' => env('INTEGREAI_API_URL', 'https://api.integreai.com.br'),
+        'api_key' => env('INTEGREAI_API_KEY'),
+    ],
+
 ];

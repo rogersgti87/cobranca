@@ -9,6 +9,7 @@ use App\Models\Invoice;
 use App\Models\User;
 use App\Models\Customer;
 use App\Models\InvoiceNotification;
+use App\Services\IntegreAi\IntegreAiWhatsAppService;
 use Illuminate\Support\Facades\Http;
 use Carbon\Carbon;
 
@@ -145,14 +146,20 @@ foreach($invoices as $invoice){
             'payment_url'               => $invoice->publicUrl(),
             'status_whatsapp'           => $company->api_status_whatsapp,
             'api_session_whatsapp'      => $company->api_session_whatsapp,
-            'api_token_whatsapp'        => $company->api_token_whatsapp,
             'api_status_whatsapp'       => $company->api_status_whatsapp,
         ];
 
+        $whatsAppService = app(IntegreAiWhatsAppService::class);
+        $connectionStatus = $whatsAppService->getStatus($company);
 
-        if($data['api_status_whatsapp'] != 'open'){
-            return response()->json('Whatsapp desconectado! Fatura não enviada para whatsapp.',422);
+        if (! ($connectionStatus['success'] ?? false) || ($connectionStatus['status'] ?? 'close') !== 'open') {
+            return response()->json(
+                $connectionStatus['message'] ?? 'Whatsapp desconectado! Fatura não enviada para whatsapp.',
+                422
+            );
         }
+
+        $company->refresh();
 
         $message_customer               = $data['message_customer'];
         $whats_invoice_id               = $data['invoice'];
@@ -181,33 +188,15 @@ foreach($invoices as $invoice){
             $data['text_whatsapp'] .= $data['payment_url'] . "\n\n";
         }
 
-        $response = Http::withHeaders([
-            "Content-Type"  => "application/json",
-            'apikey'        => $data['api_token_whatsapp']
-        ])
-        ->post(rtrim(config('options.api_url_evolution'), '/').'/message/sendText/'.$data['api_session_whatsapp'],[
-            "number"        => $request->input('remoteJid'),
-            "options"       =>  [
-                //"delay"     => $this->campaign->interval_send * 1000
-            ],
-            "textMessage"   => [
-                "text"      =>  $data['text_whatsapp']
-            ]
-        ]);
+        $response = $whatsAppService->sendText(
+            $company,
+            $request->input('remoteJid'),
+            $data['text_whatsapp']
+        );
 
-        if ($response->successful()) {
-
-            //return $response->json();
-        }
-
-        if($response->badRequest()){
-            \Log::info($response->json());
-            return $response->json();
-        }
-
-        if($response->serverError()){
-            \Log::info($response->json());
-            return $response->json();
+        if (! $response['success']) {
+            \Log::info($response);
+            return response()->json($response['response'] ?: $response['message'], 422);
         }
 
 

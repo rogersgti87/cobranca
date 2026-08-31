@@ -538,21 +538,23 @@
                 </div>
                 <div class="modal-body">
                     <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i> <strong>API URL Evolution:</strong> {{ env('API_URL_EVOLUTION', 'Não configurado no .env') }}
+                        <i class="fas fa-info-circle"></i> <strong>IntegreAI API:</strong> {{ config('services.integreai.url', 'Não configurado') }}
+                        <br><small class="text-muted">A chave <code>ik_live_*</code> fica no <code>.env</code> do servidor (<code>INTEGREAI_API_KEY</code>).</small>
                     </div>
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <div class="form-group">
-                                <label for="api_session_whatsapp"><i class="fas fa-mobile-alt text-primary"></i> Nome da Instância</label>
-                                <input type="text" class="form-control" id="api_session_whatsapp" name="api_session_whatsapp" value="{{ old('api_session_whatsapp', $company->api_session_whatsapp ?? '') }}" placeholder="Nome da instância">
-                                <small class="text-muted">Nome da instância criada na Evolution API</small>
+                                <label for="api_session_whatsapp"><i class="fas fa-fingerprint text-primary"></i> ID externo do tenant</label>
+                                <input type="text" class="form-control" id="api_session_whatsapp" name="api_session_whatsapp" value="{{ old('api_session_whatsapp', $company->api_session_whatsapp ?? 'cobranca:empresa:' . $company->id) }}" placeholder="cobranca:empresa:{{ $company->id }}" readonly>
+                                <small class="text-muted">Gerado automaticamente na primeira conexão. Vincula esta empresa ao tenant IntegreAI.</small>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="api_token_whatsapp"><i class="fas fa-key text-primary"></i> API Key</label>
-                                <input type="text" class="form-control" id="api_token_whatsapp" name="api_token_whatsapp" value="{{ old('api_token_whatsapp', $company->api_token_whatsapp ?? '') }}" placeholder="API Key da instância">
-                                <small class="text-muted">Chave de acesso da instância</small>
+                        <div class="col-md-12">
+                            <div class="alert alert-light border mb-3">
+                                <i class="fab fa-whatsapp text-success"></i>
+                                <strong>Número da empresa:</strong>
+                                {{ $company->whatsapp ? formatPhone(removeEspeciais($company->whatsapp)) : 'Não cadastrado' }}
+                                <br><small class="text-muted">Cadastre o WhatsApp nos dados da empresa para vincular à instância existente no CRM IntegreAI.</small>
                             </div>
                         </div>
                         <div class="col-md-12">
@@ -568,7 +570,10 @@
                         <div class="col-md-12">
                             <hr>
                             <h6 class="text-muted mb-3"><i class="fas fa-cogs"></i> Ações de Conexão</h6>
-                            <div class="btn-group btn-group-lg w-100" role="group">
+                            <div class="btn-group btn-group-lg w-100 flex-wrap" role="group">
+                                <button type="button" class="btn btn-primary" id="btnConnect">
+                                    <i class="fas fa-link"></i> Conectar
+                                </button>
                                 <button type="button" class="btn btn-info" id="btnCheckStatus">
                                     <i class="fas fa-sync-alt"></i> Verificar Status
                                 </button>
@@ -647,6 +652,35 @@ document.addEventListener('DOMContentLoaded', function() {
         displayInput.style.borderColor = borderColor;
     }
     
+    // Conectar (provision + link)
+    document.getElementById('btnConnect')?.addEventListener('click', function() {
+        this.disabled = true;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando...';
+
+        fetch(`/admin/companies/${companyId}/whatsapp/connect`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                showMessage(data.message, data.success ? 'success' : 'danger');
+                if (data.success && data.status) {
+                    updateStatusDisplay(data.status);
+                    document.getElementById('api_status_whatsapp').value = data.status;
+                }
+            })
+            .catch(error => {
+                showMessage('Erro ao conectar: ' + error.message, 'danger');
+            })
+            .finally(() => {
+                this.disabled = false;
+                this.innerHTML = '<i class="fas fa-link"></i> Conectar';
+            });
+    });
+
     // Verificar Status
     document.getElementById('btnCheckStatus')?.addEventListener('click', function() {
         this.disabled = true;

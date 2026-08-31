@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use DB;
 use App\Models\Invoice;
 use App\Models\User;
+use App\Services\IntegreAi\IntegreAiWhatsAppService;
 
 class InvoiceNotification extends Model
 {
@@ -316,14 +317,21 @@ class InvoiceNotification extends Model
             'payment_url'               => $invoice->publicUrl(),
             'status_whatsapp'           => $company->api_status_whatsapp,
             'api_session_whatsapp'      => $company->api_session_whatsapp,
-            'api_token_whatsapp'        => $company->api_token_whatsapp,
             'api_status_whatsapp'       => $company->api_status_whatsapp,
         ];
 
-        if($data['api_status_whatsapp'] != 'open'){
-            //return 'Whatsapp desconectado';
-            return ['message' => 'Whatsapp desconectado! Fatura não enviada para whatsapp.', 'image' => '', 'file' => ''];
+        $whatsAppService = app(IntegreAiWhatsAppService::class);
+        $connectionStatus = $whatsAppService->getStatus($company);
+
+        if (! ($connectionStatus['success'] ?? false) || ($connectionStatus['status'] ?? 'close') !== 'open') {
+            return [
+                'message' => $connectionStatus['message'] ?? 'Whatsapp desconectado! Fatura não enviada para whatsapp.',
+                'image' => '',
+                'file' => '',
+            ];
         }
+
+        $company->refresh();
 
         $message_customer               = $data['message_customer'];
         $whats_invoice_id               = $data['invoice'];
@@ -358,49 +366,22 @@ class InvoiceNotification extends Model
 
         if($data['notification_whatsapp'] == 's' && $invoice->status != 'Erro'){
 
-        $response = Http::withHeaders([
-            "Content-Type"  => "application/json",
-            'apikey'        => $data['api_token_whatsapp']
-        ])
-        ->post(rtrim(config('options.api_url_evolution'), '/').'/message/sendText/'.$data['api_session_whatsapp'],[
-            "number"        => '55'.$data['customer_whatsapp'],
-             "text"      =>  $data['text_whatsapp'],
-             "linkPreview" => false,
-        ]);
+        $sendResult = $whatsAppService->sendText(
+            $company,
+            '55' . $data['customer_whatsapp'],
+            $data['text_whatsapp']
+        );
 
-        if ($response->successful()) {
-
-            $result = $response->json();
-
-            if($result['status'] == 'PENDING'){
-                $status                  = 'Success';
-                $status_message          = 'Enviado';
-                //$whats_message_status    = $result;
-                $whats_message           = $result;
-            }else{
-                $status                  = 'Error';
-                $status_message          = 'Erro ao enviar';
-                //$whats_message_status   = $result;
-                $whats_message          = $result;
-            }
+        if ($sendResult['success']) {
+            $status = 'Success';
+            $status_message = 'Enviado';
+            $whats_message = $sendResult['response'];
+        } else {
+            $status = 'Error';
+            $status_message = $sendResult['message'] ?? 'Erro ao enviar';
+            $whats_message = $sendResult['response'] ?? [];
+            \Log::info($sendResult);
         }
-
-        if($response->badRequest()){
-            $status                  = 'Error';
-            $status_message          = 'Erro ao enviar';
-            //$whats_message_status   = $result;
-            //$whats_message          = $response->json();
-            \Log::info($response->json());
-        }
-
-        if($response->serverError()){
-            $status                  = 'Error';
-            $status_message          = 'Erro ao enviar';
-            //$whats_message_status   = $result;
-            //$whats_message          = $response->json();
-            \Log::info($response->json());
-        }
-
 
         DB::table('invoice_notifications')->insert([
             'company_id'        => $invoice->company_id,
@@ -412,7 +393,7 @@ class InvoiceNotification extends Model
             'email_id'          => '',
             'status'            => $status,
             'message_status'    => null,
-            'message'           => json_encode($response->json()),
+            'message'           => json_encode($whats_message),
             'created_at'        => Carbon::now(),
             'updated_at'        => Carbon::now()
         ]);

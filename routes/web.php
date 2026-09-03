@@ -82,6 +82,7 @@ Route::group(['prefix' => 'admin','middleware' => ['auth']], function(){
     Route::post('companies/{company}/whatsapp/connect',[CompanyController::class,'whatsappConnect'])->name('companies.whatsapp.connect');
     Route::get('companies/{company}/whatsapp/qrcode',[CompanyController::class,'whatsappQrCode'])->name('companies.whatsapp.qrcode');
     Route::post('companies/{company}/whatsapp/disconnect',[CompanyController::class,'whatsappDisconnect'])->name('companies.whatsapp.disconnect');
+    Route::post('companies/{company}/whatsapp/test',[CompanyController::class,'whatsappTestSend'])->name('companies.whatsapp.test');
 
     Route::get('users',[UserController::class,'index']);
     Route::get('users/form',[UserController::class,'form']);

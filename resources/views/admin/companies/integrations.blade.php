@@ -66,6 +66,92 @@
         color: white;
         opacity: 1;
     }
+    /* WhatsApp modal */
+    .wa-status-banner {
+        border-radius: 12px;
+        padding: 18px 20px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        border: 2px solid transparent;
+    }
+    .wa-status-banner .wa-status-icon {
+        font-size: 2.5rem;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .wa-status-banner .wa-status-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        margin: 0 0 4px;
+    }
+    .wa-status-banner .wa-status-sub {
+        margin: 0;
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+    .wa-status-open { background: #d4edda; border-color: #28a745; color: #155724; }
+    .wa-status-open .wa-status-icon { background: #28a745; color: #fff; }
+    .wa-status-close { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+    .wa-status-close .wa-status-icon { background: #dc3545; color: #fff; }
+    .wa-status-connecting { background: #d1ecf1; border-color: #17a2b8; color: #0c5460; }
+    .wa-status-connecting .wa-status-icon { background: #17a2b8; color: #fff; }
+    .wa-status-unknown { background: #fff3cd; border-color: #ffc107; color: #856404; }
+    .wa-status-unknown .wa-status-icon { background: #ffc107; color: #fff; }
+    .wa-info-card {
+        background: #f8f9fc;
+        border: 1px solid #e3e6f0;
+        border-radius: 10px;
+        padding: 12px 14px;
+        height: 100%;
+    }
+    .wa-info-card label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #6c757d;
+        margin-bottom: 4px;
+        display: block;
+    }
+    .wa-info-card .wa-info-value {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #2d3748;
+        word-break: break-all;
+    }
+    .wa-section-title {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #6c757d;
+        font-weight: 700;
+        margin-bottom: 12px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid #e3e6f0;
+    }
+    .wa-action-group {
+        margin-bottom: 16px;
+    }
+    .wa-action-group .btn {
+        margin: 0 6px 8px 0;
+    }
+    .wa-test-panel {
+        background: linear-gradient(135deg, #f0fff4 0%, #e8f5e9 100%);
+        border: 2px solid #28a745;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 8px;
+    }
+    .wa-test-result {
+        margin-top: 12px;
+        display: none;
+    }
 </style>
 
 <div class="content-wrapper">
@@ -536,7 +622,7 @@
                 @csrf
                 @method('PUT')
                 <div class="modal-header">
-                    <h5 class="modal-title"><i class="fab fa-whatsapp"></i> WhatsApp</h5>
+                    <h5 class="modal-title"><i class="fab fa-whatsapp"></i> WhatsApp — IntegreAI</h5>
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">
@@ -544,52 +630,60 @@
                         $whatsappProvider = old('whatsapp_provider', $company->whatsapp_provider ?: config('services.integreai.whatsapp_provider', 'evogo'));
                         $whatsappLocal = brazilWhatsappLocalPart(old('whatsapp', $company->whatsapp));
                         $whatsappFull = normalizeBrazilWhatsapp(old('whatsapp', $company->whatsapp)) ?? '';
+                        $waStatus = $company->api_status_whatsapp ?: 'unknown';
+                        $waStatusClass = match ($waStatus) {
+                            'open' => 'wa-status-open',
+                            'connecting' => 'wa-status-connecting',
+                            'close', 'disconnected' => 'wa-status-close',
+                            default => 'wa-status-unknown',
+                        };
+                        $waStatusLabel = match ($waStatus) {
+                            'open' => 'Conectado e pronto para enviar',
+                            'connecting' => 'Aguardando pareamento',
+                            'close', 'disconnected' => 'Desconectado',
+                            default => 'Não configurado',
+                        };
+                        $testWhatsappLocal = brazilWhatsappLocalPart(Auth::user()->whatsapp ?? '');
                     @endphp
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i> <strong>IntegreAI API:</strong> {{ config('services.integreai.url', 'Não configurado') }}
-                        <br><small class="text-muted">A chave <code>ik_live_*</code> fica no <code>.env</code> do servidor (<code>INTEGREAI_API_KEY</code>).</small>
+
+                    <div id="wa-status-banner" class="wa-status-banner {{ $waStatusClass }}">
+                        <div class="wa-status-icon"><i id="wa-status-icon" class="fas fa-{{ $waStatus === 'open' ? 'check' : ($waStatus === 'connecting' ? 'sync' : 'exclamation') }}"></i></div>
+                        <div>
+                            <p class="wa-status-title" id="wa-status-title">{{ $waStatusLabel }}</p>
+                            <p class="wa-status-sub" id="wa-status-sub">
+                                Provedor: <strong>{{ strtoupper($whatsappProvider) }}</strong>
+                                @if($company->api_session_whatsapp)
+                                    · Sessão: <strong>{{ $company->api_session_whatsapp }}</strong>
+                                @endif
+                            </p>
+                        </div>
                     </div>
+
+                    <div class="alert alert-light border mb-4 py-2">
+                        <small class="text-muted">
+                            <i class="fas fa-server"></i> API: <code>{{ config('services.integreai.url', 'Não configurado') }}</code>
+                            · Chave M2M no <code>.env</code> (<code>INTEGREAI_API_KEY</code>)
+                        </small>
+                    </div>
+
+                    <div class="wa-section-title"><i class="fas fa-cog"></i> Configuração</div>
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-5">
                             <div class="form-group">
-                                <label for="whatsapp_provider"><i class="fas fa-server text-primary"></i> Provedor WhatsApp</label>
+                                <label for="whatsapp_provider"><i class="fas fa-server text-primary"></i> Provedor</label>
                                 <select class="form-control" id="whatsapp_provider" name="whatsapp_provider">
                                     <option value="evogo" {{ $whatsappProvider === 'evogo' ? 'selected' : '' }}>EVOGO — QR Code / sessão</option>
                                     <option value="ycloud" {{ $whatsappProvider === 'ycloud' ? 'selected' : '' }}>YCloud — WhatsApp Oficial</option>
                                 </select>
-                                <small class="text-muted" id="whatsapp-provider-help">
-                                    {{ $whatsappProvider === 'ycloud'
-                                        ? 'Instância oficial via YCloud. Configure no painel IntegreAI (BYOC). Sem QR Code aqui.'
-                                        : 'Conexão por QR Code via EVOGO. Use "Obter QR Code" após conectar.' }}
-                                </small>
+                                <small class="text-muted" id="whatsapp-provider-help"></small>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="api_session_whatsapp"><i class="fas fa-plug text-primary"></i> Sessão CRM (instância)</label>
-                                <input type="text" class="form-control" id="api_session_whatsapp" name="api_session_whatsapp" value="{{ old('api_session_whatsapp', $company->api_session_whatsapp) }}" placeholder="Ex: Pessoal" readonly>
-                                <small class="form-text text-muted">Nome da instância no CRM IntegreAI, sincronizado pelo número.</small>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="integreai_external_tenant_id"><i class="fas fa-fingerprint text-primary"></i> Tenant M2M</label>
-                                <input type="text" class="form-control" id="integreai_external_tenant_id" value="cobranca:empresa:{{ $company->id }}" readonly>
-                                <small class="form-text text-muted">ID usado na API M2M do Cobrança Segura.</small>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="api_token_whatsapp_display"><i class="fas fa-key text-primary"></i> Token da instância</label>
-                                <input type="text" class="form-control" id="api_token_whatsapp_display" value="{{ $company->api_token_whatsapp ? '••••••••' . substr($company->api_token_whatsapp, -8) : 'Sincroniza ao conectar' }}" readonly>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="whatsapp_local"><i class="fab fa-whatsapp text-success"></i> Número WhatsApp</label>
-                                <div class="input-group input-group-lg">
+                        <div class="col-md-7">
+                            <div class="form-group mb-0">
+                                <label for="whatsapp_local"><i class="fab fa-whatsapp text-success"></i> Número da empresa</label>
+                                <div class="input-group">
                                     <div class="input-group-prepend">
-                                        <span class="input-group-text bg-success text-white font-weight-bold user-select-none">+55</span>
+                                        <span class="input-group-text bg-success text-white font-weight-bold">+55</span>
                                     </div>
                                     <input type="tel"
                                            class="form-control @error('whatsapp') is-invalid @enderror"
@@ -602,65 +696,122 @@
                                 </div>
                                 <input type="hidden" name="whatsapp" id="whatsapp_full" value="{{ old('whatsapp', $whatsappFull) }}">
                                 <input type="hidden" name="integreai_instance_id" id="integreai_instance_id" value="{{ old('integreai_instance_id', $company->integreai_instance_id) }}">
-                                <small class="text-muted">DDD (2 dígitos) + número (8 ou 9 dígitos). Para trocar de instância, use "Desvincular instância" e informe o novo número.</small>
+                                <input type="hidden" name="api_session_whatsapp" id="api_session_whatsapp" value="{{ old('api_session_whatsapp', $company->api_session_whatsapp) }}">
+                                <input type="hidden" name="api_status_whatsapp" id="api_status_whatsapp" value="{{ $company->api_status_whatsapp ?? '' }}">
+                                <small class="text-muted">DDD + número. Ao alterar, a instância será revalidada no CRM.</small>
                                 @error('whatsapp')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                                 <div id="whatsapp-lookup-status" class="mt-2" style="display: none;"></div>
                             </div>
                         </div>
-                        <div class="col-md-12" id="instances-picker" style="display: none;">
-                            <div class="form-group">
-                                <label for="integreai_instance_select"><i class="fas fa-list text-primary"></i> Instância do CRM IntegreAI</label>
-                                <select class="form-control" id="integreai_instance_select"></select>
-                                <small class="text-muted" id="instances-help">Selecione a instância encontrada no CRM e clique em Conectar.</small>
+                    </div>
+
+                    <div class="row mt-3 mb-4">
+                        <div class="col-md-4">
+                            <div class="wa-info-card">
+                                <label><i class="fas fa-plug"></i> Sessão CRM</label>
+                                <div class="wa-info-value" id="api_session_whatsapp_display">{{ $company->api_session_whatsapp ?: '—' }}</div>
                             </div>
                         </div>
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="api_status_whatsapp"><i class="fas fa-signal text-primary"></i> Status da Conexão</label>
-                                <input type="text" class="form-control form-control-lg text-center font-weight-bold" id="api_status_whatsapp_display" value="{{ $company->api_status_whatsapp === 'open' ? 'Conectado' : ($company->api_status_whatsapp === 'close' ? 'Desconectado' : ($company->api_status_whatsapp === 'connecting' ? 'Conectando...' : 'Desconhecido')) }}" readonly style="background-color: {{ $company->api_status_whatsapp === 'open' ? '#d4edda' : ($company->api_status_whatsapp === 'close' ? '#f8d7da' : '#fff3cd') }}; color: {{ $company->api_status_whatsapp === 'open' ? '#155724' : ($company->api_status_whatsapp === 'close' ? '#721c24' : '#856404') }}; border-color: {{ $company->api_status_whatsapp === 'open' ? '#c3e6cb' : ($company->api_status_whatsapp === 'close' ? '#f5c6cb' : '#ffeeba') }};">
-                                <input type="hidden" name="api_status_whatsapp" id="api_status_whatsapp" value="{{ $company->api_status_whatsapp ?? '' }}">
+                        <div class="col-md-4">
+                            <div class="wa-info-card">
+                                <label><i class="fas fa-fingerprint"></i> Tenant M2M</label>
+                                <div class="wa-info-value" id="integreai_external_tenant_id">cobranca:empresa:{{ $company->id }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="wa-info-card">
+                                <label><i class="fas fa-key"></i> Token instância</label>
+                                <div class="wa-info-value" id="api_token_whatsapp_display">{{ $company->api_token_whatsapp ? '••••' . substr($company->api_token_whatsapp, -8) : 'Sincroniza ao conectar' }}</div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <hr>
-                            <h6 class="text-muted mb-3"><i class="fas fa-cogs"></i> Ações de Conexão</h6>
-                            <div class="btn-group btn-group-lg w-100 flex-wrap" role="group">
-                                <button type="button" class="btn btn-primary" id="btnConnect">
-                                    <i class="fas fa-link"></i> Conectar
-                                </button>
-                                <button type="button" class="btn btn-info" id="btnCheckStatus">
-                                    <i class="fas fa-sync-alt"></i> Verificar Status
-                                </button>
-                                <button type="button" class="btn btn-success" id="btnGetQrCode" {{ $whatsappProvider === 'ycloud' ? 'style=display:none;' : '' }}>
-                                    <i class="fas fa-qrcode"></i> Obter QR Code
-                                </button>
-                                <button type="button" class="btn btn-outline-primary" id="btnCreateNew">
-                                    <i class="fas fa-plus"></i> Criar nova instância
-                                </button>
-                                <button type="button" class="btn btn-outline-danger" id="btnDisconnect">
-                                    <i class="fas fa-unlink"></i> Desvincular instância
-                                </button>
-                            </div>
+                    <div class="col-md-12 px-0" id="instances-picker" style="display: none;">
+                        <div class="form-group">
+                            <label for="integreai_instance_select"><i class="fas fa-list text-primary"></i> Instância do CRM</label>
+                            <select class="form-control" id="integreai_instance_select"></select>
+                            <small class="text-muted" id="instances-help">Selecione a instância e clique em Conectar.</small>
                         </div>
                     </div>
 
-                    <div id="qrcodeContainer" class="row" style="display: none;">
+                    <div class="wa-section-title mt-2"><i class="fas fa-bolt"></i> Ações</div>
+
+                    <div class="wa-action-group" id="wa-group-connect">
+                        <small class="text-muted d-block mb-2">Conexão</small>
+                        <button type="button" class="btn btn-primary" id="btnConnect">
+                            <i class="fas fa-link"></i> Conectar
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" id="btnCreateNew">
+                            <i class="fas fa-plus"></i> Criar nova instância
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="btnCheckStatus">
+                            <i class="fas fa-sync-alt"></i> Atualizar status
+                        </button>
+                    </div>
+
+                    <div class="wa-action-group" id="wa-group-pairing" style="display: none;">
+                        <small class="text-muted d-block mb-2">Pareamento (EVOGO)</small>
+                        <button type="button" class="btn btn-info" id="btnGetQrCode">
+                            <i class="fas fa-qrcode"></i> Obter QR Code
+                        </button>
+                    </div>
+
+                    <div class="wa-action-group" id="wa-group-danger" style="display: none;">
+                        <small class="text-muted d-block mb-2">Manutenção</small>
+                        <button type="button" class="btn btn-outline-danger" id="btnDisconnect">
+                            <i class="fas fa-unlink"></i> Desvincular instância
+                        </button>
+                    </div>
+
+                    <div id="wa-test-panel" class="wa-test-panel" style="display: none;">
+                        <div class="wa-section-title border-0 mb-3 pb-0"><i class="fas fa-paper-plane text-success"></i> Testar envio</div>
+                        <p class="text-muted small mb-3">Envie uma mensagem de teste para validar a integração antes de notificar faturas.</p>
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label for="test_whatsapp_local">Número de destino</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">+55</span>
+                                        </div>
+                                        <input type="tel" class="form-control" id="test_whatsapp_local"
+                                               value="{{ $testWhatsappLocal }}"
+                                               placeholder="22999999999" maxlength="11" inputmode="numeric">
+                                    </div>
+                                    <small class="text-muted">Use seu celular ou um número de teste.</small>
+                                </div>
+                            </div>
+                            <div class="col-md-7">
+                                <div class="form-group">
+                                    <label for="test_message">Mensagem <span class="text-muted">(opcional)</span></label>
+                                    <textarea class="form-control" id="test_message" rows="2" maxlength="1000"
+                                              placeholder="Deixe em branco para usar a mensagem padrão de teste."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-success btn-lg" id="btnTestSend">
+                            <i class="fas fa-paper-plane"></i> Enviar mensagem de teste
+                        </button>
+                        <div id="wa-test-result" class="wa-test-result alert"></div>
+                    </div>
+
+                    <div id="qrcodeContainer" class="row mt-3" style="display: none;">
                         <div class="col-md-12 text-center">
-                            <div class="alert alert-info">
-                                <i class="fas fa-mobile-alt"></i> <strong>Escaneie o QR Code com seu WhatsApp</strong>
+                            <div class="alert alert-info mb-2">
+                                <i class="fas fa-mobile-alt"></i> Escaneie o QR Code com o WhatsApp do aparelho
                             </div>
-                            <img id="qrcodeImage" src="" alt="QR Code" class="img-fluid" style="max-width: 300px; border: 3px solid #D4AF37; border-radius: 10px; padding: 10px; background: #1A1A20;">
+                            <img id="qrcodeImage" src="" alt="QR Code" class="img-fluid" style="max-width: 280px; border: 3px solid #D4AF37; border-radius: 10px; padding: 10px; background: #1A1A20;">
                         </div>
                     </div>
 
-                    <div id="statusMessage" class="alert" style="display: none;"></div>
+                    <div id="statusMessage" class="alert mt-3" style="display: none;"></div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fas fa-times"></i> Cancelar</button>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Salvar Configurações</button>
+                <div class="modal-footer justify-content-between">
+                    <small class="text-muted"><i class="fas fa-info-circle"></i> Salve para gravar provedor e número da empresa.</small>
+                    <div>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fas fa-times"></i> Fechar</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Salvar</button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -671,6 +822,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const companyId = {{ $company->id }};
     const csrfToken = @json(csrf_token());
+    const initialHasSession = @json((bool) $company->api_session_whatsapp);
     const providerSelect = document.getElementById('whatsapp_provider');
     const providerHelp = document.getElementById('whatsapp-provider-help');
     const btnGetQrCode = document.getElementById('btnGetQrCode');
@@ -681,8 +833,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const instancesPicker = document.getElementById('instances-picker');
     const instancesHelp = document.getElementById('instances-help');
     const lookupStatus = document.getElementById('whatsapp-lookup-status');
+    const sessionInput = document.getElementById('api_session_whatsapp');
+    const sessionDisplay = document.getElementById('api_session_whatsapp_display');
+    const testWhatsappLocal = document.getElementById('test_whatsapp_local');
     let lookupTimer = null;
     let lookupInFlight = false;
+    let hasLinkedSession = initialHasSession;
 
     function updateProviderUi() {
         const provider = providerSelect ? providerSelect.value : 'evogo';
@@ -691,12 +847,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (providerHelp) {
             providerHelp.textContent = isEvogo
                 ? 'Conexão por QR Code via EVOGO. Use "Obter QR Code" após conectar.'
-                : 'Instância oficial via YCloud. Configure no painel IntegreAI (BYOC). Sem QR Code aqui.';
+                : 'Instância oficial via YCloud. Configure no painel IntegreAI (BYOC).';
         }
 
-        if (btnGetQrCode) {
-            btnGetQrCode.style.display = isEvogo ? '' : 'none';
-        }
+        updateActionsForStatus(document.getElementById('api_status_whatsapp')?.value || 'unknown');
     }
 
     function getLocalWhatsappDigits() {
@@ -705,6 +859,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function getFullWhatsapp() {
         const local = getLocalWhatsappDigits();
+        return local ? '55' + local : '';
+    }
+
+    function getTestFullWhatsapp() {
+        const local = (testWhatsappLocal?.value || '').replace(/\D/g, '').slice(0, 11);
         return local ? '55' + local : '';
     }
 
@@ -729,15 +888,119 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
+    function translateStatus(status) {
+        const statusMap = {
+            'open': 'Conectado e pronto para enviar',
+            'close': 'Desconectado',
+            'connecting': 'Aguardando pareamento',
+            'disconnected': 'Desconectado'
+        };
+        return statusMap[status] || 'Não configurado';
+    }
+
+    function updateStatusBanner(status, sessionName) {
+        const banner = document.getElementById('wa-status-banner');
+        const title = document.getElementById('wa-status-title');
+        const sub = document.getElementById('wa-status-sub');
+        const icon = document.getElementById('wa-status-icon');
+        const provider = (providerSelect?.value || 'evogo').toUpperCase();
+
+        const normalized = status === 'disconnected' ? 'close' : (status || 'unknown');
+        const classes = {
+            open: 'wa-status-open',
+            close: 'wa-status-close',
+            connecting: 'wa-status-connecting',
+            unknown: 'wa-status-unknown'
+        };
+        const icons = {
+            open: 'fa-check',
+            close: 'fa-times',
+            connecting: 'fa-sync fa-spin',
+            unknown: 'fa-question'
+        };
+
+        if (banner) {
+            banner.className = 'wa-status-banner ' + (classes[normalized] || classes.unknown);
+        }
+        if (title) {
+            title.textContent = translateStatus(normalized);
+        }
+        if (icon) {
+            icon.className = 'fas ' + (icons[normalized] || icons.unknown);
+        }
+        if (sub) {
+            let html = 'Provedor: <strong>' + provider + '</strong>';
+            if (sessionName) {
+                html += ' · Sessão: <strong>' + sessionName + '</strong>';
+            }
+            sub.innerHTML = html;
+        }
+
+        if (document.getElementById('api_status_whatsapp')) {
+            document.getElementById('api_status_whatsapp').value = normalized === 'unknown' ? '' : normalized;
+        }
+
+        updateActionsForStatus(normalized);
+    }
+
+    function updateActionsForStatus(status) {
+        const normalized = status === 'disconnected' ? 'close' : status;
+        const isEvogo = (providerSelect?.value || 'evogo') === 'evogo';
+        const isOpen = normalized === 'open';
+        const isConnecting = normalized === 'connecting';
+        const isLinked = hasLinkedSession || !!instanceIdInput?.value || !!sessionInput?.value;
+
+        const groupConnect = document.getElementById('wa-group-connect');
+        const groupPairing = document.getElementById('wa-group-pairing');
+        const groupDanger = document.getElementById('wa-group-danger');
+        const testPanel = document.getElementById('wa-test-panel');
+        const btnConnect = document.getElementById('btnConnect');
+        const btnCreateNew = document.getElementById('btnCreateNew');
+
+        if (groupConnect) {
+            groupConnect.style.display = '';
+        }
+        if (btnConnect) {
+            btnConnect.style.display = isOpen ? 'none' : '';
+        }
+        if (btnCreateNew) {
+            btnCreateNew.style.display = isLinked && isOpen ? 'none' : '';
+        }
+
+        if (groupPairing) {
+            groupPairing.style.display = (isEvogo && !isOpen) ? '' : 'none';
+        }
+        if (groupDanger) {
+            groupDanger.style.display = isLinked ? '' : 'none';
+        }
+        if (testPanel) {
+            testPanel.style.display = isOpen ? '' : 'none';
+        }
+    }
+
+    function setSessionName(name) {
+        const value = name || '';
+        if (sessionInput) {
+            sessionInput.value = value;
+        }
+        if (sessionDisplay) {
+            sessionDisplay.textContent = value || '—';
+        }
+        hasLinkedSession = !!value;
+    }
+
     function clearWhatsappBindingUi() {
         if (instanceIdInput) {
             instanceIdInput.value = '';
         }
+        setSessionName('');
+        hasLinkedSession = false;
         renderInstances([]);
         if (lookupStatus) {
             lookupStatus.style.display = 'none';
         }
         document.getElementById('qrcodeContainer').style.display = 'none';
+        updateStatusBanner('close', '');
     }
 
     function renderInstances(instances, selectedId) {
@@ -787,26 +1050,20 @@ document.addEventListener('DOMContentLoaded', function() {
         const instances = data.instances || (data.instance ? [data.instance] : []);
 
         if (data.external_tenant_id) {
-            const tenantInput = document.getElementById('integreai_external_tenant_id');
-            if (tenantInput) {
-                tenantInput.value = data.external_tenant_id;
+            const tenantEl = document.getElementById('integreai_external_tenant_id');
+            if (tenantEl) {
+                tenantEl.textContent = data.external_tenant_id;
             }
         }
 
-        if (data.session_name) {
-            const sessionInput = document.getElementById('api_session_whatsapp');
-            if (sessionInput) {
-                sessionInput.value = data.session_name;
-            }
-        } else if (data.instance?.name) {
-            const sessionInput = document.getElementById('api_session_whatsapp');
-            if (sessionInput) {
-                sessionInput.value = data.instance.name;
-            }
+        const sessionName = data.session_name || data.instance?.name || '';
+        if (sessionName) {
+            setSessionName(sessionName);
         }
 
         if (data.instance?.id && instanceIdInput) {
             instanceIdInput.value = data.instance.id;
+            hasLinkedSession = true;
         }
 
         renderInstances(instances, data.instance?.id);
@@ -823,8 +1080,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (data.status) {
-            updateStatusDisplay(data.status);
-            document.getElementById('api_status_whatsapp').value = data.status;
+            updateStatusBanner(data.status, sessionName || sessionInput?.value);
         }
     }
 
@@ -919,6 +1175,10 @@ document.addEventListener('DOMContentLoaded', function() {
     providerSelect?.addEventListener('change', updateProviderUi);
     updateProviderUi();
     syncWhatsappHidden();
+    updateStatusBanner(
+        document.getElementById('api_status_whatsapp')?.value || 'unknown',
+        sessionInput?.value || ''
+    );
 
     whatsappLocal?.addEventListener('input', function () {
         const previousFull = whatsappFull?.value || '';
@@ -957,52 +1217,15 @@ document.addEventListener('DOMContentLoaded', function() {
         syncWhatsappHidden();
         this.dispatchEvent(new Event('input'));
     });
-    
-    // Função para traduzir status
-    function translateStatus(status) {
-        const statusMap = {
-            'open': 'Conectado',
-            'close': 'Desconectado',
-            'connecting': 'Conectando...',
-            'disconnected': 'Desconectado'
-        };
-        return statusMap[status] || status || 'Desconhecido';
-    }
-    
-    // Função para colorir o campo de status
-    function updateStatusDisplay(status) {
-        const displayInput = document.getElementById('api_status_whatsapp_display');
-        displayInput.value = translateStatus(status);
-        
-        // Definir cores baseado no status
-        let bgColor, textColor, borderColor;
-        if (status === 'open') {
-            bgColor = '#d4edda';
-            textColor = '#155724';
-            borderColor = '#c3e6cb';
-        } else if (status === 'close' || status === 'disconnected') {
-            bgColor = '#f8d7da';
-            textColor = '#721c24';
-            borderColor = '#f5c6cb';
-        } else if (status === 'connecting') {
-            bgColor = '#d1ecf1';
-            textColor = '#0c5460';
-            borderColor = '#bee5eb';
-        } else {
-            bgColor = '#fff3cd';
-            textColor = '#856404';
-            borderColor = '#ffeeba';
-        }
-        
-        displayInput.style.backgroundColor = bgColor;
-        displayInput.style.color = textColor;
-        displayInput.style.borderColor = borderColor;
-    }
-    
-    // Conectar (provision + link)
+
+    testWhatsappLocal?.addEventListener('input', function () {
+        this.value = this.value.replace(/\D/g, '').slice(0, 11);
+    });
+
     document.getElementById('btnConnect')?.addEventListener('click', function() {
-        this.disabled = true;
-        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando...';
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando...';
 
         connectWhatsapp(false)
             .then(data => {
@@ -1016,8 +1239,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 showMessage('Erro ao conectar: ' + error.message, 'danger');
             })
             .finally(() => {
-                this.disabled = false;
-                this.innerHTML = '<i class="fas fa-link"></i> Conectar';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-link"></i> Conectar';
             });
     });
 
@@ -1026,8 +1249,9 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        this.disabled = true;
-        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando...';
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando...';
 
         connectWhatsapp(true)
             .then(data => {
@@ -1040,39 +1264,47 @@ document.addEventListener('DOMContentLoaded', function() {
                 showMessage('Erro ao criar instância: ' + error.message, 'danger');
             })
             .finally(() => {
-                this.disabled = false;
-                this.innerHTML = '<i class="fas fa-plus"></i> Criar nova instância';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-plus"></i> Criar nova instância';
             });
     });
 
-    // Verificar Status
     document.getElementById('btnCheckStatus')?.addEventListener('click', function() {
-        this.disabled = true;
-        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
-        
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
+
         fetch(`/admin/companies/${companyId}/whatsapp/status`)
             .then(response => response.json())
             .then(data => {
                 showMessage(data.message, data.success ? 'success' : 'danger');
                 if (data.success && data.status) {
-                    updateStatusDisplay(data.status);
-                    document.getElementById('api_status_whatsapp').value = data.status;
+                    if (data.session_name) {
+                        setSessionName(data.session_name);
+                    }
+                    if (data.external_tenant_id) {
+                        const tenantEl = document.getElementById('integreai_external_tenant_id');
+                        if (tenantEl) {
+                            tenantEl.textContent = data.external_tenant_id;
+                        }
+                    }
+                    updateStatusBanner(data.status, data.session_name || sessionInput?.value);
                 }
             })
             .catch(error => {
                 showMessage('Erro ao verificar status: ' + error.message, 'danger');
             })
             .finally(() => {
-                this.disabled = false;
-                this.innerHTML = '<i class="fas fa-sync-alt"></i> Verificar Status';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sync-alt"></i> Atualizar status';
             });
     });
-    
-    // Obter QR Code
+
     document.getElementById('btnGetQrCode')?.addEventListener('click', function() {
-        this.disabled = true;
-        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Obtendo...';
-        
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Obtendo...';
+
         fetch(`/admin/companies/${companyId}/whatsapp/qrcode`)
             .then(response => response.json())
             .then(data => {
@@ -1088,20 +1320,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 showMessage('Erro ao obter QR Code: ' + error.message, 'danger');
             })
             .finally(() => {
-                this.disabled = false;
-                this.innerHTML = '<i class="fas fa-qrcode"></i> Obter QR Code';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-qrcode"></i> Obter QR Code';
             });
     });
-    
-    // Desvincular instância
+
     document.getElementById('btnDisconnect')?.addEventListener('click', function() {
         if (!confirm('Desvincular a instância WhatsApp atual desta empresa?\n\nVocê poderá informar outro número e conectar uma nova instância do CRM.')) {
             return;
         }
-        
-        this.disabled = true;
-        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Desvinculando...';
-        
+
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Desvinculando...';
+
         fetch(`/admin/companies/${companyId}/whatsapp/disconnect`, {
             method: 'POST',
             headers: apiHeaders(),
@@ -1111,8 +1343,6 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 showMessage(data.message, data.success ? 'success' : 'danger');
                 if (data.success) {
-                    updateStatusDisplay('close');
-                    document.getElementById('api_status_whatsapp').value = 'close';
                     clearWhatsappBindingUi();
                 }
             })
@@ -1120,20 +1350,69 @@ document.addEventListener('DOMContentLoaded', function() {
                 showMessage('Erro ao desvincular: ' + error.message, 'danger');
             })
             .finally(() => {
-                this.disabled = false;
-                this.innerHTML = '<i class="fas fa-unlink"></i> Desvincular instância';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-unlink"></i> Desvincular instância';
             });
     });
-    
+
+    document.getElementById('btnTestSend')?.addEventListener('click', function() {
+        const btn = this;
+        const resultEl = document.getElementById('wa-test-result');
+        const local = (testWhatsappLocal?.value || '').replace(/\D/g, '').slice(0, 11);
+        const full = local ? '55' + local : '';
+        const text = (document.getElementById('test_message')?.value || '').trim();
+
+        if (!isValidLocalWhatsapp(local)) {
+            if (resultEl) {
+                resultEl.className = 'wa-test-result alert alert-danger';
+                resultEl.innerHTML = '<i class="fas fa-times-circle"></i> Informe um número de destino válido (+55, DDD e 8 ou 9 dígitos).';
+                resultEl.style.display = 'block';
+            }
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+        if (resultEl) {
+            resultEl.style.display = 'none';
+        }
+
+        fetch(`/admin/companies/${companyId}/whatsapp/test`, {
+            method: 'POST',
+            headers: apiHeaders(),
+            body: JSON.stringify({ number: full, text: text || null })
+        })
+            .then(response => response.json().then(data => ({ ok: response.ok, data })))
+            .then(({ data }) => {
+                if (resultEl) {
+                    resultEl.className = 'wa-test-result alert alert-' + (data.success ? 'success' : 'danger');
+                    resultEl.innerHTML = '<i class="fas fa-' + (data.success ? 'check' : 'times') + '-circle"></i> ' + (data.message || (data.success ? 'Enviado!' : 'Falha no envio.'));
+                    resultEl.style.display = 'block';
+                }
+                showMessage(data.message, data.success ? 'success' : 'danger');
+            })
+            .catch(error => {
+                if (resultEl) {
+                    resultEl.className = 'wa-test-result alert alert-danger';
+                    resultEl.innerHTML = '<i class="fas fa-times-circle"></i> ' + error.message;
+                    resultEl.style.display = 'block';
+                }
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar mensagem de teste';
+            });
+    });
+
     function showMessage(message, type) {
         const statusMessage = document.getElementById('statusMessage');
-        statusMessage.className = `alert alert-${type}`;
-        statusMessage.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : 'exclamation'}-circle"></i> ${message}`;
+        statusMessage.className = 'alert alert-' + type + ' mt-3';
+        statusMessage.innerHTML = '<i class="fas fa-' + (type === 'success' ? 'check' : 'exclamation') + '-circle"></i> ' + message;
         statusMessage.style.display = 'block';
-        
+
         setTimeout(() => {
             statusMessage.style.display = 'none';
-        }, 5000);
+        }, 6000);
     }
 });
 </script>

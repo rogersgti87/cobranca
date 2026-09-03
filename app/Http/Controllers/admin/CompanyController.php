@@ -534,6 +534,51 @@ class CompanyController extends Controller
     }
     
     /**
+     * Send a test WhatsApp message through IntegreAI M2M API
+     */
+    public function whatsappTestSend(Request $request, Company $company, IntegreAiWhatsAppService $whatsApp)
+    {
+        if (! $company->isAdminOrOwner(Auth::id())) {
+            abort(403, 'Você não tem permissão para gerenciar integrações');
+        }
+
+        $data = $request->validate([
+            'number' => ['required', 'string', $this->whatsappValidationRule()],
+            'text' => 'nullable|string|max:1000',
+        ]);
+
+        $number = normalizeBrazilWhatsapp($data['number']);
+        if (! $number) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Número de destino inválido. Use +55, DDD e número com 8 ou 9 dígitos.',
+            ], 422);
+        }
+
+        $text = trim((string) ($data['text'] ?? ''));
+        if ($text === '') {
+            $text = '*Teste Cobrança Segura*' . "\n\n"
+                . 'Mensagem de teste enviada em ' . now()->format('d/m/Y H:i')
+                . ' pela integração WhatsApp da empresa *' . ($company->trade_name ?: $company->name) . '*.';
+        }
+
+        try {
+            $result = $whatsApp->sendText($company, $number, $text);
+
+            return response()->json([
+                'success' => (bool) ($result['success'] ?? false),
+                'message' => $result['message'] ?? (($result['success'] ?? false) ? 'Mensagem enviada com sucesso.' : 'Erro ao enviar mensagem.'),
+                'response' => $result['response'] ?? [],
+            ], ($result['success'] ?? false) ? 200 : 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao enviar teste: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
      * Disconnect WhatsApp (IntegreAI API M2M — desvincula tenant por padrão)
      */
     public function whatsappDisconnect(Request $request, Company $company, IntegreAiWhatsAppService $whatsApp)

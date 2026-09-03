@@ -70,8 +70,17 @@ class IntegreAiWhatsAppService
 
     public function connect(Company $company, ?int $instanceId = null, bool $createNew = false): array
     {
-        if ($instanceId) {
+        if ($createNew) {
+            $this->clearLocalWhatsappLink($company);
+            $company->refresh();
+        } elseif ($instanceId) {
             $company->update(['integreai_instance_id' => $instanceId]);
+            $company->refresh();
+        }
+
+        $number = $this->companyWhatsappNumber($company);
+        if ($number) {
+            $this->clearStaleInstanceLink($company, $number);
             $company->refresh();
         }
 
@@ -164,6 +173,8 @@ class IntegreAiWhatsAppService
 
         $company->update(['whatsapp' => $normalized]);
         $company->refresh();
+
+        $this->clearStaleInstanceLink($company, $normalized);
 
         $provision = $this->ensureProvisioned($company);
         if (! $provision['success']) {
@@ -344,14 +355,32 @@ class IntegreAiWhatsAppService
             ];
         }
 
-        $company->update(['api_status_whatsapp' => 'close']);
+        $this->clearLocalWhatsappLink($company);
 
         return [
             'success' => true,
             'message' => $disconnectProvider
                 ? 'WhatsApp desconectado no provedor com sucesso!'
-                : 'WhatsApp desvinculado com sucesso!',
+                : 'Instância desvinculada. Informe o novo número e clique em Conectar.',
             'data' => $this->unwrapData($body),
+        ];
+    }
+
+    public function resetWhatsappLink(Company $company): array
+    {
+        if (! empty($company->api_session_whatsapp)) {
+            $disconnect = $this->disconnect($company);
+            if ($disconnect['success']) {
+                return $disconnect;
+            }
+        }
+
+        $this->clearLocalWhatsappLink($company);
+
+        return [
+            'success' => true,
+            'message' => 'Vínculo local removido. Informe o novo número e clique em Conectar.',
+            'data' => [],
         ];
     }
 
@@ -541,17 +570,50 @@ class IntegreAiWhatsAppService
     protected function buildAutoLinkPayload(Company $company): array
     {
         $payload = [];
+        $whatsappNumber = $this->companyWhatsappNumber($company);
+
+        if ($whatsappNumber) {
+            $payload['whatsapp_number'] = $whatsappNumber;
+
+            return $payload;
+        }
 
         if ($company->integreai_instance_id) {
             $payload['instance_id'] = (int) $company->integreai_instance_id;
         }
 
-        $whatsappNumber = $this->companyWhatsappNumber($company);
-        if ($whatsappNumber) {
-            $payload['whatsapp_number'] = $whatsappNumber;
+        return $payload;
+    }
+
+    protected function clearLocalWhatsappLink(Company $company): void
+    {
+        $company->update([
+            'integreai_instance_id' => null,
+            'api_status_whatsapp' => 'close',
+        ]);
+    }
+
+    protected function clearStaleInstanceLink(Company $company, string $normalizedNumber): void
+    {
+        $tenantData = $this->fetchTenantData($company);
+        $linkedPhone = isset($tenantData['whatsapp']['phone_number'])
+            ? $this->formatPhoneNumber((string) $tenantData['whatsapp']['phone_number'])
+            : null;
+
+        if ($linkedPhone && $linkedPhone === $normalizedNumber) {
+            return;
         }
 
-        return $payload;
+        if (! $linkedPhone && ! $company->integreai_instance_id) {
+            return;
+        }
+
+        if (! empty($company->api_session_whatsapp)) {
+            $tenantId = $this->externalTenantId($company);
+            $this->client->delete("/api/v1/tenants/{$tenantId}/whatsapp");
+        }
+
+        $this->clearLocalWhatsappLink($company);
     }
 
     protected function findInstancesByNumber(Company $company, string $normalizedNumber): array

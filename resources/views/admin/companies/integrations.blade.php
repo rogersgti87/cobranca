@@ -589,7 +589,7 @@
                                 </div>
                                 <input type="hidden" name="whatsapp" id="whatsapp_full" value="{{ old('whatsapp', $whatsappFull) }}">
                                 <input type="hidden" name="integreai_instance_id" id="integreai_instance_id" value="{{ old('integreai_instance_id', $company->integreai_instance_id) }}">
-                                <small class="text-muted">DDD (2 dígitos) + número (8 ou 9 dígitos). Ao completar, verificamos no CRM e integramos automaticamente.</small>
+                                <small class="text-muted">DDD (2 dígitos) + número (8 ou 9 dígitos). Para trocar de instância, use "Desvincular instância" e informe o novo número.</small>
                                 @error('whatsapp')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                                 <div id="whatsapp-lookup-status" class="mt-2" style="display: none;"></div>
                             </div>
@@ -627,8 +627,8 @@
                                 <button type="button" class="btn btn-outline-primary" id="btnCreateNew">
                                     <i class="fas fa-plus"></i> Criar nova instância
                                 </button>
-                                <button type="button" class="btn btn-danger" id="btnDisconnect">
-                                    <i class="fas fa-unlink"></i> Desconectar
+                                <button type="button" class="btn btn-outline-danger" id="btnDisconnect">
+                                    <i class="fas fa-unlink"></i> Desvincular instância
                                 </button>
                             </div>
                         </div>
@@ -714,6 +714,17 @@ document.addEventListener('DOMContentLoaded', function() {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         };
+    }
+
+    function clearWhatsappBindingUi() {
+        if (instanceIdInput) {
+            instanceIdInput.value = '';
+        }
+        renderInstances([]);
+        if (lookupStatus) {
+            lookupStatus.style.display = 'none';
+        }
+        document.getElementById('qrcodeContainer').style.display = 'none';
     }
 
     function renderInstances(instances, selectedId) {
@@ -878,8 +889,14 @@ document.addEventListener('DOMContentLoaded', function() {
     syncWhatsappHidden();
 
     whatsappLocal?.addEventListener('input', function () {
+        const previousFull = whatsappFull?.value || '';
         this.value = this.value.replace(/\D/g, '').slice(0, 11);
         syncWhatsappHidden();
+
+        const newFull = getFullWhatsapp();
+        if (previousFull && newFull && previousFull !== newFull) {
+            clearWhatsappBindingUi();
+        }
 
         clearTimeout(lookupTimer);
 
@@ -1044,18 +1061,19 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     });
     
-    // Desconectar
+    // Desvincular instância
     document.getElementById('btnDisconnect')?.addEventListener('click', function() {
-        if (!confirm('Tem certeza que deseja desconectar o WhatsApp?')) {
+        if (!confirm('Desvincular a instância WhatsApp atual desta empresa?\n\nVocê poderá informar outro número e conectar uma nova instância do CRM.')) {
             return;
         }
         
         this.disabled = true;
-        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Desconectando...';
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Desvinculando...';
         
         fetch(`/admin/companies/${companyId}/whatsapp/disconnect`, {
             method: 'POST',
             headers: apiHeaders(),
+            body: JSON.stringify({ force_local: false })
         })
             .then(response => response.json())
             .then(data => {
@@ -1063,15 +1081,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.success) {
                     updateStatusDisplay('close');
                     document.getElementById('api_status_whatsapp').value = 'close';
-                    document.getElementById('qrcodeContainer').style.display = 'none';
+                    clearWhatsappBindingUi();
                 }
             })
             .catch(error => {
-                showMessage('Erro ao desconectar: ' + error.message, 'danger');
+                showMessage('Erro ao desvincular: ' + error.message, 'danger');
             })
             .finally(() => {
                 this.disabled = false;
-                this.innerHTML = '<i class="fas fa-unlink"></i> Desconectar';
+                this.innerHTML = '<i class="fas fa-unlink"></i> Desvincular instância';
             });
     });
     

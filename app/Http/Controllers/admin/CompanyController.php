@@ -525,14 +525,21 @@ class CompanyController extends Controller
     /**
      * Disconnect WhatsApp (IntegreAI API M2M — desvincula tenant por padrão)
      */
-    public function whatsappDisconnect(Company $company, IntegreAiWhatsAppService $whatsApp)
+    public function whatsappDisconnect(Request $request, Company $company, IntegreAiWhatsAppService $whatsApp)
     {
         if (!$company->isAdminOrOwner(Auth::id())) {
             abort(403, 'Você não tem permissão para gerenciar integrações');
         }
 
         try {
-            $result = $whatsApp->disconnect($company);
+            $forceLocal = (bool) $request->boolean('force_local');
+            $result = $forceLocal
+                ? $whatsApp->resetWhatsappLink($company)
+                : $whatsApp->disconnect($company);
+
+            if (! $result['success'] && ! $forceLocal) {
+                $result = $whatsApp->resetWhatsappLink($company);
+            }
 
             if (! $result['success']) {
                 return response()->json([
@@ -548,7 +555,7 @@ class CompanyController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Erro ao conectar com a API: ' . $e->getMessage(),
+                'message' => 'Erro ao desconectar: ' . $e->getMessage(),
             ], 500);
         }
     }

@@ -73,9 +73,11 @@ class IntegreAiClient
 
         $json = $this->decode($response);
 
-        return $json['error']['message']
-            ?? $json['message']
-            ?? $fallback;
+        if (isset($json['error']) && is_array($json['error'])) {
+            return $json['error']['message'] ?? $fallback;
+        }
+
+        return $json['message'] ?? $fallback;
     }
 
     protected function request(?string $token = null, ?int $timeout = null): PendingRequest

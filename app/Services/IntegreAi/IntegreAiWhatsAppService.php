@@ -494,20 +494,24 @@ class IntegreAiWhatsAppService
 
     public function sendText(Company $company, string $number, string $text): array
     {
-        if (! $this->client->isConfigured()) {
+        $context = $this->resolveTenantContext($company);
+        if (! ($context['success'] ?? false)) {
             return [
                 'success' => false,
-                'message' => 'IntegreAI não configurada no servidor',
-                'response' => [],
+                'message' => $context['message'] ?? 'Erro ao resolver tenant IntegreAI',
+                'response' => $context['data'] ?? [],
             ];
         }
 
-        $provision = $this->ensureProvisioned($company);
-        if (! $provision['success']) {
+        $company->refresh();
+        $tenantId = (string) $context['tenant_id'];
+        $tenantData = $context['tenant_data'] ?? [];
+
+        if (! $this->isTenantWhatsappLinked($tenantData, $company)) {
             return [
                 'success' => false,
-                'message' => $provision['message'],
-                'response' => $provision['data'] ?? [],
+                'message' => 'Instância WhatsApp não vinculada no IntegreAI. Reconecte o WhatsApp nas integrações da empresa.',
+                'response' => $tenantData,
             ];
         }
 
@@ -520,8 +524,6 @@ class IntegreAiWhatsAppService
             ];
         }
 
-        $tenantId = $this->externalTenantId($company);
-        $tenantData = $provision['data'] ?? $this->fetchTenantData($company);
         $formattedNumber = $this->formatPhoneNumber($number);
         $payload = [
             'number' => $formattedNumber,
@@ -588,10 +590,69 @@ class IntegreAiWhatsAppService
         }
 
         if ($response) {
+            if ($response->status() === 500) {
+                return 'Erro interno no servidor IntegreAI ao enviar mensagem (HTTP 500). Atualize o IntegreAI em produção.';
+            }
+
             return $this->client->errorMessage($response, 'Erro ao enviar mensagem via API M2M IntegreAI');
         }
 
         return 'Não foi possível enviar via API M2M IntegreAI para o tenant ' . $tenantId . '. Verifique INTEGREAI_API_KEY e se o servidor IntegreAI está atualizado.';
+    }
+
+    public function resolveTenantContext(Company $company): array
+    {
+        if (! $this->client->isConfigured()) {
+            return [
+                'success' => false,
+                'message' => 'IntegreAI não configurada no servidor',
+                'tenant_id' => null,
+                'tenant_data' => [],
+            ];
+        }
+
+        $provision = $this->ensureProvisioned($company);
+        if (! $provision['success']) {
+            return array_merge($provision, [
+                'tenant_id' => null,
+                'tenant_data' => [],
+            ]);
+        }
+
+        $tenantData = $this->refreshTenantData($company, $provision['data'] ?? []);
+        $this->syncTenantFromIntegreai($company, $tenantData);
+
+        $number = $this->companyWhatsappNumber($company);
+        if ($number && ! $this->isTenantWhatsappLinked($tenantData, $company)) {
+            $instances = $this->findInstancesByNumber($company, $number);
+            if (! empty($instances[0]['id'])) {
+                $company->update(['integreai_instance_id' => (int) $instances[0]['id']]);
+                $company->refresh();
+
+                $reprovision = $this->ensureProvisioned($company);
+                if ($reprovision['success']) {
+                    $tenantData = $this->refreshTenantData($company, $reprovision['data'] ?? $tenantData);
+                    $this->syncTenantFromIntegreai($company, $tenantData);
+                }
+            }
+        }
+
+        $company->refresh();
+        $tenantId = trim((string) ($tenantData['external_tenant_id'] ?? $this->externalTenantId($company)));
+
+        return [
+            'success' => true,
+            'tenant_id' => $tenantId,
+            'tenant_data' => $tenantData,
+            'instance' => $this->instanceFromTenantData($tenantData),
+        ];
+    }
+
+    protected function syncTenantFromIntegreai(Company $company, array $tenantData): void
+    {
+        $this->syncExternalTenantId($company, $tenantData);
+        $this->applyTenantWhatsappData($company, $tenantData);
+        $company->refresh();
     }
 
     protected function hasPanelToken(): bool
@@ -1058,9 +1119,22 @@ class IntegreAiWhatsAppService
         $updates = [];
         $instanceId = $data['instance_id'] ?? data_get($data, 'whatsapp.instance_id');
         $rawStatus = data_get($data, 'whatsapp.instance_status') ?? data_get($data, 'whatsapp.status');
+        $phone = data_get($data, 'whatsapp.phone_number') ?? data_get($data, 'whatsapp.whatsapp_number');
 
         if ($instanceId) {
             $updates['integreai_instance_id'] = (int) $instanceId;
+        }
+
+        if ($phone) {
+            $normalized = normalizeBrazilWhatsapp((string) $phone);
+            if ($normalized) {
+                $updates['whatsapp'] = $normalized;
+            }
+        }
+
+        $provider = data_get($data, 'whatsapp.provider');
+        if (is_string($provider) && $provider !== '') {
+            $updates['whatsapp_provider'] = strtolower($provider);
         }
 
         if ($rawStatus) {

@@ -340,7 +340,7 @@ class CompanyController extends Controller
             $data['inter_key_file'] = $request->file('inter_key_file')->store('companies/certificates', 'local');
         }
 
-        unset($data['api_session_whatsapp'], $data['api_status_whatsapp']);
+        unset($data['api_session_whatsapp'], $data['api_status_whatsapp'], $data['api_token_whatsapp']);
 
         $company->update($data);
         
@@ -364,15 +364,19 @@ class CompanyController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => $result['message'] ?? 'Erro ao verificar status',
-                ], empty($company->api_session_whatsapp) ? 400 : 500);
+                ], empty($company->integreai_instance_id) ? 400 : 500);
             }
+
+            $company->refresh();
 
             return response()->json([
                 'success' => true,
                 'status' => $result['status'],
                 'provider' => $result['provider'] ?? $whatsApp->resolveProvider($company),
                 'message' => $result['message'],
-                'external_tenant_id' => $whatsApp->externalTenantId($company->fresh()),
+                'external_tenant_id' => $whatsApp->externalTenantId($company),
+                'session_name' => $company->api_session_whatsapp,
+                'integreai_instance_id' => $company->integreai_instance_id,
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -414,6 +418,7 @@ class CompanyController extends Controller
                 'instances' => $result['instances'] ?? [],
                 'whatsapp' => $result['whatsapp'] ?? normalizeBrazilWhatsapp($data['whatsapp']),
                 'external_tenant_id' => $result['external_tenant_id'] ?? $whatsApp->externalTenantId($company->fresh()),
+                'session_name' => $result['session_name'] ?? $company->fresh()->api_session_whatsapp,
             ], ($result['success'] ?? false) ? 200 : 422);
         } catch (\Exception $e) {
             return response()->json([
@@ -486,6 +491,7 @@ class CompanyController extends Controller
                 'instances' => $result['instances'] ?? [],
                 'instance' => $result['instance'] ?? null,
                 'external_tenant_id' => $whatsApp->externalTenantId($company->fresh()),
+                'session_name' => $company->fresh()->api_session_whatsapp,
             ], $result['success'] ? 200 : 500);
         } catch (\Exception $e) {
             return response()->json([
@@ -550,7 +556,7 @@ class CompanyController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => $result['message'],
-                ], empty($company->api_session_whatsapp) ? 400 : 500);
+                ], empty($company->integreai_instance_id) ? 400 : 500);
             }
 
             return response()->json([

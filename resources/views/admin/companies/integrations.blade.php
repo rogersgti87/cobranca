@@ -564,12 +564,24 @@
                                 </small>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
-                                <label for="api_session_whatsapp"><i class="fas fa-fingerprint text-primary"></i> ID externo do tenant</label>
-                                <input type="text" class="form-control" id="api_session_whatsapp" name="api_session_whatsapp" value="{{ old('api_session_whatsapp', $company->api_session_whatsapp ?: 'cobranca:empresa:' . $company->id) }}" placeholder="cobranca:empresa:{{ $company->id }}" readonly>
-                                <small class="form-text text-muted">Sincronizado automaticamente com o IntegreAI ao conectar o WhatsApp.</small>
-                                <small class="text-muted">Gerado automaticamente na primeira conexão.</small>
+                                <label for="api_session_whatsapp"><i class="fas fa-plug text-primary"></i> Sessão CRM (instância)</label>
+                                <input type="text" class="form-control" id="api_session_whatsapp" name="api_session_whatsapp" value="{{ old('api_session_whatsapp', $company->api_session_whatsapp) }}" placeholder="Ex: Pessoal" readonly>
+                                <small class="form-text text-muted">Nome da instância no CRM IntegreAI, sincronizado pelo número.</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="integreai_external_tenant_id"><i class="fas fa-fingerprint text-primary"></i> Tenant M2M</label>
+                                <input type="text" class="form-control" id="integreai_external_tenant_id" value="cobranca:empresa:{{ $company->id }}" readonly>
+                                <small class="form-text text-muted">ID usado na API M2M do Cobrança Segura.</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="api_token_whatsapp_display"><i class="fas fa-key text-primary"></i> Token da instância</label>
+                                <input type="text" class="form-control" id="api_token_whatsapp_display" value="{{ $company->api_token_whatsapp ? '••••••••' . substr($company->api_token_whatsapp, -8) : 'Sincroniza ao conectar' }}" readonly>
                             </div>
                         </div>
                         <div class="col-md-12">
@@ -775,9 +787,21 @@ document.addEventListener('DOMContentLoaded', function() {
         const instances = data.instances || (data.instance ? [data.instance] : []);
 
         if (data.external_tenant_id) {
-            const tenantInput = document.getElementById('api_session_whatsapp');
+            const tenantInput = document.getElementById('integreai_external_tenant_id');
             if (tenantInput) {
                 tenantInput.value = data.external_tenant_id;
+            }
+        }
+
+        if (data.session_name) {
+            const sessionInput = document.getElementById('api_session_whatsapp');
+            if (sessionInput) {
+                sessionInput.value = data.session_name;
+            }
+        } else if (data.instance?.name) {
+            const sessionInput = document.getElementById('api_session_whatsapp');
+            if (sessionInput) {
+                sessionInput.value = data.instance.name;
             }
         }
 

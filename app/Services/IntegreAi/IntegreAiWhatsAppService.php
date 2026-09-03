@@ -20,6 +20,16 @@ class IntegreAiWhatsAppService
         return 'cobranca:empresa:' . $company->id;
     }
 
+    public function resolveProvider(Company $company): string
+    {
+        return IntegreAiWhatsAppProvider::normalize($company->whatsapp_provider);
+    }
+
+    public function supportsQrCode(Company $company): bool
+    {
+        return IntegreAiWhatsAppProvider::supportsQrCode($this->resolveProvider($company));
+    }
+
     public function ensureProvisioned(Company $company): array
     {
         $externalTenantId = $this->externalTenantId($company);
@@ -63,32 +73,33 @@ class IntegreAiWhatsAppService
         }
 
         $tenantId = $this->externalTenantId($company);
-        $payload = [];
+        $provider = $this->resolveProvider($company);
 
-        $whatsappNumber = $this->companyWhatsappNumber($company);
-        if ($whatsappNumber) {
-            $payload['whatsapp_number'] = $whatsappNumber;
+        $autoLinkResponse = $this->client->post(
+            "/api/v1/tenants/{$tenantId}/whatsapp",
+            $this->buildAutoLinkPayload($company)
+        );
+
+        if ($autoLinkResponse->successful()) {
+            return $this->finalizeConnect($company, $this->unwrapData($this->client->decode($autoLinkResponse)), $provider);
         }
 
-        $response = $this->client->post("/api/v1/tenants/{$tenantId}/whatsapp", $payload);
-        $body = $this->client->decode($response);
+        $createResponse = $this->client->post(
+            "/api/v1/tenants/{$tenantId}/whatsapp",
+            $this->buildCreateInstancePayload($company, $provider)
+        );
+        $createBody = $this->client->decode($createResponse);
 
-        if (! $response->successful()) {
+        if (! $createResponse->successful()) {
             return [
                 'success' => false,
-                'message' => $this->client->errorMessage($response, 'Erro ao conectar WhatsApp na IntegreAI'),
-                'data' => $body,
+                'message' => $this->client->errorMessage($createResponse, 'Erro ao conectar WhatsApp na IntegreAI'),
+                'provider' => $provider,
+                'data' => $createBody,
             ];
         }
 
-        $status = $this->syncStatus($company);
-
-        return [
-            'success' => true,
-            'message' => 'WhatsApp vinculado com sucesso',
-            'status' => $status['status'] ?? 'connecting',
-            'data' => $this->unwrapData($body),
-        ];
+        return $this->finalizeConnect($company, $this->unwrapData($createBody), $provider);
     }
 
     public function getStatus(Company $company): array
@@ -105,7 +116,10 @@ class IntegreAiWhatsAppService
             return $provision;
         }
 
-        return $this->syncStatus($company);
+        $status = $this->syncStatus($company);
+        $status['provider'] = $this->resolveProvider($company);
+
+        return $status;
     }
 
     public function getQrCode(Company $company): array
@@ -114,6 +128,13 @@ class IntegreAiWhatsAppService
             return [
                 'success' => false,
                 'message' => 'IntegreAI não configurada no servidor',
+            ];
+        }
+
+        if (! $this->supportsQrCode($company)) {
+            return [
+                'success' => false,
+                'message' => 'QR Code disponível apenas para o provedor EVOGO. No YCloud, a instância é configurada no painel IntegreAI (WhatsApp Oficial).',
             ];
         }
 
@@ -244,6 +265,62 @@ class IntegreAiWhatsAppService
             'message' => 'Enviado',
             'response' => $body,
         ];
+    }
+
+    protected function finalizeConnect(Company $company, array $data, string $provider): array
+    {
+        $status = $this->syncStatus($company);
+
+        $message = match ($provider) {
+            IntegreAiWhatsAppProvider::YCLOUD => 'WhatsApp YCloud vinculado. Confirme a instância no painel IntegreAI se ainda não estiver ativa.',
+            default => $status['status'] === 'open'
+                ? 'WhatsApp EVOGO conectado com sucesso!'
+                : 'WhatsApp EVOGO vinculado. Use "Obter QR Code" para parear o aparelho.',
+        };
+
+        return [
+            'success' => true,
+            'message' => $message,
+            'status' => $status['status'] ?? 'connecting',
+            'provider' => $provider,
+            'supports_qrcode' => IntegreAiWhatsAppProvider::supportsQrCode($provider),
+            'data' => $data,
+        ];
+    }
+
+    protected function buildAutoLinkPayload(Company $company): array
+    {
+        $payload = [];
+
+        $whatsappNumber = $this->companyWhatsappNumber($company);
+        if ($whatsappNumber) {
+            $payload['whatsapp_number'] = $whatsappNumber;
+        }
+
+        return $payload;
+    }
+
+    protected function buildCreateInstancePayload(Company $company, string $provider): array
+    {
+        $payload = [
+            'link_existing' => false,
+            'provider' => $provider,
+            'instance' => $this->instanceSlug($company),
+        ];
+
+        $whatsappNumber = $this->companyWhatsappNumber($company);
+        if ($whatsappNumber) {
+            $payload['whatsapp_number'] = $whatsappNumber;
+        }
+
+        return $payload;
+    }
+
+    protected function instanceSlug(Company $company): string
+    {
+        $base = 'cobranca-empresa-' . $company->id;
+
+        return substr(preg_replace('/[^a-z0-9\-]/', '', strtolower($base)) ?? $base, 0, 60);
     }
 
     protected function syncStatus(Company $company): array

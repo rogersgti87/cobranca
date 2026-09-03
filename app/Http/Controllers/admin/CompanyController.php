@@ -321,6 +321,7 @@ class CompanyController extends Controller
             // WhatsApp (IntegreAI — tenant externo)
             'api_session_whatsapp' => 'nullable|string',
             'api_status_whatsapp' => 'nullable|string',
+            'whatsapp_provider' => 'nullable|in:evogo,ycloud',
             'typebot_id' => 'nullable|string',
             'typebot_enable' => 'nullable|in:s,n',
         ]);
@@ -362,6 +363,7 @@ class CompanyController extends Controller
             return response()->json([
                 'success' => true,
                 'status' => $result['status'],
+                'provider' => $result['provider'] ?? $whatsApp->resolveProvider($company),
                 'message' => $result['message'],
             ]);
         } catch (\Exception $e) {
@@ -387,6 +389,8 @@ class CompanyController extends Controller
             return response()->json([
                 'success' => $result['success'],
                 'status' => $result['status'] ?? $company->fresh()->api_status_whatsapp,
+                'provider' => $result['provider'] ?? $whatsApp->resolveProvider($company),
+                'supports_qrcode' => $result['supports_qrcode'] ?? $whatsApp->supportsQrCode($company),
                 'message' => $result['message'],
             ], $result['success'] ? 200 : 500);
         } catch (\Exception $e) {

@@ -200,6 +200,9 @@
 
                 {{-- Card WhatsApp --}}
                 <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                    @php
+                        $whatsappProvider = $company->whatsapp_provider ?: config('services.integreai.whatsapp_provider', 'evogo');
+                    @endphp
                     <div class="integration-card {{ $company->api_status_whatsapp === 'open' ? 'configured' : '' }}" data-toggle="modal" data-target="#modalWhatsApp">
                         <div class="integration-icon">
                             <i class="fab fa-whatsapp"></i>
@@ -207,9 +210,9 @@
                         <div class="integration-title">WhatsApp</div>
                         <div class="integration-status {{ $company->api_status_whatsapp === 'open' ? 'configured' : '' }}">
                             @if($company->api_status_whatsapp === 'open')
-                                ✓ Conectado
+                                ✓ Conectado ({{ strtoupper($whatsappProvider) }})
                             @elseif($company->api_session_whatsapp)
-                                ⚠ Configurado
+                                ⚠ Configurado ({{ strtoupper($whatsappProvider) }})
                             @else
                                 Não configurado
                             @endif
@@ -537,16 +540,33 @@
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">
+                    @php
+                        $whatsappProvider = old('whatsapp_provider', $company->whatsapp_provider ?: config('services.integreai.whatsapp_provider', 'evogo'));
+                    @endphp
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle"></i> <strong>IntegreAI API:</strong> {{ config('services.integreai.url', 'Não configurado') }}
                         <br><small class="text-muted">A chave <code>ik_live_*</code> fica no <code>.env</code> do servidor (<code>INTEGREAI_API_KEY</code>).</small>
                     </div>
                     <div class="row">
-                        <div class="col-md-12">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="whatsapp_provider"><i class="fas fa-server text-primary"></i> Provedor WhatsApp</label>
+                                <select class="form-control" id="whatsapp_provider" name="whatsapp_provider">
+                                    <option value="evogo" {{ $whatsappProvider === 'evogo' ? 'selected' : '' }}>EVOGO — QR Code / sessão</option>
+                                    <option value="ycloud" {{ $whatsappProvider === 'ycloud' ? 'selected' : '' }}>YCloud — WhatsApp Oficial</option>
+                                </select>
+                                <small class="text-muted" id="whatsapp-provider-help">
+                                    {{ $whatsappProvider === 'ycloud'
+                                        ? 'Instância oficial via YCloud. Configure no painel IntegreAI (BYOC). Sem QR Code aqui.'
+                                        : 'Conexão por QR Code via EVOGO. Use "Obter QR Code" após conectar.' }}
+                                </small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label for="api_session_whatsapp"><i class="fas fa-fingerprint text-primary"></i> ID externo do tenant</label>
                                 <input type="text" class="form-control" id="api_session_whatsapp" name="api_session_whatsapp" value="{{ old('api_session_whatsapp', $company->api_session_whatsapp ?? 'cobranca:empresa:' . $company->id) }}" placeholder="cobranca:empresa:{{ $company->id }}" readonly>
-                                <small class="text-muted">Gerado automaticamente na primeira conexão. Vincula esta empresa ao tenant IntegreAI.</small>
+                                <small class="text-muted">Gerado automaticamente na primeira conexão.</small>
                             </div>
                         </div>
                         <div class="col-md-12">
@@ -577,7 +597,7 @@
                                 <button type="button" class="btn btn-info" id="btnCheckStatus">
                                     <i class="fas fa-sync-alt"></i> Verificar Status
                                 </button>
-                                <button type="button" class="btn btn-success" id="btnGetQrCode">
+                                <button type="button" class="btn btn-success" id="btnGetQrCode" {{ $whatsappProvider === 'ycloud' ? 'style=display:none;' : '' }}>
                                     <i class="fas fa-qrcode"></i> Obter QR Code
                                 </button>
                                 <button type="button" class="btn btn-danger" id="btnDisconnect">
@@ -610,6 +630,27 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const companyId = {{ $company->id }};
+    const providerSelect = document.getElementById('whatsapp_provider');
+    const providerHelp = document.getElementById('whatsapp-provider-help');
+    const btnGetQrCode = document.getElementById('btnGetQrCode');
+
+    function updateProviderUi() {
+        const provider = providerSelect ? providerSelect.value : 'evogo';
+        const isEvogo = provider === 'evogo';
+
+        if (providerHelp) {
+            providerHelp.textContent = isEvogo
+                ? 'Conexão por QR Code via EVOGO. Use "Obter QR Code" após conectar.'
+                : 'Instância oficial via YCloud. Configure no painel IntegreAI (BYOC). Sem QR Code aqui.';
+        }
+
+        if (btnGetQrCode) {
+            btnGetQrCode.style.display = isEvogo ? '' : 'none';
+        }
+    }
+
+    providerSelect?.addEventListener('change', updateProviderUi);
+    updateProviderUi();
     
     // Função para traduzir status
     function translateStatus(status) {

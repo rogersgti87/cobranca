@@ -49,6 +49,7 @@ class Company extends Model
         'api_session_whatsapp',
         'api_token_whatsapp',
         'api_status_whatsapp',
+        'whatsapp_provider',
         'day_generate_invoice',
         'send_generate_invoice',
         'typebot_id',

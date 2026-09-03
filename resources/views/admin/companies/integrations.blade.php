@@ -594,6 +594,13 @@
                                 <div id="whatsapp-lookup-status" class="mt-2" style="display: none;"></div>
                             </div>
                         </div>
+                        <div class="col-md-12" id="instances-picker" style="display: none;">
+                            <div class="form-group">
+                                <label for="integreai_instance_select"><i class="fas fa-list text-primary"></i> Instância do CRM IntegreAI</label>
+                                <select class="form-control" id="integreai_instance_select"></select>
+                                <small class="text-muted" id="instances-help">Selecione a instância encontrada no CRM e clique em Conectar.</small>
+                            </div>
+                        </div>
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="api_status_whatsapp"><i class="fas fa-signal text-primary"></i> Status da Conexão</label>
@@ -650,12 +657,16 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const companyId = {{ $company->id }};
+    const csrfToken = @json(csrf_token());
     const providerSelect = document.getElementById('whatsapp_provider');
     const providerHelp = document.getElementById('whatsapp-provider-help');
     const btnGetQrCode = document.getElementById('btnGetQrCode');
     const whatsappLocal = document.getElementById('whatsapp_local');
     const whatsappFull = document.getElementById('whatsapp_full');
     const instanceIdInput = document.getElementById('integreai_instance_id');
+    const instanceSelect = document.getElementById('integreai_instance_select');
+    const instancesPicker = document.getElementById('instances-picker');
+    const instancesHelp = document.getElementById('instances-help');
     const lookupStatus = document.getElementById('whatsapp-lookup-status');
     let lookupTimer = null;
     let lookupInFlight = false;
@@ -697,6 +708,83 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    function apiHeaders() {
+        return {
+            'X-CSRF-TOKEN': csrfToken,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        };
+    }
+
+    function renderInstances(instances, selectedId) {
+        if (!instanceSelect || !instancesPicker) {
+            return;
+        }
+
+        const list = instances || [];
+
+        if (list.length === 0) {
+            instancesPicker.style.display = 'none';
+            instanceSelect.innerHTML = '';
+            return;
+        }
+
+        instanceSelect.innerHTML = '';
+        list.forEach(function (instance) {
+            const option = document.createElement('option');
+            option.value = instance.id || '';
+            option.textContent = instance.label || instance.name || ('Instância #' + instance.id);
+            instanceSelect.appendChild(option);
+        });
+
+        const preferredId = selectedId || instanceIdInput?.value || list[0]?.id;
+        if (preferredId) {
+            instanceSelect.value = String(preferredId);
+            if (instanceIdInput) {
+                instanceIdInput.value = String(preferredId);
+            }
+        }
+
+        instancesPicker.style.display = '';
+        if (instancesHelp) {
+            instancesHelp.textContent = list.length === 1
+                ? 'Instância localizada no CRM. Clique em Conectar para confirmar o vínculo.'
+                : 'Selecione a instância encontrada no CRM e clique em Conectar.';
+        }
+    }
+
+    instanceSelect?.addEventListener('change', function () {
+        if (instanceIdInput) {
+            instanceIdInput.value = this.value;
+        }
+    });
+
+    function handleWhatsappApiResult(data) {
+        const instances = data.instances || (data.instance ? [data.instance] : []);
+
+        if (data.instance?.id && instanceIdInput) {
+            instanceIdInput.value = data.instance.id;
+        }
+
+        renderInstances(instances, data.instance?.id);
+
+        if (data.success && (data.found || data.instance)) {
+            const label = data.instance?.label || data.instance?.whatsapp_number_formatted || getFullWhatsapp();
+            setLookupStatus('<i class="fas fa-check-circle"></i> <strong>Encontrado no CRM:</strong> ' + label, 'success');
+        } else if (data.success && !data.found && instances.length === 0) {
+            setLookupStatus('<i class="fas fa-exclamation-triangle"></i> Número não encontrado no CRM. Use "Criar nova instância" ou cadastre no painel IntegreAI.', 'warning');
+        } else if (!data.success && instances.length > 0) {
+            setLookupStatus('<i class="fas fa-info-circle"></i> ' + (data.message || 'Selecione a instância abaixo e clique em Conectar.'), 'warning');
+        } else if (!data.success) {
+            setLookupStatus('<i class="fas fa-times-circle"></i> ' + (data.message || 'Erro na verificação'), 'danger');
+        }
+
+        if (data.status) {
+            updateStatusDisplay(data.status);
+            document.getElementById('api_status_whatsapp').value = data.status;
+        }
+    }
+
     function setLookupStatus(html, type) {
         if (!lookupStatus) {
             return;
@@ -731,35 +819,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
         return fetch(`/admin/companies/${companyId}/whatsapp/lookup`, {
             method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
+            headers: apiHeaders(),
             body: JSON.stringify({
                 whatsapp: full,
                 auto_connect: !!autoConnect
             })
         })
-            .then(response => response.json().then(data => ({ ok: response.ok, data })))
-            .then(({ ok, data }) => {
-                if (data.instance?.id && instanceIdInput) {
-                    instanceIdInput.value = data.instance.id;
-                }
-
-                if (data.success && data.found) {
-                    const label = data.instance?.label || data.instance?.whatsapp_number_formatted || full;
-                    setLookupStatus('<i class="fas fa-check-circle"></i> <strong>Encontrado no CRM:</strong> ' + label, 'success');
-                } else if (data.success && !data.found) {
-                    setLookupStatus('<i class="fas fa-exclamation-triangle"></i> Número não encontrado no CRM. Use "Criar nova instância" ou cadastre no painel IntegreAI.', 'warning');
-                } else {
-                    setLookupStatus('<i class="fas fa-times-circle"></i> ' + (data.message || 'Erro na verificação'), 'danger');
-                }
-
-                if (data.status) {
-                    updateStatusDisplay(data.status);
-                    document.getElementById('api_status_whatsapp').value = data.status;
-                }
+            .then(function (response) {
+                return response.json()
+                    .catch(function () {
+                        return { success: false, message: 'Resposta inválida do servidor (HTTP ' + response.status + ').' };
+                    })
+                    .then(function (data) {
+                        return { ok: response.ok, data: data };
+                    });
+            })
+            .then(function ({ data }) {
+                handleWhatsappApiResult(data);
 
                 if (autoConnect && data.message) {
                     showMessage(data.message, data.success ? 'success' : 'danger');
@@ -788,11 +864,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         return fetch(`/admin/companies/${companyId}/whatsapp/connect`, {
             method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
+            headers: apiHeaders(),
             body: JSON.stringify({
                 whatsapp: full,
                 integreai_instance_id: instanceId || null,
@@ -883,19 +955,13 @@ document.addEventListener('DOMContentLoaded', function() {
         this.disabled = true;
         this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando...';
 
-        lookupWhatsapp(true)
-            .then(function () {
-                return connectWhatsapp(false);
-            })
+        connectWhatsapp(false)
             .then(data => {
                 if (!data) {
                     return;
                 }
+                handleWhatsappApiResult(data);
                 showMessage(data.message, data.success ? 'success' : 'danger');
-                if (data.success && data.status) {
-                    updateStatusDisplay(data.status);
-                    document.getElementById('api_status_whatsapp').value = data.status;
-                }
             })
             .catch(error => {
                 showMessage('Erro ao conectar: ' + error.message, 'danger');
@@ -989,10 +1055,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         fetch(`/admin/companies/${companyId}/whatsapp/disconnect`, {
             method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                'Accept': 'application/json'
-            }
+            headers: apiHeaders(),
         })
             .then(response => response.json())
             .then(data => {

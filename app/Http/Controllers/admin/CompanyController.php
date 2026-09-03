@@ -408,6 +408,7 @@ class CompanyController extends Controller
                 'supports_qrcode' => $result['supports_qrcode'] ?? $whatsApp->supportsQrCode($company),
                 'message' => $result['message'] ?? '',
                 'instance' => $result['instance'] ?? null,
+                'instances' => $result['instances'] ?? [],
                 'whatsapp' => $result['whatsapp'] ?? normalizeBrazilWhatsapp($data['whatsapp']),
             ], ($result['success'] ?? false) ? 200 : 422);
         } catch (\Exception $e) {
@@ -478,6 +479,8 @@ class CompanyController extends Controller
                 'provider' => $result['provider'] ?? $whatsApp->resolveProvider($company),
                 'supports_qrcode' => $result['supports_qrcode'] ?? $whatsApp->supportsQrCode($company),
                 'message' => $result['message'],
+                'instances' => $result['instances'] ?? [],
+                'instance' => $result['instance'] ?? null,
             ], $result['success'] ? 200 : 500);
         } catch (\Exception $e) {
             return response()->json([
@@ -552,7 +555,7 @@ class CompanyController extends Controller
 
     protected function whatsappValidationRule(): \Closure
     {
-        return function (string $attribute, mixed $value, \Closure $fail): void {
+        return function ($attribute, $value, $fail): void {
             if ($value === null || $value === '') {
                 return;
             }

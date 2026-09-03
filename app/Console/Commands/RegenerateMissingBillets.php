@@ -120,6 +120,16 @@ class RegenerateMissingBillets extends Command
             ];
         }
 
+        if ($gw === 'Asaas') {
+            $result = Invoice::refreshAsaasBilletDigitable($invoice->id);
+
+            return [
+                'success'   => $result['success'] ?? false,
+                'completed' => $result['success'] ?? false,
+                'message'   => $result['message'] ?? 'Erro desconhecido',
+            ];
+        }
+
         return [
             'success'   => false,
             'completed' => false,

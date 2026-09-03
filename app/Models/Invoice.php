@@ -1601,6 +1601,71 @@ class Invoice extends Model
 
 
 
+            /**
+             * Extrai a linha digitável (47 dígitos) da resposta do Asaas.
+             * A API retorna identificationField (linha digitável) e barCode (44 dígitos) — não confundir.
+             */
+            public static function extractAsaasIdentificationField(array $payload): ?string
+            {
+                $line = $payload['identificationField']
+                    ?? $payload['identification_field']
+                    ?? null;
+
+                if (empty($line)) {
+                    return null;
+                }
+
+                return preg_replace('/\D/', '', (string) $line) ?: null;
+            }
+
+            /**
+             * Reconsulta a linha digitável no Asaas para faturas já criadas no gateway.
+             */
+            public static function refreshAsaasBilletDigitable(int $invoiceId): array
+            {
+                $invoice = Invoice::with('company')->find($invoiceId);
+
+                if (! $invoice || $invoice->gateway_payment !== 'Asaas' || empty($invoice->transaction_id)) {
+                    return ['success' => false, 'message' => 'Fatura Asaas inválida ou sem transaction_id'];
+                }
+
+                $company = $invoice->company;
+
+                if ($company->environment_asaas == 'Teste') {
+                    $url = $company->asaas_url_test;
+                    $token = $company->at_asaas_test;
+                } else {
+                    $url = $company->asaas_url_prod;
+                    $token = $company->at_asaas_prod;
+                }
+
+                $response = Http::withHeaders([
+                    'accept' => 'application/json',
+                    'content-type' => 'application/json',
+                    'access_token' => $token,
+                    'User-Agent' => 'CobrancaSegura/1.0 (Laravel API)',
+                ])->get($url . 'v3/payments/' . $invoice->transaction_id . '/identificationField');
+
+                if (! $response->successful()) {
+                    $error = $response->json();
+
+                    return [
+                        'success' => false,
+                        'message' => $error['errors'][0]['description'] ?? 'Erro ao consultar linha digitável no Asaas',
+                    ];
+                }
+
+                $digitable = self::extractAsaasIdentificationField($response->json());
+
+                if (empty($digitable)) {
+                    return ['success' => false, 'message' => 'Linha digitável não retornada pelo Asaas'];
+                }
+
+                $invoice->update(['billet_digitable' => $digitable]);
+
+                return ['success' => true, 'message' => 'Linha digitável atualizada', 'digitable' => $digitable];
+            }
+
             public static function generateBilletAsaas($invoice_id){
 
                 $invoice = Invoice::with(['customerService.customer', 'company'])->find($invoice_id);
@@ -1705,7 +1770,11 @@ class Invoice extends Model
 
                   if ($get_digitable->successful()) {
                     $result_get_digitable = $get_digitable->json();
-                    $billet_digitable = $result_get_digitable['barCode'];
+                    $billet_digitable = self::extractAsaasIdentificationField($result_get_digitable);
+
+                    if (empty($billet_digitable)) {
+                        return ['status' => 'reject', 'message' => 'Linha digitável não retornada pelo Asaas.'];
+                    }
 
                   } else{
                     $result_error_digitable = $get_digitable->json();

@@ -165,9 +165,11 @@ class IntegreAiWhatsAppService
         }
 
         $provider = $this->resolveProvider($company);
-        $tenantData = $provision['data'] ?? [];
+        $tenantData = $this->refreshTenantData($company, $provision['data'] ?? []);
 
         if (! $createNew && $this->isTenantWhatsappLinked($tenantData, $company)) {
+            $this->applyTenantWhatsappData($company, $tenantData);
+
             return $this->finalizeConnect($company, $tenantData, $provider);
         }
 
@@ -192,10 +194,25 @@ class IntegreAiWhatsAppService
 
             if ($linkResponse->status() === 405 && ! $createNew) {
                 $reprovision = $this->ensureProvisioned($company->fresh());
-                $tenantData = $reprovision['data'] ?? [];
+                $tenantData = $this->refreshTenantData($company, $reprovision['data'] ?? []);
 
                 if ($reprovision['success'] && $this->isTenantWhatsappLinked($tenantData, $company)) {
+                    $this->applyTenantWhatsappData($company, $tenantData);
+
                     return $this->finalizeConnect($company, $tenantData, $provider);
+                }
+            }
+
+            if (! $linkResponse->successful() && ! $createNew && $company->integreai_instance_id) {
+                $retryPayload = ['instance_id' => (int) $company->integreai_instance_id];
+                $retryResponse = $this->client->post("/api/v1/tenants/{$tenantId}/whatsapp", $retryPayload);
+                $retryBody = $this->client->decode($retryResponse);
+
+                if ($retryResponse->successful()) {
+                    $data = $this->unwrapData($retryBody);
+                    $this->applyTenantWhatsappData($company, $data);
+
+                    return $this->finalizeConnect($company, $data, $provider);
                 }
             }
         }
@@ -256,8 +273,22 @@ class IntegreAiWhatsAppService
             return array_merge($provision, ['found' => false, 'whatsapp' => $normalized]);
         }
 
+        $tenantData = $this->refreshTenantData($company, $provision['data'] ?? []);
         $instances = $this->findInstancesByNumber($company, $normalized);
-        $found = $instances !== [];
+        $found = $instances !== [] || $this->isTenantWhatsappLinked($tenantData, $company);
+
+        if ($autoConnect && $this->isTenantWhatsappLinked($tenantData, $company)) {
+            $this->applyTenantWhatsappData($company, $tenantData);
+            $provider = $this->resolveProvider($company);
+
+            return array_merge($this->finalizeConnect($company, $tenantData, $provider), [
+                'found' => true,
+                'instances' => $instances,
+                'instance' => $instances[0] ?? $this->instanceFromTenantData($tenantData),
+                'whatsapp' => $normalized,
+                'external_tenant_id' => $this->externalTenantId($company->fresh()),
+            ]);
+        }
 
         if ($autoConnect) {
             $connect = $this->connect($company, $instances[0]['id'] ?? null);
@@ -647,16 +678,14 @@ class IntegreAiWhatsAppService
     protected function buildAutoLinkPayload(Company $company): array
     {
         $payload = [];
-        $whatsappNumber = $this->companyWhatsappNumber($company);
-
-        if ($whatsappNumber) {
-            $payload['whatsapp_number'] = $whatsappNumber;
-
-            return $payload;
-        }
 
         if ($company->integreai_instance_id) {
             $payload['instance_id'] = (int) $company->integreai_instance_id;
+        }
+
+        $whatsappNumber = $this->companyWhatsappNumber($company);
+        if ($whatsappNumber) {
+            $payload['whatsapp_number'] = $whatsappNumber;
         }
 
         return $payload;
@@ -677,11 +706,7 @@ class IntegreAiWhatsAppService
             ? $this->formatPhoneNumber((string) $tenantData['whatsapp']['phone_number'])
             : null;
 
-        if ($linkedPhone && $linkedPhone === $normalizedNumber) {
-            return;
-        }
-
-        if (! $linkedPhone && ! $company->integreai_instance_id) {
+        if (! $linkedPhone || $linkedPhone === $normalizedNumber) {
             return;
         }
 
@@ -691,6 +716,13 @@ class IntegreAiWhatsAppService
         }
 
         $this->clearLocalWhatsappLink($company);
+    }
+
+    protected function refreshTenantData(Company $company, array $fallback = []): array
+    {
+        $tenantData = $this->fetchTenantData($company);
+
+        return $tenantData !== [] ? $tenantData : $fallback;
     }
 
     protected function findInstancesByNumber(Company $company, string $normalizedNumber): array
@@ -957,22 +989,23 @@ class IntegreAiWhatsAppService
 
     protected function isTenantWhatsappLinked(array $data, Company $company): bool
     {
-        $whatsapp = $data['whatsapp'] ?? [];
-
-        if (! ($whatsapp['linked'] ?? false)) {
+        $instanceId = $data['instance_id'] ?? data_get($data, 'whatsapp.instance_id');
+        if (! $instanceId) {
             return false;
         }
 
         $expected = $this->companyWhatsappNumber($company);
-        $phone = isset($whatsapp['phone_number'])
-            ? $this->formatPhoneNumber((string) $whatsapp['phone_number'])
-            : null;
+        $phone = data_get($data, 'whatsapp.phone_number');
 
-        if ($expected && $phone && $phone !== $expected) {
-            return false;
+        if ($expected && $phone) {
+            return $this->formatPhoneNumber((string) $phone) === $expected;
         }
 
-        return ! empty($data['instance_id'] ?? $whatsapp['instance_id'] ?? null);
+        if ($expected && $company->integreai_instance_id) {
+            return (int) $instanceId === (int) $company->integreai_instance_id;
+        }
+
+        return true;
     }
 
     protected function applyTenantWhatsappData(Company $company, array $data): void

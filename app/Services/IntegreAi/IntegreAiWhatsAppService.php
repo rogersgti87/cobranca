@@ -528,40 +528,62 @@ class IntegreAiWhatsAppService
             'text' => $text,
         ];
 
-        $response = $this->client->post("/api/v1/tenants/{$tenantId}/messages", $payload);
-        if ($response->successful()) {
-            return $this->buildSendSuccessResponse($response);
-        }
+        $attempts = [
+            [
+                'path' => '/api/v1/tenants/messages',
+                'data' => array_merge($payload, ['external_tenant_id' => $tenantId]),
+                'timeout' => 60,
+            ],
+            [
+                'path' => "/api/v1/tenants/{$tenantId}/messages",
+                'data' => $payload,
+                'timeout' => 15,
+            ],
+        ];
 
-        if (in_array($response->status(), [404, 405], true)) {
-            $globalResponse = $this->client->post('/api/v1/tenants/messages', array_merge($payload, [
-                'external_tenant_id' => $tenantId,
-            ]));
+        $lastResponse = null;
+        $lastError = null;
 
-            if ($globalResponse->successful()) {
-                return $this->buildSendSuccessResponse($globalResponse);
+        foreach ($attempts as $attempt) {
+            $result = $this->client->tryPost($attempt['path'], $attempt['data'], null, $attempt['timeout']);
+            $response = $result['response'];
+
+            if ($result['error']) {
+                $lastError = $result['error'];
             }
 
-            $response = $globalResponse;
-        }
-
-        if (in_array($response->status(), [401, 404, 405], true)) {
-            $panelResult = $this->sendTextViaWhatsappApi($company, $tenantData, $formattedNumber, $text);
-            if ($panelResult['success']) {
-                return $panelResult;
+            if ($response === null) {
+                continue;
             }
 
+            $lastResponse = $response;
+
+            if ($response->successful()) {
+                return $this->buildSendSuccessResponse($response);
+            }
+
+            if (! in_array($response->status(), [404, 405, 408, 502, 503, 504], true)) {
+                break;
+            }
+        }
+
+        $panelResult = $this->sendTextViaWhatsappApi($company, $tenantData, $formattedNumber, $text);
+        if ($panelResult['success']) {
+            return $panelResult;
+        }
+
+        if ($lastResponse) {
             return [
                 'success' => false,
-                'message' => $panelResult['message'] ?? $this->client->errorMessage($response, 'Erro ao enviar mensagem'),
-                'response' => $panelResult['response'] ?? $this->client->decode($response),
+                'message' => $panelResult['message'] ?? $this->client->errorMessage($lastResponse, 'Erro ao enviar mensagem'),
+                'response' => $panelResult['response'] ?? $this->client->decode($lastResponse),
             ];
         }
 
         return [
             'success' => false,
-            'message' => $this->client->errorMessage($response, 'Erro ao enviar mensagem'),
-            'response' => $this->client->decode($response),
+            'message' => $lastError ?? $panelResult['message'] ?? 'Erro ao enviar mensagem',
+            'response' => $panelResult['response'] ?? [],
         ];
     }
 

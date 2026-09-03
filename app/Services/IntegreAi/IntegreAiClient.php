@@ -20,12 +20,31 @@ class IntegreAiClient
         return $this->send(fn (PendingRequest $request) => $request->get($this->url($path), $query));
     }
 
-    public function post(string $path, array $data = [], ?string $token = null): Response
+    public function post(string $path, array $data = [], ?string $token = null, ?int $timeout = null): Response
     {
         return $this->send(
             fn (PendingRequest $request) => $request->post($this->url($path), $data),
-            $token
+            $token,
+            $timeout
         );
+    }
+
+    /**
+     * @return array{response: Response|null, error: string|null}
+     */
+    public function tryPost(string $path, array $data = [], ?string $token = null, ?int $timeout = null): array
+    {
+        try {
+            return [
+                'response' => $this->post($path, $data, $token, $timeout),
+                'error' => null,
+            ];
+        } catch (RuntimeException $e) {
+            return [
+                'response' => null,
+                'error' => $e->getMessage(),
+            ];
+        }
     }
 
     public function delete(string $path, array $data = []): Response
@@ -59,7 +78,7 @@ class IntegreAiClient
             ?? $fallback;
     }
 
-    protected function request(?string $token = null): PendingRequest
+    protected function request(?string $token = null, ?int $timeout = null): PendingRequest
     {
         $apiKey = $token ?: $this->apiKey();
 
@@ -72,7 +91,7 @@ class IntegreAiClient
             'Accept' => 'application/json',
             'Content-Type' => 'application/json',
             'X-Correlation-Id' => (string) str()->uuid(),
-        ])->timeout(30);
+        ])->timeout($timeout ?? 30);
     }
 
     protected function baseUrl(): string
@@ -96,10 +115,10 @@ class IntegreAiClient
         return $this->baseUrl() . '/' . ltrim($path, '/');
     }
 
-    protected function send(callable $callback, ?string $token = null): Response
+    protected function send(callable $callback, ?string $token = null, ?int $timeout = null): Response
     {
         try {
-            return $callback($this->request($token));
+            return $callback($this->request($token, $timeout));
         } catch (ConnectionException $e) {
             throw new RuntimeException($this->connectionErrorMessage($e), 0, $e);
         }
@@ -111,6 +130,10 @@ class IntegreAiClient
 
         if (str_contains($message, 'Could not resolve host')) {
             return 'Não foi possível resolver o host da API IntegreAI. Verifique INTEGREAI_API_URL no .env (use https://integreai.com.br).';
+        }
+
+        if (str_contains($message, 'timed out') || str_contains($message, 'Operation timed out')) {
+            return 'Tempo esgotado ao aguardar resposta da API IntegreAI. Tente novamente em instantes.';
         }
 
         return 'Falha de conexão com a API IntegreAI: ' . $message;

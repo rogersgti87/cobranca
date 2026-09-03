@@ -366,11 +366,25 @@ class InvoiceNotification extends Model
 
         if($data['notification_whatsapp'] == 's' && $invoice->status != 'Erro'){
 
-        $sendResult = $whatsAppService->sendText(
-            $company,
-            '55' . $data['customer_whatsapp'],
-            $data['text_whatsapp']
-        );
+        try {
+            $sendResult = $whatsAppService->sendText(
+                $company,
+                '55' . $data['customer_whatsapp'],
+                $data['text_whatsapp']
+            );
+        } catch (\Throwable $e) {
+            \Log::error('Falha ao enviar notificação WhatsApp', [
+                'invoice_id' => $invoice->id,
+                'company_id' => $company->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            $sendResult = [
+                'success' => false,
+                'message' => 'Falha ao enviar WhatsApp: ' . $e->getMessage(),
+                'response' => [],
+            ];
+        }
 
         if ($sendResult['success']) {
             $status = 'Success';

@@ -161,6 +161,40 @@ function formatPhone($numero){
     return $novo;
 }
 
+/**
+ * Normaliza WhatsApp brasileiro: 55 + DDD (2) + número (8 ou 9 dígitos).
+ */
+function normalizeBrazilWhatsapp(?string $value): ?string
+{
+    $digits = preg_replace('/\D/', '', (string) $value) ?? '';
+
+    if ($digits === '') {
+        return null;
+    }
+
+    if (! str_starts_with($digits, '55')) {
+        $digits = '55' . $digits;
+    }
+
+    if (! preg_match('/^55[1-9][0-9][0-9]{8,9}$/', $digits)) {
+        return null;
+    }
+
+    return $digits;
+}
+
+function isValidBrazilWhatsapp(?string $value): bool
+{
+    return normalizeBrazilWhatsapp($value) !== null;
+}
+
+function brazilWhatsappLocalPart(?string $value): string
+{
+    $normalized = normalizeBrazilWhatsapp($value);
+
+    return $normalized ? substr($normalized, 2) : preg_replace('/\D/', '', (string) $value);
+}
+
 
 function generateUniqueId($minLength = 26, $maxLength = 30) {
     $uniqueId = uniqid();

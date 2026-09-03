@@ -125,9 +125,22 @@
                                         @error('phone')<span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>@enderror
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <label for="whatsapp">WhatsApp</label>
-                                        <input type="text" class="form-control @error('whatsapp') is-invalid @enderror" name="whatsapp" id="whatsapp" value="{{ old('whatsapp', $company->whatsapp) }}" autocomplete="off">
-                                        @error('whatsapp')<span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>@enderror
+                                        <label for="whatsapp_local">WhatsApp</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text bg-success text-white font-weight-bold user-select-none">+55</span>
+                                            </div>
+                                            <input type="tel"
+                                                   class="form-control @error('whatsapp') is-invalid @enderror"
+                                                   id="whatsapp_local"
+                                                   value="{{ old('whatsapp_local', brazilWhatsappLocalPart(old('whatsapp', $company->whatsapp))) }}"
+                                                   placeholder="22988280129"
+                                                   maxlength="11"
+                                                   inputmode="numeric"
+                                                   autocomplete="tel-national">
+                                        </div>
+                                        <input type="hidden" name="whatsapp" id="whatsapp" value="{{ old('whatsapp', normalizeBrazilWhatsapp($company->whatsapp) ?? '') }}">
+                                        @error('whatsapp')<span class="invalid-feedback d-block" role="alert"><strong>{{ $message }}</strong></span>@enderror
                                     </div>
                                 </div>
                             </div>
@@ -214,5 +227,33 @@ document.getElementById('logo').addEventListener('change', function(e) {
         if (placeholder) placeholder.style.display = 'block';
     }
 });
+
+(function () {
+    const localInput = document.getElementById('whatsapp_local');
+    const hiddenInput = document.getElementById('whatsapp');
+
+    if (!localInput || !hiddenInput) {
+        return;
+    }
+
+    function syncWhatsapp() {
+        const local = localInput.value.replace(/\D/g, '').slice(0, 11);
+        localInput.value = local;
+        hiddenInput.value = local ? '55' + local : '';
+    }
+
+    localInput.addEventListener('input', syncWhatsapp);
+    localInput.addEventListener('paste', function (event) {
+        event.preventDefault();
+        let digits = (event.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '');
+        if (digits.startsWith('55')) {
+            digits = digits.slice(2);
+        }
+        localInput.value = digits.slice(0, 11);
+        syncWhatsapp();
+    });
+
+    syncWhatsapp();
+})();
 </script>
 @endsection

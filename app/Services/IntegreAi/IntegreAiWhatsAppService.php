@@ -65,7 +65,7 @@ class IntegreAiWhatsAppService
         ];
     }
 
-    public function connect(Company $company): array
+    public function connect(Company $company, ?int $instanceId = null, bool $createNew = false): array
     {
         $provision = $this->ensureProvisioned($company);
         if (! $provision['success']) {
@@ -74,6 +74,23 @@ class IntegreAiWhatsAppService
 
         $tenantId = $this->externalTenantId($company);
         $provider = $this->resolveProvider($company);
+        $selectedInstanceId = $instanceId ?: $company->integreai_instance_id;
+
+        if ($selectedInstanceId) {
+            $linkResponse = $this->client->post("/api/v1/tenants/{$tenantId}/whatsapp", [
+                'instance_id' => (int) $selectedInstanceId,
+            ]);
+
+            if ($linkResponse->successful()) {
+                $company->update(['integreai_instance_id' => (int) $selectedInstanceId]);
+
+                return $this->finalizeConnect(
+                    $company,
+                    $this->unwrapData($this->client->decode($linkResponse)),
+                    $provider
+                );
+            }
+        }
 
         $autoLinkResponse = $this->client->post(
             "/api/v1/tenants/{$tenantId}/whatsapp",
@@ -81,7 +98,19 @@ class IntegreAiWhatsAppService
         );
 
         if ($autoLinkResponse->successful()) {
-            return $this->finalizeConnect($company, $this->unwrapData($this->client->decode($autoLinkResponse)), $provider);
+            $data = $this->unwrapData($this->client->decode($autoLinkResponse));
+            $this->persistLinkedInstanceId($company, $data);
+
+            return $this->finalizeConnect($company, $data, $provider);
+        }
+
+        if (! $createNew) {
+            return [
+                'success' => false,
+                'message' => 'Não foi possível vincular automaticamente. Selecione uma instância existente do CRM IntegreAI na lista abaixo.',
+                'provider' => $provider,
+                'data' => $this->client->decode($autoLinkResponse),
+            ];
         }
 
         $createResponse = $this->client->post(
@@ -99,7 +128,119 @@ class IntegreAiWhatsAppService
             ];
         }
 
-        return $this->finalizeConnect($company, $this->unwrapData($createBody), $provider);
+        $data = $this->unwrapData($createBody);
+        $this->persistLinkedInstanceId($company, $data);
+
+        return $this->finalizeConnect($company, $data, $provider);
+    }
+
+    public function lookupByWhatsapp(Company $company, string $whatsapp, bool $autoConnect = false): array
+    {
+        $normalized = normalizeBrazilWhatsapp($whatsapp);
+
+        if (! $normalized) {
+            return [
+                'success' => false,
+                'found' => false,
+                'message' => 'Número inválido. Use +55, DDD (2 dígitos) e número com 8 ou 9 dígitos.',
+            ];
+        }
+
+        if (! $this->client->isConfigured()) {
+            return [
+                'success' => false,
+                'found' => false,
+                'message' => 'IntegreAI não configurada no servidor',
+            ];
+        }
+
+        $company->update(['whatsapp' => $normalized]);
+        $company->refresh();
+
+        $provision = $this->ensureProvisioned($company);
+        if (! $provision['success']) {
+            return array_merge($provision, ['found' => false, 'whatsapp' => $normalized]);
+        }
+
+        $instances = $this->findInstancesByNumber($normalized);
+
+        $found = $instances !== [];
+
+        if ($autoConnect) {
+            if ($found && ! empty($instances[0]['id'])) {
+                $connect = $this->connect($company, (int) $instances[0]['id']);
+
+                return array_merge($connect, [
+                    'found' => true,
+                    'instance' => $instances[0],
+                    'whatsapp' => $normalized,
+                ]);
+            }
+
+            $connect = $this->connect($company);
+
+            return array_merge($connect, [
+                'found' => $found,
+                'instance' => $instances[0] ?? null,
+                'whatsapp' => $normalized,
+            ]);
+        }
+
+        return [
+            'success' => true,
+            'found' => $found,
+            'message' => $found
+                ? 'Instância encontrada no CRM IntegreAI.'
+                : 'Nenhuma instância encontrada no CRM para este número.',
+            'instances' => $instances,
+            'instance' => $instances[0] ?? null,
+            'whatsapp' => $normalized,
+        ];
+    }
+
+    public function listAvailableInstances(Company $company): array
+    {
+        if (! $this->client->isConfigured()) {
+            return [
+                'success' => false,
+                'message' => 'IntegreAI não configurada no servidor',
+                'instances' => [],
+            ];
+        }
+
+        $this->ensureProvisioned($company);
+
+        $instances = [];
+        $number = $this->companyWhatsappNumber($company);
+        $crmCompanyId = $company->integreai_company_id ?: config('services.integreai.crm_company_id');
+
+        $querySets = array_filter([
+            $number ? ['whatsapp_number' => $number] : null,
+            $number ? ['search' => $number] : null,
+            $crmCompanyId ? ['company_id' => $crmCompanyId] : null,
+            [],
+        ]);
+
+        foreach ($querySets as $query) {
+            $instances = $this->fetchInstancesFromApi($query);
+            if ($instances !== []) {
+                break;
+            }
+        }
+
+        if ($instances === []) {
+            $instances = $this->fetchInstancesFromTenant($company);
+        }
+
+        $instances = $this->deduplicateInstances($instances);
+
+        return [
+            'success' => true,
+            'message' => $instances === []
+                ? 'Nenhuma instância encontrada no CRM. Cadastre o WhatsApp da empresa ou informe o company_id do CRM.'
+                : count($instances) . ' instância(s) encontrada(s) no CRM IntegreAI',
+            'instances' => $instances,
+        ];
     }
 
     public function getStatus(Company $company): array
@@ -292,12 +433,166 @@ class IntegreAiWhatsAppService
     {
         $payload = [];
 
+        if ($company->integreai_instance_id) {
+            $payload['instance_id'] = (int) $company->integreai_instance_id;
+        }
+
         $whatsappNumber = $this->companyWhatsappNumber($company);
         if ($whatsappNumber) {
             $payload['whatsapp_number'] = $whatsappNumber;
         }
 
         return $payload;
+    }
+
+    protected function findInstancesByNumber(string $normalizedNumber): array
+    {
+        $instances = $this->fetchInstancesFromApi(['whatsapp_number' => $normalizedNumber]);
+
+        if ($instances === []) {
+            $instances = $this->fetchInstancesFromApi(['search' => $normalizedNumber]);
+        }
+
+        $instances = $this->deduplicateInstances($instances);
+
+        return array_values(array_filter(
+            $instances,
+            fn (array $instance) => ($instance['whatsapp_number'] ?? '') === $normalizedNumber
+        ));
+    }
+
+    protected function fetchInstancesFromApi(array $query): array
+    {
+        $paths = [
+            '/api/v1/instances',
+            '/api/whatsapp/instances',
+        ];
+
+        foreach ($paths as $path) {
+            $response = $this->client->get($path, $query);
+            if (! $response->successful()) {
+                continue;
+            }
+
+            $instances = $this->normalizeInstancesList($this->client->decode($response));
+            if ($instances !== []) {
+                return $instances;
+            }
+        }
+
+        return [];
+    }
+
+    protected function fetchInstancesFromTenant(Company $company): array
+    {
+        $tenantId = $this->externalTenantId($company);
+        $instances = [];
+
+        foreach (["/api/v1/tenants/{$tenantId}/whatsapp", "/api/v1/tenants/{$tenantId}"] as $path) {
+            $response = $this->client->get($path);
+            if (! $response->successful()) {
+                continue;
+            }
+
+            $data = $this->unwrapData($this->client->decode($response));
+            $candidate = $this->normalizeInstanceRow($data['instance'] ?? $data);
+
+            if ($candidate) {
+                $instances[] = $candidate;
+            }
+        }
+
+        return $instances;
+    }
+
+    protected function normalizeInstancesList(array $body): array
+    {
+        $rows = $body['data'] ?? $body['instances'] ?? $body;
+
+        if (! is_array($rows)) {
+            return [];
+        }
+
+        if ($this->isAssoc($rows) && isset($rows['id'])) {
+            $rows = [$rows];
+        }
+
+        $instances = [];
+        foreach ($rows as $row) {
+            if (! is_array($row)) {
+                continue;
+            }
+
+            $normalized = $this->normalizeInstanceRow($row);
+            if ($normalized) {
+                $instances[] = $normalized;
+            }
+        }
+
+        return $instances;
+    }
+
+    protected function normalizeInstanceRow(array $row): ?array
+    {
+        $id = $row['id'] ?? $row['instance_id'] ?? null;
+        $number = $row['whatsapp_number'] ?? $row['number'] ?? $row['phone'] ?? null;
+        $name = $row['name'] ?? $row['instance'] ?? $row['label'] ?? null;
+        $provider = $row['provider'] ?? null;
+        $status = $row['status'] ?? $row['state'] ?? $row['connection_state'] ?? null;
+
+        if (! $id && ! $number && ! $name) {
+            return null;
+        }
+
+        $digits = $number ? $this->formatPhoneNumber((string) $number) : null;
+
+        return [
+            'id' => $id ? (int) $id : null,
+            'name' => (string) ($name ?: 'Instância'),
+            'whatsapp_number' => $digits,
+            'whatsapp_number_formatted' => $digits ? formatPhone($digits) : null,
+            'provider' => $provider ? strtolower((string) $provider) : null,
+            'status' => $status ? strtolower((string) $status) : null,
+            'label' => trim(sprintf(
+                '%s%s%s%s',
+                $name ?: 'Instância',
+                $digits ? ' — ' . formatPhone($digits) : '',
+                $provider ? ' [' . strtoupper((string) $provider) . ']' : '',
+                $status ? ' (' . $status . ')' : ''
+            )),
+        ];
+    }
+
+    protected function deduplicateInstances(array $instances): array
+    {
+        $unique = [];
+
+        foreach ($instances as $instance) {
+            $key = ($instance['id'] ?? 'no-id') . '|' . ($instance['whatsapp_number'] ?? $instance['name']);
+            $unique[$key] = $instance;
+        }
+
+        return array_values($unique);
+    }
+
+    protected function persistLinkedInstanceId(Company $company, array $data): void
+    {
+        $instanceId = data_get($data, 'instance_id')
+            ?? data_get($data, 'instance.id')
+            ?? data_get($data, 'id');
+
+        if ($instanceId) {
+            $company->update(['integreai_instance_id' => (int) $instanceId]);
+        }
+    }
+
+    protected function isAssoc(array $array): bool
+    {
+        if ($array === []) {
+            return false;
+        }
+
+        return array_keys($array) !== range(0, count($array) - 1);
     }
 
     protected function buildCreateInstancePayload(Company $company, string $provider): array
@@ -407,9 +702,7 @@ class IntegreAiWhatsAppService
 
     protected function companyWhatsappNumber(Company $company): ?string
     {
-        $number = removeEspeciais($company->whatsapp ?? '');
-
-        return $number ? $this->formatPhoneNumber($number) : null;
+        return normalizeBrazilWhatsapp($company->whatsapp ?? '');
     }
 
     protected function formatPhoneNumber(string $number): string

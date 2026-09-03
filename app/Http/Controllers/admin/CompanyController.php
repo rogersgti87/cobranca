@@ -57,7 +57,7 @@ class CompanyController extends Controller
             'document' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
             'phone' => 'nullable|string|max:20',
-            'whatsapp' => 'nullable|string|max:20',
+            'whatsapp' => ['nullable', 'string', $this->whatsappValidationRule()],
             'cep' => 'nullable|string|max:10',
             'address' => 'nullable|string|max:255',
             'number' => 'nullable|string|max:10',
@@ -71,7 +71,8 @@ class CompanyController extends Controller
             'send_generate_invoice' => 'nullable|in:Não,Sim',
         ]);
 
-        // Upload logo se fornecido
+        $data = $this->normalizeWhatsappInput($data);
+
         if ($request->hasFile('logo')) {
             $data['logo'] = $request->file('logo')->store('companies/logos', 'public');
         }
@@ -137,7 +138,7 @@ class CompanyController extends Controller
             'document' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
             'phone' => 'nullable|string|max:20',
-            'whatsapp' => 'nullable|string|max:20',
+            'whatsapp' => ['nullable', 'string', $this->whatsappValidationRule()],
             'cep' => 'nullable|string|max:10',
             'address' => 'nullable|string|max:255',
             'number' => 'nullable|string|max:10',
@@ -164,6 +165,8 @@ class CompanyController extends Controller
             'api_session_whatsapp' => 'nullable|string',
             'api_status_whatsapp' => 'nullable|string',
         ]);
+
+        $data = $this->normalizeWhatsappInput($data);
 
         // Upload logo se fornecido
         if ($request->hasFile('logo')) {
@@ -319,14 +322,16 @@ class CompanyController extends Controller
             'at_asaas_test' => 'nullable|string',
             
             // WhatsApp (IntegreAI — tenant externo)
+            'whatsapp' => ['nullable', 'string', $this->whatsappValidationRule()],
             'api_session_whatsapp' => 'nullable|string',
             'api_status_whatsapp' => 'nullable|string',
             'whatsapp_provider' => 'nullable|in:evogo,ycloud',
+            'integreai_instance_id' => 'nullable|integer|min:1',
             'typebot_id' => 'nullable|string',
             'typebot_enable' => 'nullable|in:s,n',
         ]);
-        
-        // Upload certificados Inter se fornecidos
+
+        $data = $this->normalizeWhatsappInput($data);
         if ($request->hasFile('inter_crt_file')) {
             $data['inter_crt_file'] = $request->file('inter_crt_file')->store('companies/certificates', 'local');
         }
@@ -375,16 +380,97 @@ class CompanyController extends Controller
     }
 
     /**
-     * Provision and link WhatsApp tenant (IntegreAI API M2M)
+     * Lookup WhatsApp in IntegreAI CRM by number and optionally connect
      */
-    public function whatsappConnect(Company $company, IntegreAiWhatsAppService $whatsApp)
+    public function whatsappLookup(Request $request, Company $company, IntegreAiWhatsAppService $whatsApp)
+    {
+        if (!$company->isAdminOrOwner(Auth::id())) {
+            abort(403, 'Você não tem permissão para gerenciar integrações');
+        }
+
+        $data = $request->validate([
+            'whatsapp' => ['required', 'string', $this->whatsappValidationRule()],
+            'auto_connect' => 'nullable|boolean',
+        ]);
+
+        try {
+            $result = $whatsApp->lookupByWhatsapp(
+                $company,
+                $data['whatsapp'],
+                (bool) ($data['auto_connect'] ?? false)
+            );
+
+            return response()->json([
+                'success' => $result['success'] ?? false,
+                'found' => $result['found'] ?? false,
+                'status' => $result['status'] ?? $company->fresh()->api_status_whatsapp,
+                'provider' => $result['provider'] ?? $whatsApp->resolveProvider($company),
+                'supports_qrcode' => $result['supports_qrcode'] ?? $whatsApp->supportsQrCode($company),
+                'message' => $result['message'] ?? '',
+                'instance' => $result['instance'] ?? null,
+                'whatsapp' => $result['whatsapp'] ?? normalizeBrazilWhatsapp($data['whatsapp']),
+            ], ($result['success'] ?? false) ? 200 : 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao conectar com a API: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * List WhatsApp instances available in IntegreAI CRM (M2M)
+     */
+    public function whatsappInstances(Company $company, IntegreAiWhatsAppService $whatsApp)
     {
         if (!$company->isAdminOrOwner(Auth::id())) {
             abort(403, 'Você não tem permissão para gerenciar integrações');
         }
 
         try {
-            $result = $whatsApp->connect($company);
+            $result = $whatsApp->listAvailableInstances($company);
+
+            return response()->json($result, ($result['success'] ?? false) ? 200 : 500);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao buscar instâncias: ' . $e->getMessage(),
+                'instances' => [],
+            ], 500);
+        }
+    }
+
+    /**
+     * Provision and link WhatsApp tenant (IntegreAI API M2M)
+     */
+    public function whatsappConnect(Request $request, Company $company, IntegreAiWhatsAppService $whatsApp)
+    {
+        if (!$company->isAdminOrOwner(Auth::id())) {
+            abort(403, 'Você não tem permissão para gerenciar integrações');
+        }
+
+        $data = $request->validate([
+            'whatsapp' => ['nullable', 'string', $this->whatsappValidationRule()],
+            'integreai_instance_id' => 'nullable|integer|min:1',
+            'create_new' => 'nullable|boolean',
+        ]);
+
+        if (! empty($data['whatsapp'])) {
+            $company->update(['whatsapp' => normalizeBrazilWhatsapp($data['whatsapp'])]);
+            $company->refresh();
+        }
+
+        if (! empty($data['integreai_instance_id'])) {
+            $company->update(['integreai_instance_id' => $data['integreai_instance_id']]);
+            $company->refresh();
+        }
+
+        try {
+            $result = $whatsApp->connect(
+                $company,
+                $data['integreai_instance_id'] ?? null,
+                (bool) ($data['create_new'] ?? false)
+            );
 
             return response()->json([
                 'success' => $result['success'],
@@ -462,5 +548,27 @@ class CompanyController extends Controller
                 'message' => 'Erro ao conectar com a API: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    protected function whatsappValidationRule(): \Closure
+    {
+        return function (string $attribute, mixed $value, \Closure $fail): void {
+            if ($value === null || $value === '') {
+                return;
+            }
+
+            if (! isValidBrazilWhatsapp((string) $value)) {
+                $fail('WhatsApp inválido. Use +55, DDD (2 dígitos) e número com 8 ou 9 dígitos.');
+            }
+        };
+    }
+
+    protected function normalizeWhatsappInput(array $data): array
+    {
+        if (! empty($data['whatsapp'])) {
+            $data['whatsapp'] = normalizeBrazilWhatsapp($data['whatsapp']);
+        }
+
+        return $data;
     }
 }

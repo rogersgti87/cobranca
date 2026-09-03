@@ -76,6 +76,8 @@ Route::group(['prefix' => 'admin','middleware' => ['auth']], function(){
     Route::post('companies/{company}/switch',[CompanyController::class,'switch'])->name('companies.switch');
     Route::get('companies/{company}/integrations',[CompanyController::class,'integrations'])->name('companies.integrations');
     Route::put('companies/{company}/integrations',[CompanyController::class,'updateIntegrations'])->name('companies.integrations.update');
+    Route::get('companies/{company}/whatsapp/instances',[CompanyController::class,'whatsappInstances'])->name('companies.whatsapp.instances');
+    Route::post('companies/{company}/whatsapp/lookup',[CompanyController::class,'whatsappLookup'])->name('companies.whatsapp.lookup');
     Route::get('companies/{company}/whatsapp/status',[CompanyController::class,'whatsappStatus'])->name('companies.whatsapp.status');
     Route::post('companies/{company}/whatsapp/connect',[CompanyController::class,'whatsappConnect'])->name('companies.whatsapp.connect');
     Route::get('companies/{company}/whatsapp/qrcode',[CompanyController::class,'whatsappQrCode'])->name('companies.whatsapp.qrcode');

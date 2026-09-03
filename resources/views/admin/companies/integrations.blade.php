@@ -542,6 +542,8 @@
                 <div class="modal-body">
                     @php
                         $whatsappProvider = old('whatsapp_provider', $company->whatsapp_provider ?: config('services.integreai.whatsapp_provider', 'evogo'));
+                        $whatsappLocal = brazilWhatsappLocalPart(old('whatsapp', $company->whatsapp));
+                        $whatsappFull = normalizeBrazilWhatsapp(old('whatsapp', $company->whatsapp)) ?? '';
                     @endphp
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle"></i> <strong>IntegreAI API:</strong> {{ config('services.integreai.url', 'Não configurado') }}
@@ -570,11 +572,26 @@
                             </div>
                         </div>
                         <div class="col-md-12">
-                            <div class="alert alert-light border mb-3">
-                                <i class="fab fa-whatsapp text-success"></i>
-                                <strong>Número da empresa:</strong>
-                                {{ $company->whatsapp ? formatPhone(removeEspeciais($company->whatsapp)) : 'Não cadastrado' }}
-                                <br><small class="text-muted">Cadastre o WhatsApp nos dados da empresa para vincular à instância existente no CRM IntegreAI.</small>
+                            <div class="form-group">
+                                <label for="whatsapp_local"><i class="fab fa-whatsapp text-success"></i> Número WhatsApp</label>
+                                <div class="input-group input-group-lg">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-success text-white font-weight-bold user-select-none">+55</span>
+                                    </div>
+                                    <input type="tel"
+                                           class="form-control @error('whatsapp') is-invalid @enderror"
+                                           id="whatsapp_local"
+                                           value="{{ old('whatsapp_local', $whatsappLocal) }}"
+                                           placeholder="22988280129"
+                                           maxlength="11"
+                                           inputmode="numeric"
+                                           autocomplete="tel-national">
+                                </div>
+                                <input type="hidden" name="whatsapp" id="whatsapp_full" value="{{ old('whatsapp', $whatsappFull) }}">
+                                <input type="hidden" name="integreai_instance_id" id="integreai_instance_id" value="{{ old('integreai_instance_id', $company->integreai_instance_id) }}">
+                                <small class="text-muted">DDD (2 dígitos) + número (8 ou 9 dígitos). Ao completar, verificamos no CRM e integramos automaticamente.</small>
+                                @error('whatsapp')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                                <div id="whatsapp-lookup-status" class="mt-2" style="display: none;"></div>
                             </div>
                         </div>
                         <div class="col-md-12">
@@ -599,6 +616,9 @@
                                 </button>
                                 <button type="button" class="btn btn-success" id="btnGetQrCode" {{ $whatsappProvider === 'ycloud' ? 'style=display:none;' : '' }}>
                                     <i class="fas fa-qrcode"></i> Obter QR Code
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" id="btnCreateNew">
+                                    <i class="fas fa-plus"></i> Criar nova instância
                                 </button>
                                 <button type="button" class="btn btn-danger" id="btnDisconnect">
                                     <i class="fas fa-unlink"></i> Desconectar
@@ -633,6 +653,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const providerSelect = document.getElementById('whatsapp_provider');
     const providerHelp = document.getElementById('whatsapp-provider-help');
     const btnGetQrCode = document.getElementById('btnGetQrCode');
+    const whatsappLocal = document.getElementById('whatsapp_local');
+    const whatsappFull = document.getElementById('whatsapp_full');
+    const instanceIdInput = document.getElementById('integreai_instance_id');
+    const lookupStatus = document.getElementById('whatsapp-lookup-status');
+    let lookupTimer = null;
+    let lookupInFlight = false;
 
     function updateProviderUi() {
         const provider = providerSelect ? providerSelect.value : 'evogo';
@@ -649,8 +675,167 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    function getLocalWhatsappDigits() {
+        return (whatsappLocal?.value || '').replace(/\D/g, '').slice(0, 11);
+    }
+
+    function getFullWhatsapp() {
+        const local = getLocalWhatsappDigits();
+        return local ? '55' + local : '';
+    }
+
+    function isValidLocalWhatsapp(local) {
+        return /^[1-9][0-9][0-9]{8,9}$/.test(local);
+    }
+
+    function syncWhatsappHidden() {
+        if (whatsappLocal) {
+            whatsappLocal.value = getLocalWhatsappDigits();
+        }
+        if (whatsappFull) {
+            whatsappFull.value = getFullWhatsapp();
+        }
+    }
+
+    function setLookupStatus(html, type) {
+        if (!lookupStatus) {
+            return;
+        }
+
+        lookupStatus.className = 'mt-2 alert alert-' + (type || 'secondary');
+        lookupStatus.innerHTML = html;
+        lookupStatus.style.display = 'block';
+    }
+
+    function lookupWhatsapp(autoConnect) {
+        syncWhatsappHidden();
+
+        const local = getLocalWhatsappDigits();
+        const full = getFullWhatsapp();
+
+        if (!isValidLocalWhatsapp(local)) {
+            if (local.length > 0) {
+                setLookupStatus('<i class="fas fa-info-circle"></i> Digite DDD + número (10 ou 11 dígitos após +55).', 'light');
+            } else if (lookupStatus) {
+                lookupStatus.style.display = 'none';
+            }
+            return Promise.resolve();
+        }
+
+        if (lookupInFlight) {
+            return Promise.resolve();
+        }
+
+        lookupInFlight = true;
+        setLookupStatus('<i class="fas fa-spinner fa-spin"></i> Verificando no CRM IntegreAI...', 'info');
+
+        return fetch(`/admin/companies/${companyId}/whatsapp/lookup`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                whatsapp: full,
+                auto_connect: !!autoConnect
+            })
+        })
+            .then(response => response.json().then(data => ({ ok: response.ok, data })))
+            .then(({ ok, data }) => {
+                if (data.instance?.id && instanceIdInput) {
+                    instanceIdInput.value = data.instance.id;
+                }
+
+                if (data.success && data.found) {
+                    const label = data.instance?.label || data.instance?.whatsapp_number_formatted || full;
+                    setLookupStatus('<i class="fas fa-check-circle"></i> <strong>Encontrado no CRM:</strong> ' + label, 'success');
+                } else if (data.success && !data.found) {
+                    setLookupStatus('<i class="fas fa-exclamation-triangle"></i> Número não encontrado no CRM. Use "Criar nova instância" ou cadastre no painel IntegreAI.', 'warning');
+                } else {
+                    setLookupStatus('<i class="fas fa-times-circle"></i> ' + (data.message || 'Erro na verificação'), 'danger');
+                }
+
+                if (data.status) {
+                    updateStatusDisplay(data.status);
+                    document.getElementById('api_status_whatsapp').value = data.status;
+                }
+
+                if (autoConnect && data.message) {
+                    showMessage(data.message, data.success ? 'success' : 'danger');
+                }
+
+                return data;
+            })
+            .catch(function (error) {
+                setLookupStatus('<i class="fas fa-times-circle"></i> ' + error.message, 'danger');
+            })
+            .finally(function () {
+                lookupInFlight = false;
+            });
+    }
+
+    function connectWhatsapp(createNew) {
+        syncWhatsappHidden();
+
+        const full = getFullWhatsapp();
+        if (!isValidLocalWhatsapp(getLocalWhatsappDigits())) {
+            showMessage('Informe um WhatsApp válido (+55, DDD e número com 8 ou 9 dígitos).', 'danger');
+            return Promise.resolve({ success: false });
+        }
+
+        const instanceId = instanceIdInput ? instanceIdInput.value : '';
+
+        return fetch(`/admin/companies/${companyId}/whatsapp/connect`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                whatsapp: full,
+                integreai_instance_id: instanceId || null,
+                create_new: !!createNew
+            })
+        }).then(response => response.json());
+    }
+
     providerSelect?.addEventListener('change', updateProviderUi);
     updateProviderUi();
+    syncWhatsappHidden();
+
+    whatsappLocal?.addEventListener('input', function () {
+        this.value = this.value.replace(/\D/g, '').slice(0, 11);
+        syncWhatsappHidden();
+
+        clearTimeout(lookupTimer);
+
+        const local = getLocalWhatsappDigits();
+        if (local.length === 10 || local.length === 11) {
+            lookupTimer = setTimeout(function () {
+                lookupWhatsapp(true);
+            }, 600);
+        } else if (local.length > 0) {
+            setLookupStatus('<i class="fas fa-info-circle"></i> Continue digitando o número...', 'light');
+        } else if (lookupStatus) {
+            lookupStatus.style.display = 'none';
+        }
+    });
+
+    whatsappLocal?.addEventListener('paste', function (event) {
+        event.preventDefault();
+        const pasted = (event.clipboardData || window.clipboardData).getData('text') || '';
+        let digits = pasted.replace(/\D/g, '');
+
+        if (digits.startsWith('55')) {
+            digits = digits.slice(2);
+        }
+
+        this.value = digits.slice(0, 11);
+        syncWhatsappHidden();
+        this.dispatchEvent(new Event('input'));
+    });
     
     // Função para traduzir status
     function translateStatus(status) {
@@ -698,15 +883,14 @@ document.addEventListener('DOMContentLoaded', function() {
         this.disabled = true;
         this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Conectando...';
 
-        fetch(`/admin/companies/${companyId}/whatsapp/connect`, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                'Accept': 'application/json'
-            }
-        })
-            .then(response => response.json())
+        lookupWhatsapp(true)
+            .then(function () {
+                return connectWhatsapp(false);
+            })
             .then(data => {
+                if (!data) {
+                    return;
+                }
                 showMessage(data.message, data.success ? 'success' : 'danger');
                 if (data.success && data.status) {
                     updateStatusDisplay(data.status);
@@ -719,6 +903,30 @@ document.addEventListener('DOMContentLoaded', function() {
             .finally(() => {
                 this.disabled = false;
                 this.innerHTML = '<i class="fas fa-link"></i> Conectar';
+            });
+    });
+
+    document.getElementById('btnCreateNew')?.addEventListener('click', function() {
+        if (!confirm('Criar uma nova instância no provedor selecionado? Prefira reutilizar uma instância existente do CRM.')) {
+            return;
+        }
+
+        this.disabled = true;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando...';
+
+        connectWhatsapp(true)
+            .then(data => {
+                showMessage(data.message, data.success ? 'success' : 'danger');
+                if (data.success) {
+                    lookupWhatsapp(false);
+                }
+            })
+            .catch(error => {
+                showMessage('Erro ao criar instância: ' + error.message, 'danger');
+            })
+            .finally(() => {
+                this.disabled = false;
+                this.innerHTML = '<i class="fas fa-plus"></i> Criar nova instância';
             });
     });
 

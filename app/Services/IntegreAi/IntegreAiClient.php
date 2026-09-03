@@ -2,6 +2,7 @@
 
 namespace App\Services\IntegreAi;
 
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
@@ -16,23 +17,23 @@ class IntegreAiClient
 
     public function get(string $path, array $query = []): Response
     {
-        return $this->request()->get($this->url($path), $query);
+        return $this->send(fn (PendingRequest $request) => $request->get($this->url($path), $query));
     }
 
     public function post(string $path, array $data = []): Response
     {
-        return $this->request()->post($this->url($path), $data);
+        return $this->send(fn (PendingRequest $request) => $request->post($this->url($path), $data));
     }
 
     public function delete(string $path, array $data = []): Response
     {
-        $request = $this->request();
+        return $this->send(function (PendingRequest $request) use ($path, $data) {
+            if ($data !== []) {
+                return $request->withBody(json_encode($data), 'application/json')->delete($this->url($path));
+            }
 
-        if ($data !== []) {
-            return $request->withBody(json_encode($data), 'application/json')->delete($this->url($path));
-        }
-
-        return $request->delete($this->url($path));
+            return $request->delete($this->url($path));
+        });
     }
 
     public function decode(Response $response): array
@@ -67,7 +68,13 @@ class IntegreAiClient
 
     protected function baseUrl(): string
     {
-        return rtrim((string) config('services.integreai.url'), '/');
+        $url = rtrim((string) config('services.integreai.url'), '/');
+
+        if (str_ends_with($url, '/api')) {
+            $url = substr($url, 0, -4);
+        }
+
+        return $url;
     }
 
     protected function apiKey(): ?string
@@ -78,5 +85,25 @@ class IntegreAiClient
     protected function url(string $path): string
     {
         return $this->baseUrl() . '/' . ltrim($path, '/');
+    }
+
+    protected function send(callable $callback): Response
+    {
+        try {
+            return $callback($this->request());
+        } catch (ConnectionException $e) {
+            throw new RuntimeException($this->connectionErrorMessage($e), 0, $e);
+        }
+    }
+
+    protected function connectionErrorMessage(ConnectionException $e): string
+    {
+        $message = $e->getMessage();
+
+        if (str_contains($message, 'Could not resolve host')) {
+            return 'Não foi possível resolver o host da API IntegreAI. Verifique INTEGREAI_API_URL no .env (use https://integreai.com.br).';
+        }
+
+        return 'Falha de conexão com a API IntegreAI: ' . $message;
     }
 }

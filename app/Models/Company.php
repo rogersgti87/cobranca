@@ -50,6 +50,8 @@ class Company extends Model
         'api_token_whatsapp',
         'api_status_whatsapp',
         'whatsapp_provider',
+        'integreai_company_id',
+        'integreai_instance_id',
         'day_generate_invoice',
         'send_generate_invoice',
         'typebot_id',

@@ -384,17 +384,121 @@ class IntegreAiWhatsAppService
         }
 
         $tenantId = $this->externalTenantId($company);
-        $response = $this->client->post("/api/v1/tenants/{$tenantId}/messages", [
-            'number' => $this->formatPhoneNumber($number),
+        $tenantData = $provision['data'] ?? $this->fetchTenantData($company);
+        $formattedNumber = $this->formatPhoneNumber($number);
+        $payload = [
+            'number' => $formattedNumber,
             'text' => $text,
-        ]);
+        ];
+
+        $response = $this->client->post("/api/v1/tenants/{$tenantId}/messages", $payload);
+        if ($response->successful()) {
+            return $this->buildSendSuccessResponse($response);
+        }
+
+        if (in_array($response->status(), [404, 405], true)) {
+            $globalResponse = $this->client->post('/api/v1/tenants/messages', array_merge($payload, [
+                'external_tenant_id' => $tenantId,
+            ]));
+
+            if ($globalResponse->successful()) {
+                return $this->buildSendSuccessResponse($globalResponse);
+            }
+
+            $response = $globalResponse;
+        }
+
+        if (in_array($response->status(), [401, 404, 405], true)) {
+            $panelResult = $this->sendTextViaWhatsappApi($company, $tenantData, $formattedNumber, $text);
+            if ($panelResult['success']) {
+                return $panelResult;
+            }
+
+            return [
+                'success' => false,
+                'message' => $panelResult['message'] ?? $this->client->errorMessage($response, 'Erro ao enviar mensagem'),
+                'response' => $panelResult['response'] ?? $this->client->decode($response),
+            ];
+        }
+
+        return [
+            'success' => false,
+            'message' => $this->client->errorMessage($response, 'Erro ao enviar mensagem'),
+            'response' => $this->client->decode($response),
+        ];
+    }
+
+    protected function buildSendSuccessResponse(\Illuminate\Http\Client\Response $response): array
+    {
+        return [
+            'success' => true,
+            'message' => 'Enviado',
+            'response' => $this->client->decode($response),
+        ];
+    }
+
+    protected function fetchTenantData(Company $company): array
+    {
+        $tenantId = $this->externalTenantId($company);
+        $response = $this->client->get("/api/v1/tenants/{$tenantId}");
+
+        if (! $response->successful()) {
+            return [];
+        }
+
+        return $this->unwrapData($this->client->decode($response));
+    }
+
+    protected function sendTextViaWhatsappApi(
+        Company $company,
+        array $tenantData,
+        string $formattedNumber,
+        string $text
+    ): array {
+        $token = $this->panelToken($company);
+
+        if (! $token) {
+            return [
+                'success' => false,
+                'message' => 'Configure INTEGREAI_PANEL_TOKEN no .env com o token do painel IntegreAI (Painel → API) para enviar mensagens.',
+                'response' => [],
+            ];
+        }
+
+        $instance = (string) (
+            data_get($tenantData, 'whatsapp.instance_name')
+            ?? data_get($tenantData, 'whatsapp.instance')
+            ?? data_get($tenantData, 'instance_id')
+            ?? $company->integreai_instance_id
+            ?? ''
+        );
+
+        if ($instance === '') {
+            return [
+                'success' => false,
+                'message' => 'Instância WhatsApp não identificada para envio. Reconecte o WhatsApp nas integrações.',
+                'response' => [],
+            ];
+        }
+
+        $provider = data_get($tenantData, 'whatsapp.provider')
+            ?? $this->resolveProvider($company);
+
+        $response = $this->client->post('/api/whatsapp/messages/text', [
+            'provider' => $provider,
+            'instance' => $instance,
+            'number' => $formattedNumber,
+            'text' => $text,
+        ], $token);
 
         $body = $this->client->decode($response);
 
         if (! $response->successful()) {
             return [
                 'success' => false,
-                'message' => $this->client->errorMessage($response, 'Erro ao enviar mensagem'),
+                'message' => $response->status() === 401
+                    ? 'Token do painel IntegreAI inválido. Atualize INTEGREAI_PANEL_TOKEN no .env.'
+                    : $this->client->errorMessage($response, 'Erro ao enviar mensagem pelo painel IntegreAI'),
                 'response' => $body,
             ];
         }
@@ -404,6 +508,13 @@ class IntegreAiWhatsAppService
             'message' => 'Enviado',
             'response' => $body,
         ];
+    }
+
+    protected function panelToken(Company $company): ?string
+    {
+        $token = config('services.integreai.panel_token') ?: $company->api_token_whatsapp;
+
+        return is_string($token) && $token !== '' ? $token : null;
     }
 
     protected function finalizeConnect(Company $company, array $data, string $provider): array

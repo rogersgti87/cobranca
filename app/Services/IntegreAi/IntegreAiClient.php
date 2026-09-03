@@ -20,9 +20,12 @@ class IntegreAiClient
         return $this->send(fn (PendingRequest $request) => $request->get($this->url($path), $query));
     }
 
-    public function post(string $path, array $data = []): Response
+    public function post(string $path, array $data = [], ?string $token = null): Response
     {
-        return $this->send(fn (PendingRequest $request) => $request->post($this->url($path), $data));
+        return $this->send(
+            fn (PendingRequest $request) => $request->post($this->url($path), $data),
+            $token
+        );
     }
 
     public function delete(string $path, array $data = []): Response
@@ -45,6 +48,10 @@ class IntegreAiClient
 
     public function errorMessage(Response $response, string $fallback = 'Erro na API IntegreAI'): string
     {
+        if ($response->status() === 405) {
+            return 'Envio de mensagens via API M2M não está habilitado no servidor IntegreAI. Configure INTEGREAI_PANEL_TOKEN no .env ou ative o endpoint POST /api/v1/tenants/{id}/messages.';
+        }
+
         $json = $this->decode($response);
 
         return $json['error']['message']
@@ -52,14 +59,16 @@ class IntegreAiClient
             ?? $fallback;
     }
 
-    protected function request(): PendingRequest
+    protected function request(?string $token = null): PendingRequest
     {
-        if (! $this->isConfigured()) {
+        $apiKey = $token ?: $this->apiKey();
+
+        if (! $apiKey || ! $this->baseUrl()) {
             throw new RuntimeException('IntegreAI não configurada. Defina INTEGREAI_API_URL e INTEGREAI_API_KEY no .env.');
         }
 
         return Http::withHeaders([
-            'Authorization' => 'Bearer ' . $this->apiKey(),
+            'Authorization' => 'Bearer ' . $apiKey,
             'Accept' => 'application/json',
             'Content-Type' => 'application/json',
             'X-Correlation-Id' => (string) str()->uuid(),
@@ -87,10 +96,10 @@ class IntegreAiClient
         return $this->baseUrl() . '/' . ltrim($path, '/');
     }
 
-    protected function send(callable $callback): Response
+    protected function send(callable $callback, ?string $token = null): Response
     {
         try {
-            return $callback($this->request());
+            return $callback($this->request($token));
         } catch (ConnectionException $e) {
             throw new RuntimeException($this->connectionErrorMessage($e), 0, $e);
         }

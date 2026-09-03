@@ -34,6 +34,7 @@ return [
     'integreai' => [
         'url' => env('INTEGREAI_API_URL', 'https://integreai.com.br'),
         'api_key' => env('INTEGREAI_API_KEY'),
+        'panel_token' => env('INTEGREAI_PANEL_TOKEN'),
         'whatsapp_provider' => env('INTEGREAI_WHATSAPP_PROVIDER', 'evogo'),
         'crm_company_id' => env('INTEGREAI_CRM_COMPANY_ID'),
     ],

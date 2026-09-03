@@ -195,6 +195,44 @@ function brazilWhatsappLocalPart(?string $value): string
     return $normalized ? substr($normalized, 2) : preg_replace('/\D/', '', (string) $value);
 }
 
+/**
+ * Extrai texto legível do JSON gravado em invoice_notifications.message (WhatsApp).
+ */
+function invoiceNotificationWhatsappPreview(?string $json): ?string
+{
+    if ($json === null || trim($json) === '') {
+        return null;
+    }
+
+    $decoded = json_decode($json);
+
+    if (! $decoded) {
+        return $json;
+    }
+
+    if (isset($decoded->text) && is_string($decoded->text) && $decoded->text !== '') {
+        return $decoded->text;
+    }
+
+    if (isset($decoded->message->extendedTextMessage->text)) {
+        return (string) $decoded->message->extendedTextMessage->text;
+    }
+
+    if (isset($decoded->message->conversation)) {
+        return (string) $decoded->message->conversation;
+    }
+
+    if (isset($decoded->error->message) && is_string($decoded->error->message)) {
+        return $decoded->error->message;
+    }
+
+    if (isset($decoded->message) && is_string($decoded->message)) {
+        return $decoded->message;
+    }
+
+    return null;
+}
+
 
 function generateUniqueId($minLength = 26, $maxLength = 30) {
     $uniqueId = uniqid();

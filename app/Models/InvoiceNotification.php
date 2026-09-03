@@ -389,11 +389,14 @@ class InvoiceNotification extends Model
         if ($sendResult['success']) {
             $status = 'Success';
             $status_message = 'Enviado';
-            $whats_message = $sendResult['response'];
+            $whats_message = [
+                'text' => $data['text_whatsapp'],
+                'api' => $sendResult['response'] ?? [],
+            ];
         } else {
             $status = 'Error';
             $status_message = $sendResult['message'] ?? 'Erro ao enviar';
-            $whats_message = $sendResult['response'] ?? [];
+            $whats_message = $sendResult['response'] ?? ['message' => $status_message];
             \Log::info($sendResult);
         }
 

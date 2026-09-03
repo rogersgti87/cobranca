@@ -160,17 +160,21 @@
                             @endif
                         </td>
                         <td>@if($notification->type_send == 'whatsapp' && $notification->message != null)
+                            @php
+                                $whatsappPreview = invoiceNotificationWhatsappPreview($notification->message);
+                            @endphp
                             <div class="popup" id="popup-{{$notification->id}}">
                                 <div class="overflow">
-                                    @if($notification->status == "Success")
-                                        @if(property_exists(json_decode($notification->message)->message, 'extendedTextMessage'))
-                                                {!! str_replace("\n","<br>",json_decode($notification->message)->message->extendedTextMessage->text) !!}
-                                        @else
-                                            <span>Anexo não disponível para visualização!</span>
+                                    @if($notification->status == "Success" && $whatsappPreview)
+                                        {!! nl2br(e($whatsappPreview)) !!}
+                                    @elseif($notification->status == "Success")
+                                        <span>Anexo não disponível para visualização!</span>
+                                    @else
+                                        <span>Mensagem não foi enviada!</span>
+                                        @if($whatsappPreview)
+                                            <br><br><strong>Detalhe:</strong><br>{!! nl2br(e($whatsappPreview)) !!}
                                         @endif
-                                        @else
-                                            <span>Mensagem não foi enviada!</span>
-                                        @endif
+                                    @endif
                                 <br>
                                 <br>
                                 </div>

@@ -16,9 +16,11 @@ class IntegreAiWhatsAppService
         return 'cobranca:empresa:' . $company->id;
     }
 
-    public function externalTenantId(Company $company): string
+    public function externalTenantId(Company $company, array $tenantData = []): string
     {
-        return $this->defaultExternalTenantId($company);
+        $fromApi = trim((string) ($tenantData['external_tenant_id'] ?? ''));
+
+        return $fromApi !== '' ? $fromApi : $this->defaultExternalTenantId($company);
     }
 
     public function ensureProvisioned(Company $company): array
@@ -174,7 +176,7 @@ class IntegreAiWhatsAppService
             return $this->finalizeConnect($company, $tenantData, $provider);
         }
 
-        $tenantId = $this->externalTenantId($company);
+        $tenantId = $this->externalTenantId($company, $tenantData);
         $linkResponse = null;
         $linkBody = [];
 
@@ -290,18 +292,19 @@ class IntegreAiWhatsAppService
                 'instances' => $instances,
                 'instance' => $instances[0] ?? $this->instanceFromTenantData($tenantData),
                 'whatsapp' => $normalized,
-            ], $this->whatsappContextPayload($company));
+            ], $this->whatsappContextPayload($company, $tenantData));
         }
 
         if ($autoConnect) {
             $connect = $this->connect($company, $instances[0]['id'] ?? null);
+            $freshCompany = $company->fresh();
 
             return array_merge($connect, [
                 'found' => $found || ($connect['success'] ?? false),
                 'instances' => $instances,
                 'instance' => $instances[0] ?? null,
                 'whatsapp' => $normalized,
-            ], $this->whatsappContextPayload($company->fresh()));
+            ], $this->whatsappContextPayload($freshCompany, $connect['data'] ?? $tenantData));
         }
 
         return array_merge([
@@ -313,13 +316,13 @@ class IntegreAiWhatsAppService
             'instances' => $instances,
             'instance' => $instances[0] ?? null,
             'whatsapp' => $normalized,
-        ], $this->whatsappContextPayload($company));
+        ], $this->whatsappContextPayload($company, $tenantData));
     }
 
-    protected function whatsappContextPayload(Company $company): array
+    protected function whatsappContextPayload(Company $company, array $tenantData = []): array
     {
         return [
-            'external_tenant_id' => $this->externalTenantId($company),
+            'external_tenant_id' => $this->externalTenantId($company, $tenantData),
             'session_name' => $company->api_session_whatsapp,
             'integreai_instance_id' => $company->integreai_instance_id,
             'has_token' => ! empty($company->api_token_whatsapp),
@@ -336,7 +339,7 @@ class IntegreAiWhatsAppService
             ];
         }
 
-        $this->ensureProvisioned($company);
+        $provision = $this->ensureProvisioned($company);
 
         $instances = [];
         $number = $this->companyWhatsappNumber($company);
@@ -357,7 +360,7 @@ class IntegreAiWhatsAppService
         }
 
         if ($instances === []) {
-            $instances = $this->fetchInstancesFromTenant($company);
+            $instances = $this->fetchInstancesFromTenant($company, $provision['data'] ?? []);
         }
 
         $instances = $this->deduplicateInstances($instances);
@@ -385,8 +388,9 @@ class IntegreAiWhatsAppService
             return $provision;
         }
 
-        $status = $this->syncStatus($company);
+        $status = $this->syncStatus($company, $provision['data'] ?? []);
         $status['provider'] = $this->resolveProvider($company);
+        $status['external_tenant_id'] = $this->externalTenantId($company, $provision['data'] ?? []);
 
         return $status;
     }
@@ -412,7 +416,7 @@ class IntegreAiWhatsAppService
             return $provision;
         }
 
-        $tenantId = $this->externalTenantId($company);
+        $tenantId = $this->externalTenantId($company, $provision['data'] ?? []);
         $response = $this->client->get("/api/v1/tenants/{$tenantId}/whatsapp/qrcode");
         $body = $this->client->decode($response);
 
@@ -460,7 +464,12 @@ class IntegreAiWhatsAppService
             ];
         }
 
-        $tenantId = $this->externalTenantId($company);
+        $provision = $this->ensureProvisioned($company);
+        if (! $provision['success']) {
+            return $provision;
+        }
+
+        $tenantId = $this->externalTenantId($company, $provision['data'] ?? []);
         $payload = $disconnectProvider ? ['disconnect_provider' => true] : [];
 
         $response = $this->client->delete("/api/v1/tenants/{$tenantId}/whatsapp", $payload);
@@ -526,7 +535,7 @@ class IntegreAiWhatsAppService
             ];
         }
 
-        $status = $this->syncStatus($company);
+        $status = $this->syncStatus($company, $tenantData);
         if (($status['status'] ?? 'close') !== 'open') {
             return [
                 'success' => false,
@@ -663,7 +672,7 @@ class IntegreAiWhatsAppService
         }
 
         $company->refresh();
-        $tenantId = $this->defaultExternalTenantId($company);
+        $tenantId = $this->externalTenantId($company, $tenantData);
         $instance = $this->instanceFromTenantData($tenantData);
 
         return [
@@ -699,9 +708,9 @@ class IntegreAiWhatsAppService
         ];
     }
 
-    protected function fetchTenantData(Company $company): array
+    protected function fetchTenantData(Company $company, array $tenantData = []): array
     {
-        $tenantId = $this->externalTenantId($company);
+        $tenantId = $this->externalTenantId($company, $tenantData);
         $response = $this->client->get("/api/v1/tenants/{$tenantId}");
 
         if (! $response->successful()) {
@@ -789,7 +798,7 @@ class IntegreAiWhatsAppService
 
     protected function finalizeConnect(Company $company, array $data, string $provider): array
     {
-        $status = $this->syncStatus($company);
+        $status = $this->syncStatus($company, $data);
 
         $message = match ($provider) {
             IntegreAiWhatsAppProvider::YCLOUD => 'WhatsApp YCloud vinculado. Confirme a instância no painel IntegreAI se ainda não estiver ativa.',
@@ -836,7 +845,8 @@ class IntegreAiWhatsAppService
 
     protected function clearStaleInstanceLink(Company $company, string $normalizedNumber): void
     {
-        $tenantData = $this->fetchTenantData($company);
+        $provision = $this->ensureProvisioned($company);
+        $tenantData = $this->fetchTenantData($company, $provision['data'] ?? []);
         $linkedPhone = isset($tenantData['whatsapp']['phone_number'])
             ? $this->formatPhoneNumber((string) $tenantData['whatsapp']['phone_number'])
             : null;
@@ -846,7 +856,8 @@ class IntegreAiWhatsAppService
         }
 
         if ($company->integreai_instance_id || $this->companyWhatsappNumber($company)) {
-            $tenantId = $this->externalTenantId($company);
+            $provision = $this->ensureProvisioned($company);
+            $tenantId = $this->externalTenantId($company, $provision['data'] ?? $tenantData);
             $this->client->delete("/api/v1/tenants/{$tenantId}/whatsapp");
         }
 
@@ -855,7 +866,7 @@ class IntegreAiWhatsAppService
 
     protected function refreshTenantData(Company $company, array $fallback = []): array
     {
-        $tenantData = $this->fetchTenantData($company);
+        $tenantData = $this->fetchTenantData($company, $fallback);
 
         return $tenantData !== [] ? $tenantData : $fallback;
     }
@@ -873,7 +884,7 @@ class IntegreAiWhatsAppService
             }
         }
 
-        $tenantId = $this->externalTenantId($company);
+        $tenantId = $this->externalTenantId($company, $provision['data'] ?? []);
         $response = $this->client->get("/api/v1/tenants/{$tenantId}");
         if ($response->successful()) {
             $instance = $this->instanceFromTenantData($this->unwrapData($this->client->decode($response)));
@@ -918,9 +929,9 @@ class IntegreAiWhatsAppService
         return [];
     }
 
-    protected function fetchInstancesFromTenant(Company $company): array
+    protected function fetchInstancesFromTenant(Company $company, array $tenantData = []): array
     {
-        $tenantId = $this->externalTenantId($company);
+        $tenantId = $this->externalTenantId($company, $tenantData);
         $response = $this->client->get("/api/v1/tenants/{$tenantId}");
 
         if (! $response->successful()) {
@@ -1060,9 +1071,9 @@ class IntegreAiWhatsAppService
         return substr(preg_replace('/[^a-z0-9\-]/', '', strtolower($base)) ?? $base, 0, 60);
     }
 
-    protected function syncStatus(Company $company): array
+    protected function syncStatus(Company $company, array $tenantData = []): array
     {
-        $tenantId = $this->externalTenantId($company);
+        $tenantId = $this->externalTenantId($company, $tenantData);
         $response = $this->fetchStatusResponse($tenantId);
         $body = $this->client->decode($response);
 

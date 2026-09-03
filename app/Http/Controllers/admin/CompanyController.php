@@ -374,7 +374,7 @@ class CompanyController extends Controller
                 'status' => $result['status'],
                 'provider' => $result['provider'] ?? $whatsApp->resolveProvider($company),
                 'message' => $result['message'],
-                'external_tenant_id' => $whatsApp->externalTenantId($company),
+                'external_tenant_id' => $result['external_tenant_id'] ?? $whatsApp->externalTenantId($company),
                 'session_name' => $company->api_session_whatsapp,
                 'integreai_instance_id' => $company->integreai_instance_id,
             ]);

@@ -11,36 +11,45 @@ class IntegreAiWhatsAppService
         protected IntegreAiClient $client
     ) {}
 
-    public function externalTenantId(Company $company): string
+    public function defaultExternalTenantId(Company $company): string
     {
-        if (! empty($company->api_session_whatsapp)) {
-            return $company->api_session_whatsapp;
-        }
-
         return 'cobranca:empresa:' . $company->id;
     }
 
-    public function resolveProvider(Company $company): string
+    public function externalTenantId(Company $company): string
     {
-        return IntegreAiWhatsAppProvider::normalize($company->whatsapp_provider);
-    }
+        $stored = trim((string) ($company->api_session_whatsapp ?? ''));
+        $canonical = $this->defaultExternalTenantId($company);
 
-    public function supportsQrCode(Company $company): bool
-    {
-        return IntegreAiWhatsAppProvider::supportsQrCode($this->resolveProvider($company));
+        if ($stored !== '' && $this->isUsableExternalTenantId($company, $stored)) {
+            return $stored;
+        }
+
+        if ($this->client->isConfigured() && $this->tenantExistsRemotely($canonical)) {
+            return $canonical;
+        }
+
+        return $canonical;
     }
 
     public function ensureProvisioned(Company $company): array
     {
-        $externalTenantId = $this->externalTenantId($company);
+        $this->purgeStaleExternalTenantId($company);
+
+        $provisionTenantId = $this->defaultExternalTenantId($company);
         $payload = [
-            'external_tenant_id' => $externalTenantId,
+            'external_tenant_id' => $provisionTenantId,
             'name' => $company->trade_name ?: $company->name,
         ];
 
         $whatsappNumber = $this->companyWhatsappNumber($company);
         if ($whatsappNumber) {
             $payload['whatsapp_number'] = $whatsappNumber;
+        }
+
+        $crmCompanyId = $company->integreai_company_id ?: config('services.integreai.crm_company_id');
+        if ($crmCompanyId) {
+            $payload['company_id'] = (int) $crmCompanyId;
         }
 
         $response = $this->client->post('/api/v1/tenants/provision', $payload);
@@ -54,11 +63,8 @@ class IntegreAiWhatsAppService
             ];
         }
 
-        if ($company->api_session_whatsapp !== $externalTenantId) {
-            $company->update(['api_session_whatsapp' => $externalTenantId]);
-        }
-
         $data = $this->unwrapData($body);
+        $this->syncExternalTenantId($company, $data);
         $this->applyTenantWhatsappData($company, $data);
 
         return [
@@ -66,6 +72,75 @@ class IntegreAiWhatsAppService
             'message' => 'Tenant provisionado com sucesso',
             'data' => $data,
         ];
+    }
+
+    public function resolveProvider(Company $company): string
+    {
+        return IntegreAiWhatsAppProvider::normalize($company->whatsapp_provider);
+    }
+
+    public function supportsQrCode(Company $company): bool
+    {
+        return IntegreAiWhatsAppProvider::supportsQrCode($this->resolveProvider($company));
+    }
+
+    protected array $remoteTenantCache = [];
+
+    protected function syncExternalTenantId(Company $company, array $tenantData): void
+    {
+        $resolved = trim((string) ($tenantData['external_tenant_id'] ?? ''));
+
+        if ($resolved === '' || $company->api_session_whatsapp === $resolved) {
+            return;
+        }
+
+        $company->update(['api_session_whatsapp' => $resolved]);
+        $company->refresh();
+        $this->remoteTenantCache[$resolved] = true;
+    }
+
+    protected function purgeStaleExternalTenantId(Company $company): void
+    {
+        $stored = trim((string) ($company->api_session_whatsapp ?? ''));
+        $canonical = $this->defaultExternalTenantId($company);
+
+        if ($stored === '' || $stored === $canonical || ! $this->client->isConfigured()) {
+            return;
+        }
+
+        if (! $this->tenantExistsRemotely($stored)) {
+            $company->update(['api_session_whatsapp' => null]);
+            $company->refresh();
+            unset($this->remoteTenantCache[$stored]);
+        }
+    }
+
+    protected function isUsableExternalTenantId(Company $company, string $stored): bool
+    {
+        $canonical = $this->defaultExternalTenantId($company);
+
+        if ($stored === $canonical) {
+            return true;
+        }
+
+        return $this->tenantExistsRemotely($stored);
+    }
+
+    protected function tenantExistsRemotely(string $externalTenantId): bool
+    {
+        if (! $this->client->isConfigured()) {
+            return false;
+        }
+
+        if (array_key_exists($externalTenantId, $this->remoteTenantCache)) {
+            return $this->remoteTenantCache[$externalTenantId];
+        }
+
+        $response = $this->client->get("/api/v1/tenants/{$externalTenantId}");
+        $exists = $response->successful();
+        $this->remoteTenantCache[$externalTenantId] = $exists;
+
+        return $exists;
     }
 
     public function connect(Company $company, ?int $instanceId = null, bool $createNew = false): array
@@ -192,6 +267,7 @@ class IntegreAiWhatsAppService
                 'instances' => $instances,
                 'instance' => $instances[0] ?? null,
                 'whatsapp' => $normalized,
+                'external_tenant_id' => $this->externalTenantId($company->fresh()),
             ]);
         }
 
@@ -204,6 +280,7 @@ class IntegreAiWhatsAppService
             'instances' => $instances,
             'instance' => $instances[0] ?? null,
             'whatsapp' => $normalized,
+            'external_tenant_id' => $this->externalTenantId($company->fresh()),
         ];
     }
 

@@ -567,7 +567,8 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="api_session_whatsapp"><i class="fas fa-fingerprint text-primary"></i> ID externo do tenant</label>
-                                <input type="text" class="form-control" id="api_session_whatsapp" name="api_session_whatsapp" value="{{ old('api_session_whatsapp', $company->api_session_whatsapp ?? 'cobranca:empresa:' . $company->id) }}" placeholder="cobranca:empresa:{{ $company->id }}" readonly>
+                                <input type="text" class="form-control" id="api_session_whatsapp" name="api_session_whatsapp" value="{{ old('api_session_whatsapp', $company->api_session_whatsapp ?: 'cobranca:empresa:' . $company->id) }}" placeholder="cobranca:empresa:{{ $company->id }}" readonly>
+                                <small class="form-text text-muted">Sincronizado automaticamente com o IntegreAI ao conectar o WhatsApp.</small>
                                 <small class="text-muted">Gerado automaticamente na primeira conexão.</small>
                             </div>
                         </div>
@@ -772,6 +773,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function handleWhatsappApiResult(data) {
         const instances = data.instances || (data.instance ? [data.instance] : []);
+
+        if (data.external_tenant_id) {
+            const tenantInput = document.getElementById('api_session_whatsapp');
+            if (tenantInput) {
+                tenantInput.value = data.external_tenant_id;
+            }
+        }
 
         if (data.instance?.id && instanceIdInput) {
             instanceIdInput.value = data.instance.id;

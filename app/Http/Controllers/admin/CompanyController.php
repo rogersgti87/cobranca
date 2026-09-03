@@ -339,7 +339,9 @@ class CompanyController extends Controller
         if ($request->hasFile('inter_key_file')) {
             $data['inter_key_file'] = $request->file('inter_key_file')->store('companies/certificates', 'local');
         }
-        
+
+        unset($data['api_session_whatsapp'], $data['api_status_whatsapp']);
+
         $company->update($data);
         
         return redirect()->route('companies.integrations', $company)
@@ -370,6 +372,7 @@ class CompanyController extends Controller
                 'status' => $result['status'],
                 'provider' => $result['provider'] ?? $whatsApp->resolveProvider($company),
                 'message' => $result['message'],
+                'external_tenant_id' => $whatsApp->externalTenantId($company->fresh()),
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -410,6 +413,7 @@ class CompanyController extends Controller
                 'instance' => $result['instance'] ?? null,
                 'instances' => $result['instances'] ?? [],
                 'whatsapp' => $result['whatsapp'] ?? normalizeBrazilWhatsapp($data['whatsapp']),
+                'external_tenant_id' => $result['external_tenant_id'] ?? $whatsApp->externalTenantId($company->fresh()),
             ], ($result['success'] ?? false) ? 200 : 422);
         } catch (\Exception $e) {
             return response()->json([
@@ -481,6 +485,7 @@ class CompanyController extends Controller
                 'message' => $result['message'],
                 'instances' => $result['instances'] ?? [],
                 'instance' => $result['instance'] ?? null,
+                'external_tenant_id' => $whatsApp->externalTenantId($company->fresh()),
             ], $result['success'] ? 200 : 500);
         } catch (\Exception $e) {
             return response()->json([

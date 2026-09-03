@@ -1666,6 +1666,42 @@ class Invoice extends Model
                 return ['success' => true, 'message' => 'Linha digitável atualizada', 'digitable' => $digitable];
             }
 
+            /**
+             * Corrige faturas Asaas que gravaram barCode (44 dígitos) em vez da linha digitável (47).
+             */
+            public static function fixAsaasBarcodeStoredAsDigitable(int $invoiceId): array
+            {
+                $invoice = Invoice::find($invoiceId);
+
+                if (! $invoice || $invoice->gateway_payment !== 'Asaas') {
+                    return ['success' => false, 'message' => 'Fatura Asaas inválida'];
+                }
+
+                $stored = preg_replace('/\D/', '', (string) $invoice->billet_digitable);
+
+                if (strlen($stored) === 47 || strlen($stored) === 48) {
+                    return ['success' => true, 'message' => 'Linha digitável já está no formato correto', 'digitable' => $stored];
+                }
+
+                if (strlen($stored) !== 44) {
+                    return ['success' => false, 'message' => 'Formato de boleto não reconhecido para correção local'];
+                }
+
+                $digitable = \App\Helpers\BoletoHelper::barcodeToDigitableLine($stored);
+
+                if (empty($digitable) || strlen($digitable) !== 47) {
+                    return ['success' => false, 'message' => 'Não foi possível converter o código de barras para linha digitável'];
+                }
+
+                if (\App\Helpers\BoletoHelper::digitableToBarcode($digitable) !== $stored) {
+                    return ['success' => false, 'message' => 'Conversão local do boleto falhou na validação'];
+                }
+
+                $invoice->update(['billet_digitable' => $digitable]);
+
+                return ['success' => true, 'message' => 'Linha digitável corrigida localmente', 'digitable' => $digitable];
+            }
+
             public static function generateBilletAsaas($invoice_id){
 
                 $invoice = Invoice::with(['customerService.customer', 'company'])->find($invoice_id);

@@ -86,6 +86,44 @@ class BoletoHelper
     }
 
     /**
+     * Converte código de barras bancário (44) para linha digitável (47).
+     */
+    public static function barcodeToDigitableLine(?string $barcode): ?string
+    {
+        $barcode = self::sanitizeDigitableLine($barcode);
+
+        if (strlen($barcode) !== 44 || in_array($barcode[0], ['8', '9'], true)) {
+            return null;
+        }
+
+        $field1 = substr($barcode, 0, 4) . substr($barcode, 19, 5);
+        $field2 = substr($barcode, 24, 10);
+        $field3 = substr($barcode, 34, 10);
+
+        return $field1 . self::modulo10($field1)
+            . $field2 . self::modulo10($field2)
+            . $field3 . self::modulo10($field3)
+            . substr($barcode, 4, 1)
+            . substr($barcode, 5, 14);
+    }
+
+    public static function modulo10(string $number): int
+    {
+        $sum = 0;
+        $factor = 2;
+
+        for ($i = strlen($number) - 1; $i >= 0; $i--) {
+            $product = (int) $number[$i] * $factor;
+            $sum += intdiv($product, 10) + ($product % 10);
+            $factor = $factor === 2 ? 1 : 2;
+        }
+
+        $remainder = $sum % 10;
+
+        return $remainder === 0 ? 0 : 10 - $remainder;
+    }
+
+    /**
      * Valida DV geral do boleto bancário (módulo 11) quando possível.
      */
     public static function isValidBankBarcode(?string $barcode): bool

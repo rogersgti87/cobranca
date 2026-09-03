@@ -68,7 +68,7 @@ class IntegreAiClient
     public function errorMessage(Response $response, string $fallback = 'Erro na API IntegreAI'): string
     {
         if ($response->status() === 405) {
-            return 'Envio de mensagens via API M2M não está habilitado no servidor IntegreAI. Configure INTEGREAI_PANEL_TOKEN no .env ou ative o endpoint POST /api/v1/tenants/{id}/messages.';
+            return 'Envio via API M2M não está habilitado no servidor IntegreAI (HTTP 405). Atualize o IntegreAI em produção.';
         }
 
         $json = $this->decode($response);

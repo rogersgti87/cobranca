@@ -43,6 +43,16 @@ class RememberInvoiceCron extends Command
 
     foreach($verifyInvoices as $invoice){
 
+    if (in_array($invoice->gateway_payment, ['Inter', 'Intermedium'], true) && ! empty($invoice->transaction_id)) {
+        $invoiceModel = Invoice::with('company')->find($invoice->id);
+        if ($invoiceModel) {
+            Invoice::syncInterPaymentStatus($invoiceModel, true);
+            $invoiceModel->refresh();
+            if ($invoiceModel->status !== 'Pendente') {
+                continue;
+            }
+        }
+    }
 
     if($invoice->date_due == Carbon::now()->format('Y-m-d') ){
 

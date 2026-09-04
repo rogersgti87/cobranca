@@ -585,12 +585,18 @@ if($model->gateway_payment == 'Estabelecimento' && $model->payment_method == 'Pi
 
         $model->date_payment        = $data['date_payment'] != null ? $data['date_payment'] : null;
 
+        $previousStatus = $model->status;
+
         if($data['date_payment'] != null){
             $model->status   = 'Pago';
         }
 
         try{
             $model->save();
+
+            if ($model->status === 'Pago' && $previousStatus !== 'Pago') {
+                Invoice::notifyPaymentReceived($model->id);
+            }
 
             if(isset($data['generate_invoice'])){
 
@@ -973,13 +979,15 @@ if(isset($data['send_invoice_whatsapp'])){
 
 
             if($result->status == 'completed' || $result->status == 'paid'){
+                $wasPaid = $invoice->status === 'Pago';
                 Invoice::forUserCompanies()->where('id',$invoice->id)->update([
                     'status'       =>   'Pago',
                     'date_payment' =>   isset($result->status_date) ? date('d/m/Y', strtotime($result->status_date)) : Carbon::now(),
                     'updated_at'   =>   Carbon::now()
                 ]);
-                InvoiceNotification::Email($invoice_id);
-                InvoiceNotification::Whatsapp($invoice_id);
+                if (! $wasPaid) {
+                    Invoice::notifyPaymentReceived($invoice->id);
+                }
             }
 
             if($result->status == 'canceled' || $result->status == 'refunded'){

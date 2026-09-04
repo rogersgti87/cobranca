@@ -758,6 +758,45 @@ class Invoice extends Model
     }
 
     /**
+     * Verifica se já foi enviada notificação de pagamento confirmado para a fatura.
+     */
+    public static function paymentNotificationAlreadySent(int $invoiceId): bool
+    {
+        return DB::table('invoice_notifications')
+            ->where('invoice_id', $invoiceId)
+            ->where('subject', 'Pagamento confirmado')
+            ->exists();
+    }
+
+    /**
+     * Envia e-mail/WhatsApp de pagamento confirmado (uma vez por fatura).
+     */
+    public static function notifyPaymentReceived(int $invoiceId): void
+    {
+        if (self::paymentNotificationAlreadySent($invoiceId)) {
+            return;
+        }
+
+        $invoice = self::with(['customerService.customer'])->find($invoiceId);
+        if (! $invoice || $invoice->status !== 'Pago') {
+            return;
+        }
+
+        $customer = $invoice->customerService?->customer;
+        if (! $customer) {
+            return;
+        }
+
+        if ($customer->notification_email === 's') {
+            InvoiceNotification::Email($invoiceId);
+        }
+
+        if ($customer->notification_whatsapp === 's') {
+            InvoiceNotification::Whatsapp($invoiceId);
+        }
+    }
+
+    /**
      * Consulta o status de pagamento no Banco Inter (rápido: 1 request, sem polling).
      * Boleto/BoletoPix: GET /cobranca/v3/cobrancas/{codigoSolicitacao}
      * Pix puro: GET /pix/v2/cobv/{txid}
@@ -904,14 +943,15 @@ class Invoice extends Model
             : ['CANCELADO', 'CANCELADA', 'EXPIRADO'];
 
         if (in_array($gatewayStatus, $paidStatuses, true)) {
+            $wasPaid = $invoice->status === 'Pago';
+
             self::where('id', $invoice->id)->update([
                 'status' => 'Pago',
                 'date_payment' => $invoice->date_payment ?? Carbon::now(),
             ]);
 
-            if ($notify) {
-                InvoiceNotification::Email($invoice->id);
-                InvoiceNotification::Whatsapp($invoice->id);
+            if ($notify && ! $wasPaid) {
+                self::notifyPaymentReceived($invoice->id);
             }
 
             return [

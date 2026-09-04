@@ -239,21 +239,14 @@ class WebHookController extends Controller
     }
 
     if (in_array($status, ['RECEBIDO', 'PAGO'], true)) {
+        $wasPaid = $result->status === 'Pago';
         Invoice::where('id', $seuNumero)->update([
             'status'       => 'Pago',
             'date_payment' => Carbon::now(),
             'updated_at'   => Carbon::now(),
         ]);
-        InvoiceNotification::Email($seuNumero);
-
-        if (date('l') != 'Sunday') {
-            $now = Carbon::now();
-            $start = Carbon::createFromTimeString('08:00');
-            $end = Carbon::createFromTimeString('19:00');
-
-            if ($now->between($start, $end)) {
-                InvoiceNotification::Whatsapp($seuNumero);
-            }
+        if (! $wasPaid) {
+            Invoice::notifyPaymentReceived((int) $seuNumero);
         }
     }
 
@@ -308,6 +301,7 @@ class WebHookController extends Controller
     ->first();
 
     if($result != null){
+            $wasPaid = $result->status === 'Pago';
 
             Invoice::where('id',$result->id)->update([
                 'status'       =>   'Pago',
@@ -315,17 +309,9 @@ class WebHookController extends Controller
                 'updated_at'   =>   Carbon::now()
             ]);
 
-            InvoiceNotification::Email($result->id);
-         if(date('l') != 'Sunday'){
-
-            $now = Carbon::now();
-            $start = Carbon::createFromTimeString('08:00');
-            $end = Carbon::createFromTimeString('19:00');
-
-            if ($now->between($start, $end)) {
-            InvoiceNotification::Whatsapp($result->id);
+            if (! $wasPaid) {
+                Invoice::notifyPaymentReceived($result->id);
             }
-         }
 
     }
 
@@ -412,6 +398,7 @@ class WebHookController extends Controller
             }
 
             if($data['event'] == 'PAYMENT_CONFIRMED' || $data['event'] == 'PAYMENT_RECEIVED'){
+                $wasPaid = $invoice->status === 'Pago';
                 $result_invoice = Invoice::where('id',$invoice->id)->update([
                     'status'       =>   'Pago',
                     'date_payment' =>   Carbon::parse(now())->format('Y-m-d'),
@@ -424,19 +411,9 @@ class WebHookController extends Controller
                     'event' => $data['event']
                 ]);
 
-                InvoiceNotification::Email($invoice->id);
-
-                 if(date('l') != 'Sunday'){
-
-                $now = Carbon::now();
-                $start = Carbon::createFromTimeString('08:00');
-                $end = Carbon::createFromTimeString('19:00');
-
-                if ($now->between($start, $end)) {
-                InvoiceNotification::Whatsapp($invoice->id);
-
+                if (! $wasPaid) {
+                    Invoice::notifyPaymentReceived($invoice->id);
                 }
-                 }
             }
 
             if($data['event'] == 'PAYMENT_DELETED' || $data['event'] == 'PAYMENT_REFUNDED'){
